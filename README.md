@@ -15,3 +15,9 @@ on how to create your own.
 
 If you do have suggestions on how to improve my applets,
 please feel free to let me know!
+
+Also, all projects I have used were released using the
+MIT liscense. So I release all my code with the same.
+I will get a copy uploaded soon.
+
+Thanks
