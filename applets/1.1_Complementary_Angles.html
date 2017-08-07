@@ -1,0 +1,56 @@
+<meta charset="utf-8">  
+
+<link rel='stylesheet' type='text/css' href='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css' />
+<script src='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraphcore.js' type='text/javascript'></script>
+<script src='https://jsxgraph.uni-bayreuth.de/distrib/GeonextReader.js' type='text/javascript'></script>
+<div id="jxgbox" class="jxgbox" style="width:500px; height:500px;"></div>
+
+<script type='text/javascript'>
+
+var board = JXG.JSXGraph.initBoard('jxgbox', {boundingbox:[-1,10,10,-1], 
+      showCopyright:false, showNavigation:false});
+
+// Create three points to define the angle
+
+A = board.create('point', [0,0], {name:'A', size:4, showInfobox:false, visible:false});
+B = board.create('point', [8,0], {name:'B', size:4, showInfobox:false, visible:false});
+C = board.create('point', [0,8], {name:'C', size:4, showInfobox:false, visible:false});
+D = board.create('point', [5.7, 5.7], {name:'A', size:4, showInfobox:false});
+
+// Draw two segments to create the angle
+
+initial_side = board.create('line', [A, B], {straightFirst:false, straightLast:false, lastArrow:true});
+terminal_side = board.create('line', [A, C], {straightFirst:false, straightLast:false, lastArrow:true});
+ray = board.create('line', [A, D], {straightFirst:false, straightLast:false, lastArrow:true})
+
+angle1 = board.create('angle', [B, A, D], 
+            { radius:1,
+              text:function() {
+                     alpha = JXG.Math.Geometry.trueAngle(B, A, D).toFixed(0);
+                     return alpha + "&deg;"
+                   }
+            });  
+angle1.label.setAttribute({strokeColor:'black'});
+
+angle2 = board.create('angle', [D, A, C],
+            { radius:1,
+              text:function() {
+                     beta = JXG.Math.Geometry.trueAngle(D, A, C).toFixed(0);
+                     return beta + "&deg;"
+                   }
+            });
+angle2.label.setAttribute({strokeColor:'black'});
+
+text1 = board.create('text', [0, 9, 'Complementary Angles'], {fontSize:24, fixed:true});
+
+text2 = board.create('text', [6, 7, 
+           function() {
+               var v1 = Math.round(angle1.Value() * 180 / Math.PI);
+               var v2 = Math.round(angle2.Value() * 180 / Math.PI);
+               var label = v2 + "&deg; + " + v1 + "&deg; = " + (v1 + v2) + "&deg;";
+               return label; 
+           }],
+           { fixed:true });
+
+</script>
+
