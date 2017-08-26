@@ -1,0 +1,52 @@
+<meta charset="utf-8">  
+<html>
+  
+    <head>
+         <link rel='stylesheet' type='text/css' href='http://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css' />
+         <script src='http://jsxgraph.uni-bayreuth.de/distrib/jsxgraphcore.js' type='text/javascript'></script>
+     </head>
+  
+     <body>
+   
+         <p>
+	         <h1>Radians</h1>
+	     </p>
+	
+	     <div id='box' class='jxgbox' style='width:500px; height:500px;'></div>
+	
+             <script type='text/javascript'>
+                 board = JXG.JSXGraph.initBoard('box', {
+	                 boundingbox:[-10,10,10,-10], 
+		             axis:true, 
+		             showNavigation:false, 
+		             showCopyright:false,
+		             keepaspectratio:true }
+	             );				 
+				 
+                 O = board.create('point', [0, 0], { name: 'O' , visible: false });
+				 R = board.create('point', [-5,0], { name: 'R' });
+				 
+				 circle = board.create('circle', [O, R], { fixed: true, highlight: false } );
+				 
+				 function radius() {
+				     return Math.sqrt(R.X() * R.X() + R.Y() * R.Y());
+				 }
+				 
+				 A = board.create('glider', [5, 0, circle], { name: 'A', visible: false });
+				 P = board.create('glider', [5, 5, circle], { name: 'P', showInfobox: false });
+				 
+				 arc = board.create('arc', [O, A, P], { strokeColor: 'black', strokeWidth: 3 });
+				 arclength_label = board.create('text', [-8, 8, function() { return 'Arc Length = ' + arc.Value().toFixed(2); }], { fixed: true } );
+				 radius_label = board.create('text', [-8, 7, function() { return 'Radius = ' + radius().toFixed(2); } ], { fixed: true } );
+				 radians_label = board.create('text', [4, 8, function() { return 'Radians = ' + (arc.Value() / radius()).toFixed(2); }], { fixed: true } );
+				 
+				 
+				 l = board.create('segment', [O, P], { strokeColor: 'black', strokeWidth: 3 });
+				 
+	         </script>
+	  
+         </div>
+     
+	 </body>
+
+<html>

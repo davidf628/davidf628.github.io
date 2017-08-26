@@ -3,19 +3,20 @@
 <link rel='stylesheet' type='text/css' href='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css' />
 <script src='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraphcore.js' type='text/javascript'></script>
 <script src='https://jsxgraph.uni-bayreuth.de/distrib/GeonextReader.js' type='text/javascript'></script>
+<!--<div id="jxgbox" class="jxgbox" style="width:500px; height:500px; float:right;"></div>-->
 <div id="jxgbox" class="jxgbox" style="width:500px; height:500px;"></div>
 
 <script type='text/javascript'>
 
-var board = JXG.JSXGraph.initBoard('jxgbox', {boundingbox:[-1,10,10,-1], 
+var board = JXG.JSXGraph.initBoard('jxgbox', {boundingbox:[-10,10,10,-10], 
       showCopyright:false, showNavigation:false});
 
 // Create three points to define the angle
 
-A = board.create('point', [0,0], {name:'A', size:4, showInfobox:false, visible:false});
-B = board.create('point', [8,0], {name:'B', size:4, showInfobox:false, visible:false});
-C = board.create('point', [0,8], {name:'C', size:4, showInfobox:false, visible:false});
-D = board.create('point', [5.7, 5.7], {name:'A', size:4, showInfobox:false});
+A = board.create('point', [0,-3], {name:'A', size:4, showInfobox:false, visible:false});
+B = board.create('point', [8,-3], {name:'B', size:4, showInfobox:false, visible:false});
+C = board.create('point', [-8,-3], {name:'C', size:4, showInfobox:false, visible:false});
+D = board.create('point', [0, 5], {name:'A', size:4, showInfobox:false});
 
 // Draw two segments to create the angle
 
@@ -41,9 +42,9 @@ angle2 = board.create('angle', [D, A, C],
             });
 angle2.label.setAttribute({strokeColor:'black'});
 
-text1 = board.create('text', [0, 9, 'Complementary Angles'], {fontSize:24, fixed:true});
+text1 = board.create('text', [-8, 8, 'Supplementary Angles'], {fontSize:24, fixed:true});
 
-text2 = board.create('text', [6, 7, 
+text2 = board.create('text', [4, 6, 
            function() {
                var v1 = Math.round(angle1.Value() * 180 / Math.PI);
                var v2 = Math.round(angle2.Value() * 180 / Math.PI);

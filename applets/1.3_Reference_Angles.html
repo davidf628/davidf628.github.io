@@ -1,0 +1,125 @@
+<meta charset="utf-8">  
+<html>
+  
+  <head>
+    <link rel='stylesheet' type='text/css' href='http://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css' />
+    <script src='http://jsxgraph.uni-bayreuth.de/distrib/jsxgraphcore.js' type='text/javascript'></script>
+  </head>
+  
+  <body>
+   
+    <p>
+	  <h1>Reference Angles</h1>
+	</p>
+	
+	<div id='box1' class='jxgbox' style='width:500px; height:500px;'></div>
+	
+    <script type='text/javascript'>
+      
+      
+	  board = JXG.JSXGraph.initBoard('box1', {
+	    boundingbox:[-10,10,10,-10], 
+		axis:true, 
+		showNavigation:false, 
+		showCopyright:false,
+		keepaspectratio:true
+	  });
+      	      
+	  P = board.create('point', [6, 5], { name:'P' });  
+  
+      O = board.create('point', [0, 0], { visible:false });
+	  B = board.create('point', [10, 0], { visible:false });
+	  
+	  Lr = board.create('segment', [O, P], { fixed:true });
+	  Lx = board.create('segment', [O, [function() { return P.X(); }, 0]], { dash: 2 });
+	  Ly = board.create('segment', [P, [function() { return P.X(); }, 0]], { dash: 2 });
+  	  
+  	  function q1_label() {
+  	    var alpha = JXG.Math.Geometry.trueAngle(P, O, B).toFixed(0);
+  	    return "&alpha; = " + alpha + "&deg;";
+  	  }
+  	  
+  	  function q2_label() {
+  	    var alpha = JXG.Math.Geometry.trueAngle([-5, 0], O, P).toFixed(0);
+  	    return "&alpha; = " + alpha + "&deg;";
+  	  }
+  	  
+  	  function q3_label() {
+  	    var alpha = JXG.Math.Geometry.trueAngle(P, O, [-1, 0]).toFixed(0);
+  	    return "&alpha; = " + alpha + "&deg;";
+  	  }
+  	  
+  	  function q4_label() {
+  	    var alpha = JXG.Math.Geometry.trueAngle(B, O, P).toFixed(0);
+  	    return "&alpha; = " + alpha + "&deg;";
+  	  }
+  	  
+  	  Q1_reference_angle = board.create('angle', [P, O, B], { radius: 3, text:function() { return q1_label();}});
+  	  Q1_reference_angle.setAttribute({visible: false});
+  	  
+  	  
+  	  Q2_reference_angle = board.create('angle', [[function() { return P.X(); },0], O, P], { radius: 4, text:function() { return q2_label(); }});
+  	  Q2_reference_angle.setAttribute({visible: false});
+  	  
+  	  Q3_reference_angle = board.create('angle', [P, O, [function() { return P.X(); },0]], { radius: 3, text:function() { return q3_label();} });
+  	  Q3_reference_angle.setAttribute({visible: false});
+  	  
+  	  Q4_reference_angle = board.create('angle', [B, O, P], { radius: 3 , text:function() { return q4_label();}});
+  	  Q4_reference_angle.setAttribute({visible: false});
+  	  
+	  angle = board.create('angle', [B, O, P], { 
+	    radius:1,
+	    text:function() {
+          theta = JXG.Math.Geometry.trueAngle(B, O, P).toFixed(0);
+          return "&theta; = " + theta + "&deg;" 
+        } 
+      });
+      angle.label.setAttribute({strokeColor:'black', highlight:false});
+      
+      P.on('drag', function() { 
+                 board.suspendUpdate();
+                 theta = JXG.Math.Geometry.trueAngle(P, O, B).toFixed(0);
+                 
+                 if((theta > 0) && (theta < 90)) {
+                     Q1_reference_angle.setAttribute({visible: true});
+                     Q2_reference_angle.setAttribute({visible: false});
+                     Q3_reference_angle.setAttribute({visible: false});
+                     Q4_reference_angle.setAttribute({visible: false});
+                 } else if((theta > 90) && (theta < 180)) {
+                     Q1_reference_angle.setAttribute({visible: false});
+                     Q2_reference_angle.setAttribute({visible: true});
+                     Q3_reference_angle.setAttribute({visible: false});
+                     Q4_reference_angle.setAttribute({visible: false});
+                 } else if((theta > 180) && (theta < 270)) {
+                     Q1_reference_angle.setAttribute({visible: false});
+                     Q2_reference_angle.setAttribute({visible: false});
+                     Q3_reference_angle.setAttribute({visible: true});
+                     Q4_reference_angle.setAttribute({visible: false});
+                 } else if((theta > 270) && (theta < 360)) {
+                     Q1_reference_angle.setAttribute({visible: false});
+                     Q2_reference_angle.setAttribute({visible: false});
+                     Q3_reference_angle.setAttribute({visible: false});
+                     Q4_reference_angle.setAttribute({visible: true});
+                 } else if(theta == 0 || theta == 90 || theta == 180 || theta == 270 || theta == 360) {
+                     Q1_reference_angle.setAttribute({visible: false});
+                     Q2_reference_angle.setAttribute({visible: false});
+                     Q3_reference_angle.setAttribute({visible: false});
+                     Q4_reference_angle.setAttribute({visible: false});
+                 } 
+                 board.unsuspendUpdate();
+             });
+  
+      
+    </script>
+
+   </body>
+   
+</html>
+
+
+
+
+       
+
+
+

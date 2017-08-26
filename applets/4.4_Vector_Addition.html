@@ -1,0 +1,149 @@
+<html>
+<head>
+    <meta charset="utf-8">
+
+    <script type="text/x-mathjax-config">
+                 MathJax.Hub.Config({
+                 tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]},
+             });
+
+    </script>
+    <script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+    <link rel='stylesheet' type='text/css' href='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css'/>
+    <script src='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraphcore.js' type='text/javascript'></script>
+    <script src='https://jsxgraph.uni-bayreuth.de/distrib/GeonextReader.js' type='text/javascript'></script>
+
+    <head>
+
+<body>
+
+<h1>Vector Addition</h1>
+
+<div id="jxgbox" class="jxgbox" style="width:1000px; height:720px;"></div>
+
+<script type='text/javascript'>
+
+    JXG.Options.text.useMathJax = true;
+
+
+    var board = JXG.JSXGraph.initBoard('jxgbox', {
+        boundingbox: [-8, 8, 8, -8],
+        axis: true,
+        showCopyright: false,
+        showNavigation: true,
+    });
+
+    // vector u
+
+    var u_start = Point({loc: [0, 0]});
+    var u_end = Point({
+                    loc: [1, 3],
+                    visible: true,
+                    withLabel: false,
+                    showInfoBox: false,
+                    snapToGrid: true
+                });
+
+    create_mid_label(u_start, u_end, '$\\vec{u}$');
+    create_end_label(u_end);
+
+    var u = Vector({start: u_start, end: u_end, color: 'blue'});
+
+    // vector v
+
+    var v_start = Point({loc: [0, 0]});
+    var v_end = Point({
+        			loc: [5, 1],
+        			visible: true,
+        			withLabel: false,
+        			showInfoBox: false,   
+        			snapToGrid: true 				
+    			});
+    			
+    create_mid_label(v_start, v_end, '$\\vec{v}$');
+    create_end_label(v_end)
+
+
+    var v = Vector({start: v_start, end: v_end, color: 'blue'});
+
+    // vector u+v
+    var r_start = Point({loc: [0, 0]});
+    var r_end = Point({
+        			loc: [
+        				function () { return u_end.X() + v_end.X();	}, 
+        				function () { return u_end.Y() + v_end.Y(); }]
+    			});
+    create_mid_label(r_start, r_end, '$\\vec{u}+\\vec{v}$');
+    create_end_label(r_end);
+
+    r = Vector({start: r_start, end: r_end, color: 'blue'});
+
+	// Parallelogram
+	board.create('segment', [u_end, r_end], { dash: 2, color: 'black' });
+	board.create('segment', [v_end, r_end], { dash: 2, color: 'black' });
+
+
+    function Vector(arg) {
+
+        var start = arg.start ? arg.start : [0, 0];
+        var end = arg.end ? arg.end : [1, 1];
+        var color = arg.color ? arg.color : 'blue';
+
+        board.create('arrow', [start, end], {
+            strokeWidth: 3,
+            strokeColor: color,
+            highlight: false
+        });
+
+    }
+
+    function Point(arg) {
+        var loc = arg.loc ? arg.loc : [0, 0];
+        var visible = arg.visible ? arg.visible : false;
+        var snapToGrid = arg.snapToGrid ? arg.snapToGrid : false;
+        var snapSize = arg.snapSize ? arg.snapSize : 1;
+        var name = arg.name ? arg.name : 'p';
+        var showInfoBox =  arg.showInfoBox ? arg.showInfoBox : false;
+        var withLabel = arg.withLabel ? arg.withLabel : true;
+
+        var p = board.create('point', loc, {
+            visible: visible,
+            snapToGrid: snapToGrid,
+            snapSizeX: snapSize,
+            snapSizeY: snapSize,
+            name: name,
+            showInfoBox: showInfoBox,
+            withLabel: false
+        });
+
+        return p;
+
+    }
+
+    function create_mid_label(p1, p2, s) {
+        var p = board.create('point', [function () {
+            return (p1.X() + p2.X()) / 2 + 0.2;
+        }, function () {
+            return (p1.Y() + p2.Y()) / 2;
+        }], {visible: false})
+        var label = board.create('text', [0, 0, function () {
+            return s;
+        }], {anchor: p, fontSize: 18});
+    }
+
+    function create_end_label(p) {
+        var a = board.create('point', [function() { return p.X() + 0.2; }, function() { return p.Y(); }],
+            { visible: false });
+        var label = board.create('text', [0, 0,
+            function () {
+                return '$\\Big\\langle' + (p.X()).toFixed(0) + ', ' + (p.Y()).toFixed(0) + '\\Big\\rangle$';
+            }],
+            {
+                anchor: a,
+                fontSize: 18
+            }
+        );
+    }
+</script>
+</body>
+</html>

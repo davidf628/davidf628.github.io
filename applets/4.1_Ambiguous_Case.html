@@ -1,0 +1,169 @@
+<html>
+<head>
+<meta charset="utf-8">  
+
+<link rel='stylesheet' type='text/css' href='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css' />
+<script src='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraphcore.js' type='text/javascript'></script>
+<script src='https://jsxgraph.uni-bayreuth.de/distrib/GeonextReader.js' type='text/javascript'></script>
+
+<head>
+
+<body>
+
+<h1>Ambiguous Case</h1>
+a = <input type="text" id="input_a" value="">
+<input type="button" value="Update" onClick="set_length_a()">
+b = <input type="text" id="input_b" value="">
+<input type="button" value="Update" onClick="set_length_b()">
+
+<div id="jxgbox" class="jxgbox" style="width:1000px; height:720px;"></div>
+
+<script type='text/javascript'>
+
+var board = JXG.JSXGraph.initBoard('jxgbox', {
+				boundingbox: [-10,10,10,-10], 
+      			showCopyright: false, 
+      			showNavigation: true,
+				keepaspectratio: true,
+      			zoom: {
+                     factorX: 1.25,
+                     factorY: 1.25,
+                     wheel: true,
+                     needshift: false,
+                     eps: 0.1
+                 }		
+            });
+
+var a_fixed = false;
+var b_fixed = false;
+			
+// Draw the initial points of the triangle
+
+var A = board.create('point', [0,0], {name:'A', size:4, showInfobox:false});
+var l = board.create('line', [A, [-260000, function() { return A.Y(); }]], { visible: false });
+var B = board.create('glider', [5,0, l], {name:'B', size:4, showInfobox:false});
+var C = board.create('point', [5,5], {name:'C', size:4, showInfobox:false});
+var D = board.create('point', [5,2], { name: 'D', size: 4, showInfobox: false, withLabel: false });
+
+// Label the lengths of the sides
+
+var a_label = create_mid_label(C, D, ' a = ');
+var b_label = create_mid_label(A, C, ' b = ');
+var c_label = create_mid_label(A, B, ' c = ');
+
+// Draw the sides of the triangle
+
+var a = board.create('segment', [C, D], { highlight: false });
+var b = board.create('segment', [A, C], { highlight: false });
+var c = board.create('segment', [A, B], { highlight: false });
+
+
+// Draw the angles of the triangle
+
+var angle_A = create_angle(B, A, C);
+var angle_C = create_angle(A, C, D);
+
+var P = board.create('point', [function() { return C.X(); }, function() { return B.Y(); }], { visible: false });
+
+var h = board.create('line', [C, P], { 
+			straightFirst: false, 
+			straightLast: false,
+			highlight: false,
+			strokeWidth: 2, 
+			dash: 2,
+			strokeColor: 'black'
+		});
+var h_label = create_mid_label(C, P, 'h = ');
+		
+var circle_a = board.create('circle', [C, D], { visible: false });
+var circle_b = board.create('circle', [A, C], { visible: false });
+
+function set_length_a() {
+	a_fixed = true;
+	board.removeObject(circle_a);
+	circle_a = board.create('circle', [C, document.getElementById('input_a').value], { visible: false });
+	var x = D.X();
+	var y = D.Y();	
+	board.removeObject(a);
+	board.removeObject(angle_C);
+	board.removeObject(D);
+	board.removeObject(a_label);
+	D = board.create('glider', [x, y, circle_a], { showInfobox: false, withLabel: false });
+	a = board.create('segment', [C, D]);
+	a_label = create_mid_label(C, D, 'a = ');
+	angle_C = create_angle(A, C, D);
+}
+
+function set_length_b() {
+	board.removeObject(circle_b);
+	circle_b = board.create('circle', [A, document.getElementById('input_b').value], { visible: false });
+	var cx = C.X();
+	var cy = C.Y();	
+	var dx = D.X();
+	var dy = D.Y();	
+	var a_radius = circle_a.Radius();
+	board.removeObject(b);
+	board.removeObject(b_label);
+	board.removeObject(a);
+	board.removeObject(a_label);
+	board.removeObject(angle_A);
+	board.removeObject(angle_C);
+	board.removeObject(C);
+	board.removeObject(D);
+	board.removeObject(circle_a);
+	board.removeObject(h);
+	board.removeObject(P);
+	
+	C = board.create('glider', [cx,cy, circle_b], {name:'C', size:4, showInfobox:false});
+	if( a_fixed ) {
+		circle_a = board.create('circle', [C, a_radius], { visible: false });
+		D = board.create('glider', [dx, dy, circle_a], { showInfobox: false, withLabel: false });
+	} else {
+		D = board.create('point', [dx, dy], { showInfobox: false, withLabel: false });
+		circle_a = board.create('circle', [C, D], { visible: false });	
+	}
+	var a = board.create('segment', [C, D], { highlight: false });
+	var b = board.create('segment', [A, C], { highlight: false });
+	var a_label = create_mid_label(C, D, ' a = ');
+	var b_label = create_mid_label(A, C, ' b = ');
+	angle_A = create_angle(B, A, C);
+	angle_C = create_angle(A, C, D);
+	var P = board.create('point', [function() { return C.X(); }, function() { return B.Y(); }], { visible: false });
+	var h = board.create('line', [C, P], { 
+			straightFirst: false, 
+			straightLast: false,
+			highlight: false,
+			strokeWidth: 2, 
+			dash: 2,
+			strokeColor: 'black'
+		});
+	
+	var h_label = create_mid_label(C, P, 'h = ');
+}
+
+function create_angle(p1, p2, p3) {
+	var angle = board.create('nonreflexangle', [p1, p2, p3], { 
+         radius:1,
+         text:function() {
+                theta = JXG.Math.Geometry.trueAngle(p1, p2, p3).toFixed(0);
+                if(theta > 180) {
+                    theta = 360 - theta;
+                }
+                return theta + "&deg;" 
+              }
+        });
+ 
+	angle.label.setAttribute({strokeColor:'black'});
+	
+	return angle;
+}
+
+function create_mid_label(p1, p2, s) {
+	var mid = board.create('midpoint', [p1, p2], { visible: false });
+	var label = board.create('text', [0, 0, function() { return s + p1.Dist(p2).toFixed(2); }], { anchor: mid, fontSize:18 });
+}
+
+
+</script>
+</body>
+</html>

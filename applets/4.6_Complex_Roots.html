@@ -1,0 +1,119 @@
+<meta charset="utf-8">  
+
+<html>
+  
+  
+<head>
+	<link rel='stylesheet' type='text/css' href='http://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css' />
+	<script src='http://jsxgraph.uni-bayreuth.de/distrib/jsxgraphcore.js' type='text/javascript'></script>
+</head>
+  
+     
+<body>
+   
+	<p>
+		<h1>Complex Roots</h1>
+	</p>
+	
+	n-th Root = <input type="text" id="input_n" value="3">
+	<input type="button" value="Update" onClick="update_vectors()">
+	
+	<div id='box' class='jxgbox' style='width:500px; height:500px;'></div>
+	
+    <script type='text/javascript'>
+    	board = JXG.JSXGraph.initBoard('box', {
+	        boundingbox:[-10,10,10,-10], 
+		    axis: false,
+		    showNavigation:false, 
+		    showCopyright:false,
+		    keepaspectratio:true }
+	    );				 
+				 
+		var n = document.getElementById('input_n').value;
+				 
+		circle = board.create('circle', [[0, 0], [0, 5]], { fixed: true, highlight: false, strokeColor: 'black' } );
+				  
+		points = [];
+		vectors = [];
+
+		for(var k = 0; k < 8; k++) {
+		    points[k] = board.create('point', [0, 0], { visible: true, size: 0, showInfobox: false, fixed: true} );
+		    vectors[k] = Vector({ visible: false, color: 'green' });
+		}
+
+		function radius() {
+			return Math.sqrt(R.X() * R.X() + R.Y() * R.Y());
+		}
+				 
+		Z = board.create('glider', [5, 0, circle], { name: 'Z', visible: true, showInfobox: false });
+		create_end_label(Z, function() { return 'cis ' + z_dir(); } );
+		Vector({ end: Z });
+						
+		update_vectors();
+						
+		function z_dir() {
+			return JXG.Math.Geometry.trueAngle([5, 0], [0, 0], Z).toFixed(0);
+		}
+			
+
+		function update_vectors() {
+
+            n = document.getElementById('input_n').value;
+            if (n > 8) {
+                alert('The value of n must be less than or equal to 8.');
+            } else {
+
+                // Reposition all points back to the origin
+				for(var k = 0; k < 8; k++) {
+				    points[k].setPosition(JXG.COORDS_BY_USER, [0, 0]);
+				    points[k].setLabel('');
+				    vectors[k].setAttribute({ visible: false });
+				}
+
+                // Set up the location the different points around the circle
+                for (var k = 0; k < n; k++) {
+                    var alpha = (parseInt(z_dir()) + 360 * k) / n;
+                    points[k].setPosition(JXG.COORDS_BY_USER, [5 * Math.cos(alpha * Math.PI / 180), 5 * Math.sin(alpha * Math.PI / 180)]);
+					points[k].setLabel('cis ' + alpha.toFixed(0));
+					vectors[k].setAttribute({ visible: true });
+					vectors[k].point2.setPosition(JXG.COORDS_BY_USER, [5 * Math.cos(alpha * Math.PI / 180), 5 * Math.sin(alpha * Math.PI / 180)]);
+                }
+				board.fullUpdate();
+
+            }
+        }
+
+
+				
+		function Vector(arg) {
+
+        	var start = arg.start ? arg.start : [0, 0];
+        	var end = arg.end ? arg.end : [1, 1];
+        	var color = arg.color ? arg.color : 'blue';
+        	var visible = arg.visible ? arg.visible : true;
+
+        	return board.create('arrow', [start, end], {
+            	strokeWidth: 3,
+            	strokeColor: color,
+            	fixed: true,
+            	highlight: false,
+				visible: visible
+        	});
+
+    	}
+
+    	function create_end_label(p, txt) {
+        	var ploc = board.create('point', [function() { return p.X() + 1; }, function() { return p.Y(); }], { 
+        			visible: false 
+        		});
+        	var label = board.create('text', [0, 0, txt], {
+                	anchor: ploc,
+                	fontSize: 18
+            	});
+    	}
+				 
+	</script>
+
+</body>
+
+<html>

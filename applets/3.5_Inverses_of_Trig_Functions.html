@@ -1,0 +1,285 @@
+<meta charset="utf-8"> 
+ 
+<html>
+  
+    <head>
+	     <script type="text/x-mathjax-config">
+                 MathJax.Hub.Config({
+                 tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]},
+             });
+         </script>
+	     <script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+         <link rel='stylesheet' type='text/css' href='http://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css' />
+         <script src='http://jsxgraph.uni-bayreuth.de/distrib/jsxgraphcore.js' type='text/javascript'></script>
+		   <script src='http://jsxgraph.uni-bayreuth.de/distrib/GeonextReader.js' type='text/javascript'></script>
+     </head>
+  
+     <body>
+   
+         <p>
+             <h1>Inverse Trigonometric Functions</h1>
+         </p>
+    
+         <div id='box' class='jxgbox' style='width:1200px; height:800px;'></div>
+	
+         <script type='text/javascript'>
+		 
+		     JXG.Options.text.useMathJax = true;
+			 
+             board = JXG.JSXGraph.initBoard('box', {
+			     // -x, +y, +x, -y
+                 boundingbox:[-12,8,12,-8], 
+                 axis:false, 
+                 showNavigation:false, 
+                 showCopyright:false,
+                 keepaspectratio:false,
+                 showClearTraces:true,
+                 zoom: {
+                     factorX: 1.5,
+                     factorY: 1.5,
+                     wheel: true,
+                     needshift: false,
+                     eps: 0.1
+                 }							 
+             });              
+			 
+			 // Create y_axis grid:
+			 for(i = -7; i < 8; i++) {
+			     if(i != 0) {
+				     board.create('line', [[0, i], [1, i]], { needsRegularUpdate: false, strokeColor: 'lightgray', strokeWidth: 1, dash: 1, highlight: false, fixed: true });
+					 board.create('text', [-0.4, i, i], { fixed: true });
+			     }
+			 }
+			 
+			 // Create x_axis grid:
+			 for(i = -8; i < 8; i++) {
+			     if(i != 0) {
+				     board.create('line', [[i * Math.PI / 2, 0], [i * Math.PI / 2, 1]], { needsRegularUpdate: false, strokeColor: 'lightgray', strokeWidth: 1, dash: 1, highlight: false, fixed: true });
+				 }
+		     }
+			 	
+			 x_ofs = -0.2; y_ofs = -0.5;
+             board.create('text', [-7 * Math.PI / 2 + x_ofs, y_ofs, function() { return '$\\frac{-7\\pi}{2}$' }], { fixed: true, highlight: false, needsRegularUpdate: false });
+			 board.create('text', [-6 * Math.PI / 2 + x_ofs, y_ofs, function() { return '$-3\\pi$' }], { fixed: true, highlight: false, needsRegularUpdate: false });
+			 board.create('text', [-5 * Math.PI / 2 + x_ofs, y_ofs, function() { return '$\\frac{-5\\pi}{2}$' }], { fixed: true, highlight: false, needsRegularUpdate: false });
+			 board.create('text', [-4 * Math.PI / 2 + x_ofs, y_ofs, function() { return '$-2\\pi$' }], { fixed: true, highlight: false, needsRegularUpdate: false });
+			 board.create('text', [-3 * Math.PI / 2 + x_ofs, y_ofs, function() { return '$\\frac{-3\\pi}{2}$' }], { fixed: true, highlight: false, needsRegularUpdate: false });
+			 board.create('text', [-2 * Math.PI / 2 + x_ofs, y_ofs, function() { return '$-\\pi$' }], { fixed: true, highlight: false, needsRegularUpdate: false });
+			 board.create('text', [-1 * Math.PI / 2 + x_ofs, y_ofs, function() { return '$\\frac{-\\pi}{2}$' }], { fixed: true, highlight: false, needsRegularUpdate: false });
+			 board.create('text', [1 * Math.PI / 2 + x_ofs, y_ofs, function() { return '$\\frac{\\pi}{2}$' }], { fixed: true, highlight: false, needsRegularUpdate: false });
+			 board.create('text', [2 * Math.PI / 2 + x_ofs, y_ofs, function() { return '$\\pi$' }], { fixed: true, highlight: false, needsRegularUpdate: false });
+			 board.create('text', [3 * Math.PI / 2 + x_ofs, y_ofs, function() { return '$\\frac{3\\pi}{2}$' }], { fixed: true, highlight: false, needsRegularUpdate: false });
+			 board.create('text', [4 * Math.PI / 2 + x_ofs, y_ofs, function() { return '$2\\pi$' }], { fixed: true, highlight: false, needsRegularUpdate: false });
+			 board.create('text', [5 * Math.PI / 2 + x_ofs, y_ofs, function() { return '$\\frac{5\\pi}{2}$' }], { fixed: true, highlight: false, needsRegularUpdate: false });
+			 board.create('text', [6 * Math.PI / 2 + x_ofs, y_ofs, function() { return '$3\\pi$' }], { fixed: true, highlight: false, needsRegularUpdate: false });
+			 board.create('text', [7 * Math.PI / 2 + x_ofs, y_ofs, function() { return '$\\frac{7\\pi}{2}$' }], { fixed: true, highlight: false, needsRegularUpdate: false });
+				
+				
+			 x_axis = board.create('line', [[0, 0], [1, 0]], { highlight: false, strokeColor: 'black', strokeWidth: 1, fixed: true });
+			 pi_ticks = board.create('ticks', [x_axis], { ticksDistance: Math.PI / 2, minorTicks: 3, fixed: true });
+			 
+			 y_axis = board.create('line', [[0, 0], [0, 1]], { highlight: false, strokeColor: 'black', strokeWidth: 1, fixed: true });
+			 y_ticks = board.create('ticks', [y_axis], { ticksDistance: 1, minorTicks: 1, fixed: true }); 		 
+			 
+			 toggle_symmetry_line = board.create('checkbox', [9, 7, 'Show y = x']);			 
+			 
+             toggle_sine = board.create('checkbox', [-11, 7, 'Sine']);
+             toggle_sine_restriction = board.create('checkbox', [-9, 7, '']);
+             board.create('text', [-8.5, 6.8, function() { return '$[-\\frac{\\pi}{2},\\frac{\\pi}{2}]$'; }]); 	         
+
+			 toggle_cosine = board.create('checkbox', [-11, 6.5, 'Cosine']);
+             toggle_cosine_restriction = board.create('checkbox', [-9, 6.5, '']);
+             board.create('text', [-8.5, 6.3, function() { return '$[0,\\pi]$'; }]);
+			 
+			 toggle_tangent = board.create('checkbox', [-11, 6, 'Tangent']);
+             toggle_tangent_restriction = board.create('checkbox', [-9, 6, '']);
+             board.create('text', [-8.5, 5.8, function() { return '$[-\\frac{\\pi}{2},\\frac{\\pi}{2}]$'; }]);
+			 
+			 toggle_cosecant = board.create('checkbox', [-11, 5.5, 'Cosecant']);
+             toggle_cosecant_restriction = board.create('checkbox', [-9, 5.5, '']);
+             board.create('text', [-8.5, 5.3, function() { return '$[-\\frac{\\pi}{2},\\frac{\\pi}{2}]$'; }]);
+			 
+			 toggle_secant = board.create('checkbox', [-11, 5, 'Secant']);
+             toggle_secant_restriction = board.create('checkbox', [-9, 5, '']);
+             board.create('text', [-8.5, 4.8, function() { return '$[0,\\pi]$'; }]);
+			 
+			 toggle_cotangent = board.create('checkbox', [-11, 4.5, 'Cotangent']);
+             toggle_cotangent_restriction = board.create('checkbox', [-9, 4.5, '']);
+             board.create('text', [-8.5, 4.3, function() { return '$[0,\\pi]$'; }]);
+			 
+			 graph_symmetry_line = board.create('functiongraph', [
+			     function(x) { 
+				     if(toggle_symmetry_line.Value()) {
+					     return x; 
+					 } else return -50;
+				 }, -15, 15], {
+				     strokeColor: 'black',
+				     strokeWidth: 1,
+					 dash: 2,
+					 highlight: false
+				 });	
+			 
+             graph_sine = board.create('functiongraph', [
+			     function(x) { 
+				     if(toggle_sine.Value()) {
+					     return Math.sin(x); 
+					 } else return -50;
+				 }, -15, 15], {
+				     strokeColor: 'black',
+				     strokeWidth: 1,
+					 highlight: false
+				 });			 
+			
+			 graph_sine_restriction = board.create('functiongraph', [
+			     function(x) { 
+				     if(toggle_sine_restriction.Value()) {
+					     return Math.sin(x); 
+					 } else return -50;
+				 }, -Math.PI / 2, Math.PI / 2], {
+				     strokeColor: 'blue',
+				     strokeWidth: 3,
+					 highlight: false
+				 });
+			
+			 graph_cosine = board.create('functiongraph', [
+			     function(x) { 
+				     if(toggle_cosine.Value()) {
+					     return Math.cos(x); 
+					 } else return -50;
+				 }, -15, 15], {
+				     strokeColor: 'black',
+				     strokeWidth: 1,
+					 highlight: false
+				 });			 
+			
+			 graph_cosine_restriction = board.create('functiongraph', [
+			     function(x) { 
+				     if(toggle_cosine_restriction.Value()) {
+					     return Math.cos(x); 
+					 } else return -50;
+				 }, 0, Math.PI], {
+				     strokeColor: 'blue',
+				     strokeWidth: 3,
+					 highlight: false
+				 });
+				 
+			 graph_tangent = board.create('functiongraph', [
+			     function(x) { 
+				     if(toggle_tangent.Value()) {
+					     return Math.tan(x); 
+					 } else return -50;
+				 }, -15, 15], {
+				     strokeColor: 'black',
+				     strokeWidth: 1,
+					 highlight: false
+				 });			 
+			
+			 graph_tangent_restriction = board.create('functiongraph', [
+			     function(x) { 
+				     if(toggle_tangent_restriction.Value()) {
+					     return Math.tan(x); 
+					 } else return -50;
+				 }, -Math.PI / 2, Math.PI / 2], {
+				     strokeColor: 'blue',
+				     strokeWidth: 3,
+					 highlight: false
+				 });	 
+			
+			 graph_cosecant = board.create('functiongraph', [
+			     function(x) { 
+				     if(toggle_cosecant.Value()) {
+					     return 1 / Math.sin(x); 
+					 } else return -50;
+				 }, -15, 15], {
+				     strokeColor: 'black',
+				     strokeWidth: 1,
+					 highlight: false
+				 });			 
+			
+			 graph_cosecant_restriction = board.create('functiongraph', [
+			     function(x) { 
+				     if(toggle_cosecant_restriction.Value()) {
+					     return 1 / Math.sin(x); 
+					 } else return -50;
+				 }, -Math.PI / 2, Math.PI / 2], {
+				     strokeColor: 'blue',
+				     strokeWidth: 3,
+					 highlight: false
+				 });
+			
+			 graph_secant = board.create('functiongraph', [
+			     function(x) { 
+				     if(toggle_secant.Value()) {
+					     return 1 / Math.cos(x); 
+					 } else return -50;
+				 }, -15, 15], {
+				     strokeColor: 'black',
+				     strokeWidth: 1,
+					 highlight: false
+				 });			 
+			
+			 graph_secant_restriction = board.create('functiongraph', [
+			     function(x) { 
+				     if(toggle_secant_restriction.Value()) {
+					     return 1 / Math.cos(x); 
+					 } else return -50;
+				 }, 0, Math.PI], {
+				     strokeColor: 'blue',
+				     strokeWidth: 3,
+					 highlight: false
+				 });
+			
+			 graph_cotangent = board.create('functiongraph', [
+			     function(x) { 
+				     if(toggle_cotangent.Value()) {
+					     return 1 / Math.tan(x); 
+					 } else return -50;
+				 }, -15, 15], {
+				     strokeColor: 'black',
+				     strokeWidth: 1,
+					 highlight: false
+				 });			 
+			
+			 graph_cotangent_restriction = board.create('functiongraph', [
+			     function(x) { 
+				     if(toggle_cotangent_restriction.Value()) {
+					     return 1 / Math.tan(x); 
+					 } else return -50;
+				 }, 0, Math.PI], {
+				     strokeColor: 'blue',
+				     strokeWidth: 3,
+					 highlight: false
+				 });
+			
+			 sine_glider = board.create('glider', [0, 0, graph_sine], { name: 'Q', visible: false });
+			 sine_glider1 = board.create('point', [function() { return sine_glider.Y(); }, function() { return sine_glider.X(); }], { name: 'Q\'', trace: true, size: 1, visible: false });
+			 
+			 var sineGliderVisible = false;
+			 toggle_point_on_sine = board.create('text', [9, 6.5,
+                 '<input type="checkbox" id="showGliderOnSine" onchange="toggleSineGlider()" unchecked/>  Show Point on Sine<br/>'
+             ], { fixed: true });
+			 
+			 toggleSineGlider = function() {
+                 sineGliderVisible = !sineGliderVisible;
+                 sine_glider.setAttribute({ visible: sineGliderVisible });
+				 sine_glider1.setAttribute({ visible: sineGliderVisible });
+             };
+			
+			 P = board.create('glider', [0, 0, graph_sine_restriction], { name: 'P' });
+			 Q = board.create('glider', [0, 0, graph_cosine_restriction], { name: 'Q' });
+			 R = board.create('glider', [0, 0, graph_tangent_restriction], { name: 'R' });
+			 S = board.create('glider', [1, 1, graph_cosecant_restriction], { name: 'S' });
+			 T = board.create('glider', [0, 0, graph_secant_restriction], { name: 'T' });
+			 U = board.create('glider', [1, 1, graph_cotangent_restriction], { name: 'U' });
+			 			
+             P1 = board.create('point', [function() { return P.Y(); }, function() { return P.X(); }], { name: 'P\'', trace: true, size: 1 });
+             Q1 = board.create('point', [function() { return Q.Y(); }, function() { return Q.X(); }], { name: 'Q\'', trace: true, size: 1 });
+             R1 = board.create('point', [function() { return R.Y(); }, function() { return R.X(); }], { name: 'R\'', trace: true, size: 1 });
+             S1 = board.create('point', [function() { return S.Y(); }, function() { return S.X(); }], { name: 'S\'', trace: true, size: 1 });
+             T1 = board.create('point', [function() { return T.Y(); }, function() { return T.X(); }], { name: 'T\'', trace: true, size: 1 }); 
+             U1 = board.create('point', [function() { return U.Y(); }, function() { return U.X(); }], { name: 'U\'', trace: true, size: 1 });			 
+			
+         </script>
+     </body>
+
+<html>

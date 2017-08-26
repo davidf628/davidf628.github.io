@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+      tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]},
+      });
+    </script>
+    <script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+    <link rel='stylesheet' type='text/css' href='http://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css' />
+    <script src='http://jsxgraph.uni-bayreuth.de/distrib/jsxgraphcore.js' type='text/javascript'></script>
+    <script src='http://jsxgraph.uni-bayreuth.de/distrib/GeonextReader.js' type='text/javascript'></script>
+  </head>
+  
+  <body>
+   
+    <p>
+	  <h1>Similar Triangles</h1>
+	</p>
+	
+	<div id='box1' class='jxgbox' style='width:800px; height:600px;'></div>
+    <div id='box2' class='jxgbox' style='width:800px; height:150px;'></div>
+	
+    <script type='text/javascript'>
+      
+      JXG.Options.text.useMathJax = true;
+      
+	  board = JXG.JSXGraph.initBoard('box1', {
+	    boundingbox:[-1,10,10,-1], 
+		axis:true, 
+		showNavigation:false, 
+		showCopyright:false,
+		keepaspectratio:true
+	  });
+      	  
+	  dashboard = JXG.JSXGraph.initBoard('box2', { 
+	    boundingbox:[-5,5,5,-5], 
+		axis:false, 
+		showNavigation:false, 
+		showCopyright:false
+	  });
+     
+      NDEC = 3;
+      
+	  P2 = board.create('point', [12, 6], { snapToGrid:false, name:"P'" });  
+      P2.on('drag',function() { dashboard.fullUpdate(); });   
+  
+      O = board.create('point', [0, 0], { visible:false });
+	  B = board.create('point', [10, 0], { visible:false }); 	  
+	  
+	  Lr = board.create('segment', [O, P2], { fixed:true });
+	  Lx = board.create('segment', [O, [function() { return P2.X(); }, 0]], { dash: 2 });
+	  Ly = board.create('segment', [P2, [function() { return P2.X(); }, 0]], { dash: 2 });
+	  
+	  P1 = board.create('glider', [6, 3, Lr], { name:'P' });
+	  P1.on('drag', function() { dashboard.fullUpdate(); });
+	  
+	  Ls = board.create('segment', [P1, [function() { return P1.X(); }, 0]], { dash: 2 }); 
+	  
+	  x1_mid = board.create('midpoint', [[function() { return P1.X(); }, -1], O], { visible: false });
+	  y1_mid = board.create('midpoint', [P1, [function() { return P1.X(); }, 0]], { visible: false });
+	  r1_mid = board.create('midpoint', [P1, O], { visible: false });
+	  
+	  x2_mid = board.create('midpoint', [[function() { return P1.X(); }, -1], [function() { return P2.X(); }, 0]], { visible: false });
+	  y2_mid = board.create('midpoint', [P2, [function() { return P2.X(); }, 0]], { visible: false });
+	  r2_mid = board.create('midpoint', [P1, P2], { visible:false });
+	   
+	  x1_label = board.create('text', [0, 0, function() { return "x = " + P1.X().toFixed(NDEC) }], { anchor:x1_mid, fontSize:18 });
+	  y1_label = board.create('text', [0, 0, function() { return "y = " + P1.Y().toFixed(NDEC) }], { anchor:y1_mid, fontSize:18 }); 
+
+	  r1_label = board.create('text', [0, 0, 
+	      function() {
+	          return "r = " + Math.sqrt(P1.X() * P1.X() + P1.Y() * P1.Y()).toFixed(NDEC);
+	      }], 
+		  { anchor: r1_mid, fontSize:18 }
+	   );
+	  
+	  x2_label = board.create('text', [0, 0, function() { return "x' = " + P2.X().toFixed(NDEC) }], { anchor:x2_mid, fontSize:18 });
+	  y2_label = board.create('text', [0, 0, function() { return "y' = " + P2.Y().toFixed(NDEC) }], { anchor:y2_mid, fontSize:18 });
+	  
+	  r2_label = board.create('text', [0, 0, 
+	      function() { 
+	          return "r' = " + Math.sqrt(P2.X() * P2.X() + P2.Y() * P2.Y()).toFixed(NDEC);
+	      }], 
+		  { anchor: r2_mid, fontSize:18 }
+	   );	
+	  
+	  angle = board.create('angle', [B, O, P2], { 
+	    radius:1,
+	    text:function() {
+          theta = JXG.Math.Geometry.trueAngle(B, O, P2).toFixed(0);
+          return "&theta; = " + theta + "&deg;" 
+        } 
+      });
+      angle.label.setAttribute({strokeColor:'black', highlight:false});
+      
+      function label() {
+      
+          var x1 = P1.X().toFixed(NDEC);
+		  var y1 = P1.Y().toFixed(NDEC);
+		  var r1 = Math.sqrt(P1.X() * P1.X() + P1.Y() * P1.Y()).toFixed(NDEC);
+		  var sin1 = (y1 / r1).toFixed(NDEC);
+		  var cos1 = (x1 / r1).toFixed(NDEC);
+		  var tan1 = (y1 / x1).toFixed(NDEC);
+		  
+		  var x2 = P2.X().toFixed(NDEC);
+		  var y2 = P2.Y().toFixed(NDEC);
+		  var r2 = Math.sqrt(P2.X() * P2.X() + P2.Y() * P2.Y()).toFixed(NDEC); 
+		  var sin2 = (y2 / r2).toFixed(NDEC);
+		  var cos2 = (x1 / r1).toFixed(NDEC);
+		  var tan2 = (y1 / x1).toFixed(NDEC);
+		  
+	    return '\\begin{matrix} ' +
+	           'sine: &' +
+	           '\\frac{y}{r} = \\frac{' + y1 + '}{' + r1 + '} = ' + sin1 + ' &' +
+	           "\\frac{y'}{r'} = \\frac{" + y2 + '}{' + r2 + '} = ' + sin2 + '\\\\' +
+	           'cosine: &' +
+	           '\\frac{x}{r} = \\frac{' + x1 + '}{' + r1 + '} = ' + cos1 + ' &' +
+	           "\\frac{x'}{r'} = \\frac{" + x2 + '}{' + r2 + '} = ' + cos2 + '\\\\' +
+	           'tangent: &' +
+	           '\\frac{y}{x} = \\frac{' + y1 + '}{' + x1 + '} = ' + tan1 + ' &' +
+	           "\\frac{y'}{x'} = \\frac{" + y2 + '}{' + x2 + '} = ' + tan2 + '\\\\' +
+		       '\\end{matrix}';
+	  }
+  
+      dashboard.create('text', [-3.5,0,function() {return '\\[' + label() + '\\]';}]);
+	  dashboard.fullUpdate();
+    </script>
+   </body>
+   
+</html>
+
+
+
+
+       
+
+
+

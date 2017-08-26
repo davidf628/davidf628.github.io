@@ -1,0 +1,135 @@
+<meta charset="utf-8"> 
+ 
+<html>
+  
+    <head>
+	     <script type="text/x-mathjax-config">
+                 MathJax.Hub.Config({
+                 tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]},
+             });
+         </script>
+	     <script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+         <link rel='stylesheet' type='text/css' href='http://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css' />
+         <script src='http://jsxgraph.uni-bayreuth.de/distrib/jsxgraphcore.js' type='text/javascript'></script>
+		 <script src='http://jsxgraph.uni-bayreuth.de/distrib/GeonextReader.js' type='text/javascript'></script>
+     </head>
+  
+     <body>
+   
+         <p>
+             <h1>Inverse Functions</h1>
+         </p>
+    
+         <div id='box' class='jxgbox' style='width:800px; height:800px;'></div>  
+	
+         <script type='text/javascript'>
+		 
+		     JXG.Options.text.useMathJax = true;
+			 
+             board = JXG.JSXGraph.initBoard('box', {
+			     // -x, +y, +x, -y
+                 boundingbox:[-5,15,15,-5], 
+                 axis:true, 
+                 showNavigation:false, 
+                 showCopyright:false,
+                 keepaspectratio:true,
+                 showClearTraces:true,
+                 zoom: {
+                     factorX: 1.25,
+                     factorY: 1.25,
+                     wheel: true,
+                     needshift: false,
+                     eps: 0.1
+                 }				 
+             });              
+
+			 graph_symmetry_line = board.create('functiongraph', [
+			     function(x) {
+				     return x;
+			     }, -200, 200], {
+				     strokeColor: 'black',
+					 strokeWidth: 2,
+					 dash: 2,
+					 highlight: false,
+					 fixed: true
+				 }
+		     );
+			 
+			 toggle_linear = board.create('checkbox', [9, 4, 'Show y = (4/3)x - 4']);             	
+             toggle_cube = board.create('checkbox', [9, 3.5, 'Show y = x^3']);
+             toggle_exponential = board.create('checkbox', [9, 3, 'Show y = e^x']);
+             toggle_square = board.create('checkbox', [9, 2.5, 'Show y = x^2']);
+             toggle_restricted_square = board.create('checkbox', [9, 2, 'Show y = x^2 on [0, infinity)']);			 
+
+             graph_linear = board.create('functiongraph', [
+			     function(x) { 
+					 if(toggle_linear.Value()) {
+					     return (4/3) * x - 4;
+					 } else return -50;
+				 }, -20, 20], {
+				     strokeColor: 'blue',
+				     strokeWidth: 3,
+					 highlight: false
+				 });			 
+			
+			 graph_square = board.create('functiongraph', [
+			     function(x) { 
+				     if(toggle_square.Value()) {
+					     return x * x; 
+				     } else return -50;
+				 }, -15, 15], {
+				     strokeColor: 'blue',
+				     strokeWidth: 3,
+					 highlight: false
+				 });	
+			 
+			 graph_restricted_square = board.create('functiongraph', [
+			     function(x) { 
+				     if(toggle_restricted_square.Value()) {
+					     return x * x; 
+				     } else return -50;
+				 }, 0, 15], {
+				     strokeColor: 'blue',
+				     strokeWidth: 3,
+					 highlight: false
+				 });	
+			 
+			 graph_cube = board.create('functiongraph', [
+			     function(x) { 
+				     if(toggle_cube.Value()) {
+					     return x * x * x; 
+				     } else return -50;
+				 }, -15, 15], {
+				     strokeColor: 'blue',
+				     strokeWidth: 3,
+					 highlight: false
+				 });
+			 
+			 graph_exponential = board.create('functiongraph', [
+			     function(x) { 
+				     if(toggle_exponential.Value()) {
+					     return Math.exp(x); 
+				     } else return -50;
+				 }, -15, 15], {
+				     strokeColor: 'blue',
+				     strokeWidth: 3,
+					 highlight: false
+				 });
+			 
+			 P = board.create('glider', [0, 3, graph_linear], { name: 'P' });
+			 Q = board.create('glider', [0, 0, graph_square], { name: 'Q' });
+			 R = board.create('glider', [0, 0, graph_cube], { name: 'R' });
+			 S = board.create('glider', [0, 0, graph_exponential], { name: 'S' });
+			 T = board.create('glider', [0, 0, graph_restricted_square], { name: 'T'});
+			 
+			 P1 = board.create('point', [function() { return P.Y(); }, function() { return P.X(); }], { name: 'P\'', trace: true, size: 1 });
+			 Q1 = board.create('point', [function() { return Q.Y(); }, function() { return Q.X(); }], { name: 'Q\'', trace: true, size: 1 });
+			 R1 = board.create('point', [function() { return R.Y(); }, function() { return R.X(); }], { name: 'R\'', trace: true, size: 1 });
+			 S1 = board.create('point', [function() { return S.Y(); }, function() { return S.X(); }], { name: 'S\'', trace: true, size: 1 });
+			 T1 = board.create('point', [function() { return T.Y(); }, function() { return T.X(); }], { name: 'T\'', trace: true, size: 1 });
+			
+			
+         </script>
+     </body>
+
+<html>

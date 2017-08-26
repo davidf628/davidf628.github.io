@@ -1,0 +1,157 @@
+<meta charset="utf-8"> 
+ 
+<html>
+  
+    <head>
+         <script type="text/x-mathjax-config">
+                 MathJax.Hub.Config({
+                 tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]},
+             });
+         </script>
+	     <script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+         <link rel='stylesheet' type='text/css' href='http://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css' />
+         <script src='http://jsxgraph.uni-bayreuth.de/distrib/jsxgraphcore.js' type='text/javascript'></script>
+     </head>
+  
+     <body>
+   
+         <p>
+             <h1>Derivation of the Graph of Secant</h1>
+         </p>
+    
+         <div id='box' class='jxgbox' style='width:1200px; height:600px;'></div>
+    
+         <script type='text/javascript'>
+         
+             JXG.Options.text.useMathJax = true;
+         
+             board = JXG.JSXGraph.initBoard('box', {
+			     // -x, +y, +x, -y
+                 boundingbox:[-3.5,4,-1.5,-4], 
+                 axis:false, 
+                 showNavigation:false, 
+                 showCopyright:false,
+                 keepaspectratio:true 
+             });              
+			 
+			 // Create y_axis grid:
+			 
+			 y_axis = board.create('line', [[0, 0], [0, 1]], { highlight: false, strokeColor: 'black', strokeWidth: 1, fixed: true });
+			 y_ticks = board.create('ticks', [y_axis], { ticksDistance: 1, minorTicks: 1 });
+			 
+			 for(i = -3; i < 4; i++) {
+			     if(i != 0) {
+				     board.create('line', [[0, i], [1, i]], { straightFirst: false, needsRegularUpdate: false, strokeColor: 'lightgray', strokeWidth: 1, dash: 1, highlight: false, fixed: true });
+					 board.create('text', [-0.4, i, i]);
+			     }
+			 }
+			 
+			 // Create x_axis grid:
+			 
+			 x_axis = board.create('line', [[0, 0], [1, 0]], { straightFirst: false, highlight: false, strokeColor: 'black', strokeWidth: 1, fixed: true });
+			 pi_ticks = board.create('ticks', [x_axis], { ticksDistance: Math.PI / 2, minorTicks: 3 });
+			 
+			 for(i = 0; i < 8; i++) {
+			     if(i != 0) {
+				     board.create('line', [[i * Math.PI / 2, 0], [i * Math.PI / 2, 1]], { needsRegularUpdate: false, strokeColor: 'lightgray', strokeWidth: 1, dash: 1, highlight: false, fixed: true });
+				 }
+		     }
+			 			 	
+			 x_ofs = -0.1; y_ofs = -0.25;
+             
+			 board.create('text', [1 * Math.PI / 2 + x_ofs, y_ofs, function() { return '$\\frac{\\pi}{2}$' }], { fixed: true, highlight: false, needsRegularUpdate: false });
+			 board.create('text', [2 * Math.PI / 2 + x_ofs, y_ofs, function() { return '$\\pi$' }], { fixed: true, highlight: false, needsRegularUpdate: false });
+			 board.create('text', [3 * Math.PI / 2 + x_ofs, y_ofs, function() { return '$\\frac{3\\pi}{2}$' }], { fixed: true, highlight: false, needsRegularUpdate: false });
+			 board.create('text', [4 * Math.PI / 2 + x_ofs, y_ofs, function() { return '$2\\pi$' }], { fixed: true, highlight: false, needsRegularUpdate: false });
+			 board.create('text', [5 * Math.PI / 2 + x_ofs, y_ofs, function() { return '$\\frac{5\\pi}{2}$' }], { fixed: true, highlight: false, needsRegularUpdate: false });
+			 board.create('text', [6 * Math.PI / 2 + x_ofs, y_ofs, function() { return '$3\\pi$' }], { fixed: true, highlight: false, needsRegularUpdate: false });
+			 board.create('text', [7 * Math.PI / 2 + x_ofs, y_ofs, function() { return '$\\frac{7\\pi}{2}$' }], { fixed: true, highlight: false, needsRegularUpdate: false });
+			
+			 
+             C = board.create('point', [-2, 0], { fixed: true, showInfobox: false, withLabel:false, highlight: false });
+             circle = board.create('circle', [C, 1], { highlight: false });
+
+			 P = board.create('glider', [-1, 0, circle], { name: 'P', showInfobox: false });
+             px_text = board.create('text', [-3, -1.5, function() { return '$x = ' + (P.X() + 2).toFixed(2) + '$' }], { highlight: false, fixed: true });
+             py_text = board.create('text', [-1.5, -1.5, function() { return '$y = ' + P.Y().toFixed(2) + '$' }], { highlight: false, fixed: true });
+             
+             
+			 function theta() { return JXG.Math.Geometry.trueAngle([-1, 0], C, P) * (Math.PI / 180); }
+			 
+			 theta_rad_text = board.create('text', [-3, -2, function() { return '$\\theta = ' + theta().toFixed(2) + '$' }], { highlight: false, fixed: true });
+			 theta_deg_text = board.create('text', [-1.5, -2, function() { return '$\\theta = ' + (theta() * 180 / Math.PI).toFixed(0) + '^{\\circ}$' }], { highlight: false, fixed: true });
+			 sec_text = board.create('text', [-3, 2.5, function() { return '\\[\\sec\\theta = \\frac{1}{x}=\\frac{1}{' + (P.X() + 2).toFixed(2) + '}=' + (1 / (P.X() + 2)).toFixed(2) + '\\]'; }], { highlight: false, fixed: true });
+			 
+			 A = board.create('point', [function() { return theta(); }, function() { return 1 / (P.X() + 2); }], { 
+			 
+			     trace: true,
+                 name: 'A',
+				 size: 1,
+				 withLabel: false
+		     });
+			 
+			 line = board.create('line', [P, A], { 
+			     dash: 2,
+				 straightFirst: false,
+				 straightLast: false,
+				 strokeWidth: 1,
+				 strokeColor: 'gray',
+				 highlight: false
+			 });
+			 
+			 var graphVisible = false;
+	         graph = board.create('functiongraph', [ function(x) { return 1 / Math.cos(x); }, -5, 15], {
+				 strokeColor: 'black',
+				 strokeWidth: 1,
+				 visible: false,
+				 highlight: false
+		     });
+			  
+			 asymptote1 = board.create('line', [[Math.PI / 2, -4], [Math.PI / 2, 4]], { strokeColor: 'black', strokeWidth: 1, dash: 3, visible: false, fixed: true } );
+			 asymptote2 = board.create('line', [[3 * Math.PI / 2, -4], [3 * Math.PI / 2, 4]], { strokeColor: 'black', strokeWidth: 1, dash: 3, visible: false, fixed: true } );
+			 asymptote3 = board.create('line', [[5 * Math.PI / 2, -4], [5 * Math.PI / 2, 4]], { strokeColor: 'black', strokeWidth: 1, dash: 3, visible: false, fixed: true } );
+			 asymptote4 = board.create('line', [[7 * Math.PI / 2, -4], [7 * Math.PI / 2, 4]], { strokeColor: 'black', strokeWidth: 1, dash: 3, visible: false, fixed: true } );
+			 asymptote5 = board.create('line', [[-Math.PI / 2, -4], [-Math.PI / 2, 4]], { strokeColor: 'black', strokeWidth: 1, dash: 3, visible: false, fixed: true } );
+			 
+			 
+			 
+             toggle = board.create('text', [9.4, 3.15,
+                 '<input type="checkbox" id="showGrah" onchange="toggleGraph()" unchecked/>  Show secant graph<br/>'
+             ], { fixed: true });
+             
+             
+             
+             toggleGraph = function() {
+                 graphVisible = !graphVisible;
+                 graph.setProperty({visible: graphVisible});
+				 asymptote1.setProperty( { visible: graphVisible });
+				 asymptote2.setProperty( { visible: graphVisible });
+				 asymptote3.setProperty( { visible: graphVisible });
+				 asymptote4.setProperty( { visible: graphVisible });
+				 asymptote5.setProperty( { visible: graphVisible });
+             };		
+             
+             var cosineVisible = false;
+	         cosine_graph = board.create('functiongraph', [ function(x) { return Math.cos(x) }, -5, 15], {
+				 strokeColor: 'blue',
+				 strokeWidth: 1,
+				 visible: false,
+				 highlight: false
+		     });
+             
+             show_cosine = board.create('text', [9.4, 2.85,
+                 '<input type="checkbox" id="showCosineGraph" onchange="toggleCosine()" unchecked/>  Show cosine graph<br/>'
+             ], { fixed: true });
+
+             toggleCosine = function() {
+                 cosineVisible = !cosineVisible;
+                 cosine_graph.setProperty({ visible: cosineVisible });
+             };
+
+              
+			
+         </script>
+   
+     </body>
+
+<html>

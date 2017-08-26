@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+      tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]},
+      });
+    </script>
+    <script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+    <link rel='stylesheet' type='text/css' href='http://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css' />
+    <script src='http://jsxgraph.uni-bayreuth.de/distrib/jsxgraphcore.js' type='text/javascript'></script>
+    <script src='http://jsxgraph.uni-bayreuth.de/distrib/GeonextReader.js' type='text/javascript'></script>
+  </head>
+  
+  <body>
+   
+    <p>
+	  <h1>Calculating Trigonometric Functions by Points</h1>
+	</p>
+	
+	<div id='box1' class='jxgbox' style='width:500px; height:500px;'></div>
+    <div id='box2' class='jxgbox' style='width:500px; height:150px;'></div>
+	
+    <script type='text/javascript'>
+      
+      JXG.Options.text.useMathJax = true;
+      
+	  board = JXG.JSXGraph.initBoard('box1', {
+	    boundingbox:[-10,10,10,-10], 
+		axis:true, 
+		showNavigation:false, 
+		showCopyright:false,
+		keepaspectratio:true
+	  });
+      	  
+	  dashboard = JXG.JSXGraph.initBoard('box2', { 
+	    boundingbox:[-5,5,5,-5], 
+		axis:false, 
+		showNavigation:false, 
+		showCopyright:false
+	  });
+      
+      showApprox = board.create('checkbox', [-9, 9, 'Show Approximations']);
+      showApprox.on('mouseup', function() { dashboard.fullUpdate(); });
+      
+      JXG.addEvent(showApprox.rendNodeCheckbox, 'change', function() {
+        if (this.Value()) {
+          dashboard.fullUpdate();
+        } else {
+          dashboard.fullUpdate();
+        }
+      }, showApprox);
+      
+	  P = board.create('point', [6, 5], { snapToGrid:true, name:'P' });  
+      P.on('drag',function() { dashboard.fullUpdate(); });
+  
+      O = board.create('point', [0, 0], { visible:false });
+	  B = board.create('point', [10, 0], { visible:false });
+	  
+	  r_mid = board.create('midpoint', [O, P], { visible:false });
+	  x_mid = board.create('midpoint', [O, [function() { return P.X(); }, 0]], { visible: false });
+	  y_mid = board.create('midpoint', [P, [function() { return P.X(); }, 0]], { visible: false });
+	  
+	  Lr = board.create('segment', [O, P], { fixed:true });
+	  Lx = board.create('segment', [O, [function() { return P.X(); }, 0]], { dash: 2 });
+	  Ly = board.create('segment', [P, [function() { return P.X(); }, 0]], { dash: 2 });
+	  
+	  r_label = board.create('text', [0, 0, 
+	      function() { 
+	        if(showApprox.Value()) {
+	          return Math.sqrt(P.X() * P.X() + P.Y() * P.Y()).toFixed(2);
+	        } else {
+	            return '\\[\\sqrt{' + ((P.X() * P.X() + P.Y() * P.Y())).toString() + '}\\]'; 
+	        }
+	      }], 
+		  { anchor: r_mid}
+	   );
+	  x_label = board.create('text', [0, 0, function() { return P.X() }], { anchor:x_mid, fontSize:18 });
+	  y_label = board.create('text', [0, 0, function() { return P.Y() }], { anchor:y_mid, fontSize:18 });
+	  
+	  angle = board.create('angle', [B, O, P], { 
+	    radius:1,
+	    text:function() {
+          theta = JXG.Math.Geometry.trueAngle(B, O, P).toFixed(0);
+          return "&theta; = " + theta + "&deg;" 
+        } 
+      });
+      angle.label.setAttribute({strokeColor:'black', highlight:false});
+      
+      function label() {
+        if(showApprox.Value()) {
+          var x = P.X()
+          var y = P.Y()
+          var r = Math.sqrt(P.X() * P.X() + P.Y() * P.Y());
+          var sin = Math.round((y / r) * 10000) / 10000;
+          var cos = Math.round((x / r) * 10000) / 10000;
+          var tan = Math.round((y / x) * 10000) / 10000;
+          var csc = Math.round((r / y) * 10000) / 10000;
+          var sec = Math.round((r / x) * 10000) / 10000;
+          var cot = Math.round((x / y) * 10000) / 10000;
+          return '\\begin{matrix} ' +
+		           '\\sin\\theta = ' + sin + ' &' +
+		           '\\qquad\\cos\\theta = ' + cos + ' &' +
+			       '\\qquad\\tan\\theta = ' + tan + ' \\\\' +
+			       '\\sec\\theta = ' + sec + ' &' +
+			       '\\qquad\\csc\\theta = ' + csc + ' &' +
+			       '\\qquad\\cot\\theta = ' + cot + ' \\\\' +
+			       '\\end{matrix}';
+        } else {
+        
+	        var x = P.X().toString();
+		    var y = P.Y().toString();
+		    var r = '\\sqrt{' + ((P.X() * P.X() + P.Y() * P.Y())).toString() + '}';
+		    return '\\begin{matrix} ' +
+		           '\\sin\\theta = \\frac{ ' + y + '}{' + r + '} &' +
+		           '\\qquad\\cos\\theta = \\frac{ ' + x + '}{' + r + '} &' +
+			       '\\qquad\\tan\\theta = \\frac{ ' + y + '}{' + x + '} \\\\' +
+			       '\\sec\\theta = \\frac{ ' + r + '}{' + x + '} &' +
+			       '\\qquad\\csc\\theta = \\frac{ ' + r + '}{' + y + '} &' +
+			       '\\qquad\\cot\\theta = \\frac{ ' + x + '}{' + y + '} \\\\' +
+			       '\\end{matrix}';
+		}
+	  }
+  
+      dashboard.create('text', [-3.5,0,function() {return '\\[' + label() + '\\]';}]);
+	  dashboard.fullUpdate();
+    </script>
+	<div id='hints' style='width:500px; height:100px;'>
+      $$ \begin{matrix} 
+	     \sin\theta = \frac{y}{r} &
+		 \qquad\cos\theta = \frac{x}{r} &
+	     \qquad\tan\theta = \frac{y}{x} \\
+	     \sec\theta = \frac{r}{x} &
+		 \qquad\csc\theta = \frac{r}{y} &
+         \qquad\cot\theta = \frac{x}{y} \\
+	     \end{matrix} $$
+   </div>
+   </body>
+   
+</html>
+
+
+
+
+       
+
+
+

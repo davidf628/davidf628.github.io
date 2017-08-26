@@ -1,0 +1,117 @@
+<meta charset="utf-8">  
+
+<link rel='stylesheet' type='text/css' href='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css' />
+<script src='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraphcore.js' type='text/javascript'></script>
+<script src='https://jsxgraph.uni-bayreuth.de/distrib/GeonextReader.js' type='text/javascript'></script>
+<div id="jxgbox" class="jxgbox" style="width:500px; height:500px;"></div>
+
+<script type='text/javascript'>
+
+board = JXG.JSXGraph.initBoard('jxgbox', {
+          boundingbox:[-10,10,10,-10], 
+          showCopyright:false, 
+          showNavigation:false, 
+          axis:true,
+          keepaspectratio:true
+        });
+
+// Create a hidden circle to keep glider at a constant distance from the origin
+
+circle = board.create('circle', [[0,0],5], { 
+           fixed:true,
+           highlight:false,
+           visible:false
+         });
+
+// Create three points to define the angle
+
+O = board.create('point', [0,0], { 
+      name:'O', 
+      size:4, 
+      showInfobox:false,
+      fixed:true,
+      visible:false 
+    });
+       
+A = board.create('point', [5,0], {
+      name:'A', 
+      size:4, 
+      showInfobox:false,
+      fixed:true,
+      visible:false
+    });
+    
+P = board.create('glider', [2, 3, circle], {
+      name:'P', 
+      size:4,
+      showInfobox:false
+    });
+
+P.on('drag', function() { 
+                 board.suspendUpdate();
+                 theta = JXG.Math.Geometry.trueAngle(A, O, P).toFixed(0);
+                 if((theta > 0) && (theta < 90)) {
+                     description.setCoords(3, 8);
+                 } else if((theta > 90) && (theta < 180)) {
+                     description.setCoords(-8, 8);
+                 } else if((theta > 180) && (theta < 270)) {
+                     description.setCoords(-8, -8);
+                 } else if((theta > 270) && (theta < 360)) {
+                     description.setCoords(3, -8);
+                 } else if(theta == 0) {
+                     description.setCoords(3, 8);
+                 } else if(theta == 90) {
+                     description.setCoords(-8, 8);
+                 } else if(theta == 180) {
+                     description.setCoords(-8, -8);
+                 } else if(theta == 270) {
+                     description.setCoords(3, -8);
+                 } else if(theta == 360) {
+                     description.setCoords(3, 8);
+                 }else description.setCoords(-8, 8);
+                 board.unsuspendUpdate();
+             });
+
+// Draw two segments to create the angle
+
+initial_side = board.create('line', [O, A], {
+                 straightFirst:false, 
+                 straightLast:false,
+                 lastArrow:true,
+                 highlight:false
+              });
+              
+terminal_side = board.create('line', [O, P], {
+                  straightFirst:false, 
+                  straightLast:false,
+                  lastArrow:true,
+                  highlight:false
+                });
+
+angle = board.create('angle', [A, O, P], { 
+         radius:1,
+         highlight:false,
+         text:function() {
+                theta = JXG.Math.Geometry.trueAngle(A, O, P).toFixed(0);
+                return "&theta; = " + theta + "&deg;" 
+              }
+        });
+ 
+angle.label.setAttribute({strokeColor:'black', highlight:false});         
+
+description = board.create('text', [3,8, 
+      function() {
+          theta = JXG.Math.Geometry.trueAngle(A, O, P).toFixed(0);
+          if((theta > 0) && (theta < 90)) {
+              return 'QUADRANT I<br>&nbsp;&nbsp;0&deg;&nbsp;<&nbsp;&theta;&nbsp;<&nbsp;90&deg;';
+          } else if((theta > 90) && (theta < 180)) {
+              return 'QUADRANT II<br>&nbsp;&nbsp;90&deg;&nbsp;<&nbsp;&theta;&nbsp;<&nbsp;180&deg;';
+          } else if((theta > 180) && (theta < 270)) {
+              return 'QUADRANT III<br>&nbsp;&nbsp;180&deg;&nbsp;<&nbsp;&theta;&nbsp;<&nbsp;270&deg;';
+          } else if((theta > 270) && (theta < 360)) {
+              return 'QUADRANT IV<br>&nbsp;&nbsp;270&deg;&nbsp;<&nbsp;&theta;&nbsp;<&nbsp;360&deg;'; 
+          } else return 'QUADRANTAL ANGLE<br>&theta; = ' + theta + '&deg;';
+      }], {fontSize:18, highlight:false, fixed:true});  
+
+</script>
+
