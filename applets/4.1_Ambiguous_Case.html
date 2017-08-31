@@ -142,17 +142,16 @@ function set_length_b() {
 }
 
 function create_angle(p1, p2, p3) {
-	var angle = board.create('nonreflexangle', [p1, p2, p3], { 
-         radius:1,
-         text:function() {
-                theta = JXG.Math.Geometry.trueAngle(p1, p2, p3).toFixed(0);
-                if(theta > 180) {
-                    theta = 360 - theta;
-                }
-                return theta + "&deg;" 
-              }
-        });
- 
+
+	var angle = board.create('nonreflexangle', [p1, p2, p3], { radius:1 });
+
+	angle.label.setText(function() { 
+		theta = JXG.Math.Geometry.trueAngle(p1, p2, p3).toFixed(0);
+		if(theta > 180) {
+			theta = 360 - theta;
+		}
+		return theta.toString() + "&deg;"
+	});
 	angle.label.setAttribute({strokeColor:'black'});
 	
 	return angle;
