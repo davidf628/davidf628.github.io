@@ -1,0 +1,99 @@
+<html>
+<head>
+    <meta charset="utf-8">
+
+
+    <link rel='stylesheet' type='text/css' href='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css'/>
+    <script src='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraphcore.js' type='text/javascript'></script>
+    <script src='https://jsxgraph.uni-bayreuth.de/distrib/GeonextReader.js' type='text/javascript'></script>
+
+</head>
+
+<body>
+
+<h1>Geometric Construction of a Parabola</h1>
+
+<div id="jxgbox" class="jxgbox" style="width:1280px; height:800px;"></div>
+
+<script type='text/javascript'>
+
+    var board = JXG.JSXGraph.initBoard('jxgbox', {
+        boundingbox: [-10, 10, 10, -10],
+        axis: false,
+        showCopyright: false,
+        showNavigation: true,
+        keepAspectRatio: true
+    });
+
+   
+	// Make two points to define the directrix
+	// User can move line or change line's direction through point B.
+
+    var A = Point({ loc: [4, 4] });
+    var B = Point({ loc: [-4, 4], visible: true, name: 'B' });
+
+	var directrix = board.create('line', [A, B], {withLabel: true, name: 'Directrix'});
+
+	// Create a point on the directrix the user can move
+	var C = board.create('glider', [4, 4, directrix], { name: 'C', showInfobox: false });
+
+	// Define the Focus
+	var F = Point({ loc: [0, -4], visible: true, name: 'Focus' });
+
+    // Create a perpendicular line to the directrix at Point C
+    var perpendicular = board.create('perpendicular', [directrix, C], { visible: false });
+    
+    // Create a line between the focus and point C
+    var line = board.create('line', [F, C], { visible: false });
+    
+    // Find the midpoint between the focus and point C
+    var midpoint = board.create('midpoint', [F, C], { visible: false });
+    
+    // Create a perpendicular to the line passing between the focus and point C
+    var bisector = board.create('perpendicular', [line, midpoint], { visible: false });
+    
+    // Find the intersection between the bisector and the perpendicular
+    var P = board.create('intersection', [bisector, perpendicular], { name: 'P', trace: true });
+    
+    // Lines indicating distances
+    var l1 = board.create('segment', [C, P], { dash: 2, color: 'black' });
+    create_mid_label(C, P);
+    var l2 = board.create('segment', [F, P], { dash: 2, color: 'black' });
+    create_mid_label(F, P);
+    
+    function Point(arg) {
+        var loc = arg.loc ? arg.loc : [0, 0];
+        var visible = arg.visible ? arg.visible : false;
+        var snapToGrid = arg.snapToGrid ? arg.snapToGrid : false;
+        var snapSize = arg.snapSize ? arg.snapSize : 1;
+        var name = arg.name ? arg.name : 'p';
+        var showInfoBox =  arg.showInfoBox ? arg.showInfoBox : false;
+
+        var p = board.create('point', loc, {
+            visible: visible,
+            snapToGrid: snapToGrid,
+            snapSizeX: snapSize,
+            snapSizeY: snapSize,
+            name: name,
+            showInfoBox: false
+        });
+
+        return p;
+
+    }
+
+    function create_mid_label(p1, p2) {
+        var p = board.create('point', [function () {
+            return (p1.X() + p2.X()) / 2 + 0.2;
+        }, function () {
+            return (p1.Y() + p2.Y()) / 2;
+        }], {visible: false})
+        var label = board.create('text', [0, 0, function () {
+            return p1.Dist(p2).toFixed(2);
+        }], {anchor: p, fontSize: 18});
+    }
+
+   
+</script>
+</body>
+</html>

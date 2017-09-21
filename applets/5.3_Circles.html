@@ -1,0 +1,55 @@
+<html>
+<head>
+    <meta charset="utf-8">
+
+
+    <link rel='stylesheet' type='text/css' href='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css'/>
+    <script src='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraphcore.js' type='text/javascript'></script>
+    <script src='https://jsxgraph.uni-bayreuth.de/distrib/GeonextReader.js' type='text/javascript'></script>
+
+</head>
+
+<body>
+
+<h1>Geometric Construction of a Circle</h1>
+
+<div id="jxgbox" class="jxgbox" style="width:1280px; height:800px;"></div>
+
+<script type='text/javascript'>
+
+    var board = JXG.JSXGraph.initBoard('jxgbox', {
+        boundingbox: [-10, 10, 10, -10],
+        axis: false,
+        showCopyright: false,
+        showNavigation: true,
+        keepAspectRatio: true
+    });
+
+   
+	// Make a Point for the Center
+
+    var C = board.create('point', [6, 0], { name: 'C' });
+    
+    var R = board.create('point', [2, 0], { name: 'R' });
+    var circle = board.create('circle', [C, R], { visible: false });
+    
+    // Make a point to define the radius
+    var P = board.create('glider', [10, 0, circle], { trace: true, name: 'P' });
+    l1 = board.create('segment', [C, P], { dash: 2, color: 'black' });
+    create_mid_label(C, P);
+    
+    function create_mid_label(p1, p2) {
+        var p = board.create('point', [function () {
+            return (p1.X() + p2.X()) / 2 + 0.2;
+        }, function () {
+            return (p1.Y() + p2.Y()) / 2;
+        }], {visible: false})
+        var label = board.create('text', [0, 0, function () {
+            return p1.Dist(p2).toFixed(2);
+        }], {anchor: p, fontSize: 18});
+    }
+
+   
+</script>
+</body>
+</html>
