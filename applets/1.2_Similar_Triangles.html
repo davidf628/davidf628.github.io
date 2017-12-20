@@ -89,14 +89,14 @@
 		  { anchor: r2_mid, fontSize:18 }
 	   );	
 	  
-	  angle = board.create('angle', [B, O, P2], { 
-	    radius:1,
-	    text:function() {
-          theta = JXG.Math.Geometry.trueAngle(B, O, P2).toFixed(0);
-          return "&theta; = " + theta + "&deg;" 
-        } 
-      });
+	  angle = board.create('angle', [B, O, P2], { radius: 1 });
       angle.label.setAttribute({strokeColor:'black', highlight:false});
+      angle.label.setText(
+  		  function() { 
+          		theta = JXG.Math.Geometry.trueAngle(B, O, P2).toFixed(0);
+          		return "&theta; = " + theta + "&deg;";
+      }
+);
       
       function label() {
       

@@ -21,18 +21,19 @@ C = board.create('point', [3.54,3.54], {name:'C', size:4, showInfobox:false});
 initial_side = board.create('line', [A, B], {straightFirst:false, straightLast:false});
 terminal_side = board.create('line', [A, C], {straightFirst:false, straightLast:false});
 
-angle = board.create('nonreflexangle', [B, A, C], { 
-         radius:1,
-         text:function() {
-                theta = JXG.Math.Geometry.trueAngle(B, A, C).toFixed(0);
-                if(theta > 180) {
-                    theta = 360 - theta;
-                }
-                return theta + "&deg;" 
-              }
-        });
+angle = board.create('nonreflexangle', [B, A, C], { radius:1 });
  
 angle.label.setAttribute({strokeColor:'black'});         
+
+angle.label.setText(
+	function() { 
+		theta = JXG.Math.Geometry.trueAngle(B, A, C).toFixed(0);
+        if(theta > 180) {
+        	theta = 360 - theta;
+        }
+        return theta + "&deg;" 
+    }
+);
 
 description = board.create('text', [-8,8, 
       function() {

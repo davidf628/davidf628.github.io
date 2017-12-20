@@ -82,14 +82,13 @@
 	  x_label = board.create('text', [0, 0, function() { return P.X() }], { anchor:x_mid, fontSize:18 });
 	  y_label = board.create('text', [0, 0, function() { return P.Y() }], { anchor:y_mid, fontSize:18 });
 	  
-	  angle = board.create('angle', [B, O, P], { 
-	    radius:1,
-	    text:function() {
-          theta = JXG.Math.Geometry.trueAngle(B, O, P).toFixed(0);
-          return "&theta; = " + theta + "&deg;" 
-        } 
-      });
+	  angle = board.create('angle', [B, O, P], { radius: 1 });
       angle.label.setAttribute({strokeColor:'black', highlight:false});
+      angle.label.setText(
+			function() { 
+          		theta = JXG.Math.Geometry.trueAngle(B, O, P).toFixed(0);
+          		return "&theta; = " + theta + "&deg;" 
+    		});
       
       function label() {
         if(showApprox.Value()) {

@@ -79,25 +79,27 @@ initial_side = board.create('line', [O, A], {
                  straightLast:false,
                  lastArrow:true,
                  highlight:false
-              });
+               });
               
 terminal_side = board.create('line', [O, P], {
                   straightFirst:false, 
                   straightLast:false,
                   lastArrow:true,
                   highlight:false
-                });
+				});
 
 angle = board.create('angle', [A, O, P], { 
-         radius:1,
-         highlight:false,
-         text:function() {
-                theta = JXG.Math.Geometry.trueAngle(A, O, P).toFixed(0);
-                return "&theta; = " + theta + "&deg;" 
-              }
+         radius: 1,
+         highlight: false
         });
  
-angle.label.setAttribute({strokeColor:'black', highlight:false});         
+angle.label.setAttribute({strokeColor:'black', highlight:false});  
+angle.label.setText(
+	function() { 
+		theta = JXG.Math.Geometry.trueAngle(A, O, P).toFixed(0);
+        return "&theta; = " + theta + "&deg;";
+    }
+);       
 
 description = board.create('text', [3,8, 
       function() {

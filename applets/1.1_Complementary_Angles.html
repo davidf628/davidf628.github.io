@@ -23,23 +23,23 @@ initial_side = board.create('line', [A, B], {straightFirst:false, straightLast:f
 terminal_side = board.create('line', [A, C], {straightFirst:false, straightLast:false, lastArrow:true});
 ray = board.create('line', [A, D], {straightFirst:false, straightLast:false, lastArrow:true})
 
-angle1 = board.create('angle', [B, A, D], 
-            { radius:1,
-              text:function() {
-                     alpha = JXG.Math.Geometry.trueAngle(B, A, D).toFixed(0);
-                     return alpha + "&deg;"
-                   }
-            });  
-angle1.label.setAttribute({strokeColor:'black'});
+angle1 = board.create('angle', [B, A, D], { radius: 1 });  
+angle1.label.setAttribute({ strokeColor:'black' });
+angle1.label.setText( 
+	function() {
+    	alpha = JXG.Math.Geometry.trueAngle(B, A, D).toFixed(0);
+    	return alpha + "&deg;";
+    }
+);        
 
-angle2 = board.create('angle', [D, A, C],
-            { radius:1,
-              text:function() {
-                     beta = JXG.Math.Geometry.trueAngle(D, A, C).toFixed(0);
-                     return beta + "&deg;"
-                   }
-            });
-angle2.label.setAttribute({strokeColor:'black'});
+angle2 = board.create('angle', [D, A, C], { radius:1 });
+angle2.label.setAttribute({ strokeColor:'black' });
+angle2.label.setText( 
+	function() {
+		beta = JXG.Math.Geometry.trueAngle(D, A, C).toFixed(0);
+        return beta + "&deg;";
+    }
+);   
 
 text1 = board.create('text', [0, 9, 'Complementary Angles'], {fontSize:24, fixed:true});
 

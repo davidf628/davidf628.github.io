@@ -27,8 +27,8 @@
       	      
 	  P = board.create('point', [6, 5], { name:'P' });  
   
-      O = board.create('point', [0, 0], { visible:false });
-	  B = board.create('point', [10, 0], { visible:false });
+      O = board.create('point', [0, 0], { visible: false });
+	  B = board.create('point', [10, 0], { visible: false });
 	  
 	  Lr = board.create('segment', [O, P], { fixed:true });
 	  Lx = board.create('segment', [O, [function() { return P.X(); }, 0]], { dash: 2 });
@@ -54,27 +54,30 @@
   	    return "&alpha; = " + alpha + "&deg;";
   	  }
   	  
-  	  Q1_reference_angle = board.create('angle', [P, O, B], { radius: 3, text:function() { return q1_label();}});
+  	  Q1_reference_angle = board.create('angle', [P, O, B], { radius: 3 });
   	  Q1_reference_angle.setAttribute({visible: false});
+	  Q1_reference_angle.label.setText(function() { return q1_label(); });	  
   	  
-  	  
-  	  Q2_reference_angle = board.create('angle', [[function() { return P.X(); },0], O, P], { radius: 4, text:function() { return q2_label(); }});
+  	  Q2_reference_angle = board.create('angle', [[function() { return P.X(); },0], O, P], { radius: 3 });
   	  Q2_reference_angle.setAttribute({visible: false});
+  	  Q2_reference_angle.label.setText(function() { return q2_label(); });
   	  
-  	  Q3_reference_angle = board.create('angle', [P, O, [function() { return P.X(); },0]], { radius: 3, text:function() { return q3_label();} });
+  	  Q3_reference_angle = board.create('angle', [P, O, [function() { return P.X(); }, 0]], { radius: 3 });
   	  Q3_reference_angle.setAttribute({visible: false});
+  	  Q3_reference_angle.label.setText(function() { return q3_label(); });
   	  
-  	  Q4_reference_angle = board.create('angle', [B, O, P], { radius: 3 , text:function() { return q4_label();}});
+  	  Q4_reference_angle = board.create('angle', [B, O, P], { radius: 3 });
   	  Q4_reference_angle.setAttribute({visible: false});
+  	  Q4_reference_angle.label.setText(function() { return q4_label(); });
   	  
-	  angle = board.create('angle', [B, O, P], { 
-	    radius:1,
-	    text:function() {
-          theta = JXG.Math.Geometry.trueAngle(B, O, P).toFixed(0);
-          return "&theta; = " + theta + "&deg;" 
-        } 
-      });
+	  angle = board.create('angle', [B, O, P], { radius: 1 });
       angle.label.setAttribute({strokeColor:'black', highlight:false});
+      angle.label.setText(
+		  function() { 
+          	  theta = JXG.Math.Geometry.trueAngle(B, O, P).toFixed(0);
+          	  return "&theta; = " + theta + "&deg;";
+   	      }
+	  );
       
       P.on('drag', function() { 
                  board.suspendUpdate();
