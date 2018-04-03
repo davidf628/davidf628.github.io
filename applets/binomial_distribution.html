@@ -108,7 +108,7 @@ function normalpdf(x, mean, stdev) {
 		rect.hasPoint = function() { return false; };  
 	}
 	
-	function create_histogram(n, p) {
+	function create_histogram(n, p, showNormalOverlay) {
 		var dataArr = [];
 		var max = 0;
 		var i;
@@ -152,13 +152,15 @@ function normalpdf(x, mean, stdev) {
 			create_rectangle(board, i, dataArr[i]);
 		}
 		board.unsuspendUpdate();
+		
 		// Draw normal distribution curve
 		var mean = n * p;
 		var stdev = Math.sqrt(n * p * (1 - p));
 		
-		var graph = board.create('functiongraph', [ function(x) { return normalpdf(x, mean, stdev); }, -5, 28] );
-		// Add a checkbox to turn on or off the normal curve
-		//board.unsuspendUpdate();
+		if(showNormalOverlay) {
+			var graph = board.create('functiongraph', [ function(x) { return normalpdf(x, mean, stdev); }, -5, 28] );
+		}
+
 	}
 
 	function jsx_histogram(board, x_labels, y_data) {
@@ -169,9 +171,10 @@ function normalpdf(x, mean, stdev) {
 		
 	}
 
-	function update_page (n, p) {
+	function update_page (n, p, showNormalOverlay) {
+	
 		populate_table(n, p);
-		create_histogram(n, p);
+		create_histogram(n, p, showNormalOverlay);
 	}
 	
 </script>
@@ -187,9 +190,12 @@ function normalpdf(x, mean, stdev) {
 
 
 <body>
-	n = <input type="text" id="input_n" value="15">
-	p = <input type="text" id="input_p" value="0.65">
-	<input type="button" value="Update" onClick="update_page(document.getElementById('input_n').value, document.getElementById('input_p').value)">
+	<h1>Binomial Distributions</h1></br>
+	n = <input type="text" id="input_n" value="15">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	p = <input type="text" id="input_p" value="0.65"></br></br>
+	<input type="checkbox" id="normal_overlay" name="interest" value="normal_overlay">
+    <label for="normal_overlay">Overlay Normal Distribution</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<input type="button" value="Update" onClick="update_page(document.getElementById('input_n').value, document.getElementById('input_p').value, document.getElementById('normal_overlay').checked)"></br></br>
 
 	<div id="jxgbox" class="jxgbox" style="width:800px; height:500px; float:left"></div>
 	
@@ -212,10 +218,12 @@ function normalpdf(x, mean, stdev) {
 
 		// Initialize page with default values of n and p
 	
+		var showNormalOverlay = document.querySelector('input[value="normal_overlay"]');
+	
 		var n = document.getElementById('input_n').value;
 		var p = document.getElementById('input_p').value;
 		populate_table(n, p);
-		create_histogram(n, p);
+		create_histogram(n, p, showNormalOverlay.checked);
 	
 	</script>
 
