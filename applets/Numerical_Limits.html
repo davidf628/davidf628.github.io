@@ -1,0 +1,435 @@
+<!--
+
+	- Draw x and f(x) using mathematical typesetting
+	- Treat undefined values as NaN instead of zero
+	- Allow Sliders to change the x to y scale ratio
+	- Button with instructional alert box
+
+	Would be nice:
+	- if endpoints at infinity would update whenever the graph was rescaled or zoomed
+	- Bounding box would automatically resize itself when the div size is changed
+	
+-->
+
+<html>
+<head>
+	<meta charset="utf-8">  
+		<link rel='stylesheet' type='text/css' href='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css' />
+		<script src='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraphcore.js' type='text/javascript'></script>
+		<script src='https://jsxgraph.uni-bayreuth.de/distrib/GeonextReader.js' type='text/javascript'></script>
+	</meta>
+</head>
+
+<body>
+
+<h1>Numerical Limits</h1>
+f(x) = <input type="text" id="input_function" value="">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+x approaches = <input type="text" id="limit_value" value="">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<input type="button" value="Update" onClick="update()">
+</br></br>
+<div>
+<div id="jxgbox" class="jxgbox" style="width:720px; height:720px; float:left; resize: both"></div>
+<div id="display" class="jxgbox" style="width:320px; height:720px; float:left"></div>
+</div>
+
+<script type='text/javascript'>
+
+LEFT = 0;
+RIGHT = 1;
+
+X = 0;
+Y = 1;
+
+// Pattern for an interval:
+
+regex_interval = '(\\(|\\[)' +                           // ( or [
+				 '(-?\\d*\\.?\\d*|-inf(inity)?)' +       // -2, 1.8, -inf
+				 ',\\s*' +                               // ,
+				 '(-?\\d*\\.?\\d*|\\+?inf(inity)?)' +    // -2, 1.8, +inf
+				 '(\\)|\\])';                            // ] or )
+
+function getLowerEndpoint(interval) {
+	l = interval.split(',');
+	l[0] = l[0].substring(1, l[0].length);
+	if(l[0].includes('inf')) {
+		bounds = board.getBoundingBox();
+		return bounds[3] - 1;
+	} else {
+		return parseFloat(l[0]);
+	}
+}
+				
+function getUpperEndpoint(interval) {
+	l = interval.split(',');
+	l[1] = l[1].substring(0, l[1].length - 1);
+	if(l[1].includes('inf')) {
+		bounds = board.getBoundingBox();
+		return bounds[1] + 1;
+	} else {
+		return parseFloat(l[1]);
+	}
+}
+
+function lowerBoundOpen(interval) {
+	return interval.includes('(');
+}
+
+function upperBoundOpen(interval) {
+	return interval.includes(')');
+}
+
+				
+var board = JXG.JSXGraph.initBoard('jxgbox', {
+		boundingbox: [-10,10,10,-10], 
+      	showCopyright: false, 
+      	showNavigation: true,
+		keepaspectratio: true,
+		axis: true,
+      	zoom: {
+            factorX: 1.25,
+            factorY: 1.25,
+            wheel: true,
+            needshift: false,
+            eps: 0.1
+        }		
+    });
+		
+var displayboard = JXG.JSXGraph.initBoard('display', {
+		boundingbox: [0,10,12,0], 
+      	showCopyright: false, 
+      	showNavigation: false,
+		keepaspectratio: false,
+		axis: false	
+    });
+		
+// Initialize curve so that we have something we can update
+curves = [];
+curves[0] = board.create('curve', [0, 0], 0, 0, { visible: false });
+endpoints = [];
+sequencepoints = [];
+
+left_xvals = [];
+left_yvals = [];
+
+right_xvals = [];
+right_yvals = [];
+
+// Three dimensional array: left/right, x/y, points 0..3
+texts = [];
+texts[LEFT] = [];
+texts[RIGHT] = [];
+texts[LEFT][X] = [];
+texts[LEFT][Y] = [];
+texts[RIGHT][X] = [];
+texts[RIGHT][Y] = [];
+
+textoptions = { fontSize: 24 };
+
+leftlabel = displayboard.create('text', [1, 9, 'Limit from the Left:'], textoptions);
+leftxlabel = displayboard.create('text', [2, 8, 'x'], textoptions);
+leftylabel = displayboard.create('text', [6, 8, 'f(x)'], textoptions);
+
+texts[LEFT][X][0] = displayboard.create('text', [2, 7, ''], textoptions);
+texts[LEFT][X][1] = displayboard.create('text', [2, 6.5, ''], textoptions);
+texts[LEFT][X][2] = displayboard.create('text', [2, 6, ''], textoptions);
+texts[LEFT][X][3] = displayboard.create('text', [2, 5.5, ''], textoptions);
+
+texts[LEFT][Y][0] = displayboard.create('text', [6, 7, ''], textoptions);
+texts[LEFT][Y][1] = displayboard.create('text', [6, 6.5, ''], textoptions);
+texts[LEFT][Y][2] = displayboard.create('text', [6, 6, ''], textoptions);
+texts[LEFT][Y][3] = displayboard.create('text', [6, 5.5, ''], textoptions);
+
+rightlabel = displayboard.create('text', [1, 4.5, 'Limit from the Right:'], textoptions);
+rightxlabel = displayboard.create('text', [2, 3.5, 'x'], textoptions);
+rightylabel = displayboard.create('text', [6, 3.5, 'f(x)'], textoptions);
+
+texts[RIGHT][X][0] = displayboard.create('text', [2, 2.5, ''], textoptions);
+texts[RIGHT][X][1] = displayboard.create('text', [2, 2, ''], textoptions);
+texts[RIGHT][X][2] = displayboard.create('text', [2, 1.5, ''], textoptions);
+texts[RIGHT][X][3] = displayboard.create('text', [2, 1, ''], textoptions);
+
+texts[RIGHT][Y][0] = displayboard.create('text', [6, 2.5, ''], textoptions);
+texts[RIGHT][Y][1] = displayboard.create('text', [6, 2, ''], textoptions);
+texts[RIGHT][Y][2] = displayboard.create('text', [6, 1.5, ''], textoptions);
+texts[RIGHT][Y][3] = displayboard.create('text', [6, 1, ''], textoptions);
+
+cb_sequence = displayboard.create('checkbox', [1, 0.5, 'Show Sequence']);
+cb_function = displayboard.create('checkbox', [6, 0.5, 'Show Function']);
+
+// rendNodeCheckbox sets the SVG checkbox to show a check
+cb_function.rendNodeCheckbox.checked = true;
+// set the value of the checkbox directly
+cb_function._value = true;
+
+// Define all the points that will be used to show the limits
+
+xaxis = board.create('line', [[0, 0], [1, 0]], { visible: false });
+point_xaxis = board.create('glider', [0, 0, xaxis], { name: 'x', withLabel: false, showInfobox: false }); 
+point_f = board.create('point', [
+	function() { 
+		return point_xaxis.X(); 
+	}, 
+	function() { 
+		var f = document.getElementById('input_function').value;
+		if(f == '') { 
+			return 0;
+		} else {
+			return evaluate(f, point_xaxis.X()); 
+		}
+	}], { name: '(x, f(x))', withLabel: false, showInfobox: false });
+
+point_yaxis = board.create('point', [0, 
+	function() { 
+		var f = document.getElementById('input_function').value;
+		if(f == '') { 
+			return 0;
+		} else {
+			return evaluate(f, point_xaxis.X()); 
+		}
+	}], { name: 'y', withLabel: false, showInfobox: false });
+	
+board.create('segment', [point_xaxis, point_f], { color: 'red' });
+board.create('segment', [point_yaxis, point_f], { color: 'red' });
+	
+x_label = board.create('text', [0, 0, function() { return 'x = ' + displayNumber(point_xaxis.X()); }], { anchor: point_xaxis, color: 'red', fontSize: 18 });	
+y_label = board.create('text', [0, 0, function() { return 'y = ' + displayNumber(point_yaxis.Y()); }], { anchor: point_yaxis, color: 'red', fontSize: 18 });	
+	
+rpoint_xaxis = board.create('glider', [0, 0, xaxis], { name: 'x', color: 'green', withLabel: false, showInfobox: false }); 
+rpoint_f = board.create('point', [
+	function() { 
+		return rpoint_xaxis.X(); 
+	}, 
+	function() { 
+		var f = document.getElementById('input_function').value;
+		if(f == '') { 
+			return 0;
+		} else {
+			return evaluate(f, rpoint_xaxis.X()); 
+		}
+	}], { name: '(x, f(x))', color: 'green', withLabel: false, showInfobox: false });
+
+rpoint_yaxis = board.create('point', [0, 
+	function() { 
+		var f = document.getElementById('input_function').value;
+		if(f == '') { 
+			return 0;
+		} else {
+			return evaluate(f, rpoint_xaxis.X()); 
+		}
+	}], { name: 'y', color: 'green', withLabel: false, showInfobox: false });
+	
+board.create('segment', [rpoint_xaxis, rpoint_f], { color: 'green' });
+board.create('segment', [rpoint_yaxis, rpoint_f], { color: 'green' });
+	
+rx_label = board.create('text', [0, 0, function() { return 'x = ' + displayNumber(rpoint_xaxis.X()); }], { anchor: rpoint_xaxis, color: 'green', fontSize: 18 });	
+ry_label = board.create('text', [0, 0, function() { return 'y = ' + displayNumber(rpoint_yaxis.Y()); }], { anchor: rpoint_yaxis, color: 'green', fontSize: 18 });	
+	
+function evaluate(f, x) {
+	
+	// if f includes a restricted interval, handle that
+	if(f.search(regex_interval) != -1) {
+		
+		x_on_interval = false;
+	
+		if(f.includes(';')) {
+			f_list = f.split(';');
+		} else {
+			f_list = [f];
+		}
+		for(var i = 0; i < f_list.length; i++) {
+			var loc = f_list[i].search(regex_interval);
+			if(loc != -1) {
+				interval = f_list[i].substring(loc, f_list[i].length);
+				lowerbound = getLowerEndpoint(interval);
+				upperbound = getUpperEndpoint(interval);
+				if((x >= lowerbound) && (x <= upperbound)) {
+					f = f_list[i].substring(0, loc);
+					x_on_interval = true;
+				}
+			}
+		}
+		if(!x_on_interval) {
+			f = '0';//f.substring(0, f.search(regex_interval));
+		}
+	}
+	relation = board.jc.snippet(f, true, 'x', true);
+	return relation(x);
+}
+
+function evaluate_list(f, xlist) {
+	if(f == '') {
+		return '';
+	} else {
+		ylist = [];
+		for(i = 0; i < xlist.length; i++) {
+			ylist[i] = evaluate(f, xlist[i]);
+		}
+		return ylist;
+	}
+}
+
+function displayNumber(val) {
+	s = val.toFixed(4);
+	if(s.includes('.')) {
+		while(s.slice(-1) == '0') {
+			s = s.substring(0, s.length - 1);
+		}
+		if(s.slice(-1) == '.') {
+			s = s.substring(0, s.length - 1);
+		}
+	}
+	if(s.includes('e')) {
+		s = s.substring(0, 4) + s.substring(s.indexOf('e'),s.length);
+	}
+	return s;
+}
+
+function updateChart(list, values) {
+	if(values == '') {
+		for(i = 0; i < list.length; i++) {
+			list[i].setText('');
+		}
+	} else {
+		for(i = 0; i < values.length; i++) {
+			list[i].setText(displayNumber(values[i]));
+		}
+	}
+}
+
+function update() {
+
+	orgbounds = board.getBoundingBox();
+	width = document.getElementById('jxgbox').clientWidth;
+	height = document.getElementById('jxgbox').clientHeight;
+
+	board.resizeContainer(width, height);
+	board.setBoundingBox(orgbounds, true);
+
+	var f = document.getElementById('input_function').value;
+	var fs = f.split(";");
+
+	for(var i = 0; i < curves.length; i++) {
+		board.removeObject(curves[i]);
+	}
+	
+	for(var i = 0; i < endpoints.length; i++) {
+		board.removeObject(endpoints[i]);
+	}
+	
+	if(cb_function.Value()) {
+		for(var i = 0; i < fs.length; i++) {
+			curves[i] = plot_function(fs[i]);
+		}
+	}
+	
+	for(var i = 0; i < sequencepoints.length; i++) {
+		board.removeObject(sequencepoints[i]);
+	}
+	
+	var limit_value = document.getElementById('limit_value').value;
+	
+	if(limit_value == 'infinity' || limit_value == 'inf') {
+	
+		left_xvals[0] = 10;
+		left_xvals[1] = 100;
+		left_xvals[2] = 1000;
+		left_xvals[3] = 10000;
+		
+		left_yvals = evaluate_list(f, left_xvals);
+		right_yvals = evaluate_list('', null);
+		
+		updateChart(texts[LEFT][X], left_xvals);
+		updateChart(texts[LEFT][Y], left_yvals);
+		updateChart(texts[RIGHT][X], '');
+		updateChart(texts[RIGHT][Y], '');
+				
+	} else if(limit_value == '-infinity' || limit_value == '-inf') {
+	
+		right_xvals[0] = -10;
+		right_xvals[1] = -100;
+		right_xvals[2] = -1000;
+		right_xvals[3] = -10000;
+		
+		right_yvals = evaluate_list(f, right_xvals);
+		left_yvals = evaluate_list('', null);
+		
+		updateChart(texts[LEFT][X], '');
+		updateChart(texts[LEFT][Y], '');
+		updateChart(texts[RIGHT][X], right_xvals);
+		updateChart(texts[RIGHT][Y], right_yvals);
+		
+	} else {
+	
+		a = parseInt(limit_value);
+		left_xvals[0] = a - 0.1;
+		left_xvals[1] = a - 0.01;
+		left_xvals[2] = a - 0.001;;	
+		left_xvals[3] = a - 0.0001;
+		
+		right_xvals[0] = a + 0.1;
+		right_xvals[1] = a + 0.01;
+		right_xvals[2] = a + 0.001;
+		right_xvals[3] = a + 0.0001;
+		
+		left_yvals = evaluate_list(f, left_xvals);
+		right_yvals = evaluate_list(f, right_xvals);
+		
+		updateChart(texts[LEFT][X], left_xvals);
+		updateChart(texts[LEFT][Y], left_yvals);
+		
+		updateChart(texts[RIGHT][X], right_xvals);
+		updateChart(texts[RIGHT][Y], right_yvals);
+
+	}
+	
+	if(cb_sequence.Value()) {
+		var bounds = board.getBoundingBox();
+		var maxX = Math.floor(bounds[2]);
+		for(var n = 1; n <= maxX; n++) {
+			sequencepoints[n] = board.create('point', [n, evaluate(f, n)], { withLabel: false, color: 'orange' });
+		}
+	}
+	
+	board.update();	
+		
+}
+
+function plot_function(ogtxt) {
+		
+	restricted_interval = false;
+		
+	// See if a restricted interval was defined
+	if(ogtxt.search(regex_interval) != -1) {			
+		interval = ogtxt.substring(ogtxt.search(regex_interval), ogtxt.length);
+		ogtxt = ogtxt.substring(0, ogtxt.search(regex_interval));
+		lowerval = getLowerEndpoint(interval);
+		upperval = getUpperEndpoint(interval);
+		if(lowerBoundOpen(interval)) {
+			endpoints.push(board.create('point', [lowerval, evaluate(ogtxt, lowerval)], { size: 3, strokeColor: 'blue', fillColor: 'white', withLabel: false, fixed: true }));
+		} else {
+			endpoints.push(board.create('point', [lowerval, evaluate(ogtxt, lowerval)], { strokeColor: 'blue', fillColor: 'blue', size: 3, withLabel: false, fixed: true }));
+		}
+		if(upperBoundOpen(interval)) {
+			endpoints.push(board.create('point', [upperval, evaluate(ogtxt, upperval)], { strokeColor: 'blue', size: 3, fillColor: 'white', withLabel: false, fixed: true }));
+		} else {
+			endpoints.push(board.create('point', [upperval, evaluate(ogtxt, upperval)], { strokeColor: 'blue', fillColor: 'blue', size: 3, withLabel: false, fixed: true }));
+		}
+		restricted_interval = true;
+	}
+		
+	// This is an explicit function of the form: f(x)
+	relation = board.jc.snippet(ogtxt, true, 'x', true);
+	if(restricted_interval) {
+		curve = board.create('functiongraph', [relation, lowerval, upperval], { strokeWidth: 2 });
+	} else {
+		curve = board.create('functiongraph', [relation], { strokeWidth: 2 });
+	}
+
+	return curve;
+}
+
+</script>
+</body>
+</html>
