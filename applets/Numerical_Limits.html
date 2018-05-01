@@ -2,7 +2,6 @@
 
 	- Draw x and f(x) using mathematical typesetting
 	- Treat undefined values as NaN instead of zero
-	- Allow Sliders to change the x to y scale ratio
 	- Button with instructional alert box
 
 	Would be nice:
@@ -85,7 +84,7 @@ var board = JXG.JSXGraph.initBoard('jxgbox', {
 		boundingbox: [-10,10,10,-10], 
       	showCopyright: false, 
       	showNavigation: true,
-		keepaspectratio: true,
+		keepaspectratio: false,
 		axis: true,
       	zoom: {
             factorX: 1.25,
@@ -127,34 +126,74 @@ texts[RIGHT][Y] = [];
 
 textoptions = { fontSize: 24 };
 
-leftlabel = displayboard.create('text', [1, 9, 'Limit from the Left:'], textoptions);
-leftxlabel = displayboard.create('text', [2, 8, 'x'], textoptions);
-leftylabel = displayboard.create('text', [6, 8, 'f(x)'], textoptions);
+leftlabel = displayboard.create('text', [1, 9.5, 'Limit from the Left:'], textoptions);
+leftxlabel = displayboard.create('text', [2, 8.75, 'x'], textoptions);
+leftylabel = displayboard.create('text', [6, 8.75, 'f(x)'], textoptions);
+leftline1 = displayboard.create('text', [2, 8.5, '------'], textoptions);
+leftline2 = displayboard.create('text', [6, 8.5, '------'], textoptions);
 
-texts[LEFT][X][0] = displayboard.create('text', [2, 7, ''], textoptions);
-texts[LEFT][X][1] = displayboard.create('text', [2, 6.5, ''], textoptions);
-texts[LEFT][X][2] = displayboard.create('text', [2, 6, ''], textoptions);
-texts[LEFT][X][3] = displayboard.create('text', [2, 5.5, ''], textoptions);
+texts[LEFT][X][0] = displayboard.create('text', [2, 8, ''], textoptions);
+texts[LEFT][X][1] = displayboard.create('text', [2, 7.5, ''], textoptions);
+texts[LEFT][X][2] = displayboard.create('text', [2, 7, ''], textoptions);
+texts[LEFT][X][3] = displayboard.create('text', [2, 6.5, ''], textoptions);
+.5
+texts[LEFT][Y][0] = displayboard.create('text', [6, 8, ''], textoptions);
+texts[LEFT][Y][1] = displayboard.create('text', [6, 7.5, ''], textoptions);
+texts[LEFT][Y][2] = displayboard.create('text', [6, 7, ''], textoptions);
+texts[LEFT][Y][3] = displayboard.create('text', [6, 6.5, ''], textoptions);
 
-texts[LEFT][Y][0] = displayboard.create('text', [6, 7, ''], textoptions);
-texts[LEFT][Y][1] = displayboard.create('text', [6, 6.5, ''], textoptions);
-texts[LEFT][Y][2] = displayboard.create('text', [6, 6, ''], textoptions);
-texts[LEFT][Y][3] = displayboard.create('text', [6, 5.5, ''], textoptions);
+rightlabel = displayboard.create('text', [1, 5.5, 'Limit from the Right:'], textoptions);
+rightxlabel = displayboard.create('text', [2, 4.75, 'x'], textoptions);
+rightylabel = displayboard.create('text', [6, 4.75, 'f(x)'], textoptions);
+rightline1 = displayboard.create('text', [2, 4.5, '------'], textoptions);
+rightline2 = displayboard.create('text', [6, 4.5, '------'], textoptions);
 
-rightlabel = displayboard.create('text', [1, 4.5, 'Limit from the Right:'], textoptions);
-rightxlabel = displayboard.create('text', [2, 3.5, 'x'], textoptions);
-rightylabel = displayboard.create('text', [6, 3.5, 'f(x)'], textoptions);
+texts[RIGHT][X][0] = displayboard.create('text', [2, 4, ''], textoptions);
+texts[RIGHT][X][1] = displayboard.create('text', [2, 3.5, ''], textoptions);
+texts[RIGHT][X][2] = displayboard.create('text', [2, 3, ''], textoptions);
+texts[RIGHT][X][3] = displayboard.create('text', [2, 2.5, ''], textoptions);
 
-texts[RIGHT][X][0] = displayboard.create('text', [2, 2.5, ''], textoptions);
-texts[RIGHT][X][1] = displayboard.create('text', [2, 2, ''], textoptions);
-texts[RIGHT][X][2] = displayboard.create('text', [2, 1.5, ''], textoptions);
-texts[RIGHT][X][3] = displayboard.create('text', [2, 1, ''], textoptions);
+texts[RIGHT][Y][0] = displayboard.create('text', [6, 4, ''], textoptions);
+texts[RIGHT][Y][1] = displayboard.create('text', [6, 3.5, ''], textoptions);
+texts[RIGHT][Y][2] = displayboard.create('text', [6, 3, ''], textoptions);
+texts[RIGHT][Y][3] = displayboard.create('text', [6, 2.5, ''], textoptions);
 
-texts[RIGHT][Y][0] = displayboard.create('text', [6, 2.5, ''], textoptions);
-texts[RIGHT][Y][1] = displayboard.create('text', [6, 2, ''], textoptions);
-texts[RIGHT][Y][2] = displayboard.create('text', [6, 1.5, ''], textoptions);
-texts[RIGHT][Y][3] = displayboard.create('text', [6, 1, ''], textoptions);
+slider_horiz_zoom = displayboard.create('slider', [[1, 2], [7, 2], [-10, 1, 10]]);
+horiz_zoom_label = displayboard.create('text', [9, 2, 'x zoom']);
+horiz_zoom_level = 1;
+slider_horiz_zoom.on('drag', 
+	function() {
+		var orgbounds = board.getBoundingBox();
+		var newfactor = slider_horiz_zoom.Value();
+		if(horiz_zoom_level > newfactor) {
+			orgbounds[0] = orgbounds[0] * 1.1;
+			orgbounds[2] = orgbounds[2] * 1.1;
+		} else {
+			orgbounds[0] = orgbounds[0] / 1.1;
+			orgbounds[2] = orgbounds[2] / 1.1;
+		}
+		board.setBoundingBox(orgbounds, false);
+		horiz_zoom_level = newfactor;
+	});
 
+slider_vert_zoom = displayboard.create('slider', [[1, 1.5], [7, 1.5], [-10, 1, 10]]);
+vert_zoom_label = displayboard.create('text', [9, 1.5, 'y zoom']);
+vert_zoom_level = 1;
+slider_vert_zoom.on('drag', 
+	function() {
+		var orgbounds = board.getBoundingBox();
+		var newfactor = slider_vert_zoom.Value();
+		if(vert_zoom_level > newfactor) {
+			orgbounds[1] = orgbounds[1] * 1.1;
+			orgbounds[3] = orgbounds[3] * 1.1;
+		} else {
+			orgbounds[1] = orgbounds[1] / 1.1;
+			orgbounds[3] = orgbounds[3] / 1.1;
+		}
+		board.setBoundingBox(orgbounds, false);
+		vert_zoom_level = newfactor;
+	});	
+	
 cb_sequence = displayboard.create('checkbox', [1, 0.5, 'Show Sequence']);
 cb_function = displayboard.create('checkbox', [6, 0.5, 'Show Function']);
 
