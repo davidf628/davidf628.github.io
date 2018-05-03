@@ -1,12 +1,19 @@
 <!--
-	- Display the secant line when checkbox is clicked
-	- Display the difference quotient when checkbox is clicked
-	- Show where delta-x is
-	- Display the value of delta-x
+
 -->
 
 <html>
 <head>
+
+	<!-- Needed to initialize Mathjax -->
+	<script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+      tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]},
+      });
+    </script>
+    <script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+	
+	<!-- Needed to initialize JXSGraph -->
 	<meta charset="utf-8">  
 		<link rel='stylesheet' type='text/css' href='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css' />
 		<script src='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraphcore.js' type='text/javascript'></script>
@@ -27,7 +34,9 @@ f(x) = <input type="text" id="input_function" value="">
 </div>
 
 <script type='text/javascript'>
-				
+			
+JXG.Options.text.useMathJax = true;
+			
 var board = JXG.JSXGraph.initBoard('jxgbox', {
 		boundingbox: [-10,10,10,-10], 
       	showCopyright: false, 
@@ -53,11 +62,15 @@ var displayboard = JXG.JSXGraph.initBoard('display', {
 		
 // Initialize curve so that we have something we can update
 curve = [];
-tangent = board.create('point', [0, 0], { visible: false });
+tangent = board.create('point', [0, 0], { visible: false, withLabel: false });
+secant = board.create('point', [0, 0], { visible: false, withLabel: false });
+delta_x_l1 = board.create('point', [0, 0], { visible: false, withLabel: false });
+delta_x_l2 = board.create('point', [0, 0], { visible: false, withLabel: false });
+delta_x_label = board.create('point', [0, 0], { visible: false, withLabel: false });
 
-cb_difference_quotient = displayboard.create('checkbox', [1, 9, 'Difference Quotient']);
-cb_tangent_line = displayboard.create('checkbox', [1, 8.5, 'Tangent Line']);
-cb_secant_line = displayboard.create('checkbox', [1, 8, 'Secant Line']);
+cb_tangent_line = displayboard.create('checkbox', [1, 9.5, 'Tangent Line']);
+cb_secant_line = displayboard.create('checkbox', [6, 9.5, 'Secant Line']);
+cb_delta_x = displayboard.create('checkbox', [3, 9, 'Show $\\Delta x$']);
 
 JXG.addEvent(cb_tangent_line.rendNodeCheckbox, 'change', 
 	function() {
@@ -69,8 +82,35 @@ JXG.addEvent(cb_tangent_line.rendNodeCheckbox, 'change',
 		board.update();
     }, cb_tangent_line);
 
-slider_horiz_zoom = displayboard.create('slider', [[1, 2], [7, 2], [-10, 1, 10]]);
-horiz_zoom_label = displayboard.create('text', [9, 2, 'x zoom']);
+JXG.addEvent(cb_secant_line.rendNodeCheckbox, 'change', 
+	function() {
+		if(secant.getAttribute('visible')) {
+			secant.setAttribute( { visible: false } );
+		} else {
+			secant.setAttribute( { visible: true } );
+		}
+		board.update();
+    }, cb_secant_line);	
+	
+JXG.addEvent(cb_delta_x.rendNodeCheckbox, 'change', 
+	function() {
+		if(delta_x_label.getAttribute('visible')) {
+			delta_x_l1.setAttribute( { visible: false } );
+			delta_x_l2.setAttribute( { visible: false } );
+			delta_x_label.setAttribute( { visible: false } );
+		} else {
+			delta_x_l1.setAttribute( { visible: true } );
+			delta_x_l2.setAttribute( { visible: true } );
+			delta_x_label.setAttribute( { visible: true } );
+		}
+		board.update();
+    }, cb_delta_x);		
+	
+tangent_slope = displayboard.create('text', [1, 8.5, '$' + 'm_{tan} = ' + '$'], { fontSize: 20, fixed: true });
+secant_slope = displayboard.create('text', [1, 8, '$' + 'm_{sec}:  ' + '$'], { fontSize: 20, fixed: true });
+	
+slider_horiz_zoom = displayboard.create('slider', [[1, 1], [7, 1], [-10, 1, 10]]);
+horiz_zoom_label = displayboard.create('text', [9, 1, 'x zoom']);
 horiz_zoom_level = 1;
 slider_horiz_zoom.on('drag', 
 	function() {
@@ -87,8 +127,8 @@ slider_horiz_zoom.on('drag',
 		horiz_zoom_level = newfactor;
 	});
 
-slider_vert_zoom = displayboard.create('slider', [[1, 1.5], [7, 1.5], [-10, 1, 10]]);
-vert_zoom_label = displayboard.create('text', [9, 1.5, 'y zoom']);
+slider_vert_zoom = displayboard.create('slider', [[1, 0.5], [7, 0.5], [-10, 1, 10]]);
+vert_zoom_label = displayboard.create('text', [9, 0.5, 'y zoom']);
 vert_zoom_level = 1;
 slider_vert_zoom.on('drag', 
 	function() {
@@ -137,21 +177,83 @@ function update() {
 	board.setBoundingBox(orgbounds, true);
 
 	var f = document.getElementById('input_function').value;
-
+	var relation = board.jc.snippet(f, true, 'x', true);
+	var d = JXG.Math.Numerics.D(relation);
+	
 	board.removeObject(curve);	
 	curve = plot_function(f);
-
+	
+	
 	p = board.create('glider', [0, 0, curve], { name: 'P' });
 	q = board.create('glider', [1, 0, curve], { name: 'Q' });
 	
+	p.on('drag', function() { displayboard.update(); });
+	q.on('drag', function() { displayboard.update(); });
+	
+	displayboard.removeObject(tangent_slope);
+	displayboard.removeObject(secant_slope);
+	tangent_slope = displayboard.create('text', [1, 8.5, function() { return '$' + 'm_{tan} = ' + d(p.X()).toFixed(2) + '$'; }], { fontSize: 20, fixed: true });
+	
+	secant_slope1 = displayboard.create('text', [1, 8, function() { return '$' + 'm_{sec}: ' + '$'; }], { fontSize: 20, fixed: true });
+	secant_slope2 = displayboard.create('text', [2, 7.3, function() { return '$' + '=\\frac{f(Q_x)-f(P_x)}{Q_x-P_x} ' + '$'; }], { fontSize: 20, fixed: true });
+	secant_slope2 = displayboard.create('text', [2, 6.4, 
+		function() { 
+			if(p.X() < 0) {
+				return '$' + '=\\frac{f(' + q.X().toFixed(2) + ')-f(' + p.X().toFixed(2) +')}{' + q.X().toFixed(2) + '+' + -p.X().toFixed(2) + '} ' + '$';
+			} else {
+				return '$' + '=\\frac{f(' + q.X().toFixed(2) + ')-f(' + p.X().toFixed(2) +')}{' + q.X().toFixed(2) + '-' + p.X().toFixed(2) + '} ' + '$'; 
+			}
+		}], 
+		{ fontSize: 20, fixed: true });
+	secant_slope3 = displayboard.create('text', [2, 5.7, 
+		function() { 
+			if((p.X() < 0) && (p.Y() < 0)) {
+				return '$' + '=\\frac{' + q.Y().toFixed(2) + '+' + -p.Y().toFixed(2) +'}{' + q.X().toFixed(2) + '+' + -p.X().toFixed(2) + '} ' + '$';
+			} else if((p.X() < 0) && (p.Y() > 0)) {
+				return '$' + '=\\frac{' + q.Y().toFixed(2) + '-' + p.Y().toFixed(2) +'}{' + q.X().toFixed(2) + '+' + -p.X().toFixed(2) + '} ' + '$';
+			} else if((p.X() > 0) && (p.Y() < 0)) {
+				return '$' + '=\\frac{' + q.Y().toFixed(2) + '+' + -p.Y().toFixed(2) +'}{' + q.X().toFixed(2) + '+' + p.X().toFixed(2) + '} ' + '$';
+			} else if((p.X() > 0) && (p.Y() > 0)) {
+				return '$' + '=\\frac{' + q.Y().toFixed(2) + '-' + p.Y().toFixed(2) +'}{' + q.X().toFixed(2) + '-' + p.X().toFixed(2) + '} ' + '$'; 
+			}
+		}], 
+		{ fontSize: 20, fixed: true });
+	secant_slope4 = displayboard.create('text', [2, 5, function() { return '$' + '=' + ((q.Y() - p.Y()) / (q.X() - p.X())).toFixed(2) + '$'; }], { fontSize: 20, fixed: true });
+	
+	delta_x = displayboard.create('text', [1, 4, function() { return '$' + '\\Delta x =' + (q.X() - p.X()).toFixed(2) + '$'; }], { fontSize: 20, fixed: true });
+	
+	board.removeObject(tangent);
 	if(tangent.getAttribute('visible')) {
-		tangent = board.create('tangent', [p]);
+		tangent = board.create('tangent', [p], { strokeColor: '#ff00ff' });
 	} else {
-		tangent = board.create('tangent', [p], { visible: false });
+		tangent = board.create('tangent', [p], { visible: false, strokeColor: '#ff00ff' });
+	}
+	
+	board.removeObject(secant);
+	if(secant.getAttribute('visible')) {
+		secant = board.create('line', [p, q], { strokeColor: 'green', dash: 3 });
+	} else {
+		secant = board.create('line', [p, q], { visible: false, strokeColor: 'green', dash: 3 });
+	}
+	
+	board.removeObject(delta_x_l1);
+	board.removeObject(delta_x_l2);
+	board.removeObject(delta_x_label);
+	
+	//l_mid = board.create('midpoint', [[function() { return p.X(); }, 0.2], [function() { return q.X(); }, 0.2] ], { visible: false } );
+	
+	delta_x_l1 = board.create('segment', [function() { return [p.X(), p.Y()];}, function() { return [p.X(), 0];} ], { strokeColor: '#222222', strokeWidth: 1, dash: 1, visible: false });
+	delta_x_l2 = board.create('segment', [function() { return [q.X(), q.Y()];}, function() { return [q.X(), 0];} ], { strokeColor: '#222222', strokeWidth: 1, dash: 1, visible: false });
+	delta_x_label = board.create('text', [function() { return (p.X() + q.X()) / 2 }, 0.2, function() { return '$\\Delta x=' + (q.X() - p.X()).toFixed(2) + '$'; }], { visible: false, textColor: '#222222' });
+	
+	if(delta_x_label.getAttribute('visible')) {
+		delta_x_l1.setAttribute( { visible: true } );
+		delta_x_l2.setAttribute( { visible: true } );
+		delta_x_label.setAttribute( { visible: true } );
 	}
 	
 	board.update();	
-		
+	displayboard.update();	
 }
 
 function plot_function(ogtxt) {
