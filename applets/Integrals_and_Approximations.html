@@ -1,5 +1,10 @@
 <!--
-	
+	- Get the actual integral value to show
+	- Display the value of the integral in the control box
+	- Display the value of the approximation in the control box
+	- Get Simpson's approximation to show the parabolic intervals
+	- Allow for an input box to change the maximum number of rectangles
+	- 
 -->
 
 <html>
@@ -14,6 +19,15 @@
 <body>
 
 <h1>Integrals and Approximations</h1>
+<form>Riemann sum type: <select id="sumtype">
+	<option value='left' selected>Left
+	<option value='right'>Right
+	<option value='middle'>Middle
+	<option value='lower'>Lower
+	<option value='upper'>Upper
+	<option value='trapezoidal'>Trapezoidal
+	<option value='simpson'>Simpson
+</select></form>
 f(x) = <input type="text" id="input_function" value="">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <input type="button" value="Update" onClick="update()">
@@ -32,19 +46,10 @@ var i1 = board.create('integral', [[-1.0, 4.0], c1]);
 		
 /*
 <html>
-<!--<script type="text/javascript" src="http://korpelainen.net/js/AM1.js"></script>-->
+
 </html>
 <html>
-<form>Riemann sum type: <select id="sumtype">
-<option value='left' selected> left
-<option value='right'> right
-<option value='middle'> middle
-<option value='trapezoidal'> trapezoidal
-<option value='simpson'> simpson
-<option value='lower'> lower
-<option value='upper'> upper
-<option value='simpson'> simpson
-</select></form>
+
 </html>
 
 <jsxgraph width="800" height="400" box="box">
@@ -91,70 +96,41 @@ var controlboard = JXG.JSXGraph.initBoard('display', {
 		
 // Initialize variables so that we have something we can update
 curve = board.create('curve', [0, 0], 0, 0, { visible: false });
-derivative1 = board.create('curve', [0, 0], 0, 0, { visible: false });
-derivative2 = board.create('curve', [0, 0], 0, 0, { visible: false });
-p = board.create('glider', [1, 0, curve], { visible: false, name: 'P' });
-q = board.create('point', [0, 0], { visible: false, name: 'Q' });
-r = board.create('point', [0, 0], { visible: false, name: 'R' });
+integral = board.create('integral', [[0, 0], curve], { visible: false });
+xaxis = board.create('line', [[0, 0], [1, 0]], { visible: false });
+n = controlboard.create('slider', [[1, 8], [7, 8], [1, 10, 50]], { name: 'n', snapWidth: 1 });
+approximation = board.create('point', [0, 0], { visible: false });  
+a = board.create('glider', [0, 0, xaxis], { name: 'A' });
+b = board.create('glider', [1, 0, xaxis], { name: 'B' });
 
-cb_showfunction = controlboard.create('checkbox', [1, 9.5, 'Show Function']);
-cb_showderivative1 = controlboard.create('checkbox', [1, 9, 'Show Derivative']); 
-cb_showderivative2 = controlboard.create('checkbox', [1, 8.5, 'Show 2nd Derivative']);
-cb_showpoint = controlboard.create('checkbox', [1, 8, 'Show point on f']);
+cb_showintegral = controlboard.create('checkbox', [1, 9.5, 'Show Integral']);
+cb_showapproximation = controlboard.create('checkbox', [1, 9, 'Show Approximation']); 
+
+n.on('drag', function() { board.fullUpdate(); } );
 
 // rendNodeCheckbox sets the SVG checkbox to show a check
-cb_showfunction.rendNodeCheckbox.checked = true;
-cb_showderivative1.rendNodeCheckbox.checked = true;
-cb_showderivative2.rendNodeCheckbox.checked = true;
+cb_showapproximation.rendNodeCheckbox.checked = true;
+cb_showapproximation._value = true;
 
-// set the value of the checkbox directly
-cb_showfunction._value = true;
-cb_showderivative1._value = true;
-cb_showderivative2._value = true;
+JXG.addEvent(cb_showintegral.rendNodeCheckbox, 'change', 
+	function() {
+		if(integral.getAttribute('visible')) {
+			integral.setAttribute( { visible: false } );
+		} else {
+			integral.setAttribute( { visible: true } );
+		}
+		board.update();
+    }, cb_showintegral);
 
-JXG.addEvent(cb_showfunction.rendNodeCheckbox, 'change', 
+JXG.addEvent(cb_showapproximation.rendNodeCheckbox, 'change', 
 	function() {
-		if(curve.getAttribute('visible')) {
-			curve.setAttribute( { visible: false } );
+		if(approximation.getAttribute('visible')) {
+			approximation.setAttribute( { visible: false } );
 		} else {
-			curve.setAttribute( { visible: true } );
+			approximation.setAttribute( { visible: true } );
 		}
 		board.update();
-    }, cb_showfunction);
-
-JXG.addEvent(cb_showderivative1.rendNodeCheckbox, 'change', 
-	function() {
-		if(derivative1.getAttribute('visible')) {
-			derivative1.setAttribute( { visible: false } );
-		} else {
-			derivative1.setAttribute( { visible: true } );
-		}
-		board.update();
-    }, cb_showfunction);
-	
-JXG.addEvent(cb_showderivative2.rendNodeCheckbox, 'change', 
-	function() {
-		if(derivative2.getAttribute('visible')) {
-			derivative2.setAttribute( { visible: false } );
-		} else {
-			derivative2.setAttribute( { visible: true } );
-		}
-		board.update();
-    }, cb_showderivative2);	
-	
-JXG.addEvent(cb_showpoint.rendNodeCheckbox, 'change', 
-	function() {
-		if(p.getAttribute('visible')) {
-			p.setAttribute( { visible: false } );
-			q.setAttribute( { visible: false } );
-			r.setAttribute( { visible: false } );
-		} else {
-			p.setAttribute( { visible: true } );
-			q.setAttribute( { visible: true } );
-			r.setAttribute( { visible: true } );
-		}
-		board.update();
-    }, cb_showpoint);	
+    }, cb_showapproximation);	
 	
 function evaluate(f, x) {
 	
@@ -189,40 +165,28 @@ function update() {
 
 	var f = document.getElementById('input_function').value;
 	board.removeObject(curve);
-	board.removeObject(derivative1);
-	board.removeObject(derivative2);
-	board.removeObject(p);
-	board.removeObject(q);
+	board.removeObject(integral);
+	board.removeObject(approximation);
 	
 	if(f == '') {
 		curve = board.create('curve', [0, 0], 0, 0, { visible: false });
-		derivative1 = board.create('curve', [0, 0], 0, 0, { visible: false });
-		derivative2 = board.create('curve', [0, 0], 0, 0, { visible: false });
-		p = board.create('glider', [1, 0, curve], { visible: false, name: 'P', withLabel: false });
-		q = board.create('point', [0, 0], { visible: false, name: 'Q', withLabel: false });
-		r = board.create('point', [0, 0], { visible: false, name: 'R', withLabel: false });
+		integral = board.create('integral', [[0, 0], curve], { visible: false });
+		approximation = board.create('point', [0, 0], { visible: false });  
 	} else {
 		relation = board.jc.snippet(f, true, 'x', true);
-		d = JXG.Math.Numerics.D(relation);
-		d2 = JXG.Math.Numerics.D(d);
-		
-		if(cb_showfunction.Value()) {
-			curve = board.create('functiongraph', [relation], { strokeWidth: 2 });
+		curve = board.create('functiongraph', [relation], { strokeWidth: 2 });
+		if(cb_showintegral.Value()) {
+			integral = board.create('integral', [[function() { return a.X(); }, function() { return b.X(); }], curve], { visible: true }); 
 		}
-		
-		if(cb_showderivative1.Value()) {
-			derivative1 = board.create('functiongraph', [d], { strokeWidth: 2, strokeColor: 'green' });
-		}
-		
-		if(cb_showderivative2.Value()) {
-			derivative2 = board.create('functiongraph', [d2], { strokeWidth: 2, strokeColor: 'violet' });
+		if(cb_showapproximation.Value()) {
+			approximation = board.create('riemannsum', [relation, function() { return n.Value(); },
+								function() { return document.getElementById('sumtype').value; },
+								function() { return a.X(); },
+								function() { return b.X(); }],
+								{ fillColor: '#00ff00', fillOpacity: 0.3 });
 		}
 
 	}
-	
-	p = board.create('glider', [1, 0, curve], { name: 'P', visible: cb_showpoint.Value() });
-	q = board.create('point', [function() { return p.X(); }, function() { return d(p.X()); }], { name: 'Q', visible: cb_showpoint.Value()  });
-	r = board.create('point', [function() { return p.X(); }, function() { return d2(p.X()); }], { name: 'R', visible: cb_showpoint.Value()  });
 	
 	board.update();	
 		
