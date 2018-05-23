@@ -26,6 +26,7 @@ MINLOG    = Math.log(MINDOUBLE);
 
 // Convenience functions
 function sqr(x) { return Math.pow(x, 2); }
+function sqrt(x) { return Math.sqrt(x); }
 function odd(x) { return (x % 2) == 1; }
 function even(x) { return (x % 2) == 0; }
 function ln(x) { return Math.log(x); }
@@ -33,10 +34,40 @@ function log(x) { return Math.log(x) / Math.log(10); }
 function logb(x) { return Math.log(x) / Math.log(b); }
 
 
-/* Returns a random integer between (inclusive) two integer values. */
-function randInt(a, b) {
+///////////////////////////////////////////////////////////////////////////////
+//
+//  Creates a random integer between a and b, inclusive
+//
+//		@param a - minimum value for the random number
+//		@param b - maximum value for the random number
+//
+///////////////////////////////////////////////////////////////////////////////
+
+function randomInteger(a, b) {
    return Math.floor((b-a-1) * Math.random()) + a;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  Creates a random float between a and b, inclusive
+//
+//		@param a - minimum value for the random number
+//		@param b - maximum value for the random number
+//
+///////////////////////////////////////////////////////////////////////////////
+
+function randomFloat(a, b) {
+	return Math.random() * (b - a + 2) + a - 1;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  Rounds a number to a given number of decimal places.
+//
+//		@param num - the number to round (float)
+//		@param dec - the number of decimals to round to
+//
+///////////////////////////////////////////////////////////////////////////////
 
 function round(num, dec)
 {
@@ -141,7 +172,6 @@ function normalcdf(z) {
     
 }
 
-
 function invnorm(p)
 {
   //
@@ -207,85 +237,8 @@ function invnorm(p)
 //  Calculates the t-distribution pdf for a given value of tc and degrees of
 //  freedom. Formula for the pdf found at wikipedia.org. 
 //
-// 		@param t - The t-score with which to find the point on the t-distribution
-//   			   curve
-//
-// 		@param df - Number of degrees of freedom
-// 	
-//  	@return The point on the t-distribution curve with df degrees of
-//   		freedom at a given t-score.
-//
-///////////////////////////////////////////////////////////////////////////////
-    
-
-function invnorm(p)
-{
-  //
-  // Lower tail quantile for standard normal distribution function.
-  //
-  // This function returns an approximation of the inverse cumulative
-  // standard normal distribution function.  I.e., given P, it returns
-  // an approximation to the X satisfying P = Pr{Z <= X} where Z is a
-  // random variable from the standard normal distribution.
-  //
-  // The algorithm uses a minimax approximation by rational functions
-  // and the result has a relative error whose absolute value is less
-  // than 1.15e-9.
-  //
-  // Author:      Peter J. Acklam
-  // (Javascript version by Alankar Misra @ Digital Sutras (alankar@digitalsutras.com))
-  // Time-stamp:  2005-11-29 10:01:53 +01:00
-  // E-mail:      pjacklam@online.no
-  // WWW URL:     http://home.online.no/~pjacklam
-
-  // An algorithm with a relative error less than 1.15·10-9 in the entire region.
-
-  // Coefficients in rational approximations
-  var a = new Array(-3.969683028665376e+01,  2.209460984245205e+02,
-                    -2.759285104469687e+02,  1.383577518672690e+02,
-                    -3.066479806614716e+01,  2.506628277459239e+00);
-  var b = new Array(-5.447609879822406e+01,  1.615858368580409e+02,
-                    -1.556989798598866e+02,  6.680131188771972e+01,
-                    -1.328068155288572e+01 );
-  var c = new Array(-7.784894002430293e-03, -3.223964580411365e-01,
-                    -2.400758277161838e+00, -2.549732539343734e+00,
-                     4.374664141464968e+00,  2.938163982698783e+00);
-  var d = new Array (7.784695709041462e-03,  3.224671290700398e-01,
-                     2.445134137142996e+00,  3.754408661907416e+00);
-
-  // Define break-points.
-  var plow  = 0.02425;
-  var phigh = 1 - plow;
-
-  // Rational approximation for lower region:
-  if ( p < plow ) {
-           var q  = Math.sqrt(-2*Math.log(p));
-           return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) /
-                                           ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
-  }
-
-  // Rational approximation for upper region:
-  if ( phigh < p ) {
-           var q  = Math.sqrt(-2*Math.log(1-p));
-           return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) /
-                                                  ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
-  }
-
-  // Rational approximation for central region:
-  var q = p - 0.5;
-  var r = q*q;
-  return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q /
-                           (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-//
-//  Calculates the t-distribution pdf for a given value of tc and degrees of
-//  freedom. Formula for the pdf found at wikipedia.org. 
-//
-// 		@param t - The t-score with which to find the point on the t-distribution
-//   			   curve
-//
+// 		@param t - The t-score with which to find the point on the 
+//			t-distribution curve
 // 		@param df - Number of degrees of freedom
 // 	
 //  	@return The point on the t-distribution curve with df degrees of
@@ -364,6 +317,70 @@ function tinv (p, df) {
     return sgn * Math.sqrt(df * (1 / iiBeta(aux, df / 2.0, 0.5) - 1));
 
 }
+
+///////////////////////////////////////////////////////////////////////////////
+//    
+//  Will compute the sum of an array of numbers.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+function sum(list) {
+	var s = 0;
+	for(var i = 0; i < list.length; i++) {
+		s += list[i];
+	}
+	return s;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//    
+//  Will compute the sum of the squares of an array of numbers.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+function sumofsqr(list) {
+	var s = 0;
+	for(var i = 0; i < list.length; i++) {
+		s += sqr(list[i]);
+	}
+	return s;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//    
+//  Computes the linear correlation (Pearson) cofficent for paird data.
+//
+//		@return: NaN - The length of the x and y data sets is different
+//					   or there is not enough data in the data sets.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+function correlation(x_data, y_data) {
+
+	if(x_data.length != y_data.length) {
+		return NaN;
+	}
+
+	if(x_data.length < 2) {
+		return NaN;
+	}
+
+	var sx = sum(x_data);
+	var sy = sum(y_data);
+	var sxy = 0;
+	var sxx = sumofsqr(x_data);
+	var syy = sumofsqr(y_data);
+	var n = x_data.length;
+	
+	for(var i = 0; i < x_data.length; i++) {
+		sxy += x_data[i] * y_data[i];
+	}
+	
+	var r = (n * sxy - sx * sy) / sqrt( (n * sxx - sqr(sx)) * (n * syy - sqr(sy)) );
+	
+	return r;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //    
