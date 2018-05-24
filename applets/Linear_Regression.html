@@ -62,6 +62,28 @@ squaresOfRegression = [];
 //residualsOfPrediction = [];
 reg = '';
 
+// items related to the prediction
+hidden_xaxis = board.create('line', [[0, 0], [1, 0]], { visible: false });
+x_prediction = board.create('glider', [4, 0, hidden_xaxis], { visible: false, color: '#00aa00', name: 'X', showInfoBox: false });
+x_prediction.on('drag', function() { update(); });
+x_prediction.label.setText(function() { return 'x = ' + round(x_prediction.X(), 2) });
+x_prediction.label.setAttribute({ fontSize: 18, strokeColor: '#00aa00' });
+y_prediction = board.create('point', [
+	0, 
+	function() { 
+		if(points.length < 2) { 
+			return 0; 
+		} else return reg(x_prediction.X());
+	}], { color: 'green', visible: false, name: 'Y', showInfoBox: false });
+y_prediction.label.setText(function() { return 'y = ' + round(y_prediction.Y(), 2) });
+y_prediction.label.setAttribute({ fontSize: 18, strokeColor: '#00aa00' });
+pt_on_line = board.create('point', [
+	function() { return x_prediction.X(); }, 
+	function() { return y_prediction.Y(); }],
+	{ color: 'green', visible: false, name: 'P', withLabel: false });
+vert_pred_line = board.create('segment', [x_prediction, pt_on_line], { color: '#00aa00', visible: false, dash: 2, strokeWidth: 1 });
+horiz_pred_line = board.create('segment', [y_prediction, pt_on_line], { color: '#00aa00', visible: false, dash: 2, strokeWidth: 1 });
+
 cb_showRegressionLine = displayboard.create('checkbox', [1, 8, 'Show Regression Line']);
 cb_showResiduals = displayboard.create('checkbox', [1, 7.5, 'Show Residuals']);
 cb_showSquares = displayboard.create('checkbox', [1, 7, 'Show Squares of Residuals']);
@@ -153,7 +175,7 @@ function update() {
 	if((points.length >= 2) && (cb_showRegressionLine.Value())) {
 		board.removeObject(regressionLine);
 		reg = JXG.Math.Numerics.regressionPolynomial(1, points);
-		regressionLine = board.create('functiongraph', [reg]);
+		regressionLine = board.create('functiongraph', [reg], { strokeWidth: 2 });
 		
 		if(cb_showResiduals.Value()) {
 		
@@ -204,6 +226,7 @@ function update() {
 		
 	}
 	
+	board.unsuspendUpdate();
 	board.update();	
 	displayboard.update();
 		
@@ -261,6 +284,9 @@ JXG.addEvent(cb_showRegressionLine.rendNodeCheckbox, 'change',
 				squaresOfRegression[i].setAttribute( { visible: regressionLine.getAttribute('visible') });	
 			}
 		}
+		if(cb_showPrediction.Value()) {
+			togglePrediction();
+		}
 		board.update();		
     }, cb_showRegressionLine);
 
@@ -296,6 +322,22 @@ JXG.addEvent(cb_showSquares.rendNodeCheckbox, 'change',
 		}*/
 		update();	
     }, cb_showSquares);	
+	
+JXG.addEvent(cb_showPrediction.rendNodeCheckbox, 'change', 
+	function() {
+		if(cb_showRegressionLine.Value()) {
+			togglePrediction();
+		}
+		update();	
+    }, cb_showPrediction);	
+	
+function togglePrediction() {
+	x_prediction.setAttribute( { visible: !x_prediction.getAttribute('visible') });
+	y_prediction.setAttribute( { visible: !y_prediction.getAttribute('visible') });
+	pt_on_line.setAttribute( { visible: !pt_on_line.getAttribute('visible') });
+	vert_pred_line.setAttribute( { visible: !vert_pred_line.getAttribute('visible') });
+	horiz_pred_line.setAttribute( { visible: !horiz_pred_line.getAttribute('visible') });
+}	
 	
 cb_ZoomSquare = displayboard.create('checkbox', [1, 9, 'Zoom Square']);
 
