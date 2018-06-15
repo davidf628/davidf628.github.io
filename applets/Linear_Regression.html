@@ -19,28 +19,6 @@
 <body>
 
 <h1>Linear Regression</h1>
-
-<input type="checkbox" id="show_regression" onclick="toggleRegression()" style="width: 15px; height: 15px;">
-<label for="show_regression">Show Regression Line</label>
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="checkbox" id="show_residuals" onclick="toggleResiduals()" style="width: 15px; height: 15px;">
-<label for="show_residuals">Show Residuals</label>
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="checkbox" id="show_squares" onclick="toggleSquares()" style="width: 15px; height: 15px;">
-<label for="show_squares">Show Squares of Residuals</label>
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="checkbox" id="show_prediction" onclick="togglePrediction()" style="width: 15px; height: 15px;">
-<label for="show_prediction">Show Prediction</label>
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="checkbox" id="show_estimate" onclick="toggleEstimate()" style="width: 15px; height: 15px;">
-<label for="show_estimate">Show Estimated Regression Line</label>
-
-</br></br>
-
 <input type="button" value="Add Point" onClick="addpoint()">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <input type="button" value="Clear All Points" onClick="clearpoints()">
@@ -52,12 +30,6 @@
 </div>
 
 <script type='text/javascript'>
-		
-document.getElementById('show_regression').checked = false;	
-document.getElementById('show_residuals').checked = false;
-document.getElementById('show_squares').checked = false;
-document.getElementById('show_prediction').checked = false;
-document.getElementById('show_estimate').checked = false;	
 		
 var board = JXG.JSXGraph.initBoard('jxgbox', {
 		boundingbox: [-1,10,10,-1], 
@@ -114,8 +86,8 @@ vert_pred_line = board.create('segment', [x_prediction, pt_on_line], { color: '#
 horiz_pred_line = board.create('segment', [y_prediction, pt_on_line], { color: '#00aa00', visible: false, dash: 2, strokeWidth: 1 });
 
 // Items related to the guess 
-p1 = board.create('point', [1, 6], { name: 'P1', visible: false, color: 'orange' });
-p2 = board.create('point', [6, 1], { name: 'P2', visible: false, color: 'orange' });
+p1 = board.create('point', [1, 6], { name: 'P1', visible: false });
+p2 = board.create('point', [6, 1], { name: 'P2', visible: false });
 guessLine = board.create('line', [p1, p2], { strokeColor: 'orange', strokeWidth: 2, visible: false });
 guessSlope = function() { return (p2.Y() - p1.Y()) / (p2.X() - p1.X()); };
 guessIntercept = function() { return p1.Y() - guessSlope() * p1.X(); };
@@ -125,9 +97,18 @@ p1.on('drag', function() { update(); } );
 p2.on('drag', function() { update(); } );
 guessLine.on('drag', function() { update(); } );
 
-displayboard.create('text', [1, 9, 'Line of Regression:'], { fontsize: 16 });
+cb_showRegressionLine = displayboard.create('checkbox', [1, 9.5, 'Show Regression Line']);
+cb_showResiduals = displayboard.create('checkbox', [1, 9, 'Show Residuals']);
+cb_showSquares = displayboard.create('checkbox', [1, 8.5, 'Show Squares of Residuals']);
+cb_showPrediction = displayboard.create('checkbox', [1, 8, 'Show Prediction']);
+cb_showGuess = displayboard.create('checkbox', [1, 7.5, 'Show Estimated Regression Line']);
 
-regression_txt = displayboard.create('text', [2, 8.5, 
+cb_showRegressionLine.rendNodeCheckbox.checked = true;
+cb_showRegressionLine._value = true;
+
+displayboard.create('text', [1, 6.5, 'Line of Regression:'], { fontsize: 16 });
+
+regression_txt = displayboard.create('text', [2, 6, 
 	function() { 
 		if(points.length >= 2) {
 			if(reg == '') {
@@ -137,7 +118,7 @@ regression_txt = displayboard.create('text', [2, 8.5,
 		} else return 'No Equation.'; 
 	}], { fontSize: 14 });
 
-correlation_txt = displayboard.create('text', [2, 8,
+correlation_txt = displayboard.create('text', [2, 5.5,
 	function() {
 		var txt = 'Correlation Coefficient: r = ';
 		var x_data = [], y_data = [];
@@ -155,7 +136,7 @@ correlation_txt = displayboard.create('text', [2, 8,
 		return txt;
 	}], { fontSize: 14 });
 
-reg_residualsum_txt = displayboard.create('text', [2, 7.5,
+reg_residualsum_txt = displayboard.create('text', [2, 5,
 	function() {
 	
 		var sum = 0;
@@ -169,7 +150,7 @@ reg_residualsum_txt = displayboard.create('text', [2, 7.5,
 		return 'Residual Sum: ' + round(sum, 2);
 	}], { fontSize: 14 });
 	
-reg_sqrresidualsum_txt = displayboard.create('text', [2, 7,
+reg_sqrresidualsum_txt = displayboard.create('text', [2, 4.5,
 	function() {
 
 		var sum = 0;
@@ -186,14 +167,14 @@ reg_sqrresidualsum_txt = displayboard.create('text', [2, 7,
 		return  'Sum of Squares of Residuals: ' + round(sum, 2);
 	}], { fontSize: 14 });
 	
-displayboard.create('text', [1, 6, 'Estimated Regression Line'], { fontSize: 16 });
+displayboard.create('text', [1, 3.5, 'Estimated Regression Line'], { fontSize: 16 });
 
-guess_eqntxt = displayboard.create('text', [2, 5.5, 
+guess_eqntxt = displayboard.create('text', [2, 3, 
 	function() {
 		return 'y = ' + round(guessSlope(), 2) + 'x + ' + round(guessIntercept(), 2);
 	}], { fontSize: 14 });	
 	
-guess_residualsum_txt = displayboard.create('text', [2, 5,
+guess_residualsum_txt = displayboard.create('text', [2, 2.5,
 	function() {
 		
 		var sum = 0;
@@ -207,7 +188,7 @@ guess_residualsum_txt = displayboard.create('text', [2, 5,
 		return 'Residual Sum: ' + round(sum, 2);
 	}], { fontSize: 14 });
 	
-reg_sqrresidualsum_txt = displayboard.create('text', [2, 4.5,
+reg_sqrresidualsum_txt = displayboard.create('text', [2, 2,
 	function() {
 	
 		var sum = 0;
@@ -234,13 +215,12 @@ function update() {
 	if(points.length >= 2) {
 		board.removeObject(regressionLine);
 		reg = JXG.Math.Numerics.regressionPolynomial(1, points);
-		regressionLine = board.create('functiongraph', [reg], { strokeWidth: 2, visible: document.getElementById('show_regression').checked });
+		regressionLine = board.create('functiongraph', [reg], { strokeWidth: 2, visible: cb_showRegressionLine.Value() });
 	}
 	
-	if((points.length >= 2) && document.getElementById('show_regression').checked) {
+	if((points.length >= 2) && cb_showRegressionLine.Value()) {
 		
-		//if(cb_showResiduals.Value()) {
-		if(document.getElementById('show_residuals').checked) {
+		if(cb_showResiduals.Value()) {
 		
 			while(residualsOfRegression.length != 0) {
 				board.removeObject(residualsOfRegression[0]);
@@ -258,8 +238,8 @@ function update() {
 			}
 		
 		}
-
-		if(document.getElementById('show_squares').checked) {
+		
+		if(cb_showSquares.Value()) {
 		
 			while(squaresOfRegression.length != 0) {
 				board.removeObject(squaresOfRegression[0]);
@@ -288,9 +268,9 @@ function update() {
 		}
 	}
 		
-	if((points.length >= 2) && document.getElementById('show_estimate').checked) {
+	if((points.length >= 2) && cb_showGuess.Value()) {
 		
-		if(document.getElementById('show_residuals').checked) {
+		if(cb_showResiduals.Value()) {
 				
 			while(residualsOfGuess.length != 0) {
 				board.removeObject(residualsOfGuess[0]);
@@ -309,7 +289,7 @@ function update() {
 		
 		}
 		
-		if(document.getElementById('show_squares').checked) {
+		if(cb_showSquares.Value()) {
 		
 			while(squaresOfGuess.length != 0) {
 				board.removeObject(squaresOfGuess[0]);
@@ -376,94 +356,100 @@ function clearpoints() {
 	update();
 }
 
-function toggleRegression() {
-	if((points.length > 2) && (reg == '')) {
-		reg = JXG.Math.Numerics.regressionPolynomial(1, points);
-		regressionLine = board.create('functiongraph', [reg], { strokeWidth: 2 });
-	}
-	regressionLine.setAttribute( { visible: !regressionLine.getAttribute('visible') });	
-	if(document.getElementById('show_residuals').checked) {
-		for(var i = 0; i < residualsOfRegression.length; i++) {
-			residualsOfRegression[i].setAttribute( { visible: regressionLine.getAttribute('visible') });	
+JXG.addEvent(cb_showRegressionLine.rendNodeCheckbox, 'change', 
+	function() {
+		if((points.length > 2) && (reg == '')) {
+			reg = JXG.Math.Numerics.regressionPolynomial(1, points);
+			regressionLine = board.create('functiongraph', [reg], { strokeWidth: 2 });
 		}
-	}
-	if(document.getElementById('show_squares').checked) {
-		for(var i = 0; i < squaresOfRegression.length; i++) {
-			for(var j = 0; j < squaresOfRegression[i].borders.length; j++) {
-				squaresOfRegression[i].borders[j].setAttribute( { visible: regressionLine.getAttribute('visible') } );
-			}	
-			squaresOfRegression[i].setAttribute( { visible: regressionLine.getAttribute('visible') });	
-		}
-	}
-	if(document.getElementById('show_prediction').checked) {
-		togglePrediction();
-	}
-	board.update();
-}
-
-function toggleResiduals() {
-	if(document.getElementById('show_regression').checked) {
-		for(var i = 0; i < residualsOfRegression.length; i++) {
-			residualsOfRegression[i].setAttribute( { visible: !residualsOfRegression[i].getAttribute('visible') });	
-		}
-	}
-	if(document.getElementById('show_estimate').checked) {
-		for(var i = 0; i < residualsOfGuess.length; i++) {
-			residualsOfGuess[i].setAttribute( { visible: !residualsOfGuess[i].getAttribute('visible') });	
-		}
-	}
-	update();
-}
-	
-function toggleSquares() {
-	if(document.getElementById('show_regression').checked) {
-		for(var i = 0; i < squaresOfRegression.length; i++) {
-			for(var j = 0; j < squaresOfRegression[i].borders.length; j++) {
-				squaresOfRegression[i].borders[j].setAttribute( { visible: !squaresOfRegression[i].getAttribute('visible') } );
-			}				
-			squaresOfRegression[i].setAttribute( { visible: !squaresOfRegression[i].getAttribute('visible') });				
-		}
-	}
-	if(document.getElementById('show_estimate').checked) {
-		for(var i = 0; i < squaresOfGuess.length; i++) {
-			for(var j = 0; j < squaresOfGuess[i].borders.length; j++) {
-				squaresOfGuess[i].borders[j].setAttribute( { visible: !squaresOfGuess[i].getAttribute('visible') } );
+		regressionLine.setAttribute( { visible: !regressionLine.getAttribute('visible') });	
+		if(cb_showResiduals.Value()) {
+			for(var i = 0; i < residualsOfRegression.length; i++) {
+				residualsOfRegression[i].setAttribute( { visible: regressionLine.getAttribute('visible') });	
 			}
-			squaresOfGuess[i].setAttribute( { visible: !squaresOfGuess[i].getAttribute('visible') });	
 		}
-	}
-	update();
-}
+		if(cb_showSquares.Value()) {
+			for(var i = 0; i < squaresOfRegression.length; i++) {
+				for(var j = 0; j < squaresOfRegression[i].borders.length; j++) {
+					squaresOfRegression[i].borders[j].setAttribute( { visible: regressionLine.getAttribute('visible') } );
+				}	
+				squaresOfRegression[i].setAttribute( { visible: regressionLine.getAttribute('visible') });	
+			}
+		}
+		if(cb_showPrediction.Value()) {
+			togglePrediction();
+		}
+		board.update();		
+    }, cb_showRegressionLine);
 
-function toggleEstimate() {
-	p1.setAttribute( { visible: !p1.getAttribute('visible') });
-	p2.setAttribute( { visible: !p2.getAttribute('visible') });
-	guessLine.setAttribute( { visible: !guessLine.getAttribute('visible') });
-	if(document.getElementById('show_residuals').checked) {
-		for(var i = 0; i < residualsOfGuess.length; i++) {
-			residualsOfGuess[i].setAttribute( { visible: guessLine.getAttribute('visible') });	
+JXG.addEvent(cb_showResiduals.rendNodeCheckbox, 'change', 
+	function() {
+		if(cb_showRegressionLine.Value()) {
+			for(var i = 0; i < residualsOfRegression.length; i++) {
+				residualsOfRegression[i].setAttribute( { visible: !residualsOfRegression[i].getAttribute('visible') });	
+			}
 		}
-	}
-	if(document.getElementById('show_squares').checked) {
-		for(var i = 0; i < squaresOfGuess.length; i++) {
-			for(var j = 0; j < squaresOfGuess[i].borders.length; j++) {
-				squaresOfGuess[i].borders[j].setAttribute( { visible: guessLine.getAttribute('visible') } );
-			}	
-			squaresOfGuess[i].setAttribute( { visible: guessLine.getAttribute('visible') });	
+		if(cb_showGuess.Value()) {
+			for(var i = 0; i < residualsOfGuess.length; i++) {
+				residualsOfGuess[i].setAttribute( { visible: !residualsOfGuess[i].getAttribute('visible') });	
+			}
 		}
-	}
-	update();
-}
+		update();	
+    }, cb_showResiduals);
+	
+JXG.addEvent(cb_showSquares.rendNodeCheckbox, 'change', 
+	function() {
+		if(cb_showRegressionLine.Value()) {
+			for(var i = 0; i < squaresOfRegression.length; i++) {
+				for(var j = 0; j < squaresOfRegression[i].borders.length; j++) {
+					squaresOfRegression[i].borders[j].setAttribute( { visible: !squaresOfRegression[i].getAttribute('visible') } );
+				}				
+				squaresOfRegression[i].setAttribute( { visible: !squaresOfRegression[i].getAttribute('visible') });				
+			}
+		}
+		if(cb_showGuess.Value()) {
+			for(var i = 0; i < squaresOfGuess.length; i++) {
+				squaresOfGuess[i].setAttribute( { visible: !squaresOfGuess[i].getAttribute('visible') });	
+			}
+		}
+		update();	
+    }, cb_showSquares);	
+	
+JXG.addEvent(cb_showPrediction.rendNodeCheckbox, 'change', 
+	function() {
+		if(cb_showRegressionLine.Value()) {
+			togglePrediction();
+		}
+		update();	
+    }, cb_showPrediction);	
+	
+JXG.addEvent(cb_showGuess.rendNodeCheckbox, 'change', 
+	function() {
+		p1.setAttribute( { visible: !p1.getAttribute('visible') });
+		p2.setAttribute( { visible: !p2.getAttribute('visible') });
+		guessLine.setAttribute( { visible: !guessLine.getAttribute('visible') });
+		if(cb_showResiduals.Value()) {
+			for(var i = 0; i < residualsOfGuess.length; i++) {
+				residualsOfGuess[i].setAttribute( { visible: guessLine.getAttribute('visible') });	
+			}
+		}
+		if(cb_showSquares.Value()) {
+			for(var i = 0; i < squaresOfGuess.length; i++) {
+				for(var j = 0; j < squaresOfGuess[i].borders.length; j++) {
+					squaresOfGuess[i].borders[j].setAttribute( { visible: guessLine.getAttribute('visible') } );
+				}	
+				squaresOfGuess[i].setAttribute( { visible: guessLine.getAttribute('visible') });	
+			}
+		}
+		update();	
+    }, cb_showGuess);	
 	
 function togglePrediction() {
-	if(document.getElementById('show_regression').checked) {
-		x_prediction.setAttribute( { visible: !x_prediction.getAttribute('visible') });
-		y_prediction.setAttribute( { visible: !y_prediction.getAttribute('visible') });
-		pt_on_line.setAttribute( { visible: !pt_on_line.getAttribute('visible') });
-		vert_pred_line.setAttribute( { visible: !vert_pred_line.getAttribute('visible') });
-		horiz_pred_line.setAttribute( { visible: !horiz_pred_line.getAttribute('visible') });
-	}
-	update();
+	x_prediction.setAttribute( { visible: !x_prediction.getAttribute('visible') });
+	y_prediction.setAttribute( { visible: !y_prediction.getAttribute('visible') });
+	pt_on_line.setAttribute( { visible: !pt_on_line.getAttribute('visible') });
+	vert_pred_line.setAttribute( { visible: !vert_pred_line.getAttribute('visible') });
+	horiz_pred_line.setAttribute( { visible: !horiz_pred_line.getAttribute('visible') });
 }	
 
 slider_horiz_zoom = displayboard.create('slider', [[1, 1], [7, 1], [-10, 1, 10]]);

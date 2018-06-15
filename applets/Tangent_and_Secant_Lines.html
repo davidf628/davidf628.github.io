@@ -219,6 +219,8 @@ function update() {
 				return '$' + '=\\frac{' + q.Y().toFixed(2) + '+' + -p.Y().toFixed(2) +'}{' + q.X().toFixed(2) + '+' + p.X().toFixed(2) + '} ' + '$';
 			} else if((p.X() > 0) && (p.Y() > 0)) {
 				return '$' + '=\\frac{' + q.Y().toFixed(2) + '-' + p.Y().toFixed(2) +'}{' + q.X().toFixed(2) + '-' + p.X().toFixed(2) + '} ' + '$'; 
+			} else {
+			    return '$' + '=\\frac{' + q.Y().toFixed(2) + '+' + -p.Y().toFixed(2) +'}{' + q.X().toFixed(2) + '+' + -p.X().toFixed(2) + '} ' + '$';
 			}
 		}], 
 		{ fontSize: 20, fixed: true });
