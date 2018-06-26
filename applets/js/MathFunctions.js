@@ -27,12 +27,37 @@ MINLOG    = Math.log(MINDOUBLE);
 // Convenience functions
 function sqr(x) { return Math.pow(x, 2); }
 function sqrt(x) { return Math.sqrt(x); }
+function pow(x, a) { return Math.pow(x, a); }
 function odd(x) { return (x % 2) == 1; }
 function even(x) { return (x % 2) == 0; }
 function ln(x) { return Math.log(x); }
 function log(x) { return Math.log(x) / Math.log(10); }
 function logb(x) { return Math.log(x) / Math.log(b); }
+function ceil(x) { return Math.ceil(x); }
+function floor(x) { return Math.floor(x); }
 
+///////////////////////////////////////////////////////////////////////////////
+//
+//  Displays the value of a number to a fixed number of decimal places, if
+//    necessary.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+function formatNumber(val, dec) {
+	s = val.toFixed(dec);
+	if(s.includes('.')) {
+		while(s.slice(-1) == '0') {
+			s = s.substring(0, s.length - 1);
+		}
+		if(s.slice(-1) == '.') {
+			s = s.substring(0, s.length - 1);
+		}
+	}
+	if(s.includes('e')) {
+		s = s.substring(0, 4) + s.substring(s.indexOf('e'),s.length);
+	}
+	return s;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -44,7 +69,7 @@ function logb(x) { return Math.log(x) / Math.log(b); }
 ///////////////////////////////////////////////////////////////////////////////
 
 function randomInteger(a, b) {
-   return Math.floor((b-a-1) * Math.random()) + a;
+   return Math.floor((b-a+1) * Math.random()) + a;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -320,6 +345,38 @@ function tinv (p, df) {
 
 ///////////////////////////////////////////////////////////////////////////////
 //    
+//  Will compute the minimum of an array of numbers.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+function min(list) {
+	var min = MAXDOUBLE 
+	for(var i = 0; i < list.length; i++) {
+		if(list[i] < min) {
+			min = list[i];
+		}
+	}
+	return min;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//    
+//  Will compute the maximum of an array of numbers.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+function max(list) {
+	var max = MINDOUBLE;
+	for(var i = 0; i < list.length; i++) {
+		if(list[i] > max) {
+			max = list[i];
+		}
+	}
+	return max;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//    
 //  Will compute the sum of an array of numbers.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -344,6 +401,46 @@ function sumofsqr(list) {
 		s += sqr(list[i]);
 	}
 	return s;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//    
+//  Calculates the arithmetic mean of a set of values.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+function mean(list) {
+	return sum(list) / list.length;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//    
+//  Calculates the population standard deviation of a set of values.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+function stdevp(list) {
+	var mu = mean(list);
+	var ssd = 0; // sum of squared deviations
+	for(var i = 0; i < list.length; i++) {
+		ssd += sqr(list[i] - mu);
+	}
+	return sqrt(ssd / list.length);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//    
+//  Calculates the sample standard deviation of a set of values.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+function stdev(list) {
+	var mu = mean(list);
+	var ssd = 0; // sum of squared deviations
+	for(var i = 0; i < list.length; i++) {
+		ssd += sqr(list[i] - mu);
+	}
+	return sqrt(ssd / (list.length - 1));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1150,4 +1247,134 @@ function hGeom(a, b, c, z) {
         n++;
     }
     return x1;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+//
+//
+//  The following functions create elements related to JSXGraph
+//
+//
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  This function draws a rectangle on the a JSX Board using the coordinates:
+//  	[x, y, width, height] as an input
+//
+///////////////////////////////////////////////////////////////////////////////
+
+function JSXRectangle(board, coords) {
+	
+	// Make four invisible points to define the corners of the rectangle
+	
+	var p1 = board.create('point', 
+		[coords[0], coords[1]], 
+		{ visible: false });
+		
+	var p2 = board.create('point', 
+		[coords[0] + coords[2], coords[1]], 
+		{ visible: false });
+		
+	var p3 = board.create('point', 
+		[coords[0] + coords[2], coords[1] + coords[3]], 
+			{ visible: false });
+			
+	var p4 = board.create('point', 
+		[coords[0], coords[1] + coords[3]], 
+		{ visible: false });
+	
+	// Now draw the rectangle using a polygon
+		
+	var rect = board.create('polygon', [p1, p2, p3, p4], 
+		{ hasInnerPoints: false, 
+		  fillColor: '#0000ff',
+		  borders: { 
+			fixed: true, 
+			highlight: false 
+		  }
+		});
+		
+	return rect; 
+}
+
+function JSXHistogram(board, x_labels, y_data) {
+	
+	rects = [];
+	
+	for(var i = 0; i < y_data.length; i++) {
+		rects.push(JSXRectangle(board, [i, 0, 1, y_data[i]]));
+	}
+		
+	return rects;
+}
+
+function JSXFrequencyDistribution (dataset, nClasses, decimals = 0) {
+	
+	var xmin = min(dataset);
+	var xmax = max(dataset);
+	var range = xmax - xmin;
+	
+	var power = pow(10, decimals);
+	
+	var classWidth = ceil((range / nClasses) * power) / power;
+	
+	var UCL = []; // upper class limits
+	var LCL = []; // lower class limits
+	var frequencies = [];
+	
+	for(var i = 0; i < nClasses; i++) {
+		frequencies[i] = 0;
+		UCL[i] = 0;
+		LCL[i] = 0;
+	}
+	
+	UCL[0] = xmin + classWidth - round(1 / power, decimals)
+	LCL[0] = xmin;
+	
+	for(var i = 1; i < nClasses; i++) {
+		UCL[i] = round(UCL[i-1] + classWidth, decimals);
+		LCL[i] = round(LCL[i-1] + classWidth, decimals);
+	}
+	for(var i = 0; i < dataset.length; i++) {
+		j = 0;
+		while((dataset[i] > UCL[j]) && (j < UCL.length)) {
+			j++;
+		}
+		frequencies[j] += 1;
+	}
+	
+	return [LCL, UCL, frequencies];
+	
+}
+
+function JSXGetBounds(board) {
+	var bounds = board.getBoundingBox();
+	var xmin = bounds[0];
+	var ymax = bounds[1];
+	var xmax = bounds[2];
+	var ymin = bounds[3];
+	return [xmin, xmax, ymin, ymax];
+}
+
+function JSXSetBounds(board, bounds, keepAspectRatio) {
+	var xmin = bounds[0];
+	var xmax = bounds[1];
+	var ymin = bounds[2];
+	var ymax = bounds[3];
+	return board.setBoundingBox([xmin, ymax, xmax, ymin], keepAspectRatio);
 }

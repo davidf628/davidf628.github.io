@@ -74,7 +74,7 @@ function update() {
 	height = document.getElementById('jxgbox').clientHeight;
 
 	board.resizeContainer(width, height);
-	board.setBoundingBox(orgbounds, true);
+	board.setBoundingBox(orgbounds, false);
 
     board.removeObject(graph);
     board.removeObject(reflection);
@@ -88,7 +88,6 @@ function update() {
 	var f = document.getElementById('input_function').value;
 	var relation = board.jc.snippet(f, true, 'x', true);
 	
-	//graph = board.create('functiongraph', [relation], { strokeWidth: 2, highlight: false });
 	graph = plot_function(f);
 	reflection = board.create('reflection', [graph, reflectionLine], { strokeWidth: 2, strokeColor: 'green', visible: cb_showInverseGraph.Value() });
 	
