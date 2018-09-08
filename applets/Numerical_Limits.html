@@ -1,14 +1,11 @@
 <!--
 
 	- Draw x and f(x) using mathematical typesetting
-	- Treat undefined values as NaN instead of zero
 	- Button with instructional alert box
 	- Ability to add an open or closed circle at given value
-	- Ability to turn on/off the red and green limits
 	- change the textbox giving the x and y-values to anchor like was done in the linear regression applet
 	- always keep the x-value on screen
-	
-	
+		
 	Would be nice:
 	- if endpoints at infinity would update whenever the graph was rescaled or zoomed
 	- Bounding box would automatically resize itself when the div size is changed
@@ -21,7 +18,6 @@
 		<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
 		<script src='./js/jsxgraphcore.js' type='text/javascript'></script>
 		<script src='./js/MathFunctions.js' type='text/javascript'></script>
-		<script src='./js/jsxTools.js' type='text/javascript'></script>
 	</meta>
 </head>
 
@@ -46,46 +42,7 @@ RIGHT = 1;
 
 X = 0;
 Y = 1;
-
-// Pattern for an interval:
-
-regex_interval = '(\\(|\\[)' +                           // ( or [
-				 '(-?\\d*\\.?\\d*|-inf(inity)?)' +       // -2, 1.8, -inf
-				 ',\\s*' +                               // ,
-				 '(-?\\d*\\.?\\d*|\\+?inf(inity)?)' +    // -2, 1.8, +inf
-				 '(\\)|\\])';                            // ] or )
-
-function getLowerEndpoint(interval) {
-	l = interval.split(',');
-	l[0] = l[0].substring(1, l[0].length);
-	if(l[0].includes('inf')) {
-		bounds = board.getBoundingBox();
-		return bounds[3] - 1;
-	} else {
-		return parseFloat(l[0]);
-	}
-}
-				
-function getUpperEndpoint(interval) {
-	l = interval.split(',');
-	l[1] = l[1].substring(0, l[1].length - 1);
-	if(l[1].includes('inf')) {
-		bounds = board.getBoundingBox();
-		return bounds[1] + 1;
-	} else {
-		return parseFloat(l[1]);
-	}
-}
-
-function lowerBoundOpen(interval) {
-	return interval.includes('(');
-}
-
-function upperBoundOpen(interval) {
-	return interval.includes(')');
-}
-
-				
+		
 var board = JXG.JSXGraph.initBoard('jxgbox', {
 		boundingbox: [-10,10,10,-10], 
       	showCopyright: false, 
@@ -200,42 +157,65 @@ slider_vert_zoom.on('drag',
 		vert_zoom_level = newfactor;
 	});	
 	
-cb_function = JSXcheckbox(displayboard, 6, 0.5, 'Show Function', true);
-cb_sequence = JSXcheckbox(displayboard, 1, 0.5, 'Show Sequence', false);
+cb_function = JSXCheckBox(displayboard, 6, 0.5, 'Show Function', true, function() { update(); });
+cb_sequence = JSXCheckBox(displayboard, 1, 0.5, 'Show Sequence', false, function() { update(); });
+
+function setLLimitVisible(value) {
+	lpoint_xaxis.setAttribute({ visible: value });
+	lpoint_f.setAttribute({ visible: value });
+	lpoint_yaxis.setAttribute({ visible: value });
+	lline1.setAttribute({ visible: value });
+	lline2.setAttribute({ visible: value });
+	lx_label.setAttribute({ visible: value });
+	ly_label.setAttribute({ visible: value });
+}
+
+function setRLimitVisible(value) {
+	rpoint_xaxis.setAttribute({ visible: value });
+	rpoint_f.setAttribute({ visible: value });
+	rpoint_yaxis.setAttribute({ visible: value });
+	rline1.setAttribute({ visible: value });
+	rline2.setAttribute({ visible: value });
+	rx_label.setAttribute({ visible: value });
+	ry_label.setAttribute({ visible: value });
+}
+
+cb_llimit = JSXCheckBox(displayboard, 1, 1, 'Show Left Limit', true, function() { setLLimitVisible(cb_llimit.Value()); });
+cb_rlimit = JSXCheckBox(displayboard, 6, 1, 'Show Right Limit', true, function() { setRLimitVisible(cb_rlimit.Value()); });
 
 // Define all the points that will be used to show the limits
 
 xaxis = board.create('line', [[0, 0], [1, 0]], { visible: false });
-point_xaxis = board.create('glider', [1, 0, xaxis], { name: 'x', withLabel: false, showInfobox: false }); 
+lpoint_xaxis = board.create('glider', [1, 0, xaxis], { name: 'x', withLabel: false, showInfobox: false }); 
 
-point_f = board.create('point', [
+lpoint_f = board.create('point', [
 	function() { 
-		return point_xaxis.X(); 
+		return lpoint_xaxis.X(); 
 	}, 
 	function() { 
 		var f = document.getElementById('input_function').value;
 		if(f == '') { 
 			return 0;
 		} else {
-			return evaluate(f, point_xaxis.X()); 
+			return evaluate(f, lpoint_xaxis.X()); 
 		}
 	}], { name: '(x, f(x))', withLabel: false, showInfobox: false });
 
-point_yaxis = board.create('point', [0, 
+lpoint_yaxis = board.create('point', [0, 
 	function() { 
 		var f = document.getElementById('input_function').value;
 		if(f == '') { 
 			return 0;
 		} else {
-			return evaluate(f, point_xaxis.X()); 
+			return evaluate(f, lpoint_xaxis.X()); 
 		}
 	}], { name: 'y', withLabel: false, showInfobox: false });
 	
-board.create('segment', [point_xaxis, point_f], { color: 'red' });
-board.create('segment', [point_yaxis, point_f], { color: 'red' });
+lline1 = board.create('segment', [lpoint_xaxis, lpoint_f], { color: 'red' });
+lline2 = board.create('segment', [lpoint_yaxis, lpoint_f], { color: 'red' });
 	
-x_label = board.create('text', [0, 0, function() { return 'x = ' + displayNumber(point_xaxis.X()); }], { anchor: point_xaxis, color: 'red', fontSize: 18 });	
-y_label = board.create('text', [0, 0, function() { return 'y = ' + displayNumber(point_yaxis.Y()); }], { anchor: point_yaxis, color: 'red', fontSize: 18 });	
+lx_label = board.create('text', [0, 0, function() { return 'x = ' + displayNumber(lpoint_xaxis.X()); }], { anchor: lpoint_xaxis, color: 'red', fontSize: 18 });	
+ly_label = board.create('text', [0, 0, function() { return 'y = ' + displayNumber(lpoint_yaxis.Y()); }], { anchor: lpoint_yaxis, color: 'red', fontSize: 18 });	
 	
 rpoint_xaxis = board.create('glider', [0, 0, xaxis], { name: 'x', color: 'green', withLabel: false, showInfobox: false }); 
 rpoint_f = board.create('point', [
@@ -261,44 +241,12 @@ rpoint_yaxis = board.create('point', [0,
 		}
 	}], { name: 'y', color: 'green', withLabel: false, showInfobox: false });
 	
-board.create('segment', [rpoint_xaxis, rpoint_f], { color: 'green' });
-board.create('segment', [rpoint_yaxis, rpoint_f], { color: 'green' });
+rline1 = board.create('segment', [rpoint_xaxis, rpoint_f], { color: 'green' });
+rline2 = board.create('segment', [rpoint_yaxis, rpoint_f], { color: 'green' });
 	
 rx_label = board.create('text', [0, 0, function() { return 'x = ' + displayNumber(rpoint_xaxis.X()); }], { anchor: rpoint_xaxis, color: 'green', fontSize: 18 });	
 ry_label = board.create('text', [0, 0, function() { return 'y = ' + displayNumber(rpoint_yaxis.Y()); }], { anchor: rpoint_yaxis, color: 'green', fontSize: 18 });	
 	
-function evaluate(f, x) {
-	
-	// if f includes a restricted interval, handle that
-	if(f.search(regex_interval) != -1) {
-		
-		x_on_interval = false;
-	
-		if(f.includes(';')) {
-			f_list = f.split(';');
-		} else {
-			f_list = [f];
-		}
-		for(var i = 0; i < f_list.length; i++) {
-			var loc = f_list[i].search(regex_interval);
-			if(loc != -1) {
-				interval = f_list[i].substring(loc, f_list[i].length);
-				lowerbound = getLowerEndpoint(interval);
-				upperbound = getUpperEndpoint(interval);
-				if((x >= lowerbound) && (x <= upperbound)) {
-					f = f_list[i].substring(0, loc);
-					x_on_interval = true;
-				}
-			}
-		}
-		if(!x_on_interval) {
-			f = '0';//f.substring(0, f.search(regex_interval));
-		}
-	}
-	relation = board.jc.snippet(f, true, 'x', true);
-	return relation(x);
-}
-
 function evaluate_list(f, xlist) {
 	if(f == '') {
 		return '';
@@ -309,22 +257,6 @@ function evaluate_list(f, xlist) {
 		}
 		return ylist;
 	}
-}
-
-function displayNumber(val) {
-	s = val.toFixed(4);
-	if(s.includes('.')) {
-		while(s.slice(-1) == '0') {
-			s = s.substring(0, s.length - 1);
-		}
-		if(s.slice(-1) == '.') {
-			s = s.substring(0, s.length - 1);
-		}
-	}
-	if(s.includes('e')) {
-		s = s.substring(0, 4) + s.substring(s.indexOf('e'),s.length);
-	}
-	return s;
 }
 
 function updateChart(list, values) {
@@ -360,8 +292,12 @@ function update() {
 	}
 	
 	if(cb_function.Value()) {
+		var tmpendpoints = [];
 		for(var i = 0; i < fs.length; i++) {
-			curves[i] = plot_function(fs[i]);
+			[curves[i], tmpendpoints] = plot_function(fs[i]);
+			for(endpoint in tmpendpoints) {
+				endpoints.push(endpoint);
+			}
 		}
 	}
 	
@@ -437,39 +373,7 @@ function update() {
 		
 }
 
-function plot_function(ogtxt) {
-		
-	restricted_interval = false;
-		
-	// See if a restricted interval was defined
-	if(ogtxt.search(regex_interval) != -1) {			
-		interval = ogtxt.substring(ogtxt.search(regex_interval), ogtxt.length);
-		ogtxt = ogtxt.substring(0, ogtxt.search(regex_interval));
-		lowerval = getLowerEndpoint(interval);
-		upperval = getUpperEndpoint(interval);
-		if(lowerBoundOpen(interval)) {
-			endpoints.push(board.create('point', [lowerval, evaluate(ogtxt, lowerval)], { size: 3, strokeColor: 'blue', fillColor: 'white', withLabel: false, fixed: true }));
-		} else {
-			endpoints.push(board.create('point', [lowerval, evaluate(ogtxt, lowerval)], { strokeColor: 'blue', fillColor: 'blue', size: 3, withLabel: false, fixed: true }));
-		}
-		if(upperBoundOpen(interval)) {
-			endpoints.push(board.create('point', [upperval, evaluate(ogtxt, upperval)], { strokeColor: 'blue', size: 3, fillColor: 'white', withLabel: false, fixed: true }));
-		} else {
-			endpoints.push(board.create('point', [upperval, evaluate(ogtxt, upperval)], { strokeColor: 'blue', fillColor: 'blue', size: 3, withLabel: false, fixed: true }));
-		}
-		restricted_interval = true;
-	}
-		
-	// This is an explicit function of the form: f(x)
-	relation = board.jc.snippet(ogtxt, true, 'x', true);
-	if(restricted_interval) {
-		curve = board.create('functiongraph', [relation, lowerval, upperval], { strokeWidth: 2 });
-	} else {
-		curve = board.create('functiongraph', [relation], { strokeWidth: 2 });
-	}
 
-	return curve;
-}
 
 </script>
 </body>

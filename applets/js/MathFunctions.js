@@ -1378,3 +1378,196 @@ function JSXSetBounds(board, bounds, keepAspectRatio) {
 	var ymax = bounds[3];
 	return board.setBoundingBox([xmin, ymax, xmax, ymin], keepAspectRatio);
 }
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Creates a checkbox at a specified location using a given label.
+//   Allows user to set the box to either: checked or unchecked by default
+// 
+// An optional function can be provided that states what the program should
+//   do once the checkbox is clicked. This must be of the form:
+//     function() { doSomething(); }
+//
+///////////////////////////////////////////////////////////////////////////////
+
+function JSXCheckBox(board, xLoc, yLoc, label, checked, onChange) {
+	var cbox = board.create('checkbox', [xLoc, yLoc, label]);
+	cbox.rendNodeCheckbox.checked = checked;
+	cbox._value = checked;
+	JXG.addEvent(cbox.rendNodeCheckbox, 'change', onChange, cbox);
+	return cbox;
+}
+
+// Pattern for an interval:
+
+regex_interval = '(\\(|\\[)' +                       // ( or [
+				 '(-?\\d*\\.?\\d*|-inf(inity)?)' +       // -2, 1.8, -inf
+				 ',\\s*' +                               // ,
+				 '(-?\\d*\\.?\\d*|\\+?inf(inity)?)' +    // -2, 1.8, +inf
+				 '(\\)|\\])';                            // ] or )
+
+				 
+///////////////////////////////////////////////////////////
+// 
+// Gets the lower and bound of a interval expressed as:
+//     (-2,5), (1.5, 10], (-inf,2), [2, infinity)
+//
+////////////////////////////////////////////////////////////				 
+				 
+function getLowerEndpoint(interval) {
+	l = interval.split(',');
+	l[0] = l[0].substring(1, l[0].length);
+	if(l[0].includes('inf')) {
+		bounds = board.getBoundingBox();
+		return bounds[3] - 1;
+	} else {
+		return parseFloat(l[0]);
+	}
+}
+				
+function getUpperEndpoint(interval) {
+	l = interval.split(',');
+	l[1] = l[1].substring(0, l[1].length - 1);
+	if(l[1].includes('inf')) {
+		bounds = board.getBoundingBox();
+		return bounds[1] + 1;
+	} else {
+		return parseFloat(l[1]);
+	}
+}
+
+/////////////////////////////////////////////////////////////////
+//
+// Determines whether an interval is open or closed on the 
+//   upper or lower limit.
+//
+/////////////////////////////////////////////////////////////////
+
+function lowerBoundOpen(interval) {
+	return interval.includes('(');
+}
+
+function upperBoundOpen(interval) {
+	return interval.includes(')');
+}
+
+///////////////////////////////////////////////////////////////
+//
+// Evaluates a function expressed as:
+//    2*x - 5, ln(x - 4), etc.
+// Note that there variable is always 'x' and it is assumed that
+//    y = or f(x) = is ommitted from the start.
+// 
+// This function allows intervals to be restricted using an
+//    interval formatted as stated in [regex_interval]
+//
+// This function can also evaluate a piecewise defined function
+//    if multiple functions are provided and separated by 
+//    semicolons
+//
+/////////////////////////////////////////////////////////////////
+
+function evaluate(f, x) {
+	
+	// if f includes a restricted interval, handle that
+	if(f.search(regex_interval) != -1) {
+		
+		x_on_interval = false;
+	
+		if(f.includes(';')) {
+			f_list = f.split(';');
+		} else {
+			f_list = [f];
+		}
+		for(var i = 0; i < f_list.length; i++) {
+			var loc = f_list[i].search(regex_interval);
+			if(loc != -1) {
+				interval = f_list[i].substring(loc, f_list[i].length);
+				lowerbound = getLowerEndpoint(interval);
+				upperbound = getUpperEndpoint(interval);
+				if((x >= lowerbound) && (x <= upperbound)) {
+					f = f_list[i].substring(0, loc);
+					x_on_interval = true;
+				}
+			}
+		}
+		if(!x_on_interval) {
+			f = NaN;//'0';//f.substring(0, f.search(regex_interval));
+		}
+	}
+	relation = board.jc.snippet(f, true, 'x', true);
+	return relation(x);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Plots a function, it can restrict to a specified interval or display
+//   the function over the entire real line.
+//
+// Returns an array containing the plotted function and the endpoints of
+//   of the interval if necessary (open circle or closed circle used for
+//   endpoint).
+//
+///////////////////////////////////////////////////////////////////////////////
+
+function plot_function(ogtxt) {
+		
+	var restricted_interval = false;
+	var endpoints = [];
+	var curve;
+		
+	// See if a restricted interval was defined
+	if(ogtxt.search(regex_interval) != -1) {			
+		var interval = ogtxt.substring(ogtxt.search(regex_interval), ogtxt.length);
+		ogtxt = ogtxt.substring(0, ogtxt.search(regex_interval));
+		var lowerval = getLowerEndpoint(interval);
+		var upperval = getUpperEndpoint(interval);
+		if(lowerBoundOpen(interval)) {
+			endpoints.push(board.create('point', [lowerval, evaluate(ogtxt, lowerval)], { size: 3, strokeColor: 'blue', fillColor: 'white', withLabel: false, fixed: true }));
+		} else {
+			endpoints.push(board.create('point', [lowerval, evaluate(ogtxt, lowerval)], { strokeColor: 'blue', fillColor: 'blue', size: 3, withLabel: false, fixed: true }));
+		}
+		if(upperBoundOpen(interval)) {
+			endpoints.push(board.create('point', [upperval, evaluate(ogtxt, upperval)], { strokeColor: 'blue', size: 3, fillColor: 'white', withLabel: false, fixed: true }));
+		} else {
+			endpoints.push(board.create('point', [upperval, evaluate(ogtxt, upperval)], { strokeColor: 'blue', fillColor: 'blue', size: 3, withLabel: false, fixed: true }));
+		}
+		restricted_interval = true;
+	}
+		
+	// This is an explicit function of the form: f(x)
+	relation = board.jc.snippet(ogtxt, true, 'x', true);
+	if(restricted_interval) {
+		curve = board.create('functiongraph', [relation, lowerval, upperval], { strokeWidth: 2 });
+	} else {
+		curve = board.create('functiongraph', [relation], { strokeWidth: 2 });
+	}
+
+	return [curve, endpoints];
+}
+
+
+///////////////////////////////////////////////////////////////////
+//
+// Displays the value of a function using a little more
+//    logic than the default printing operation.
+//
+// Leading and trailing zeros are ommitted.
+//
+////////////////////////////////////////////////////////////////////
+
+function displayNumber(val) {
+	s = val.toFixed(4);
+	if(s.includes('.')) {
+		while(s.slice(-1) == '0') {
+			s = s.substring(0, s.length - 1);
+		}
+		if(s.slice(-1) == '.') {
+			s = s.substring(0, s.length - 1);
+		}
+	}
+	if(s.includes('e')) {
+		s = s.substring(0, 4) + s.substring(s.indexOf('e'),s.length);
+	}
+	return s;
+}
