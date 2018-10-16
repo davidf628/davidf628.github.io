@@ -141,29 +141,32 @@ function combination (n, r) {
 /*
     Returns the binomial probability of x successes for n trials and
     probability of success p. 
-    The last flag means: 0 - pdf and 1 - cdf
     
 */
-function binomial (x, n, p, cdf) {
-    
-    var prob = 0;
-    
-    if(cdf == 0) {
-        return combination(n, x) * Math.pow(p, x) * Math.pow(1-p, n-x);
-    } else {
-        for(i = 0; i <= x; i++) {
-            prob += combination(n, i) * Math.pow(p, i) * Math.pow(1-p, n-i);
-        }
-        return prob;
-    }
-    
+
+function binompdf(n, p, x) {
+	return combination(n, x) * Math.pow(p, x) * Math.pow(1 - p, n - x);
+}
+
+function binomcdf(n, p, x) {
+	var sum = 0;
+	var i;
+	for(i = 0; i <= x; i++) {
+		sum += binompdf(n, p, i);
+	}
+	return sum;
 }
 
 /*
 	Calculates normal distribution values. Used to draw bell curves.
 */
-function normalpdf (x) {
-	return (1 / Math.sqrt(2 * Math.PI)) * Math.exp(-(x*x) / 2); 
+function normalpdf(x, mean, stdev) {
+	mean = mean || 0;
+	stdev = stdev || 1;
+	var scale = 1 / Math.sqrt(2 * Math.PI * Math.pow(stdev, 2));
+	var z = (x - mean) / stdev;
+	var exponent = -0.5 * Math.pow(z, 2);
+	return scale * Math.exp(exponent);
 }
 
 /*
@@ -1277,6 +1280,127 @@ function hGeom(a, b, c, z) {
 //  	[x, y, width, height] as an input
 //
 ///////////////////////////////////////////////////////////////////////////////
+
+class Point {
+	
+	constructor(board, x, y, properties) {
+		this.p = board.create('point', [x, y], properties);
+		this.x = x;
+		this.y = y;
+	}
+	
+	setCoords(x, y, delay) {
+		delay = delay || 0;
+		this.x = x;
+		this.y = y;
+		this.p.moveTo([x,y], delay);
+	}
+	
+}
+
+class Rectangle {
+
+	constructor(board, x, y, width, height, color) {
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.height = height;
+		this.color = color;
+		this.p1 = new Point(board, x, y, { visible: false });
+		this.p2 = new Point(board, x + width, y, { visible: false });
+		this.p3 = new Point(board, x + width, y + height, { visible: false });
+		this.p4 = new Point(board, x, y + height, { visible: false });
+		this.rect = board.create('polygon', [this.p1.p, this.p2.p, this.p3.p, this.p4.p], { 
+			hasInnerPoints: false,
+			fillColor: color,
+			borders: {
+				fixed: true,
+				highlight: false
+			}
+		});	
+	}
+
+	setHeight(height, delay) {
+		delay = delay || 0;
+		this.p3.setCoords(this.x + this.width, this.y + height, delay);
+		this.p4.setCoords(this.x, this.y + height, delay);
+		this.height = height;
+	}
+
+	
+	setWidth(width, delay) {
+		delay = delay || 0;
+		this.p2.setCoords(this.x + width, this.y, delay);
+		this.p3.setCoords(this.x + width, this.y + this.height, delay);
+		this.width = width;
+	}
+	
+	setCoords(x, y, delay) {
+		delay = delay || 0;
+		this.p1.setCoords(x, y, delay);
+		this.p2.setCoords(x + this.width, y, delay);
+		this.p3.setCoords(x + this.width, y + this.height, delay);
+		this.p4.setCoords(x, y + this.height, delay);
+		this.x = x;
+		this.y = y;
+	}
+	
+	setColor(color) {
+		this.color = color;
+		this.rect.setAttribute( { fillColor: color } );
+		// Find a way to set the border of the polygon to the new color (set each border separately)
+	}
+
+}
+
+class Histogram {
+
+	constructor(board, barHeights, colors, coords, delta_x) {
+		this.barHeights = barHeights;
+		this.colors = colors;
+		this.delta_x = delta_x || 1;
+		if(coords) {
+			this.x = coords[0];
+			this.y = coords[1];
+		} else {
+			this.x = 0;
+			this.y = 0;
+		}	
+		
+		this.bars = [];
+		
+		var length = barHeights.length;
+		for(var i = 0; i < length; i++) {
+			this.bars[i] = new Rectangle(board, this.x + i * this.delta_x, this.y, this.delta_x, this.barHeights[i], this.colors[i]);
+		}
+		
+	}
+	
+	setBarHeight(bar, height, delay) {
+		delay = delay || 0;
+		this.bars[bar].setHeight(height, delay);
+		this.barHeights[bar] = height;
+	}
+	setBarHeights(barHeights, delay) {
+		delay = delay || 0;
+		var length = barHeights.length;
+		for(var i = 0; i < length; i++) {
+			this.bars[i].setHeight(barHeights[i], delay);
+			this.barHeights[i] = barHeights[i];
+		}
+	}
+	
+	setBarColor(bar, color) {
+		this.bars.setColor(color);
+	}
+
+	setBarColors(colors) {
+		for(var i = 0; i < this.bars.length; i++) {
+			this.bars[i].setColor(colors[i]);
+		}
+	}
+	
+}
 
 function JSXRectangle(board, coords) {
 	
