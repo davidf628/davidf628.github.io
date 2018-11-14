@@ -1543,7 +1543,8 @@ function getLowerEndpoint(interval) {
 	l[0] = l[0].substring(1, l[0].length);
 	if(l[0].includes('inf')) {
 		bounds = board.getBoundingBox();
-		return bounds[3] - 1;
+		//return bounds[3] - 1;
+		return -10000;
 	} else {
 		return parseFloat(l[0]);
 	}
@@ -1554,7 +1555,8 @@ function getUpperEndpoint(interval) {
 	l[1] = l[1].substring(0, l[1].length - 1);
 	if(l[1].includes('inf')) {
 		bounds = board.getBoundingBox();
-		return bounds[1] + 1;
+		//return bounds[1] + 1;
+		return 10000;
 	} else {
 		return parseFloat(l[1]);
 	}
@@ -1634,11 +1636,38 @@ function evaluate(f, x) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-function plot_function(ogtxt) {
+function plot_function(board, ogtxt) {
 		
 	var restricted_interval = false;
 	var endpoints = [];
 	var curve;
+		
+	regex_hole = '[Xx]\\s*!=\\s*' +                           // x != 
+				 '(-?\\d*\\.?\\d*)';        // -2, 1.8, etc.
+
+	var opencircle = { 
+			strokeColor: 'blue', 	 
+			fillColor: 'white', 
+			size: 3,
+			withLabel: false, 
+			fixed: true 
+		}
+		
+	var closedcircle = { 
+			strokeColor: 'blue', 
+			fillColor: 'blue', 
+			size: 3, 
+			withLabel: false, 
+			fixed: true 
+		}
+	
+	// See if there is a hole in the graph	
+	if(ogtxt.search(regex_hole) != -1) {
+		var hole_txt = ogtxt.substring(ogtxt.search(regex_hole), ogtxt.length);
+		ogtxt = ogtxt.substring(0, ogtxt.search(regex_hole));
+		hole_val = parseFloat(hole_txt.split('=')[1])
+		endpoints.push(board.create('point', [hole_val, evaluate(ogtxt, hole_val)], opencircle));
+	}		
 		
 	// See if a restricted interval was defined
 	if(ogtxt.search(regex_interval) != -1) {			
@@ -1647,14 +1676,14 @@ function plot_function(ogtxt) {
 		var lowerval = getLowerEndpoint(interval);
 		var upperval = getUpperEndpoint(interval);
 		if(lowerBoundOpen(interval)) {
-			endpoints.push(board.create('point', [lowerval, evaluate(ogtxt, lowerval)], { size: 3, strokeColor: 'blue', fillColor: 'white', withLabel: false, fixed: true }));
+			endpoints.push(board.create('point', [lowerval, evaluate(ogtxt, lowerval)], opencircle));
 		} else {
-			endpoints.push(board.create('point', [lowerval, evaluate(ogtxt, lowerval)], { strokeColor: 'blue', fillColor: 'blue', size: 3, withLabel: false, fixed: true }));
+			endpoints.push(board.create('point', [lowerval, evaluate(ogtxt, lowerval)], closedcircle));
 		}
 		if(upperBoundOpen(interval)) {
-			endpoints.push(board.create('point', [upperval, evaluate(ogtxt, upperval)], { strokeColor: 'blue', size: 3, fillColor: 'white', withLabel: false, fixed: true }));
+			endpoints.push(board.create('point', [upperval, evaluate(ogtxt, upperval)], opencircle));
 		} else {
-			endpoints.push(board.create('point', [upperval, evaluate(ogtxt, upperval)], { strokeColor: 'blue', fillColor: 'blue', size: 3, withLabel: false, fixed: true }));
+			endpoints.push(board.create('point', [upperval, evaluate(ogtxt, upperval)], closedcircle));
 		}
 		restricted_interval = true;
 	}

@@ -294,9 +294,9 @@ function update() {
 	if(cb_function.Value()) {
 		var tmpendpoints = [];
 		for(var i = 0; i < fs.length; i++) {
-			[curves[i], tmpendpoints] = plot_function(fs[i]);
-			for(endpoint in tmpendpoints) {
-				endpoints.push(endpoint);
+			[curves[i], tmpendpoints] = plot_function(board, fs[i]);
+			for(var j = 0; j < tmpendpoints.length; j++) {
+				endpoints.push(tmpendpoints[j]);
 			}
 		}
 	}

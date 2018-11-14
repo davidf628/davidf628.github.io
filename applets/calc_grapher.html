@@ -1,0 +1,133 @@
+<!--
+
+	- Draw x and f(x) using mathematical typesetting
+	- Button with instructional alert box
+	- Ability to add an open or closed circle at given value
+	- change the textbox giving the x and y-values to anchor like was done in the linear regression applet
+	- always keep the x-value on screen
+		
+	Would be nice:
+	- if endpoints at infinity would update whenever the graph was rescaled or zoomed
+	- Bounding box would automatically resize itself when the div size is changed
+	
+-->
+
+<html>
+<head>
+	<meta charset="utf-8">  
+		<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
+		<script src='./js/jsxgraphcore.js' type='text/javascript'></script>
+		<script src='./js/MathFunctions.js' type='text/javascript'></script>
+		<script src='./js/DAT.GUI.min.js' type='text/javascript'></script>
+	</meta>
+</head>
+
+<body>
+
+<div id="jxgbox" class="jxgbox" style="width:1100px; height:640px; float:left; resize: both"></div>
+
+<script type='text/javascript'>
+		
+var board = JXG.JSXGraph.initBoard('jxgbox', {
+		boundingbox: [-10,10,10,-10], 
+      	showCopyright: false, 
+      	showNavigation: true,
+		keepaspectratio: false,
+		axis: true,
+      	zoom: {
+            factorX: 1.25,
+            factorY: 1.25,
+            wheel: true,
+            needshift: false,
+            eps: 0.1
+        }		
+    });
+		
+// Initialize curve so that we have something we can update
+curves = [];
+endpoints = [];
+nFunctions = 9;
+ 
+init(); 
+
+function update() {
+
+	orgbounds = board.getBoundingBox();
+	width = document.getElementById('jxgbox').clientWidth;
+	height = document.getElementById('jxgbox').clientHeight;
+
+	board.resizeContainer(width, height);
+	board.setBoundingBox(orgbounds, false);
+
+	fs = [parameters.f1, parameters.f2, parameters.f3, parameters.f4, parameters.f5,
+	      parameters.f6, parameters.f7, parameters.f8, parameters.f9];
+
+	for(var i = 0; i < curves.length; i++) {
+		board.removeObject(curves[i]);
+	}
+	
+	for(var i = 0; i < endpoints.length; i++) {
+		board.removeObject(endpoints[i]);
+	}
+
+	var tmpendpoints = [];	
+	for(var i = 0; i < nFunctions; i++) {
+		if (fs[i].length != 0) {
+			[curves[i], tmpendpoints] = plot_function(board, fs[i]);
+			for(var j = 0; j < tmpendpoints.length; j++) {
+				endpoints.push(tmpendpoints[j]);
+			}
+		}
+	}
+	
+	board.update();	
+		
+}
+
+function init() {
+
+	parameters = {
+		f1: '',
+		f2: '',
+		f3: '',
+		f4: '',
+		f5: '',
+		f6: '',
+		f7: '',
+		f8: '',
+		f9: '',
+		xmin: -10,
+		xmax: 10,
+		ymin: -10,
+		ymax: 10,
+		update: function() { update() }
+	};	
+
+	var gui = new dat.GUI();
+	
+	var relations = gui.addFolder('Relations');
+	
+	relations.add(parameters, 'f1').name('1: ');
+	relations.add(parameters, 'f2').name('2: ');
+	relations.add(parameters, 'f3').name('3: ');
+	relations.add(parameters, 'f4').name('4: ');
+	relations.add(parameters, 'f5').name('5: ');
+	relations.add(parameters, 'f6').name('6: ');
+	relations.add(parameters, 'f7').name('7: ');
+	relations.add(parameters, 'f8').name('8: ');
+	relations.add(parameters, 'f9').name('9: ');	
+	
+	var windowSettings = gui.addFolder('Window Settings');
+		
+	windowSettings.add(parameters, 'xmin').name('x Min: ');
+	windowSettings.add(parameters, 'xmax').name('x Max: ');
+	windowSettings.add(parameters, 'ymin').name('y Min: ');
+	windowSettings.add(parameters, 'ymax').name('y Max: ');
+	
+	gui.add(parameters, 'update').name('Update Graph');
+
+}
+
+</script>
+</body>
+</html>
