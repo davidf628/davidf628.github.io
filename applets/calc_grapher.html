@@ -61,6 +61,10 @@ function update() {
 
 	fs = [parameters.f1, parameters.f2, parameters.f3, parameters.f4, parameters.f5,
 	      parameters.f6, parameters.f7, parameters.f8, parameters.f9];
+		  
+	colors = [parameters.color1, parameters.color2, parameters.color3, 
+			  parameters.color4, parameters.color5, parameters.color6, 
+			  parameters.color7, parameters.color8, parameters.color9];
 
 	for(var i = 0; i < curves.length; i++) {
 		board.removeObject(curves[i]);
@@ -73,7 +77,7 @@ function update() {
 	var tmpendpoints = [];	
 	for(var i = 0; i < nFunctions; i++) {
 		if (fs[i].length != 0) {
-			[curves[i], tmpendpoints] = plot_function(board, fs[i]);
+			[curves[i], tmpendpoints] = plot_function(board, fs[i], { color: colors[i] });
 			for(var j = 0; j < tmpendpoints.length; j++) {
 				endpoints.push(tmpendpoints[j]);
 			}
@@ -87,15 +91,15 @@ function update() {
 function init() {
 
 	parameters = {
-		f1: '',
-		f2: '',
-		f3: '',
-		f4: '',
-		f5: '',
-		f6: '',
-		f7: '',
-		f8: '',
-		f9: '',
+		f1: '', color1: '#0000FF',
+		f2: '', color2: '#FF0000',
+		f3: '', color3: '#00FF00',
+		f4: '', color4: '#FFFF00',
+		f5: '', color5: '#FF00FF',
+		f6: '', color6: '#00FFFF',
+		f7: '', color7: '#000000',
+		f8: '', color8: '#AAAAAA',
+		f9: '', color9: '#0000AA',
 		xmin: -10,
 		xmax: 10,
 		ymin: -10,
@@ -107,15 +111,33 @@ function init() {
 	
 	var relations = gui.addFolder('Relations');
 	
-	relations.add(parameters, 'f1').name('1: ');
-	relations.add(parameters, 'f2').name('2: ');
-	relations.add(parameters, 'f3').name('3: ');
-	relations.add(parameters, 'f4').name('4: ');
-	relations.add(parameters, 'f5').name('5: ');
-	relations.add(parameters, 'f6').name('6: ');
-	relations.add(parameters, 'f7').name('7: ');
-	relations.add(parameters, 'f8').name('8: ');
-	relations.add(parameters, 'f9').name('9: ');	
+	var relation1 = relations.addFolder('1:');
+	relation1.add(parameters, 'f1').name('Equation: ');
+	relation1.addColor(parameters, 'color1').name('Color:');
+	var relation2 = relations.addFolder('2:');
+	relation2.add(parameters, 'f2').name('Equation: ');
+	relation2.addColor(parameters, 'color2').name('Color:');
+	var relation3 = relations.addFolder('3:');
+	relation3.add(parameters, 'f3').name('Equation: ');
+	relation3.addColor(parameters, 'color3').name('Color:');
+	var relation4 = relations.addFolder('4:');
+	relation4.add(parameters, 'f4').name('Equation: ');
+	relation4.addColor(parameters, 'color4').name('Color:');
+	var relation5 = relations.addFolder('5:');
+	relation5.add(parameters, 'f5').name('Equation: ');
+	relation5.addColor(parameters, 'color5').name('Color:');
+	var relation6 = relations.addFolder('6:');
+	relation6.add(parameters, 'f6').name('Equation: ');
+	relation6.addColor(parameters, 'color6').name('Color:');
+	var relation7 = relations.addFolder('7:');
+	relation7.add(parameters, 'f7').name('Equation: ');
+	relation7.addColor(parameters, 'color7').name('Color:');
+	var relation8 = relations.addFolder('8:');
+	relation8.add(parameters, 'f8').name('Equation: ');
+	relation8.addColor(parameters, 'color8').name('Color:');
+	var relation9 = relations.addFolder('9:');
+	relation9.add(parameters, 'f9').name('Equation: ');
+	relation9.addColor(parameters, 'color9').name('Color:');
 	
 	var windowSettings = gui.addFolder('Window Settings');
 		

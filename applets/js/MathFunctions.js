@@ -1636,17 +1636,19 @@ function evaluate(f, x) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-function plot_function(board, ogtxt) {
+function plot_function(board, ogtxt, args) {
+		
+	var color = args.color ? args.color : 'blue';
 		
 	var restricted_interval = false;
 	var endpoints = [];
 	var curve;
 		
-	regex_hole = '[Xx]\\s*!=\\s*' +                           // x != 
+	regex_hole = '[Xx]\\s*!=\\s*' +          // x != 
 				 '(-?\\d*\\.?\\d*)';        // -2, 1.8, etc.
 
 	var opencircle = { 
-			strokeColor: 'blue', 	 
+			strokeColor: color, 	 
 			fillColor: 'white', 
 			size: 3,
 			withLabel: false, 
@@ -1654,8 +1656,8 @@ function plot_function(board, ogtxt) {
 		}
 		
 	var closedcircle = { 
-			strokeColor: 'blue', 
-			fillColor: 'blue', 
+			strokeColor: color, 
+			fillColor: color, 
 			size: 3, 
 			withLabel: false, 
 			fixed: true 
@@ -1691,9 +1693,9 @@ function plot_function(board, ogtxt) {
 	// This is an explicit function of the form: f(x)
 	relation = board.jc.snippet(ogtxt, true, 'x', true);
 	if(restricted_interval) {
-		curve = board.create('functiongraph', [relation, lowerval, upperval], { strokeWidth: 2 });
+		curve = board.create('functiongraph', [relation, lowerval, upperval], { strokeColor: color, strokeWidth: 2 });
 	} else {
-		curve = board.create('functiongraph', [relation], { strokeWidth: 2 });
+		curve = board.create('functiongraph', [relation], { strokeColor: color, strokeWidth: 2 });
 	}
 
 	return [curve, endpoints];
@@ -1724,3 +1726,31 @@ function displayNumber(val) {
 	}
 	return s;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Example of a function that handles multiple parameter inputs
+//
+///////////////////////////////////////////////////////////////////////////////
+
+     // function Point(arg) {
+        // var loc = arg.loc ? arg.loc : [0, 0];
+        // var visible = arg.visible ? arg.visible : false;
+        // var snapToGrid = arg.snapToGrid ? arg.snapToGrid : false;
+        // var snapSize = arg.snapSize ? arg.snapSize : 1;
+        // var name = arg.name ? arg.name : 'p';
+        // var showInfoBox =  arg.showInfoBox ? arg.showInfoBox : false;
+
+        // var p = board.create('point', loc, {
+            // visible: visible,
+            // snapToGrid: snapToGrid,
+            // snapSizeX: snapSize,
+            // snapSizeY: snapSize,
+            // name: name,
+            // showInfoBox: false
+        // });
+
+        // return p;
+
+    // } 
+
