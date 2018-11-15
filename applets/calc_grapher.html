@@ -52,12 +52,14 @@ init();
 
 function update() {
 
-	orgbounds = board.getBoundingBox();
+	//orgbounds = board.getBoundingBox();
 	width = document.getElementById('jxgbox').clientWidth;
 	height = document.getElementById('jxgbox').clientHeight;
 
 	board.resizeContainer(width, height);
-	board.setBoundingBox(orgbounds, false);
+	//board.setBoundingBox(orgbounds, false);
+	
+	updateWindowBounds();
 
 	fs = [parameters.f1, parameters.f2, parameters.f3, parameters.f4, parameters.f5,
 	      parameters.f6, parameters.f7, parameters.f8, parameters.f9];
@@ -100,10 +102,10 @@ function init() {
 		f7: '', color7: '#000000',
 		f8: '', color8: '#AAAAAA',
 		f9: '', color9: '#0000AA',
-		xmin: -10,
-		xmax: 10,
-		ymin: -10,
-		ymax: 10,
+		xmin: '-10',
+		xmax: '10',
+		ymin: '-10',
+		ymax: '10',
 		update: function() { update() }
 	};	
 
@@ -141,13 +143,19 @@ function init() {
 	
 	var windowSettings = gui.addFolder('Window Settings');
 		
-	windowSettings.add(parameters, 'xmin').name('x Min: ');
-	windowSettings.add(parameters, 'xmax').name('x Max: ');
-	windowSettings.add(parameters, 'ymin').name('y Min: ');
-	windowSettings.add(parameters, 'ymax').name('y Max: ');
+	windowSettings.add(parameters, 'xmin').name('x Min:');
+	windowSettings.add(parameters, 'xmax').name('x Max:');
+	windowSettings.add(parameters, 'ymin').name('y Min:');
+	windowSettings.add(parameters, 'ymax').name('y Max:');
 	
 	gui.add(parameters, 'update').name('Update Graph');
 
+}
+
+function updateWindowBounds() {
+	JSXSetBounds(board, [parseFloat(parameters.xmin), parseFloat(parameters.xmax), 
+						 parseFloat(parameters.ymin), parseFloat(parameters.ymax)], 
+				 false);
 }
 
 </script>
