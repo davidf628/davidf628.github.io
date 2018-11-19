@@ -11,6 +11,7 @@
 		<link rel='stylesheet' type='text/css' href='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css' />
 		<script src='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraphcore.js' type='text/javascript'></script>
 		<script src='https://jsxgraph.uni-bayreuth.de/distrib/GeonextReader.js' type='text/javascript'></script>
+		<script src='./js/math.min.js' type = 'text/javascript'></script>
 	</meta>
 </head>
 
@@ -19,9 +20,9 @@
 <h1>Polar Graph</h1>
 r(t) = <input type="text" id="input_function" value="">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-&theta; Start = <input type="text" id="input_function" value="">
+&theta; Start = <input type="text" id="start" value="">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-&theta; End = <input type="text" id="input_function" value="">
+&theta; End = <input type="text" id="end" value="">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <input type="button" value="Update" onClick="update()">
 </br></br>
@@ -59,6 +60,11 @@ var displayboard = JXG.JSXGraph.initBoard('display', {
 // Initialize variables so that we have something we can update
 curve = board.create('curve', [0, 0], 0, 0, { visible: false });
 
+function print(value) {
+    const precision = 14
+    document.write(math.format(value, precision) + '<br>')
+  }
+
 function evaluate(f, x) {
 	
 	var relation = board.jc.snippet(f, true, 'x', true);
@@ -83,6 +89,8 @@ function displayNumber(val) {
 
 function update() {
 
+	
+
 	var orgbounds = board.getBoundingBox();
 	var width = document.getElementById('jxgbox').clientWidth;
 	var height = document.getElementById('jxgbox').clientHeight;
@@ -94,7 +102,6 @@ function update() {
 	board.removeObject(curve);
 	
 	curve = plot_function(f);
-	
 	board.update();	
 		
 }
@@ -105,8 +112,27 @@ function plot_function(ogtxt) {
 	if(ogtxt == '') {
 		curve = board.create('curve', [0, 0], 0, 0, { visible: false });
 	} else {
-		relation = board.jc.snippet(ogtxt, true, 't', true);
-		curve = board.create('curve', [relation, [0, 0], 0, 6.28], { curveType: 'polar', strokeWidth: 2 });
+		const expression = document.getElementById('input_function').value;
+		const lowerval = document.getElementById('start').value;
+		const upperval = document.getElementById('end').value;
+		const expr = math.compile(expression);
+		const tValues = math.range(lowerval, upperval, 0.1).toArray();
+		const rValues = tValues.map(function(x) {
+			return expr.eval({t: x});
+		});
+		var xValues = [];
+		var yValues = [];
+		for(var i = 0; i < tValues.length; i++) {
+			xValues[i] = rValues[i] * Math.cos(tValues[i]);
+			yValues[i] = rValues[i] * Math.sin(tValues[i]);
+		}
+		//var node = math.parse('x');
+		//var code = node.compile();
+		curve = board.create('curve', [xValues, yValues], { strokeWidth: 2 });
+		//parser.eval('f(t)=t');
+		//relation = math.compile(ogtxt);
+        //relation = board.jc.snippet(ogtxt, true, 't', false);
+		//curve = board.create('curve', [function(x) { return eval(javascriptify(ogtxt, x)); }, [0, 0], 0, 6.28], { curveType: 'polar', strokeWidth: 2 });
 	}
 	
 	return curve;
