@@ -5,17 +5,18 @@
 	- allow for parametric plots
 	- allow for implicit plots
 	- draw polar grid
+	- allow xmin, xmax, ymin, ymax, xscl and yscl to use units of pi
 			
 -->
 
 <html>
 <head>
-	<meta charset="utf-8">  
-		<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
-		<script src='./js/jsxgraphcore.js' type='text/javascript'></script>
-		<script src='./js/MathFunctions.js' type='text/javascript'></script>
-		<script src='./js/DAT.GUI.min.js' type='text/javascript'></script>
-		<script src='./js/math.min.js' type='text/javascript'></script>
+	<meta charset="utf-8">
+	<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
+	<script src='./js/jsxgraphcore.js' type='text/javascript'></script>
+	<script src='./js/MathFunctions.js' type='text/javascript'></script>
+	<script src='./js/DAT.GUI.min.js' type='text/javascript'></script>
+	<script src='./js/math.min.js' type='text/javascript'></script>
 	</meta>
 </head>
 
@@ -39,13 +40,14 @@ var board = JXG.JSXGraph.initBoard('jxgbox', {
             eps: 0.1
         }		
     });
-		
+
 // Initialize curve so that we have something we can update
-curves = [];
-endpoints = [];
-nFunctions = 9;
- 
-init(); 
+var curves = [];
+var endpoints = [];
+var nFunctions = 9;
+var curveIsDrawn = [];
+
+init();
 
 function update() {
 
@@ -53,7 +55,7 @@ function update() {
 	height = document.getElementById('jxgbox').clientHeight;
 	board.resizeContainer(width, height);
 	
-	updateWindowBounds();
+	updateWindowBounds(board);
 
 	var fs = [parameters.f1, parameters.f2, parameters.f3, parameters.f4, 
 	          parameters.f5, parameters.f6, parameters.f7, parameters.f8, 
@@ -70,40 +72,50 @@ function update() {
 	var density = math.eval(parameters.density);
 
 	for(var i = 0; i < curves.length; i++) {
-		board.removeObject(curves[i]);
+		var xValues = [Number.NaN];
+		var yValues = [Number.NaN];
+		curves[i].dataX = xValues;
+		curves[i].dataY = yValues;
+		curves[i].updateParametricCurve();
 	}
 	
-	for(var i = 0; i < endpoints.length; i++) {
-		board.removeObject(endpoints[i]);
+	for(var i = 0; i < nFunctions * 3; i++) {
+		endpoints[i].setAttribute({ visible: false });
 	}
-
-	var tmpendpoints = [];	
+	
 	for(var i = 0; i < nFunctions; i++) {
 		if (fs[i].length != 0) {
-			if(intervals[i] != '') {
-				// check to see if any of the interval endpoints need processed, 2*pi
-				var lval = intervals[i].search('[\\(\\[]');
-				var uval = intervals[i].search('[\\)\\]]');
-				var cval = intervals[i].search(',');
-				var lowersymbol = intervals[i].substring(lval, lval+1);
-				var uppersymbol = intervals[i].substring(uval, uval+1);
-				var lowerlimit = math.eval(intervals[i].substring(lval+1, cval)); 
-				var upperlimit = math.eval(intervals[i].substring(cval+1, uval));
-				intervals[i] = lowersymbol + lowerlimit + ',' + upperlimit + uppersymbol;
-				fs[i] = fs[i] + ' ' + intervals[i];
-			}
-			[curves[i], tmpendpoints] = plot(board, fs[i], { color: colors[i], density: density });
-			for(var j = 0; j < tmpendpoints.length; j++) {
-				endpoints.push(tmpendpoints[j]);
-			}
+		
+			plot(curves[i], fs[i], parameters.xmin, parameters.xmax, { 
+				color: colors[i], 
+				density: density, 
+				interval: intervals[i],
+				lowerendpoint: endpoints[3*i],
+				upperendpoint: endpoints[3*i+1],
+				hole: endpoints[3*i+2]
+			});
+			
 		}
 	}
-	
-	board.update();	
+
+	board.update();
 		
 }
 
 function init() {
+
+	var xValues = [Number.NaN];
+	var yValues = [Number.NaN];
+	
+	for(var i = 0; i < nFunctions; i++) {
+		curves[i] = board.create('curve', [xValues, yValues], { strokeWidth: 2 }); 
+		curveIsDrawn[i] = false;
+	}
+
+	// Create a hole, lower and upper endpoint for each function
+	for(var i = 0; i < nFunctions * 3; i++) {
+		endpoints[i] = board.create('point', [0, 0], { size: 3, withLabel: false, visible: false, fixed: true });
+	}
 
 	parameters = {
 		f1: '', color1: '#0000FF', int1: '',
@@ -125,7 +137,7 @@ function init() {
 		angle: 'Radians',
 		density: '0.01',
 		a: 0, b: 0, c: 0, d: 0, 
-		update: function() { update() }
+		updater: function() { update() }
 	};	
 
 	var gui = new dat.GUI();
@@ -196,29 +208,36 @@ function init() {
 	variables.add(parameters, 'c').name('c').min(-20).max(20).step(0.1);
 	variables.add(parameters, 'd').name('d').min(-20).max(20).step(0.1);
 	
-	gui.add(parameters, 'update').name('Update Graph');
+	gui.add(parameters, 'updater').name('Update Graph');
 	
 	board.on('boundingbox', 
 		function() { 
 			var box = JSXGetBounds(board);
-			parameters.xmin = box[0];
-			parameters.xmax = box[1];
-			parameters.ymin = box[2];
-			parameters.ymax = box[3];	
+			parameters.xmin = box.xmin;
+			parameters.xmax = box.xmax;
+			parameters.ymin = box.ymin;
+			parameters.ymax = box.ymax;	
 			for (var i in windowSettings.__controllers) {
 				windowSettings.__controllers[i].updateDisplay();
 			}
-
+			//update();
 		}
 	);
 	
+	board.on('up', function() { update(); });
 
 }
 
-function updateWindowBounds() {
-	JSXSetBounds(board, [parseFloat(parameters.xmin), parseFloat(parameters.xmax), 
-						 parseFloat(parameters.ymin), parseFloat(parameters.ymax)], 
-				 false);
+function updateWindowBounds(board) {
+	
+	var bounds = {
+		xmin: parseFloat(parameters.xmin),
+		xmax: parseFloat(parameters.xmax),
+		ymin: parseFloat(parameters.ymin),
+		ymax: parseFloat(parameters.ymax)
+	};
+	
+	JSXSetBounds(board, bounds, false);
 }
 
 </script>

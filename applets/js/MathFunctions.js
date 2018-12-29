@@ -9,6 +9,9 @@ LNPI      = 1.14472988584940017414;
 LNSQRT2PI = 0.91893853320467274178;
 SQRT2PI   = 2.50662827463100050242;
 
+NEGATIVE_INFINITY = Number.MIN_VALUE;
+POSITIVE_INFINITY = Number.MAX_VALUE;
+
 MAXGAM  = 34.648;
 MAXFACT = 170;  
 MAXGAM  = 34.648;
@@ -220,7 +223,7 @@ function invnorm(p)
   // E-mail:      pjacklam@online.no
   // WWW URL:     http://home.online.no/~pjacklam
 
-  // An algorithm with a relative error less than 1.15·10-9 in the entire region.
+  // An algorithm with a relative error less than 1.15ï¿½10-9 in the entire region.
 
   // Coefficients in rational approximations
   var a = new Array(-3.969683028665376e+01,  2.209460984245205e+02,
@@ -1486,20 +1489,44 @@ function JSXFrequencyDistribution (dataset, nClasses, decimals = 0) {
 	
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// Gets the window bounds of a JSX graph, the return is an object that contains
+//   references to the xmin, xmax, ymin, and ymax values. The reason I use
+//   this instead of board.getBoundingBox() is because I can never remember
+//   the order of the bounds from JSX.
+//
+///////////////////////////////////////////////////////////////////////////////
+
 function JSXGetBounds(board) {
 	var bounds = board.getBoundingBox();
-	var xmin = bounds[0];
-	var ymax = bounds[1];
-	var xmax = bounds[2];
-	var ymin = bounds[3];
-	return [xmin, xmax, ymin, ymax];
+	var box = {
+			xmin: bounds[0],
+			ymax: bounds[1],
+			xmax: bounds[2],
+			ymin: bounds[3]
+		};
+	return box;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// Sets the window bounds of a JSX graph, the input is expected to be an
+//   object that contains an xmin, xmax, ymin and ymax value. If any of these
+//   aren't provided, the current window bounds are used for any missing
+//   values.
+//
+///////////////////////////////////////////////////////////////////////////////
+
 function JSXSetBounds(board, bounds, keepAspectRatio) {
-	var xmin = bounds[0];
-	var xmax = bounds[1];
-	var ymin = bounds[2];
-	var ymax = bounds[3];
+
+	var box = JSXGetBounds(board);
+
+	var xmin = bounds.xmin ? bounds.xmin : box.xmin;
+	var xmax = bounds.xmax ? bounds.xmax : box.xmax;
+	var ymin = bounds.ymin ? bounds.ymin : box.ymin;
+	var ymax = bounds.ymax ? bounds.ymax : box.ymax;
+
 	return board.setBoundingBox([xmin, ymax, xmax, ymin], keepAspectRatio);
 }
 
@@ -1522,6 +1549,125 @@ function JSXCheckBox(board, xLoc, yLoc, label, checked, onChange) {
 	return cbox;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// Checks to see if a function is implicitly defined by seeing if the math.js
+//   parser can parse it. If not, then it is implicit, otherwise it is
+//   explicit.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+function isImplicitEquation(expression) {
+	try {
+		const node = math.parse(expression);
+	} catch(err) {
+		return true;
+	}
+	return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Converts an implicit equation to an explcit expression by finding the 
+//   equals sign in the equation, and negating all terms on the right-hand
+//   side of the equation. Then the right and left sides are combined.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+function convertImplicitEquation(expression) { 
+
+	var equalloc = expression.search('=');
+	var LH = expression.substring(0, equalloc);
+	var RH = expression.substring(equalloc + 1, expression.length);
+	var newRH = '';
+		
+	if(RH.charAt(0) != '+') {
+		RH = '+' + RH;
+	}
+		
+	for(var i = 0; i < RH.length; i++) {
+		if(RH[i] == '+') {
+			newRH += '-';
+		} else if(RH[i] == '-') {
+			newRH += '+';
+		} else {
+			newRH += RH[i];
+		}
+	}
+	
+	return LH + newRH;
+	
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Removes the function name from an equation. This is assumed to be on the
+//   left-hand side of the equation, and in explicit form.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+function removeFunctionName(expression) {
+	if(expression.search('=') != -1) {
+		return expression.split('=')[1];
+	} else {
+		return expression;
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Determines the name of an explicitly defined function using the math.js
+//   parser.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+function getFunctionName(expression) {
+
+	var name = '';
+	var node = math.parse(expression);
+	
+	node.traverse(	
+		function(node, path, parent) {
+			if(node.type == 'AssignmentNode' || node.type == 'FunctionAssignmentNode') {
+				name = node.name;
+			}
+		}
+	);
+
+	return name;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Determines the name of all variables within an expression using the math.js
+//   parser. The constants, pi, e and i are all left out.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+function getVariables(expression) {
+	
+	var variables = [];	
+	var func = getFunctionName(expression);
+	
+	var node = math.parse(expression);
+	
+	node.traverse(	
+		function(node, path, parent) {
+			if(node.type == 'SymbolNode' && node.name != func) {
+				if(node.name != 'e' && node.name != 'pi' && node.name != 'i') {
+					if(variables.indexOf(node.name) == -1) {
+						variables.push(node.name);
+					}
+				}
+			}
+		}
+	);
+
+	return variables;
+
+}
+
+
 // Pattern for a restricted interval:
 
 regex_math = '|[\\w\\+\\-\\*\\/^()]*';
@@ -1537,6 +1683,13 @@ regex_interval = '(\\(|\\[)' +                       // ( or [
 	regex_hole = '[Xx]\\s*!=\\s*' +          // x != 
 				 '(-?\\d*\\.?\\d*)';        // -2, 1.8, etc.				 
 				 
+function removeSpaces(s) {
+	while(s.search(' ') != -1) {
+		s = s.replace(' ', '');
+	}
+	return s;
+}	
+				 
 ///////////////////////////////////////////////////////////
 // 
 // Gets the lower and bound of a interval expressed as:
@@ -1545,24 +1698,22 @@ regex_interval = '(\\(|\\[)' +                       // ( or [
 ////////////////////////////////////////////////////////////				 
 				 
 function getLowerEndpoint(interval) {
+	interval = removeSpaces(interval);
 	l = interval.split(',');
 	l[0] = l[0].substring(1, l[0].length);
 	if(l[0].includes('inf')) {
-		bounds = board.getBoundingBox();
-		//return bounds[3] - 1;
-		return -10000;
+		return NEGATIVE_INFINITY;
 	} else {
 		return math.eval(l[0]);
 	}
 }
 				
 function getUpperEndpoint(interval) {
+	interval = removeSpaces(interval);
 	l = interval.split(',');
 	l[1] = l[1].substring(0, l[1].length - 1);
 	if(l[1].includes('inf')) {
-		bounds = board.getBoundingBox();
-		//return bounds[1] + 1;
-		return 10000;
+		return POSITIVE_INFINITY;
 	} else {
 		return math.eval(l[1]);
 	}
@@ -1638,74 +1789,94 @@ function evaluate(f, x, args) {
 // Plots a function, it can restrict to a specified interval or display
 //   the function over the entire real line.
 //
-// Returns an array containing the plotted function and the endpoints of
-//   of the interval if necessary (open circle or closed circle used for
-//   endpoint).
+// A curve must be provided to update - which means the curve must be
+//   initialized by the board to begin with.
+//
+// Optionally, a point for a lower endpoint, upper endpoint and hole in the
+//   graph can be provided, but this is not a requirement.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-function plot_function(board, ogtxt, args) {
+function plot_function(curve, relation, start_x, end_x, args) {
 		
 	var color = args.color ? args.color : 'blue';
-	var variable = args.variable ? args.variable : 'x';
+	var interval = args.interval ? args.interval : '';
+	var density = args.density ? args.density : 0.01;
+	var width = args.width ? args.width : 2;
+	var lowerendpoint = args.lowerendpoint ? args.lowerendpoint : -1;
+	var upperendpoint = args.upperendpoint ? args.upperendpoint : -1;
+	var hole = args.hole ? args.hole : -1;
 		
 	var restricted_interval = false;
-	var endpoints = [];
-	var curve;
-
-	var opencircle = { 
-			strokeColor: color, 	 
-			fillColor: 'white', 
-			size: 3,
-			withLabel: false, 
-			fixed: true 
-		}
-		
-	var closedcircle = { 
-			strokeColor: color, 
-			fillColor: color, 
-			size: 3, 
-			withLabel: false, 
-			fixed: true 
-		}
 	
-	// See if there is a hole in the graph	
-	if(ogtxt.search(regex_hole) != -1) {
-		var hole_txt = ogtxt.substring(ogtxt.search(regex_hole), ogtxt.length);
-		ogtxt = ogtxt.substring(0, ogtxt.search(regex_hole));
-		hole_val = parseFloat(hole_txt.split('=')[1])
-		endpoints.push(board.create('point', [hole_val, evaluate(ogtxt, hole_val, args)], opencircle));
-	}		
-		
-	// See if a restricted interval was defined
-	if(ogtxt.search(regex_interval) != -1) {			
-		var interval = ogtxt.substring(ogtxt.search(regex_interval), ogtxt.length);
-		ogtxt = ogtxt.substring(0, ogtxt.search(regex_interval));
-		var lowerval = getLowerEndpoint(interval);
-		var upperval = getUpperEndpoint(interval);
-		if(lowerBoundOpen(interval)) {
-			endpoints.push(board.create('point', [lowerval, evaluate(ogtxt, lowerval, args)], opencircle));
-		} else {
-			endpoints.push(board.create('point', [lowerval, evaluate(ogtxt, lowerval, args)], closedcircle));
-		}
-		if(upperBoundOpen(interval)) {
-			endpoints.push(board.create('point', [upperval, evaluate(ogtxt, upperval, args)], opencircle));
-		} else {
-			endpoints.push(board.create('point', [upperval, evaluate(ogtxt, upperval, args)], closedcircle));
-		}
-		restricted_interval = true;
-	}
-		
-	// This is an explicit function of the form: f(x)
-	relation = board.jc.snippet(ogtxt, true, variable, true);
-	if(restricted_interval) {
-		curve = board.create('functiongraph', [relation, lowerval, upperval], { strokeColor: color, strokeWidth: 2 });
-	} else {
-		curve = board.create('functiongraph', [relation], { strokeColor: color, strokeWidth: 2 });
-	}
+	curve.setAttribute({ strokeWidth: width, strokeColor: color });
 
-	return [curve, endpoints];
+	if(hole != -1) {
+		hole.setAttribute({ visible: false });
+	}
+	
+	if(lowerendpoint != -1) {
+		lowerendpoint.setAttribute({ visible: false });
+	}
+	
+	if(upperendpoint != -1) {
+		upperendpoint.setAttribute({ visible: false });
+	}
+		
+	var expr = math.compile(relation);
+	
+	if(interval != '') {
+	
+		// See if there is a hole in the graph	
+		if(interval.search(regex_hole) != -1) {
+			hole_val = parseFloat(interval.split('=')[1]);
+			var y_val = expr.eval({ x: hole_val });
+			hole.moveTo([hole_val, y_val]);
+			hole.setAttribute( { visible: true, strokeColor: color, fillColor: 'white' });
+		}		
+		
+		// See if a restricted interval was defined
+		if(interval.search(regex_interval) != -1) {	
+		
+			restricted_interval = true;
+				
+			var lowerval = getLowerEndpoint(interval);
+			var upperval = getUpperEndpoint(interval);
+			
+			if(lowerval != NEGATIVE_INFINITY) {
+				start_x = lowerval;
+				var y_val = expr.eval({x: lowerval});
+				lowerendpoint.moveTo([lowerval, y_val]);
+				lowerendpoint.setAttribute({ strokeColor: color, visible: true });
+				if(lowerBoundOpen(interval)) {
+					lowerendpoint.setAttribute({ fillColor: 'white' });
+				} else {
+					lowerendpoint.setAttribute({ fillColor: color });		
+				}
+			} 
+			
+			if(upperval != POSITIVE_INFINITY) {
+				end_x = upperval;
+				var y_val = expr.eval({ x: upperval });	
+				upperendpoint.moveTo([upperval, y_val]);
+				upperendpoint.setAttribute({ strokeColor: color, visible: true });	
+				if(upperBoundOpen(interval)) {
+					upperendpoint.setAttribute({ fillColor: 'white' });
+				} else {
+					upperendpoint.setAttribute({ fillColor: color });
+				}
+			} 	
+			
+		}
+	} // if(interval != '')
+	
+	// This is an explicit function of the form: f(x)
+	curve.dataX = math.range(start_x, end_x + density, density).toArray();
+	curve.dataY = curve.dataX.map(function(x) { return expr.eval({x: x}); });
+	curve.updateParametricCurve();
+
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -1715,41 +1886,36 @@ function plot_function(board, ogtxt, args) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-function plot_polar(expression, tmin, tmax, args) {
-	
-	var curve = board.create('curve', [0, 0], 0, 0, { visible: false });
+function plot_polar(curve, expression, tmin, tmax, args) {
 		
 	var color = args.color ? args.color : 'blue';
 	var density = args.density ? args.density : 0.01;
+	var width = args.width ? args.width : 2;
 		
 	// This is an explicit polar function of the form: r(t)
 	if(expression != '') {
 	
 		var expr = math.compile(expression);
 		
-		var tValues = math.range(tmin, tmax, density).toArray();
+		var tValues = math.range(tmin, tmax + density, density).toArray();
 		var rValues = tValues.map(
-			function(x) {
-				return expr.eval({t: x});
-			});
+				function(x) {
+					return expr.eval({t: x});
+				});
 			
-		var xValues = [];
-		var yValues = [];
+		curve.dataX = [];
+		curve.dataY = [];
 		
 		for(var i = 0; i < tValues.length; i++) {
 		
-			xValues[i] = rValues[i] * Math.cos(tValues[i]);
-			yValues[i] = rValues[i] * Math.sin(tValues[i]);
+			curve.dataX[i] = rValues[i] * Math.cos(tValues[i]);
+			curve.dataY[i] = rValues[i] * Math.sin(tValues[i]);
 			
 		}
 		
-		curve = board.create('curve', [xValues, yValues], { 
-					strokeWidth: 2,
-					strokeColor: color
-			    });
+		curve.updateParametricCurve();
 	}
 	
-	return curve;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1760,13 +1926,120 @@ function plot_polar(expression, tmin, tmax, args) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-function plot_parametric(x_t, y_t, t_min, t_max) {
+function plot_parametric(curve, x_t, y_t, tmin, tmax, args) {
+	
+	var color = args.color ? args.color : 'blue';
+	var density = args.density ? args.density : 0.01;
+	var interval = args.interval ? args.interval : '';
+	var variable = args.variable ? args.variable : 't';
+	var width = args.width ? args.width : 2;
+	var lowerendpoint = args.lowerendpoint ? args.lowerendpoint : -1;
+	var upperendpoint = args.upperendpoint ? args.upperendpoint : -1;
+	var hole = args.hole ? args.hole : -1;
+	
+	curve.setAttribute({ strokeColor: color, strokeWidth: width });
+	
+	if(hole != -1) {
+		hole.setAttribute({ visible: false });
+	}
+	
+	if(lowerendpoint != -1) {
+		lowerendpoint.setAttribute({ visible: false });
+	}
+	
+	if(upperendpoint != -1) {
+		upperendpoint.setAttribute({ visible: false });
+	}
+
+	if(x_t == '') {
+		x_t = args.variable;
+	} else if(y_t == '') {
+		y_t = args.variable;
+	}
+
+	var xFunc = math.compile(x_t);
+	var yFunc = math.compile(y_t);
+	
+	var evalX = function(x) {
+					var parameter = {};
+					parameter[variable] = x;
+					return xFunc.eval(parameter);
+				};
+	
+	var evalY = function(x) {
+					var parameter = {};
+					parameter[variable] = x;
+					return yFunc.eval(parameter);
+				};
+	
+	if(interval != '') {
+	
+		// See if there is a hole in the graph	
+		if(interval.search(regex_hole) != -1) {
+
+			hole_val = parseFloat(interval.split('=')[1]);
+			hole.moveTo([evalX(hole_val), evalY(hole_val)]);
+			hole.setAttribute( { visible: true, strokeColor: color, fillColor: 'white' });
+			
+		}		
 		
-	x_func = board.jc.snippet(x_t, true, 't', true);
-	y_func = board.jc.snippet(y_t, true, 't', true);
-	curve = board.create('curve', [x_func, y_func, t_min, t_max], { curveType: 'parametric', strokeWidth: 2 });
+		// See if a restricted interval was defined
+		if(interval.search(regex_interval) != -1) {	
 		
-	return curve;
+			restricted_interval = true;
+				
+			var lowerval = getLowerEndpoint(interval);
+			var upperval = getUpperEndpoint(interval);
+			
+			if(lowerval != NEGATIVE_INFINITY) {
+			
+				tmin = lowerval;
+				lowerendpoint.moveTo([evalX(lowerval), evalY(lowerval)]);
+				lowerendpoint.setAttribute({ strokeColor: color, visible: true });
+				if(lowerBoundOpen(interval)) {
+					lowerendpoint.setAttribute({ fillColor: 'white' });
+				} else {
+					lowerendpoint.setAttribute({ fillColor: color });		
+				}
+			} 
+			
+			if(upperval != POSITIVE_INFINITY) {
+			
+				tmax = upperval;
+				upperendpoint.moveTo([evalX(upperval), evalY(upperval)]);
+				upperendpoint.setAttribute({ strokeColor: color, visible: true });	
+				if(upperBoundOpen(interval)) {
+					upperendpoint.setAttribute({ fillColor: 'white' });
+				} else {
+					upperendpoint.setAttribute({ fillColor: color });
+				}
+			} 	
+			
+		}
+	} // if(interval != '')
+	
+	if(!(x_t == '' && y_t == '')) {
+						
+		var tValues = math.range(tmin, tmax + density, density).toArray();
+		
+		curve.dataX = tValues.map(
+				function(x) {
+					var parameter = {};
+					parameter[variable] = x;
+					return xFunc.eval(parameter);
+				});
+		
+		curve.dataY = tValues.map(
+				function(x) {
+					var parameter = {};
+					parameter[variable] = x;
+					return yFunc.eval(parameter);
+				});
+		
+		curve.updateParametricCurve();
+		
+	}
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1776,8 +2049,8 @@ function plot_parametric(x_t, y_t, t_min, t_max) {
 //
 //          y = f(x), or just f(x) - for standard rectangular functions
 //          r = f(t) - for polar equations
-//          ( x(t), y(t) ) - for parametric equations
-//          x = ...  or y = ... - for 
+//          [ x(t), y(t) ] - for parametric equations
+//          x = g(y) - for rectangular equations rotated by 90 degrees
 //          *** functionality for general equations to come at a later time
 //
 //    Rectangular functions can be plotted on a restricted interval
@@ -1791,72 +2064,125 @@ function plot_parametric(x_t, y_t, t_min, t_max) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-function plot(board, relation, args) {
+function plot(curve, relation, start_x, end_x, args) {
 
 	var holeloc = '';
-	var curve;
 	var endpoints = [];
-	
-	if(relation.search(regex_hole) != -1) {
-		holeloc = relation.substring(relation.search(regex_hole), relation.length);
-		relation = relation.substring(0, relation.search(regex_hole));	
-	}
 	
 	relation = relation.toLowerCase();
 	
-	// Remove all extra whitespace characters
-	while(relation.search(' ') != -1) {
-		relation = relation.replace(' ', '');
-	}
-	
-	if(relation.includes('=')) {
-	
-		if(relation.charAt(0) == 'y' || relation.charAt(0) == 'f') {
-			if(relation.search('\\([xt]\\)') != -1) {
-				var variable = relation.charAt(2);
-				args.variable = variable;
-			}
-			relation = relation.split('=')[1] + ' ' + holeloc;
-			[curve, endpoints] = plot_function(board, relation, args);
-		
-		} else if(relation.charAt(0) == 'x') {
-			// rectangular x = g(y)
-		} else if(relation.charAt(0) == 'r') {
-			// Polar Graph
-			
-			// first get the interval to graph over
-			var interval = '';
-			var tmin = 0;
-			var tmax = 2 * PI;
-			var iloc = relation.search(regex_interval);
-			if (iloc != -1) {
-				interval = relation.substring(iloc, relation.length);
-				relation = relation.substring(0, iloc);
-				tmin = getLowerEndpoint(interval);
-				tmax = getUpperEndpoint(interval);
-			}
-			relation = relation.split('=')[1];
-			
-			curve = plot_polar(relation, tmin, tmax, args);
-			
-			
-		} else if(relation.charAt(0) == '(') {
-			// parametric
-		} else {
-			// implicitly defined function
-		}
-				
-	} else {
-		// Assume this is a rectangular function of x with no y = 
-		
-		relation = relation + ' ' + holeloc;
-		[curve, endpoints] = plot_function(board, relation, args);
-		
+	if(isImplicitEquation(relation)) {
+		relation = convertImplicitEquation(relation);	
 	}
 
-	return [curve, endpoints];
+	var vars = getVariables(relation);
+	var fname = getFunctionName(relation);
+	relation = removeFunctionName(relation);
+	
+	if(fname != '') {
+		
+		if(vars.length == 0) {
+		
+			// Plot: horizontal line
+			if(fname == 'y') {
+				args.density = 1;
+				plot_function(curve, relation, start_x, end_x, args);
+			}
+			
+			// Plot vertical line
+			if(fname == 'x') {
+				args.variable = 't';
+				args.density = 1;
+				var bounds = JSXGetBounds(board);
+				var tmin = bounds.ymin;
+				var tmax = bounds.ymax;
+				plot_parametric(curve, relation, 't', tmin, tmax, args);
+			}
+			
+			// Plot is a circle
+			if(fname == 'r') {
+				args.variable = 't';
+				var interval = args.interval ? args.interval : '';
+				var tmin = 0;
+				var tmax = 2 * PI;
+				if (interval != '') {
+				    var lval = getLowerEndpoint(interval);
+					tmin = lval == NEGATIVE_INFINITY ? -12 * PI : lval;
+					var uval = getUpperEndpoint(interval);
+					tmax = uval == POSITIVE_INFINITY ? 12 * PI : uval;
+				}
+			
+				plot_polar(curve, relation, tmin, tmax, args);	
+			}
+		} // if(vars.length == 0)
+		
+		if(vars.length == 1) {
+	
+			if(vars[0] == 'x' || fname == 'f' || fname == 'y') {
+				
+				// rectangular plot y = f(x)
+				plot_function(curve, relation, start_x, end_x, args);
+		
+			} else if(vars[0] == 'y' || fname == 'g' || fname == 'x') {
+				
+				// rectangular x = g(y)			
+				args.variable = vars[0];
+				var bounds = JSXGetBounds(board);
+				var tmin = bounds.ymin;
+				var tmax = bounds.ymax;
+				plot_parametric(curve, relation, args.variable, tmin, tmax, args);
+			
+			} else if(fname == 'r' && vars[0] == 't') {
+				
+				// Polar Graph			
+				var interval = args.interval ? args.interval : '';
+				var tmin = 0;
+				var tmax = 2 * PI;
+				if (interval != '') {
+				    var lval = getLowerEndpoint(interval);
+					tmin = lval == NEGATIVE_INFINITY ? -12 * PI : lval;
+					var uval = getUpperEndpoint(interval);
+					tmax = uval == POSITIVE_INFINITY ? 12 * PI : uval;
+				}
+			
+				plot_polar(curve, relation, tmin, tmax, args);		
+			
+			} 
+			
+		} // if(vars.length == 1) 
+				
+	} else if(vars[0] == 't' && vars.length == 1) {
+		// Parametrically defined functions
+			
+		var interval = args.interval ? args.interval : '';
+		var bounds = JSXGetBounds(board);
+		var tmin = bounds.xmin < bounds.ymin ? bounds.xmin : bounds.ymin;
+		var tmax = bounds.xmax > bounds.ymax ? bounds.xmax : bounds.ymax;
+		if (interval != '') {
+		    var lval = getLowerEndpoint(interval);
+			tmin = lval == NEGATIVE_INFINITY ? tmin : lval;
+            var uval = getUpperEndpoint(interval);
+			tmax = uval == POSITIVE_INFINITY ? tmax : uval;
+		}
+		relation = removeSpaces(relation);
+		var cloc = relation.search(',');
+			
+		var x_t = removeSpaces(relation.substring(1, cloc));
+		var y_t = removeSpaces(relation.substring(cloc + 1, relation.length - 1));
+			
+		plot_parametric(curve, x_t, y_t, tmin, tmax, args);
+			
+	} else if(vars.length == 2) {
+		// implicity defined function
+	} else if(vars[0] == 'x') {
+		
+		// Assume this is a rectangular function of x with no y = 
+		plot_function(curve, relation, start_x, end_x, args);
+		
+	}
 
 }
+
 
 
 ///////////////////////////////////////////////////////////////////

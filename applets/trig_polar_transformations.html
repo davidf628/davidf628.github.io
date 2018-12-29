@@ -1,0 +1,117 @@
+<!--
+	- Allow the plotting of multiple functions
+	- Get Zoom Square functionality working
+	- Get theta start and end functionality working
+	- Make a polar grid
+-->
+
+<html>
+<head>
+	<meta charset="utf-8">  
+		<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
+		<script src='./js/jsxgraphcore.js' type='text/javascript'></script>
+		<script src='./js/MathFunctions.js' type='text/javascript'></script>
+		<script src='./js/math.min.js' type = 'text/javascript'></script>
+	</meta>
+</head>
+
+<body>
+
+<h1>Polar to Rectangular Animation Test</h1>
+
+
+<div>
+	<div id="jxgbox" class="jxgbox" style="width:1080px; height:720px; float:left; resize: both"></div>
+</div>
+
+<script type='text/javascript'>
+		
+var board = JXG.JSXGraph.initBoard('jxgbox', {
+		boundingbox: [-10,10,10,-10], 
+      	showCopyright: false, 
+      	showNavigation: true,
+		keepaspectratio: false,
+		axis: true,
+      	zoom: {
+            factorX: 1.25,
+            factorY: 1.25,
+            wheel: true,
+            needshift: false,
+            eps: 0.1
+        }		
+    });
+	
+	
+
+		var expr = math.compile('4sin(2t)');
+		
+		var tValues = math.range(0, 6.3, 0.131).toArray();
+		var rValues = tValues.map(
+			function(x) {
+				return expr.eval({t: x});
+			});
+			
+		var xValues = [];
+		var yValues = [];
+		var points = [];
+		
+		for(var i = 0; i < tValues.length; i++) {
+		
+			xValues[i] = rValues[i] * Math.cos(tValues[i]);
+			yValues[i] = rValues[i] * Math.sin(tValues[i]);
+			
+			points[i] = board.create('point', [tValues[i], rValues[i]], { withLabel: false, color: '#0000FF', visible: false });
+			
+		}
+		
+		curve = board.create('polygon', points, { 
+					strokeWidth: 2,
+					strokeColor: '#0000FF'
+			    });
+
+		for(var i = 0; i < tValues.length; i++) {
+			points[i].visit([xValues[i], yValues[i]], 100000, 10);
+		}
+		
+/*		var expr = math.compile('sin(t)');
+		
+		var xValues = math.range(-10, 10, 0.131).toArray();
+		var yValues = xValues.map(
+			function(x) {
+				return expr.eval({t: x});
+			});
+			
+		var tValues = [];
+		var rValues = [];
+		var points = [];
+		
+		for(var i = 0; i < xValues.length; i++) {
+		
+			if(yValues[i] > 0 && xValues[i] > 0) {
+				tValues[i] = Math.atan(yValues[i]/xValues[i]);
+			} else if(yValues[i] > 0 && xValues[i] < 0) {
+				tValues[i] = Math.atan(yValues[i]/xValues[i]) + PI;
+			} else if(yValues[i] < 0 && xValues[i] < 0) {
+				tValues[i] = Math.atan(yValues[i]/xValues[i]) + PI;
+			} else if(yValues[i] < 0 && xValues[i] > 0) {
+				tValues[i] = Math.atan(yValues[i]/xValues[i]) + 2 * PI;
+			} 
+			tValues[i] = Math.atan(yValues[i]/xValues[i]);
+			rValues[i] = Math.sqrt(Math.pow(xValues[i], 2) + Math.pow(yValues[i], 2));
+			
+			points[i] = board.create('point', [xValues[i], yValues[i]], { withLabel: false, color: '#0000FF', visible: false });
+			
+		}
+		
+		curve = board.create('polygon', points, { 
+					strokeWidth: 2,
+					strokeColor: '#0000FF'
+			    });
+
+		for(var i = 0; i < tValues.length; i++) {
+			points[i].visit([tValues[i], rValues[i]], 100000, 10);
+		}*/
+
+</script>
+</body>,
+</html>
