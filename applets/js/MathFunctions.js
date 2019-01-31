@@ -2077,6 +2077,12 @@ function plot(curve, relation, start_x, end_x, args) {
 
 	var vars = getVariables(relation);
 	var fname = getFunctionName(relation);
+	
+	// if there is no function name given, and we can assume it is a function
+	// of x, then just append a y = 
+	if(fname == '' && (vars[0] == 'x' || vars.length == 0)) {
+		fname = 'y';
+	}
 	relation = removeFunctionName(relation);
 	
 	if(fname != '') {
@@ -2174,12 +2180,7 @@ function plot(curve, relation, start_x, end_x, args) {
 			
 	} else if(vars.length == 2) {
 		// implicity defined function
-	} else if(vars[0] == 'x') {
-		
-		// Assume this is a rectangular function of x with no y = 
-		plot_function(curve, relation, start_x, end_x, args);
-		
-	}
+	} 
 
 }
 

@@ -1,0 +1,159 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	    <link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
+	    <script src='./js/jsxgraphcore.js' type='text/javascript'></script>
+	    <script src='./js/MathFunctions.js' type='text/javascript'></script>
+	</meta>
+</head>
+
+<!--
+
+Improvements:
+  
+  1. Make projections able to be turned off and on
+  2. Animate the projection of the vector u onto v and v'
+  3. Show the value of the points on the vectors to show that v' + v = u
+
+-->
+
+<input type="button" value="Update" onClick="update_page()">
+<input type="button" value="Animate" onClick="animate_projection()"></br></br>
+<div id="jxgbox" class="jxgbox" style="width:1040px; height:640px; resize: both"></div>
+
+<script type='text/javascript'>
+
+var board = JXG.JSXGraph.initBoard('jxgbox', {
+				boundingbox: [0, 10, 10, 0], 
+				showCopyright: false, 
+				showNavigation: false,
+				axis: false,
+				keepAspectRatio: true
+			});
+
+// Create three points to define the two vectors
+
+var A = board.create('point', [1,1], { name:'A', size: 2, showInfobox: false, withLabel: false });
+var B = board.create('point', [5,7], { name:'B', size: 2, showInfobox: false, withLabel: false });
+var C = board.create('point', [8,2], { name:'C', size: 2, showInfobox: true, withLabel: false });
+
+// Draw two Vectors: AB and AC
+
+var line_u = board.create('arrow', [A, B], { strokeWidth: 6, highlight: false });
+var line_v = board.create('arrow', [A, C], { strokeWidth: 6, highlight: false });
+
+// Make two vectors: u = AB and v = AC
+
+var u = board.create('point', 
+			[ function() { return B.X() - A.X(); }, 
+			  function() { return B.Y() - A.Y(); }], 
+			{ visible: false });
+			
+var v = board.create('point', 
+			[ function() { return C.X() - A.X(); }, 
+			  function() { return C.Y() - A.Y(); }], 
+			{ visible: false });
+
+// v' is the orthogonal vector to v
+
+var v_prime = board.create('point', [function() { return -v.Y(); }, function() { return v.X(); }], { name: "P'", visible: false });
+
+// This is the projection point on vector v
+
+var P = board.create('point', 
+			[ function() { return proj(u, v) * v.X() + A.X(); }, 
+			  function() { return proj(u, v) * v.Y() + A.Y(); }],
+		    { name: 'P', visible: false });
+
+// This is the projection point on vector v'
+
+var Q = board.create('point',
+            [ function() { return proj(u, v_prime) * v_prime.X() + A.X() },
+              function() { return proj(u, v_prime) * v_prime.Y() + A.Y() }],
+            { name: 'Q', visible: false });
+
+// This is the dashed line between B and the projection point P
+
+var line_d = board.create('segment', [B, P], 
+				{ dash: 2, 
+				  strokeWidth: 1, 
+				  color: 'black',
+				  highlight: false });
+
+// This is the dashed line between B and the projection point P'
+
+var line_d = board.create('segment', [B, Q], 
+				{ dash: 2, 
+				  strokeWidth: 1, 
+				  color: 'black',
+				  highlight: false });
+
+// This is the projection Vector of u onto v
+
+var projection = board.create('arrow', [A, P],
+					{ strokeWidth: 10,
+					  color: 'red',
+					  opacity: 0.4 });
+
+// This is the projection Vector of u onto v'
+
+var projection = board.create('arrow', [A, Q],
+					{ strokeWidth: 10,
+					  color: 'yellow',
+					  opacity: 0.4 });
+
+function update_page() {
+	width = document.getElementById('jxgbox').clientWidth;
+	height = document.getElementById('jxgbox').clientHeight;
+	board.resizeContainer(width, height);
+}
+
+function animate_projection() {
+	B.moveTo([P.X(), P.Y()], 1000);
+}
+
+function proj(u, v) {
+	return dotproduct(u, v) / sqr(magnitude(v));
+}
+
+function dotproduct(u, v) {
+	return u.X() * v.X() + u.Y() * v.Y();
+}
+
+function magnitude(u) {
+	return sqrt( sqr(u.X()) + sqr(u.Y()));
+}
+
+/*
+angle1 = board.create('angle', [B, A, D], { radius: 1 });  
+angle1.label.setAttribute({ strokeColor:'black' });
+angle1.label.setText( 
+	function() {
+    	alpha = JXG.Math.Geometry.trueAngle(B, A, D).toFixed(0);
+    	return alpha + "&deg;";
+    }
+);        
+
+angle2 = board.create('angle', [D, A, C], { radius:1 });
+angle2.label.setAttribute({ strokeColor:'black' });
+angle2.label.setText( 
+	function() {
+		beta = JXG.Math.Geometry.trueAngle(D, A, C).toFixed(0);
+        return beta + "&deg;";
+    }
+);   
+
+text1 = board.create('text', [0, 9, 'Complementary Angles'], {fontSize:24, fixed:true});
+
+text2 = board.create('text', [6, 7, 
+           function() {
+               var v1 = Math.round(angle1.Value() * 180 / Math.PI);
+               var v2 = Math.round(angle2.Value() * 180 / Math.PI);
+               var label = v2 + "&deg; + " + v1 + "&deg; = " + (v1 + v2) + "&deg;";
+               return label; 
+           }],
+           { fixed:true });
+*/
+</script>
+
+</html>
