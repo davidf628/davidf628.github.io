@@ -4,6 +4,12 @@
 	    <link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
 	    <script src='./js/jsxgraphcore.js' type='text/javascript'></script>
 	    <script src='./js/MathFunctions.js' type='text/javascript'></script>
+		<script type="text/x-mathjax-config">
+				MathJax.Hub.Config({
+				tex2jax: {inlineMath: [["$$","$$"],["\\(","\\)"]]},
+			});
+		</script>
+		<script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
 	</meta>
 </head>
 
@@ -17,11 +23,23 @@ Improvements:
 
 -->
 
-<input type="button" value="Update" onClick="update_page()">
-<input type="button" value="Animate" onClick="animate_projection()"></br></br>
+<input type="button" value="Update/Clear" onClick="update_page()">
+<input type="button" value="Animate Projection" onClick="animate_projection()">
+<input type="button" value="Animate Ortho Projection" onClick="animate_orthoprojection()">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<input type="checkbox" id="show_projection" onclick="toggle_projection()" style="width:15px;height:15px;">
+<label for="tangent_line">Show Projection</label>
+<input type="checkbox" id="show_orthoprojection" onclick="toggle_orthoprojection()" style="width:15px;height:15px;">
+<label for="tangent_line">Show Orthogonal Projection</label>
+</br></br>
 <div id="jxgbox" class="jxgbox" style="width:1040px; height:640px; resize: both"></div>
 
 <script type='text/javascript'>
+
+document.getElementById("show_projection").checked = false;
+document.getElementById("show_orthoprojection").checked = false;
+
+JXG.Options.text.useMathJax = true;
 
 var board = JXG.JSXGraph.initBoard('jxgbox', {
 				boundingbox: [0, 10, 10, 0], 
@@ -33,19 +51,56 @@ var board = JXG.JSXGraph.initBoard('jxgbox', {
 
 // Create three points to define the two vectors
 
-var A = board.create('point', [1,1], { name:'A', size: 2, showInfobox: false, withLabel: false });
-var B = board.create('point', [5,7], { name:'B', size: 2, showInfobox: false, withLabel: false });
-var C = board.create('point', [8,2], { name:'C', size: 2, showInfobox: true, withLabel: false });
+var A = board.create('point', [3, 3], { 
+	name:'A', 
+	size: 2, 
+	showInfobox: true,
+    infoboxDigits: 1,
+	snapToGrid: true,
+	snapSizeX: 0.1,
+	snapSizeY: 0.1,
+	withLabel: false 
+});
+
+var B = board.create('point', [7, 7], { 
+    name:'B', 
+	size: 2, 
+	showInfobox: true, 
+	infoboxDigits: 1,
+	withLabel: false, 
+	snapToGrid: true, 
+	snapSizeX: 0.1,
+    snapSizeY: 0.1
+});
+
+var C = board.create('point', [13,5], { 
+    name:'C', 
+	size: 2, 
+	showInfobox: true, 
+	infoboxDigits: 1,
+	snapToGrid: true,
+	snapSizeX: 0.1,
+	snapSizeY: 0.1,
+	withLabel: false 
+});
+
+var anim_B = board.create('point', [B.X(), B.Y()], { visible: false });
 
 // Draw two Vectors: AB and AC
 
-var line_u = board.create('arrow', [A, B], { strokeWidth: 6, highlight: false });
+var line_u = board.create('arrow', [A, B], { 
+	strokeWidth: 6, 
+	highlight: false,
+});
+
 var line_v = board.create('arrow', [A, C], { strokeWidth: 6, highlight: false });
+
+var anim_u = board.create('arrow', [A, anim_B], { strokeWidth: 6, strokeColor: 'black', visible: false, highlight: false });
 
 // Make two vectors: u = AB and v = AC
 
 var u = board.create('point', 
-			[ function() { return B.X() - A.X(); }, 
+			[ function() { return B.X() - A.X(); },
 			  function() { return B.Y() - A.Y(); }], 
 			{ visible: false });
 			
@@ -78,38 +133,137 @@ var line_d = board.create('segment', [B, P],
 				{ dash: 2, 
 				  strokeWidth: 1, 
 				  color: 'black',
-				  highlight: false });
+				  highlight: false,
+				  visible: false,
+				});
+
+var u_label = board.create('midpoint', [A, B], { 
+	name: function() { return '\\[\\vec{u}\\]'; },
+	size: 1, 
+	strokeColor: 'blue',
+	fillColor: 'blue',
+	opacity: 0,
+	highlight: false,
+	showInfobox: false,
+	label: { 
+		offset: [-25, 40],
+		fontSize: 24
+	} });
+
+var v_label = board.create('midpoint', [A, C], { 
+	name: function() { return '\\[ \\vec{v} \\]'; },
+	size: 1, 
+	strokeColor: 'blue',
+	fillColor: 'blue',
+	opacity: 0,
+	highlight: false,
+	showInfobox: false,
+	label: { 
+		offset: [0, 0],
+		fontSize: 24
+	} });
+
+var proj_label = board.create('midpoint', [A, P], { 
+	name: function() { return '$$ proj_\\vec{v}\\vec{u}$$'; },
+	size: 1, 
+	strokeColor: 'blue',
+	fillColor: 'blue',
+	opacity: 0,
+	highlight: false,
+	showInfobox: false,
+	visible: false,
+	label: { 
+		offset: [0, 0],
+		fontSize: 24
+	} });
+
+var orthoproj_label = board.create('midpoint', [A, Q], { 
+	name: function() { return '$$ \\vec{v} - proj_\\vec{v}\\vec{u}$$'; },
+	size: 1, 
+	strokeColor: 'blue',
+	fillColor: 'blue',
+	opacity: 0,
+	highlight: false,
+	showInfobox: false,
+	visible: false,
+	label: { 
+		offset: [-10, 0],
+		fontSize: 24,
+		anchorX: 'right',
+		anchorY: 'top'
+	} });
 
 // This is the dashed line between B and the projection point P'
 
-var line_d = board.create('segment', [B, Q], 
+var line_c = board.create('segment', [B, Q], 
 				{ dash: 2, 
 				  strokeWidth: 1, 
 				  color: 'black',
-				  highlight: false });
+				  highlight: false,
+				  visible: false
+				});
 
 // This is the projection Vector of u onto v
 
 var projection = board.create('arrow', [A, P],
 					{ strokeWidth: 10,
 					  color: 'red',
-					  opacity: 0.4 });
+					  opacity: 0.4,
+					  visible: false
+					});
 
-// This is the projection Vector of u onto v'
+// This is the orthogonal projection Vector of u onto v'
 
-var projection = board.create('arrow', [A, Q],
+var orthoprojection = board.create('arrow', [A, Q],
 					{ strokeWidth: 10,
 					  color: 'yellow',
-					  opacity: 0.4 });
+					  opacity: 0.4,
+					  visible: false
+					});
 
 function update_page() {
 	width = document.getElementById('jxgbox').clientWidth;
 	height = document.getElementById('jxgbox').clientHeight;
 	board.resizeContainer(width, height);
+	anim_u.setAttribute( { visible: false });
 }
 
 function animate_projection() {
-	B.moveTo([P.X(), P.Y()], 1000);
+	anim_B.moveTo([B.X(), B.Y()]);
+	anim_u.setAttribute( { visible: true });
+	anim_B.moveTo([P.X(), P.Y()], 1000);
+}
+
+function animate_orthoprojection() {
+	anim_B.moveTo([B.X(), B.Y()]);
+	anim_u.setAttribute( { visible: true });
+	anim_B.moveTo([Q.X(), Q.Y()], 1000);
+}
+
+function toggle_projection() {
+	if(projection.getAttribute('visible')) {
+		projection.setAttribute( { visible: false } );
+		line_d.setAttribute( { visible: false });
+		proj_label.setAttribute( { visible : false });
+	} else {
+		projection.setAttribute( { visible: true } );
+		line_d.setAttribute( { visible: true });
+		proj_label.setAttribute( { visible: true });
+	}
+	board.update();
+}
+
+function toggle_orthoprojection() {
+	if(orthoprojection.getAttribute('visible')) {
+		orthoprojection.setAttribute( { visible: false } );
+		line_c.setAttribute( { visible: false });
+		orthoproj_label.setAttribute( { visible: false });
+	} else {
+		orthoprojection.setAttribute( { visible: true } );
+		line_c.setAttribute( { visible: true });
+		orthoproj_label.setAttribute( { visible: true });
+	}
+	board.update();
 }
 
 function proj(u, v) {
@@ -124,36 +278,6 @@ function magnitude(u) {
 	return sqrt( sqr(u.X()) + sqr(u.Y()));
 }
 
-/*
-angle1 = board.create('angle', [B, A, D], { radius: 1 });  
-angle1.label.setAttribute({ strokeColor:'black' });
-angle1.label.setText( 
-	function() {
-    	alpha = JXG.Math.Geometry.trueAngle(B, A, D).toFixed(0);
-    	return alpha + "&deg;";
-    }
-);        
-
-angle2 = board.create('angle', [D, A, C], { radius:1 });
-angle2.label.setAttribute({ strokeColor:'black' });
-angle2.label.setText( 
-	function() {
-		beta = JXG.Math.Geometry.trueAngle(D, A, C).toFixed(0);
-        return beta + "&deg;";
-    }
-);   
-
-text1 = board.create('text', [0, 9, 'Complementary Angles'], {fontSize:24, fixed:true});
-
-text2 = board.create('text', [6, 7, 
-           function() {
-               var v1 = Math.round(angle1.Value() * 180 / Math.PI);
-               var v2 = Math.round(angle2.Value() * 180 / Math.PI);
-               var label = v2 + "&deg; + " + v1 + "&deg; = " + (v1 + v2) + "&deg;";
-               return label; 
-           }],
-           { fixed:true });
-*/
 </script>
 
 </html>
