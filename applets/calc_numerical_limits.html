@@ -18,6 +18,7 @@
 		<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
 		<script src='./js/jsxgraphcore.js' type='text/javascript'></script>
 		<script src='./js/MathFunctions.js' type='text/javascript'></script>
+		<script src='./js/math.min.js' type='text/javascript'></script>
 	</meta>
 </head>
 
@@ -68,8 +69,17 @@ var displayboard = JXG.JSXGraph.initBoard('display', {
 		
 // Initialize curve so that we have something we can update
 curves = [];
-curves[0] = board.create('curve', [0, 0], 0, 0, { visible: false });
+for(var i = 0; i < 10; i++) {
+	curves[i] = board.create('curve', [0, 0], 0, 0, { visible: false });
+}
+
+// Initialize endpoints so we have values we can update
 endpoints = [];
+for(var i = 0; i < 30; i++) {
+	endpoints[i] = board.create('point', [0, 0], { size: 3, withLabel: false, visible: false, fixed: true });
+}
+
+// These are used when we want to look at a limit sequence
 sequencepoints = [];
 
 left_xvals = [];
@@ -277,27 +287,27 @@ function update() {
 	width = document.getElementById('jxgbox').clientWidth;
 	height = document.getElementById('jxgbox').clientHeight;
 
+	var window = JSXGetBounds(board);
+
 	board.resizeContainer(width, height);
 	board.setBoundingBox(orgbounds, false);
 
 	var f = document.getElementById('input_function').value;
 	var fs = f.split(";");
-
-	for(var i = 0; i < curves.length; i++) {
-		board.removeObject(curves[i]);
-	}
-	
-	for(var i = 0; i < endpoints.length; i++) {
-		board.removeObject(endpoints[i]);
-	}
 	
 	if(cb_function.Value()) {
 		var tmpendpoints = [];
 		for(var i = 0; i < fs.length; i++) {
-			[curves[i], tmpendpoints] = plot_function(board, fs[i]);
-			for(var j = 0; j < tmpendpoints.length; j++) {
-				endpoints.push(tmpendpoints[j]);
+			var interval = getInterval(fs[i]);
+			if(interval != '') {
+				fs[i] = removeInterval(fs[i]);
 			}
+			plot_function(curves[i], fs[i], 
+				window.xmin, window.xmax, { 
+					lowerendpoint: endpoints[2*i],
+					upperendpoint: endpoints[2*i+1],
+					interval: interval	
+				});
 		}
 	}
 	

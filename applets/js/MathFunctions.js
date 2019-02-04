@@ -1689,6 +1689,47 @@ function removeSpaces(s) {
 	}
 	return s;
 }	
+
+///////////////////////////////////////////////////////////
+// 
+// A function can be defined such as: y = 2x-5 (-2,5]
+//   and the interval needs to be removed for graphing
+//   this function determines if an interval exists and 
+//   returns it if so, or a blank string if it does not
+//
+////////////////////////////////////////////////////////////
+
+function getInterval(relation) {
+
+	var interval = '';
+	
+	if(relation.search(regex_interval) != -1) {
+		var intervalstart = 0;
+		for(var i = 0; i < relation.length; i++) {
+			if(relation[i] == '(' || relation[i] == '[') {
+				intervalstart = i;
+			}
+		}
+		interval = relation.substring(intervalstart, relation.length);
+	} 
+	return interval;
+}
+	
+function removeInterval(relation) {
+
+	var interval = '';
+	
+	if(relation.search(regex_interval) != -1) {
+		var intervalstart = 0;
+		for(var i = 0; i < relation.length; i++) {
+			if(relation[i] == '(' || relation[i] == '[') {
+				intervalstart = i;
+			}
+		}
+		relation = relation.substring(0, intervalstart);
+	} 
+	return relation;
+}	
 				 
 ///////////////////////////////////////////////////////////
 // 
@@ -1752,7 +1793,11 @@ function upperBoundOpen(interval) {
 
 function evaluate(f, x, args) {
 	
-	var variable = args.variable ? args.variable : 'x';
+	var variable = 'x';
+	
+	if(args !== undefined) {
+		variable = args.variable ? args.variable : 'x';
+	}
 	
 	// if f includes a restricted interval, handle that
 	if(f.search(regex_interval) != -1) {
