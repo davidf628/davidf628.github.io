@@ -23,6 +23,19 @@ function Point (arg) {
 	
 }
 
+function zFunc(x, y) { 
+	return Math.sin(x * x + y * y);
+}
+
+function wFrame() {
+	for(var i = 0; i < 40; i++) {
+		for(var j = 0; j < 40; j++) {
+			Point( { coords: [i, j, zFunc(i, j)] });
+		}
+	}
+	
+}
+
 function Vector (arg) {
 
 	var start = arg.start ? arg.start : [0, 0, 0];
@@ -47,9 +60,24 @@ function Plane (a, b, c, d) {
 
 function Plane2 (a, b, c, d) {
 
-	var geometry = new THREE.PlaneGeometry( 200, 200);
-	var plane = createMesh(geometry, 0x00ffff);
-	return plane;
+var dir = new THREE.Vector3(a,b,c);
+var centroid = new THREE.Vector3(0,3,0);
+var plane = new THREE.Plane();
+plane.setFromNormalAndCoplanarPoint(dir, centroid).normalize();
+
+// Create a basic rectangle geometry
+var planeGeometry = new THREE.PlaneGeometry(100, 100);
+
+// Align the geometry to the plane
+var coplanarPoint = plane.coplanarPoint();
+var focalPoint = new THREE.Vector3().copy(coplanarPoint).add(plane.normal);
+planeGeometry.lookAt(focalPoint);
+planeGeometry.translate(coplanarPoint.x, coplanarPoint.y, coplanarPoint.z);
+
+// Create mesh with the geometry
+var planeMaterial = new THREE.MeshLambertMaterial({color: 0xffff00, side: THREE.DoubleSide});
+var dispPlane = new THREE.Mesh(planeGeometry, planeMaterial);
+return createMesh(planeGeometry, 0x00ffff);
 
 }
 
@@ -92,6 +120,97 @@ function Surface(f, color) {
 		
 }
 
+function ParametricGraph(xFuncText, yFuncText, zFuncText, tMin, tMax, color)
+{
+	
+/*	// extrusion segments -- how many sample points to take along curve.
+	var segments = 120;
+	// how many sides the tube cross-section has
+	var radiusSegments = 2;
+	var tubeRadius = 0.02 */
+	var tRange = tMax - tMin;
+	
+	xFunc = Parser.parse(xFuncText).toJSFunction( ['t'] );
+	yFunc = Parser.parse(yFuncText).toJSFunction( ['t'] );
+	zFunc = Parser.parse(zFuncText).toJSFunction( ['t'] );
+
+
+	function CustomCurve( scale ) {
+
+		THREE.Curve.call( this );
+		this.scale = ( scale === undefined ) ? 1 : scale;
+
+	}
+
+	CustomCurve.prototype = Object.create( THREE.Curve.prototype );
+	CustomCurve.prototype.constructor = CustomCurve;
+
+	CustomCurve.prototype.getPoint = function ( t ) {
+
+		t = t * tRange + tMin;
+		var tx = xFunc(t);
+		var ty = yFunc(t);
+		var tz = zFunc(t);
+
+		return new THREE.Vector3( tx, ty, tz ).multiplyScalar( this.scale );
+
+	};
+
+	var path = new CustomCurve( 1 );
+	var geometry = new THREE.TubeGeometry( path, 200, 0.1, 8, false );
+	var material = new THREE.MeshBasicMaterial( { color: color } );
+	var mesh = createParametricMesh(geometry, color);
+	return mesh;
+
+
+}
+
+function ParametricProjection(xFuncText, yFuncText, zFuncText, tMin, tMax, color)
+{
+	
+/*	// extrusion segments -- how many sample points to take along curve.
+	var segments = 120;
+	// how many sides the tube cross-section has
+	var radiusSegments = 2;
+	var tubeRadius = 0.02 */
+	var tRange = tMax - tMin;
+	
+	xFunc = Parser.parse(xFuncText).toJSFunction( ['t'] );
+	yFunc = Parser.parse(yFuncText).toJSFunction( ['t'] );
+	zFunc = Parser.parse(zFuncText).toJSFunction( ['x', 'y'] );
+
+
+	function CustomCurve( scale ) {
+
+		THREE.Curve.call( this );
+		this.scale = ( scale === undefined ) ? 1 : scale;
+
+	}
+
+	CustomCurve.prototype = Object.create( THREE.Curve.prototype );
+	CustomCurve.prototype.constructor = CustomCurve;
+
+	CustomCurve.prototype.getPoint = function ( t ) {
+
+		t = t * tRange + tMin;
+		var tx = xFunc(t);
+		var ty = yFunc(t);
+		var tz = zFunc(tx, ty);
+
+		return new THREE.Vector3( tx, ty, tz ).multiplyScalar( this.scale );
+
+	};
+
+	var path = new CustomCurve( 1 );
+	var geometry = new THREE.TubeGeometry( path, 200, 0.1, 8, false );
+	var material = new THREE.MeshBasicMaterial( { color: color } );
+	var mesh = createParametricMesh(geometry, color);
+	return mesh;
+
+
+}
+
+
 function createMesh(geom, color) {
 
 	upperZClip = new THREE.Plane( new THREE.Vector3(0, 0, zMin), 1);
@@ -99,7 +218,7 @@ function createMesh(geom, color) {
 	upperXClip = new THREE.Plane( new THREE.Vector3(xMin, 0, 0), 1);
 	lowerXClip = new THREE.Plane( new THREE.Vector3(xMax, 0, 0), 1);
 	upperYClip = new THREE.Plane( new THREE.Vector3(0, yMin, 0), 1);
-	lowerYClip = new THREE.Plane( new THREE.Vector3(0, yMax,0), 1);
+	lowerYClip = new THREE.Plane( new THREE.Vector3(0, yMax, 0), 1);
     var meshMaterial = new THREE.MeshLambertMaterial({
 		color: color, 
 		clippingPlanes: [upperZClip, lowerZClip, lowerXClip, upperXClip, lowerYClip, upperYClip], 
@@ -118,4 +237,55 @@ function createMesh(geom, color) {
 	});
 		
 	return new THREE.SceneUtils.createMultiMaterialObject(geom, [meshMaterial, mesh2material]);
+}
+
+function createWireMesh(geom, color) {
+
+	var wireTexture = new THREE.TextureLoader().load( 'img/square.png' );
+	wireTexture.wrapS = wireTexture.wrapT = THREE.RepeatWrapping; 
+	//wireTexture.repeat.set( 100, 100 );
+	wireTexture.anisotropy = 16;
+	wireMaterial = new THREE.MeshBasicMaterial( { map: wireTexture, side:THREE.DoubleSide } );
+
+	upperZClip = new THREE.Plane( new THREE.Vector3(0, 0, zMin), 1);
+	lowerZClip = new THREE.Plane( new THREE.Vector3(0, 0, zMax), 1);
+	upperXClip = new THREE.Plane( new THREE.Vector3(xMin, 0, 0), 1);
+	lowerXClip = new THREE.Plane( new THREE.Vector3(xMax, 0, 0), 1);
+	upperYClip = new THREE.Plane( new THREE.Vector3(0, yMin, 0), 1);
+	lowerYClip = new THREE.Plane( new THREE.Vector3(0, yMax, 0), 1);
+    var meshMaterial = new THREE.MeshLambertMaterial({
+		color: color, 
+		clippingPlanes: [upperZClip, lowerZClip, lowerXClip, upperXClip, lowerYClip, upperYClip], 
+		transparent: true,
+		side: THREE.DoubleSide,
+		opacity: .3
+	});
+
+	var mesh2material = new THREE.MeshBasicMaterial({
+		color: color,
+		clippingPlanes: [upperZClip,lowerZClip, lowerXClip, upperXClip, lowerYClip, upperYClip],
+		transparent: true,
+		side: THREE.DoubleSide,
+		depthTest: false,
+		opacity: 0.15
+	});
+		
+	return new THREE.Mesh(geom, wireMaterial);
+}
+
+function createParametricMesh(geom, color) {
+
+	upperZClip = new THREE.Plane( new THREE.Vector3(0, 0, zMin), 1);
+	lowerZClip = new THREE.Plane( new THREE.Vector3(0, 0, zMax), 1);
+	upperXClip = new THREE.Plane( new THREE.Vector3(xMin, 0, 0), 1);
+	lowerXClip = new THREE.Plane( new THREE.Vector3(xMax, 0, 0), 1);
+	upperYClip = new THREE.Plane( new THREE.Vector3(0, yMin, 0), 1);
+	lowerYClip = new THREE.Plane( new THREE.Vector3(0, yMax, 0), 1);
+	
+    var meshMaterial = new THREE.MeshBasicMaterial({
+		color: color, 
+		clippingPlanes: [upperZClip, lowerZClip, lowerXClip, upperXClip, lowerYClip, upperYClip]
+	});
+		
+	return new THREE.Mesh(geom, meshMaterial);
 }

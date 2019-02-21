@@ -1,0 +1,272 @@
+<!doctype html>
+<meta charset="utf-8">
+
+<html lang="en">
+<head>
+	<title>Intersection of Two Planes</title>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel=stylesheet href="css/base.css"/>
+</head>
+<body>
+
+<script src="js/three.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/OrbitControls.js"></script>
+<script src="js/DragControls.js"></script>
+<script src="js/parser.js"></script>
+<script src="js/THREEx.KeyboardState.js"></script>
+<script src="js/THREEx.FullScreen.js"></script>
+<script src="js/THREEx.WindowResize.js"></script>
+<script src="js/3dmath.js"></script>
+
+<script type='text/javascript' src='js/DAT.GUI.min.js'></script>
+
+<div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
+<script>
+
+// Color Constants:
+
+RED = 0xff0000;
+GREEN = 0x00ff00;
+BLUE = 0x0000ff;
+
+var container, scene, camera, renderer, controls, stats;
+var keyboard = new THREEx.KeyboardState();
+var clock = new THREE.Clock();
+
+var xMin = -20, xMax = 20, xStep = 5;
+var yMin = -20, yMax = 20, yStep = 5;
+var zMin = -20, zMax = 20, zStep = 5;
+var xRange = xMax - xMin;
+var yRange = yMax - yMin;
+var zRange = zMax - zMin;
+
+var a = 0;
+var gui_a;
+
+// initialization
+init();
+
+// animation loop / game loop
+animate();
+					
+function init() {
+
+	// SCENE 	
+	scene = new THREE.Scene();
+
+	// CAMERA 	
+	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;	
+	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+	scene.add(camera);
+	camera.position.set(40,40,10);
+	camera.up.set(0, 0, 1);  // make sure z-axis is facing up
+	camera.lookAt(scene.position);	
+	
+	// RENDERER 	
+	renderer = new THREE.WebGLRenderer( {antialias:true, alpha: true} );	
+	renderer.setClearColor( 0xffffff);
+	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+	renderer.sortObjects = false;
+	renderer.localClippingEnabled = true;
+	
+	// attach div element to variable to contain the renderer
+	container = document.getElementById( 'ThreeJS' );
+	container.appendChild( renderer.domElement );
+	
+	// EVENTS 	
+	THREEx.WindowResize(renderer, camera);
+	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
+	
+	// CONTROLS 
+	controls = new THREE.OrbitControls( camera, renderer.domElement );
+	
+	
+	// STATS 	
+	stats = new Stats();
+	stats.domElement.style.position = 'absolute';
+	stats.domElement.style.bottom = '0px';
+	stats.domElement.style.zIndex = 100;
+	container.appendChild( stats.domElement );
+		
+	// GUI
+	//gui = new dat.GUI();	
+	//window_menu = gui.addFolder('Window');
+	//window_menu.add( this, 'xMin' ).name('x Min = ').onChange( 
+	//	function() { 
+	//		xRange = xMax - xMin;
+	//		createScene(); 
+	//	});
+	
+	//gui.add(this, 'a').min(-5).max(5).step(0.01).name('a = ').onChange(
+	//	function() {
+	//		p.position.z = a;
+	//	});
+	
+	
+	createScene();
+}
+
+function createScene() {
+
+	while(scene.children.length > 0){ 
+		scene.remove(scene.children[0]); 
+	}
+
+	var light = new THREE.AmbientLight( 0xffffff );
+	scene.add( light );
+	
+	var size = xRange;
+	var divisions = xRange / xStep;
+
+	var gridHelper = new THREE.GridHelper( size, divisions, 0xe0e0e0, 0xe0e0e0 );
+	gridHelper.geometry.rotateX( Math.PI / 2 );
+	scene.add( gridHelper );	
+	
+	axes = createAxes();
+	
+	scene.add(axes);
+	
+	//scene.add(Surface('3*x*x-6*x*y+2*y^2-4', BLUE));
+	scene.add(ParametricGraph('3/5*t', '2-2/5*t', 't', -20, 20, 0x000000));
+	scene.add(ParametricGraph('sin(t)', 'cos(t)', '0', -6.28, 6.28, 0x000000));
+	scene.add(ParametricProjection('sin(t)', 'cos(t)', '3*x^2-6*x*y+2*y^2-4', -6.28, 6.28, 0x000000));
+	scene.add(ParametricProjection('3/5*t', '2-2/5*t', '3*x^2-6*x*y+2*y^2-4', -20, 20, 0x000000));
+	
+	scene.add(Surface('sin((x*x + y*y) * 3.14 / 180)', RED));
+	scene.add(Point( { coords: [-20, 20, 0] }));
+	scene.add(Point( { coords: [20, -20, 0] }));
+	scene.add(Point( { coords: [-20, -20, 0] }));
+	scene.add(Point( { coords: [20, 20, 0] }));
+	function zFunc(x, y) { 
+	return Math.sin((x*x + y*y) * 3.14 / 180) ;
+}
+
+	var lmaterial = new THREE.LineBasicMaterial( { color: 0xff0000, linewidth: 1 });
+	var lgeom = new THREE.Geometry();
+
+    
+	for(var i = -20; i <= 20; i++) {
+		lgeom = new THREE.Geometry();
+		for(var j = -20; j <= 20; j++) {
+			var z = zFunc(i, j);
+			if(z < zMax && z > zMin) {
+				lgeom.vertices.push(new THREE.Vector3(i, j, z));
+			}
+			var wires = new THREE.Line(lgeom, lmaterial);
+			scene.add(wires);
+		}
+	}
+	
+	for(var j = -20; j <= 20; j++) {
+		lgeom = new THREE.Geometry();
+		for(var i = -20; i <= 20; i++) {
+			var z = zFunc(i, j);
+			if(z < zMax && z > zMin) {
+				lgeom.vertices.push(new THREE.Vector3(i, j, z));
+			}
+			var wires = new THREE.Line(lgeom, lmaterial);
+			scene.add(wires);
+		}
+	}
+	
+
+	scene.add(Surface('3*x - 4*y + 6', BLUE));
+	scene.add(Vector( { end: [1, -1, -1] } ));
+	scene.add(Vector( { end: [3, 2, -1] }));
+	scene.add(Vector( { end: [3, -2, 5] }));
+
+
+	//scene.add(Plane2(1, -1, 1, -2));
+	//scene.add(Plane2(3, 2, 1, 5));
+	//scene.add(Surface('-x+y-1', BLUE));
+	//scene.add(Surface('sqrt(-x^2-y^2+16)', RED));
+	/*for(x = -20; x <= 20; x=x+5) {
+		for(y = -20; y <= 20; y=y+5) {
+			for(z = -20; z <= 20; z=z+5) {
+				scene.add(Vector( { start: [x, y, z], end: [y + 1, -y + 1, 0], length: 3 }));
+			}
+		}
+	}*/
+	//scene.add(Vector({ end: [1, 2, 3] }));
+	//p = new Point({ coords: [-5, 6, a ] });
+	//scene.add(p);
+}
+
+function buildAxis( src, dst, colorHex, dashed ) { 
+	var geom = new THREE.Geometry(), mat;
+	if(dashed) {
+		mat = new THREE.LineDashedMaterial({ linewidth: 2, color: colorHex, dashSize: 0.5, gapSize: 0.5 });
+	} else {
+		mat = new THREE.LineBasicMaterial({ linewidth: 2, color: colorHex });
+	}
+	geom.vertices.push( src.clone() );
+	geom.vertices.push( dst.clone() );
+	geom.computeLineDistances(); 
+	var axis = new THREE.Line( geom, mat, THREE.LineSegments );		
+	return axis;
+}
+
+function buildAxisCone(colorHex, posX, posY, posZ, axis) {
+	geometry = new THREE.CylinderGeometry(0, 0.2, 0.4, 20, 5, false) ;
+	material = new THREE.MeshBasicMaterial( { color: colorHex } );
+	var cone = new THREE.Mesh( geometry, material );
+	cone.position.set(posX, posY, posZ);
+	if(axis == "x") {
+		geometry.applyMatrix( new THREE.Matrix4().makeRotationZ( -Math.PI / 2));
+	} else if(axis == "y") {
+		geometry.applyMatrix( new THREE.Matrix4().makeRotationY( Math.PI / 2));
+	} else if(axis == "z") {
+		geometry.applyMatrix( new THREE.Matrix4().makeRotationX( Math.PI / 2));
+	}
+	return cone;
+}
+
+function createAxes() {
+
+	var axes = new THREE.Object3D();
+	axes.add(buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( xMax, 0, 0 ), GREEN, false ) ); // +X
+	axes.add(buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( xMin, 0, 0 ), GREEN, true) );   // -X
+	axes.add(buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, yMax, 0 ), RED, false ) );   // +Y
+	axes.add(buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, yMin, 0 ), RED, true ) );    // -Y
+	axes.add(buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, zMax ), BLUE, false ) );  // +Z
+	axes.add(buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, zMin ), BLUE, true ) );   // -Z
+
+	axes.add(buildAxisCone(GREEN, xMax, 0, 0, "x")); // x-axis cone
+	axes.add(buildAxisCone(RED, 0, yMax, 0, "y")); // y-axis cone
+	axes.add(buildAxisCone(BLUE, 0, 0, zMax, "z")); // z-axis cone
+		
+	return axes;
+	
+}
+
+function animate() {
+    requestAnimationFrame( animate );
+	render();		
+	update();
+}
+
+function update()
+{
+	// delta = change in time since last call (in seconds)
+	var delta = clock.getDelta(); 
+
+	// functionality provided by THREEx.KeyboardState.js
+	if ( keyboard.pressed("1") )
+		document.getElementById('message').innerHTML = ' Have a nice day! - 1';	
+	if ( keyboard.pressed("2") )
+		document.getElementById('message').innerHTML = ' Have a nice day! - 2 ';	
+		
+	controls.update();
+	stats.update();
+}
+
+function render() {	
+	renderer.render( scene, camera );
+}
+
+</script>
+
+</body>
+</html>
