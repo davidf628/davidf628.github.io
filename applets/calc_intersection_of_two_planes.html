@@ -5,11 +5,11 @@
 <head>
 	<title>Intersection of Two Planes</title>
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <link rel=stylesheet href="css/base.css"/>
 </head>
 <body>
 
-<script src="js/three.js"></script>
+<script src="js/three.min.js"></script>
+<script src="js/SceneUtils.js"></script>
 <script src="js/stats.js"></script>
 <script src="js/OrbitControls.js"></script>
 <script src="js/DragControls.js"></script>
@@ -23,12 +23,6 @@
 
 <div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
 <script>
-
-// Color Constants:
-
-RED = 0xff0000;
-GREEN = 0x00ff00;
-BLUE = 0x0000ff;
 
 var container, scene, camera, renderer, controls, stats;
 var keyboard = new THREEx.KeyboardState();
@@ -88,22 +82,7 @@ function init() {
 	stats.domElement.style.position = 'absolute';
 	stats.domElement.style.bottom = '0px';
 	stats.domElement.style.zIndex = 100;
-	container.appendChild( stats.domElement );
-		
-	// GUI
-	//gui = new dat.GUI();	
-	//window_menu = gui.addFolder('Window');
-	//window_menu.add( this, 'xMin' ).name('x Min = ').onChange( 
-	//	function() { 
-	//		xRange = xMax - xMin;
-	//		createScene(); 
-	//	});
-	
-	//gui.add(this, 'a').min(-5).max(5).step(0.01).name('a = ').onChange(
-	//	function() {
-	//		p.position.z = a;
-	//	});
-	
+	container.appendChild( stats.domElement );	
 	
 	createScene();
 }
@@ -124,79 +103,17 @@ function createScene() {
 	gridHelper.geometry.rotateX( Math.PI / 2 );
 	scene.add( gridHelper );	
 	
-	axes = createAxes();
+	axes = createAxes(xMin, xMax, yMin, yMax, zMin, zMax);
 	scene.add(axes);
 	
-	scene.add(Surface('x-y+2', GREEN));
-	scene.add(Surface('3*x+2*y-4', BLUE));
-	scene.add(ParametricGraph('3/5*t', '2-2/5*t', 't', -20, 20, 0x000000));
+	scene.add(Surface('x-y+2', new THREE.Color('green')));
+	scene.add(Surface('3*x+2*y-4', new THREE.Color('blue')));
+	scene.add(ParametricGraph('3/5*t', '2-2/5*t', 't', -20, 20, new THREE.Color('black')));
 	
 	scene.add(Vector( { end: [1, -1, -1] } ));
 	scene.add(Vector( { end: [3, 2, -1] }));
 	scene.add(Vector( { end: [3, -2, 5] }));
 
-
-	//scene.add(Plane2(1, -1, 1, -2));
-	//scene.add(Plane2(3, 2, 1, 5));
-	//scene.add(Surface('-x+y-1', BLUE));
-	//scene.add(Surface('sqrt(-x^2-y^2+16)', RED));
-	/*for(x = -20; x <= 20; x=x+5) {
-		for(y = -20; y <= 20; y=y+5) {
-			for(z = -20; z <= 20; z=z+5) {
-				scene.add(Vector( { start: [x, y, z], end: [y + 1, -y + 1, 0], length: 3 }));
-			}
-		}
-	}*/
-	//scene.add(Vector({ end: [1, 2, 3] }));
-	//p = new Point({ coords: [-5, 6, a ] });
-	//scene.add(p);
-}
-
-function buildAxis( src, dst, colorHex, dashed ) { 
-	var geom = new THREE.Geometry(), mat;
-	if(dashed) {
-		mat = new THREE.LineDashedMaterial({ linewidth: 2, color: colorHex, dashSize: 0.5, gapSize: 0.5 });
-	} else {
-		mat = new THREE.LineBasicMaterial({ linewidth: 2, color: colorHex });
-	}
-	geom.vertices.push( src.clone() );
-	geom.vertices.push( dst.clone() );
-	geom.computeLineDistances(); 
-	var axis = new THREE.Line( geom, mat, THREE.LineSegments );		
-	return axis;
-}
-
-function buildAxisCone(colorHex, posX, posY, posZ, axis) {
-	geometry = new THREE.CylinderGeometry(0, 0.2, 0.4, 20, 5, false) ;
-	material = new THREE.MeshBasicMaterial( { color: colorHex } );
-	var cone = new THREE.Mesh( geometry, material );
-	cone.position.set(posX, posY, posZ);
-	if(axis == "x") {
-		geometry.applyMatrix( new THREE.Matrix4().makeRotationZ( -Math.PI / 2));
-	} else if(axis == "y") {
-		geometry.applyMatrix( new THREE.Matrix4().makeRotationY( Math.PI / 2));
-	} else if(axis == "z") {
-		geometry.applyMatrix( new THREE.Matrix4().makeRotationX( Math.PI / 2));
-	}
-	return cone;
-}
-
-function createAxes() {
-
-	var axes = new THREE.Object3D();
-	axes.add(buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( xMax, 0, 0 ), GREEN, false ) ); // +X
-	axes.add(buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( xMin, 0, 0 ), GREEN, true) );   // -X
-	axes.add(buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, yMax, 0 ), RED, false ) );   // +Y
-	axes.add(buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, yMin, 0 ), RED, true ) );    // -Y
-	axes.add(buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, zMax ), BLUE, false ) );  // +Z
-	axes.add(buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, zMin ), BLUE, true ) );   // -Z
-
-	axes.add(buildAxisCone(GREEN, xMax, 0, 0, "x")); // x-axis cone
-	axes.add(buildAxisCone(RED, 0, yMax, 0, "y")); // y-axis cone
-	axes.add(buildAxisCone(BLUE, 0, 0, zMax, "z")); // z-axis cone
-		
-	return axes;
-	
 }
 
 function animate() {
@@ -209,12 +126,6 @@ function update()
 {
 	// delta = change in time since last call (in seconds)
 	var delta = clock.getDelta(); 
-
-	// functionality provided by THREEx.KeyboardState.js
-	if ( keyboard.pressed("1") )
-		document.getElementById('message').innerHTML = ' Have a nice day! - 1';	
-	if ( keyboard.pressed("2") )
-		document.getElementById('message').innerHTML = ' Have a nice day! - 2 ';	
 		
 	controls.update();
 	stats.update();

@@ -1541,11 +1541,27 @@ function JSXSetBounds(board, bounds, keepAspectRatio) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-function JSXCheckBox(board, xLoc, yLoc, label, checked, onChange) {
-	var cbox = board.create('checkbox', [xLoc, yLoc, label]);
+function JSXCheckbox(board, xLoc, yLoc, label, checked, onChange, args) {
+	if(args == undefined) {
+		var cbox = board.create('checkbox', [xLoc, yLoc, label]);
+	} else {
+		var cbox = board.create('checkbox', [xLoc, yLoc, label], args);
+	}
 	cbox.rendNodeCheckbox.checked = checked;
 	cbox._value = checked;
 	JXG.addEvent(cbox.rendNodeCheckbox, 'change', onChange, cbox);
+	return cbox;
+}
+
+function toggleCheckbox(cbox) {
+	cbox.rendNodeCheckbox.checked = !cbox.rendNodeCheckbox.checked;
+	cbox._value = !cbox._value;
+	return cbox;
+}
+
+function setCheckbox(cbox, value) {
+	cbox._value = value;
+	cbox.rendNodeCheckbox.checked = value;
 	return cbox;
 }
 
@@ -1792,12 +1808,15 @@ function upperBoundOpen(interval) {
 /////////////////////////////////////////////////////////////////
 
 function evaluate(f, x, args) {
-	
+		
 	var variable = 'x';
 	
 	if(args !== undefined) {
 		variable = args.variable ? args.variable : 'x';
 	}
+	
+	f = f.toLowerCase();
+	f = removeFunctionName(f);
 	
 	// if f includes a restricted interval, handle that
 	if(f.search(regex_interval) != -1) {
@@ -1825,8 +1844,8 @@ function evaluate(f, x, args) {
 			f = NaN;//'0';//f.substring(0, f.search(regex_interval));
 		}
 	}
-	relation = board.jc.snippet(f, true, variable, true);
-	return relation(x);
+	var expr = math.compile(f);
+	return expr.eval({x: x});
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2110,6 +2129,10 @@ function plot_parametric(curve, x_t, y_t, tmin, tmax, args) {
 ///////////////////////////////////////////////////////////////////////////////
 
 function plot(curve, relation, start_x, end_x, args) {
+
+	if(args == undefined) {
+		var args = {};
+	}
 
 	var holeloc = '';
 	var endpoints = [];

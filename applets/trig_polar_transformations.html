@@ -12,6 +12,7 @@
 		<script src='./js/jsxgraphcore.js' type='text/javascript'></script>
 		<script src='./js/MathFunctions.js' type='text/javascript'></script>
 		<script src='./js/math.min.js' type = 'text/javascript'></script>
+		<script src='./js/DAT.GUI.min.js' type='text/javascript'></script>
 	</meta>
 </head>
 
@@ -41,76 +42,69 @@ var board = JXG.JSXGraph.initBoard('jxgbox', {
         }		
     });
 	
+var curve = board.create('curve', [[0,0], [1,1]]);
+init();
 	
+function update() {
 
-		var expr = math.compile('4sin(2t)');
+	board.removeObject(curve);
+
+	var expr = math.compile(parameters.func);
+
+	var tValues = math.range(math.eval(parameters.tMin), math.eval(parameters.tMax), math.eval(parameters.tScl)).toArray();
+	var rValues = tValues.map(
+		function(x) {
+			return expr.eval({t: x});
+		});
 		
-		var tValues = math.range(0, 6.3, 0.131).toArray();
-		var rValues = tValues.map(
-			function(x) {
-				return expr.eval({t: x});
+	var xValues = [];
+	var yValues = [];
+	var points = [];
+
+	for(var i = 0; i < tValues.length; i++) {
+
+		xValues[i] = rValues[i] * Math.cos(tValues[i]);
+		yValues[i] = rValues[i] * Math.sin(tValues[i]);
+		
+		points[i] = board.create('point', [tValues[i], rValues[i]], { withLabel: false, color: '#0000FF', visible: false });
+		
+	}
+
+	curve = board.create('polygon', points, { 
+				strokeWidth: 2,
+				strokeColor: '#0000FF'
 			});
-			
-		var xValues = [];
-		var yValues = [];
-		var points = [];
-		
-		for(var i = 0; i < tValues.length; i++) {
-		
-			xValues[i] = rValues[i] * Math.cos(tValues[i]);
-			yValues[i] = rValues[i] * Math.sin(tValues[i]);
-			
-			points[i] = board.create('point', [tValues[i], rValues[i]], { withLabel: false, color: '#0000FF', visible: false });
-			
-		}
-		
-		curve = board.create('polygon', points, { 
-					strokeWidth: 2,
-					strokeColor: '#0000FF'
-			    });
 
-		for(var i = 0; i < tValues.length; i++) {
-			points[i].visit([xValues[i], yValues[i]], 100000, 10);
-		}
-		
-/*		var expr = math.compile('sin(t)');
-		
-		var xValues = math.range(-10, 10, 0.131).toArray();
-		var yValues = xValues.map(
-			function(x) {
-				return expr.eval({t: x});
-			});
-			
-		var tValues = [];
-		var rValues = [];
-		var points = [];
-		
-		for(var i = 0; i < xValues.length; i++) {
-		
-			if(yValues[i] > 0 && xValues[i] > 0) {
-				tValues[i] = Math.atan(yValues[i]/xValues[i]);
-			} else if(yValues[i] > 0 && xValues[i] < 0) {
-				tValues[i] = Math.atan(yValues[i]/xValues[i]) + PI;
-			} else if(yValues[i] < 0 && xValues[i] < 0) {
-				tValues[i] = Math.atan(yValues[i]/xValues[i]) + PI;
-			} else if(yValues[i] < 0 && xValues[i] > 0) {
-				tValues[i] = Math.atan(yValues[i]/xValues[i]) + 2 * PI;
-			} 
-			tValues[i] = Math.atan(yValues[i]/xValues[i]);
-			rValues[i] = Math.sqrt(Math.pow(xValues[i], 2) + Math.pow(yValues[i], 2));
-			
-			points[i] = board.create('point', [xValues[i], yValues[i]], { withLabel: false, color: '#0000FF', visible: false });
-			
-		}
-		
-		curve = board.create('polygon', points, { 
-					strokeWidth: 2,
-					strokeColor: '#0000FF'
-			    });
+	var looptime = 50000; // time in ms
+	var repetitions = 2;
 
-		for(var i = 0; i < tValues.length; i++) {
-			points[i].visit([tValues[i], rValues[i]], 100000, 10);
-		}*/
+	for(var i = 0; i < tValues.length; i++) {
+		points[i].visit([xValues[i], yValues[i]], looptime, repetitions);
+	}
+}	
+	
+function init() {
+
+	parameters = {
+		func: '',
+		tMin: '0',
+		tMax: '2*pi',
+		tScl: 'pi/12',
+		updater: function() { update(); }
+	};
+
+	var gui = new dat.GUI();
+	
+	gui.add(parameters, 'func').name('Equation: ');
+	gui.add(parameters, 'tMin').name('Theta Min: ');
+	gui.add(parameters, 'tMax').name('Theta Max: ');
+	gui.add(parameters, 'tScl').name('Theta Scale: ');
+	gui.add(parameters, 'updater').name('Update Graph');
+	
+}
+
+
+		
 
 </script>
 </body>,

@@ -1,9 +1,9 @@
 <html>
 <head>
 	<meta charset="utf-8">  
-		<link rel='stylesheet' type='text/css' href='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css' />
-		<script src='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraphcore.js' type='text/javascript'></script>
-		<script src='https://jsxgraph.uni-bayreuth.de/distrib/GeonextReader.js' type='text/javascript'></script>
+		<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
+	    <script src='./js/jsxgraphcore.js' type='text/javascript'></script>
+	    <script src='./js/MathFunctions.js' type='text/javascript'></script>
 	</meta>
 </head>
 
@@ -12,6 +12,8 @@
 <h1>Disk and Shell Method Formulas</h1>
 Y Minimum = <input type="text" id="lower_bound" value="">
 Y Maximum = <input type="text" id="upper_bound" value="">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<input type="button" value="Update" onClick="update()">
 </br>
 X Minimum = <input type="text" id="left_bound" value="">
 X Maximum = <input type="text" id="right_bound" value="">
@@ -19,9 +21,9 @@ X Maximum = <input type="text" id="right_bound" value="">
 Slider Min = <input type="text" id="slider_min" value="0">
 Slider Max = <input type="text" id="slider_max" value="10">
 </br>
-<input type="button" value="Update" onClick="update()">
 
 <div id="jxgbox" class="jxgbox" style="width:1000px; height:720px; float:left"></div>
+<div id="display" class="jxgbox" style="width:320px; height:720px; float:left"></div>
 
 <script type='text/javascript'>
 
@@ -39,6 +41,14 @@ var board = JXG.JSXGraph.initBoard('jxgbox', {
             eps: 0.1
         }		
     });
+	
+var controlboard = JXG.JSXGraph.initBoard('display', {
+		boundingbox: [0,10,10,0], 
+      	showCopyright: false, 
+      	showNavigation: false,
+		keepaspectratio: false,
+		axis: false	
+    });	
 			
 // Initialize curves so that we have something we can update
 var curves = [];
@@ -47,95 +57,89 @@ curves[1] = board.create('curve', [0, 0], 0, 0, { visible: false });
 curves[2] = board.create('curve', [0, 0], 0, 0, { visible: false });
 curves[3] = board.create('curve', [0, 0], 0, 0, { visible: false });
 
-slider_p1 = [15, 8];
-slider_p2 = [15, 2];
-slider_min = parseInt(document.getElementById('slider_min').value);
-slider_max = parseInt(document.getElementById('slider_max').value);
-slider_avg = (slider_min + slider_max) / 2;
+var slider_p1 = [1, 9];
+var slider_p2 = [8, 9];
+var slider_min = parseInt(document.getElementById('slider_min').value);
+var slider_max = parseInt(document.getElementById('slider_max').value);
+var slider_avg = (slider_min + slider_max) / 2;
 
-slider = board.create('slider', [slider_p1, slider_p2, [slider_max, slider_avg, slider_min]], { withLabel: true });
+var slider = controlboard.create('slider', [slider_p1, slider_p2, 
+			 	[slider_max, slider_avg, slider_min]], { withLabel: true });
+slider.on('drag', function() { board.update(); });
 
-board.create('text', [10, -7, 'Rectangle Orientation:']);
-vertical_rectangle = board.create('checkbox', [10.5, -7.5, 'Vertical']);
-horizontal_rectangle = board.create('checkbox', [10.5, -8, 'Horizontal']);
+var t1 = controlboard.create('text', [1, 4, 'Rectangle Orientation:'], { fontSize: 18, fixed: true });
 
-board.create('text', [14, -7, 'Axis of Rotation:']);
-cb_vertical_axis = board.create('checkbox', [14.5, -7.5, 'Vertical']);
-cb_horizontal_axis = board.create('checkbox', [14.5, -8, 'Horizontal']);
-
-hidden_horiz_line = board.create('line', [[-10, -9], [20, -9]], { visible: false });
-vert_axis_loc = board.create('glider', [0, 0, hidden_horiz_line], { name: 'v', withLabel: false, showInfoBox: false, visible: false });
-vertical_axis = board.create('line', [vert_axis_loc, [function() { return vert_axis_loc.X() }, 0]], { dash: 3, color: 'black', visible: false });
-
-hidden_vert_line = board.create('line', [[-9, 9], [-9, -9]], { visible: false });
-horiz_axis_loc = board.create('glider', [0, 0, hidden_vert_line], { name: 'h', withlabel: false, showInfoBox: false });
-horizontal_axis = board.create('line', [horiz_axis_loc, [0, function() { return horiz_axis_loc.Y() }]], { dash: 3, color: 'black'});
-
-method_label = board.create('text', [-9, -5, 'Disk Method']);
-disk_method = true;
-
-// Default state of check boxes
-vertical_rectangle.rendNodeCheckbox.checked = true;
-horizontal_rectangle.rendNodeCheckbox.checked = false;
-
-cb_vertical_axis.rendNodeCheckbox.checked = false;
-cb_horizontal_axis.rendNodeCheckbox.checked = true;
-
-
-	function set_method() {
-		//alert('vertical rectangle == ' + vertical_rectangle.Value() + '  horizontal rectangle == ' + horizontal_rectangle.Value() + '\n' + 'vertical axis == ' + cb_vertical_axis.Value() + '  horizontal axis == ' + cb_horizontal_axis.Value());
-		if((vertical_rectangle.Value() && cb_horizontal_axis.Value()) || (horizontal_rectangle.Value() && cb_vertical_axis.Value())) {
-			disk_method = true;
-			method_label.setText('Disk Method');
-			//alert('We\'ll call it the Disk Method');
-		}
-		if((vertical_rectangle.Value() && cb_vertical_axis.Value()) || (horizontal_rectangle.Value() && cb_horizontal_axis.Value())) {
-			disk_method = false;
-			method_label.setText('Shell Method');
-			//alert('We\'ll call it the Shell Method');
-		} 
-	};
-	
-
-JXG.addEvent(vertical_rectangle.rendNodeCheckbox, 'change', 
+var vertical_rectangle = JSXCheckbox(controlboard, 2, 3.5, 'Vertical', true, 
 	function() {
-		horizontal_rectangle.rendNodeCheckbox.checked = false;	
-		vertical_rectangle.rendNodeCheckbox.checked = true;
+		setCheckbox(vertical_rectangle, true);
+		setCheckbox(horizontal_rectangle, false);
 		set_method()
-		board.update();
-    }, vertical_rectangle);
-		
-JXG.addEvent(horizontal_rectangle.rendNodeCheckbox, 'change', 
+		update();
+    }, 
+    { fontSize: 18, fixed: true });
+    
+var horizontal_rectangle = JSXCheckbox(controlboard, 2, 3, 'Horizontal', false,
 	function() {
-		horizontal_rectangle.rendNodeCheckbox.checked = true;	
-		vertical_rectangle.rendNodeCheckbox.checked = false;
+		setCheckbox(horizontal_rectangle, true);
+		setCheckbox(vertical_rectangle, false);
 		set_method();
-		board.update();
-    }, horizontal_rectangle);
+		update();
+    },
+    { fontSize: 18, fixed: true });
 
-JXG.addEvent(cb_vertical_axis.rendNodeCheckbox, 'change', 
+
+var t2 = controlboard.create('text', [1, 2, 'Axis of Rotation:'], { fontSize: 18, fixed: true });
+
+var cb_vertical_axis = JSXCheckbox(controlboard, 2, 1.5, 'Vertical', false,
 	function() {
-		cb_horizontal_axis.rendNodeCheckbox.checked = false;	
-		cb_vertical_axis.rendNodeCheckbox.checked = true;
+		setCheckbox(cb_vertical_axis, true);
+		setCheckbox(cb_horizontal_axis, false);
 		horizontal_axis.setAttribute({ visible: false });
 		horiz_axis_loc.setAttribute({ visible: false });
 		vertical_axis.setAttribute({ visible: true });
 		vert_axis_loc.setAttribute({ visible: true });
 		set_method();
-		board.update();
-    }, cb_vertical_axis);
-		
-JXG.addEvent(cb_horizontal_axis.rendNodeCheckbox, 'change', 
+		update();
+    },
+    { fontSize: 18, fixed: true });
+    
+var cb_horizontal_axis = JSXCheckbox(controlboard, 2, 1, 'Horizontal', true,
 	function() {
-    	cb_horizontal_axis.rendNodeCheckbox.checked = true;	
-		cb_vertical_axis.rendNodeCheckbox.checked = false;
+		setCheckbox(cb_vertical_axis, false);
+		setCheckbox(cb_horizontal_axis, true);
 		horizontal_axis.setAttribute({ visible: true });
 		horiz_axis_loc.setAttribute({ visible: true });
 		vertical_axis.setAttribute({ visible: false });
 		vert_axis_loc.setAttribute({ visible: false });
 		set_method();
-		board.update();
-    }, cb_horizontal_axis);	
+		update();
+    },
+    { fontSize: 18, fixed: true });
+
+var hidden_horiz_line = board.create('line', [[-10, -9], [20, -9]], { visible: false });
+var vert_axis_loc = board.create('glider', [0, 0, hidden_horiz_line], { name: 'v', withLabel: false, showInfoBox: false, visible: false });
+var vertical_axis = board.create('line', [vert_axis_loc, [function() { return vert_axis_loc.X() }, 0]], { dash: 3, color: 'black', visible: false });
+
+var hidden_vert_line = board.create('line', [[-9, 9], [-9, -9]], { visible: false });
+var horiz_axis_loc = board.create('glider', [0, 0, hidden_vert_line], { name: 'h', withlabel: false, showInfoBox: false });
+var horizontal_axis = board.create('line', [horiz_axis_loc, [0, function() { return horiz_axis_loc.Y() }]], { dash: 3, color: 'black'});
+
+var method_label = controlboard.create('text', [1, 7, 'Disk Method'], { fontSize: 18, fixed: true });
+var disk_method = true;
+
+function set_method() {
+	//alert('vertical rectangle == ' + vertical_rectangle.Value() + '  horizontal rectangle == ' + horizontal_rectangle.Value() + '\n' + 'vertical axis == ' + cb_vertical_axis.Value() + '  horizontal axis == ' + cb_horizontal_axis.Value());
+	if((vertical_rectangle.Value() && cb_horizontal_axis.Value()) || (horizontal_rectangle.Value() && cb_vertical_axis.Value())) {
+		disk_method = true;
+		method_label.setText('Disk Method');
+		//alert('We\'ll call it the Disk Method');
+	}
+	if((vertical_rectangle.Value() && cb_vertical_axis.Value()) || (horizontal_rectangle.Value() && cb_horizontal_axis.Value())) {
+		disk_method = false;
+		method_label.setText('Shell Method');
+		//alert('We\'ll call it the Shell Method');
+	} 
+};
 	
 var width = 0.25;
 
@@ -263,8 +267,8 @@ function update() {
 	var left_f = document.getElementById('left_bound').value;
 	curves[3] = plot_relation(curves[3], left_f);	
 		
-	slider_min = parseInt(document.getElementById('slider_min').value);
-	slider_max = parseInt(document.getElementById('slider_max').value);
+	slider_min = parseFloat(document.getElementById('slider_min').value);
+	slider_max = parseFloat(document.getElementById('slider_max').value);
 	slider_avg = (slider_min + slider_max) / 2;
 	slider.setMin(slider_max);	
 	slider.setMax(slider_min);
