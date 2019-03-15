@@ -294,8 +294,8 @@ function update() {
 	slider_min = parseFloat(document.getElementById('slider_min').value);
 	slider_max = parseFloat(document.getElementById('slider_max').value);
 	slider_avg = (slider_min + slider_max) / 2;
-	slider.setMin(slider_max);	
-	slider.setMax(slider_min);
+	slider.setMin(slider_min);	
+	slider.setMax(slider_max);
 	slider.setValue(slider_avg);
 	slider.update();
 	

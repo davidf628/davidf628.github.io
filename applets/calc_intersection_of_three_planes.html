@@ -30,30 +30,54 @@
 <script src="js/THREEx.WindowResize.js"></script>
 <script src="js/3dmath.js"></script>
 
+<!-- Library for the menuing system -->
 <script type='text/javascript' src='js/DAT.GUI.min.js'></script>
+
+<!-- Libraries for MathJax to display math formulas on screen -->
+<script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+      tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]},
+      });
+    </script>
+    <script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+
+<!-- jQuery code to display an information button and box when clicked. -->
+<script src="js/jquery-1.9.1.js"></script>
+<script src="js/jquery-ui.js"></script>
+<link rel=stylesheet href="css/jquery-ui.css" />
+<link rel=stylesheet href="css/info.css"/>
+<script src="js/info.js"></script>
+<div id="infoButton"></div>
+<div id="infoBox" title="Intersection of Three Planes">
+	This program shows the solution in 3D of the 3x3 system of equations:</br></br>
+	<p align='center'>Plane 1: $x-y+z=-1$</p>
+	<p align='center'>Plane 2: $4x+y-2z=5$</p>
+	<p align='center'>Plane 3: $-3x-3y-4z=-16$</p>
+	</br>
+	Which is the point in space located at: $$(1, 3, 1)$$
+	You can rotate by swiping with your finger or dragging with the mouse. You can zoom by pinching the screen or using the mousewheel.
+	Pressing 'm' will make the window toggle fullscreen mode.</br></br>
+	Note that the x-axis is green, the y-axis is red and the z-axis is blue.
+</div>
+
 
 <div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
 <script>
-
-// Color Constants:
-
-RED = 0xff0000;
-GREEN = 0x00ff00;
-BLUE = 0x0000ff;
 
 var container, scene, camera, renderer, controls, stats;
 var keyboard = new THREEx.KeyboardState();
 var clock = new THREE.Clock();
 
-var xMin = -20, xMax = 20, xStep = 5;
-var yMin = -20, yMax = 20, yStep = 5;
-var zMin = -20, zMax = 20, zStep = 5;
-var xRange = xMax - xMin;
-var yRange = yMax - yMin;
-var zRange = zMax - zMin;
+var plane1, plane2, plane3, intersection;
 
-var a = 0;
-var gui_a;
+var parameters = {
+
+	toggleplane1: function() { plane1.toggleVisible(); },
+	toggleplane2: function() { plane2.toggleVisible(); },
+	toggleplane3: function() { plane3.toggleVisible(); },
+	toggleintersection: function() { intersection.toggleVisible(); }
+	
+};
 
 // initialization
 init();
@@ -101,20 +125,12 @@ function init() {
 	stats.domElement.style.zIndex = 100;
 	container.appendChild( stats.domElement );
 		
-	// GUI
-	//gui = new dat.GUI();	
-	//window_menu = gui.addFolder('Window');
-	//window_menu.add( this, 'xMin' ).name('x Min = ').onChange( 
-	//	function() { 
-	//		xRange = xMax - xMin;
-	//		createScene(); 
-	//	});
-	
-	//gui.add(this, 'a').min(-5).max(5).step(0.01).name('a = ').onChange(
-	//	function() {
-	//		p.position.z = a;
-	//	});
-	
+	// GUI CONTROLLER
+	var gui = new dat.GUI();
+	gui.add(parameters, 'toggleplane1').name('Toggle Plane 1');
+	gui.add(parameters, 'toggleplane2').name('Toggle Plane 2');
+	gui.add(parameters, 'toggleplane3').name('Toggle Plane 3');
+	gui.add(parameters, 'toggleintersection').name('Toggle Intersection');	
 	
 	createScene();
 }
@@ -128,20 +144,18 @@ function createScene() {
 	var light = new THREE.AmbientLight( 0xffffff );
 	scene.add( light );
 	
-	var size = xRange;
-	var divisions = xRange / xStep;
-
-	var gridHelper = new THREE.GridHelper( size, divisions, 0xe0e0e0, 0xe0e0e0 );
-	gridHelper.geometry.rotateX( Math.PI / 2 );
-	scene.add( gridHelper );	
+	var axes = createAxes({ labels: false });
+	plane1 = new Surface('-x+y-1', { color: new THREE.Color('green'), visible: false });
+	plane2 = new Surface('(y + 4*x - 5)/2', { color: new THREE.Color('red'), visible: false });
+	plane3 = new Surface('(16-3*x-3*y)/4', { color: new THREE.Color('blue'), visible: false });
+	intersection = new Point( { coords: [1, 3, 1], visible: false } );
 	
-	axes = createAxes(xMin, xMax, yMin, yMax, zMin, zMax);
 	scene.add(axes);
 	
-	scene.add(Surface('-x+y-1', new THREE.Color('green')));
-	scene.add(Surface('(y + 4*x - 5)/2', new THREE.Color('red')));
-	scene.add(Surface('(16-3*x-3*y)/4', new THREE.Color('blue')));
-	scene.add(Point( { coords: [1, 3, 1] } ) );
+	scene.add(plane1.getObject());
+	scene.add(plane2.getObject());
+	scene.add(plane3.getObject());
+	scene.add(intersection.getObject());
 
 }
 
