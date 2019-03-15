@@ -8,6 +8,18 @@
 </head>
 <body>
 
+<!-----------------------------------------------------------------------------
+-- This program shows the solution to the 2x3 system of equations:
+--
+--  -x +  y +  z =  2
+-- -3x - 2y +  z = -4
+--
+-- which is the line defined by the vector: < 3/5t, 2 - 2/5t, t >
+--
+------------------------------------------------------------------------------>
+
+<!-- Libraries for ThreeJS -->
+
 <script src="js/three.min.js"></script>
 <script src="js/SceneUtils.js"></script>
 <script src="js/stats.js"></script>
@@ -19,7 +31,35 @@
 <script src="js/THREEx.WindowResize.js"></script>
 <script src="js/3dmath.js"></script>
 
+<!-- Library for the menuing system -->
 <script type='text/javascript' src='js/DAT.GUI.min.js'></script>
+
+<!-- Libraries for MathJax to display math formulas on screen -->
+<script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+      tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]},
+      });
+    </script>
+    <script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+
+<!-- jQuery code to display an information button and box when clicked. -->
+<script src="js/jquery-1.9.1.js"></script>
+<script src="js/jquery-ui.js"></script>
+<link rel=stylesheet href="css/jquery-ui.css" />
+<link rel=stylesheet href="css/info.css"/>
+<script src="js/info.js"></script>
+<div id="infoButton"></div>
+<div id="infoBox" title="Intersection of Two Planes">
+	This program shows the solution in 3D of the 2x3 system of equations:</br></br>
+	<p align='center'>Plane 1: $-x+y+z=2$</p>
+	<p align='center'>Plane 2: $-3x-2y+z=-4$</p>
+	</br>
+	Which is the line in space defined by the parametric equations: $$x=\frac{3}{t}t,y=2-\frac{2}{5}t,z=t$$
+	You can rotate by swiping with your finger or dragging with the mouse. You can zoom by pinching the screen or using the mousewheel.
+	Pressing 'm' will make the window toggle fullscreen mode.
+</div>
+
+<!--------------------------------------------------------------------------------->
 
 <div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
 <script>
@@ -28,15 +68,21 @@ var container, scene, camera, renderer, controls, stats;
 var keyboard = new THREEx.KeyboardState();
 var clock = new THREE.Clock();
 
-var xMin = -20, xMax = 20, xStep = 5;
-var yMin = -20, yMax = 20, yStep = 5;
-var zMin = -20, zMax = 20, zStep = 5;
-var xRange = xMax - xMin;
-var yRange = yMax - yMin;
-var zRange = zMax - zMin;
+var plane1, plane2, intersection;
 
-var a = 0;
-var gui_a;
+var parameters = {
+
+	toggleplane1: function() { plane1.toggleVisible(); },
+	toggleplane2: function() { plane2.toggleVisible(); },
+	toggleintersection: function() { intersection.toggleVisible(); }, 
+	toggledirectionvectors: 
+		function() { 
+			vector1.toggleVisible();
+			vector2.toggleVisible();
+			crossproduct.toggleVisible();
+		}
+	
+};
 
 // initialization
 init();
@@ -59,7 +105,8 @@ function init() {
 	camera.lookAt(scene.position);	
 	
 	// RENDERER 	
-	renderer = new THREE.WebGLRenderer( {antialias:true, alpha: true} );	
+	renderer = new THREE.WebGLRenderer( { antialias:true, alpha: true } );
+	//renderer = new THREE.WebGLRenderer( { alpha: true } );	
 	renderer.setClearColor( 0xffffff);
 	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 	renderer.sortObjects = false;
@@ -84,6 +131,13 @@ function init() {
 	stats.domElement.style.zIndex = 100;
 	container.appendChild( stats.domElement );	
 	
+	// GUI CONTROLLER
+	var gui = new dat.GUI();
+	gui.add(parameters, 'toggleplane1').name('Toggle Plane 1');
+	gui.add(parameters, 'toggleplane2').name('Toggle Plane 2');
+	gui.add(parameters, 'toggleintersection').name('Toggle Intersection');
+	gui.add(parameters, 'toggledirectionvectors').name('Toggle Vectors');
+	
 	createScene();
 }
 
@@ -94,25 +148,28 @@ function createScene() {
 	}
 
 	var light = new THREE.AmbientLight( 0xffffff );
-	scene.add( light );
-	
-	var size = xRange;
-	var divisions = xRange / xStep;
+	scene.add( light );	
 
-	var gridHelper = new THREE.GridHelper( size, divisions, 0xe0e0e0, 0xe0e0e0 );
-	gridHelper.geometry.rotateX( Math.PI / 2 );
-	scene.add( gridHelper );	
+	//var intersection = new ParametricGraph('3/5*t', '2-2/5*t', 't', -20, 20, new THREE.Color('black'))
 	
-	axes = createAxes(xMin, xMax, yMin, yMax, zMin, zMax);
-	scene.add(axes);
+	plane1 = new Surface('x-y+2', { color: new THREE.Color('green'), visible: false });
+	plane2 = new Surface('3*x+2*y-4', { color: new THREE.Color('blue'), visible: false });
+	intersection = new ParametricGraph('3/5*t', '2-2/5*t', 't', -20, 20, { visible: false });
+	vector1 = new Vector( { end: [1, -1, -1], visible: false } );
+	vector2 = new Vector( { end: [3,  2, -1], visible: false } );
+	crossproduct = new Vector( { end: [3, -2, 5], visible: false });
 	
-	scene.add(Surface('x-y+2', new THREE.Color('green')));
-	scene.add(Surface('3*x+2*y-4', new THREE.Color('blue')));
-	scene.add(ParametricGraph('3/5*t', '2-2/5*t', 't', -20, 20, new THREE.Color('black')));
+	scene.add(createAxes( { labels: false } ));
+	scene.add(plane1.getObject());
+	scene.add(plane2.getObject());
 	
-	scene.add(Vector( { end: [1, -1, -1] } ));
-	scene.add(Vector( { end: [3, 2, -1] }));
-	scene.add(Vector( { end: [3, -2, 5] }));
+	scene.add(intersection.getObject());
+
+	scene.add(vector1.getObject());
+	scene.add(vector2.getObject());
+	scene.add(crossproduct.getObject());
+	
+	intersection.updateBounds(-2, 2);
 
 }
 

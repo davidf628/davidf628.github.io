@@ -122,12 +122,9 @@ function createScene() {
 	
 	scene.add(axes);
 	
-	var surface = new Surface3d('4 - x^2 - y^2', { skin: 'normal' });
+	var surface = new Surface3d('4 - x^2 - y^2', { skin: 'transparent' });
 	scene.add(surface.getObject());
-	
-	var light = new THREE.PointLight(0xffffff, 1, 0);
-	light.position.set(0, 100, 0);
-	scene.add(light);
+	scene.add(createWireFrame('3*x - 2*y + 4', new THREE.Color('blue')));
 	
 	//scene.add(Surface('3*x*x-6*x*y+2*y^2-4', BLUE));
 	//scene.add(ParametricGraph('3/5*t', '2-2/5*t', 't', -20, 20, 0x000000));

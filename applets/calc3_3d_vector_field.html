@@ -27,16 +27,6 @@ var container, scene, camera, renderer, controls, stats;
 var keyboard = new THREEx.KeyboardState();
 var clock = new THREE.Clock();
 
-var xMin = -20, xMax = 20, xStep = 5;
-var yMin = -20, yMax = 20, yStep = 5;
-var zMin = -20, zMax = 20, zStep = 5;
-var xRange = xMax - xMin;
-var yRange = yMax - yMin;
-var zRange = zMax - zMin;
-
-var a = 0;
-var gui_a;
-
 // initialization
 init();
 
@@ -94,20 +84,14 @@ function createScene() {
 	var light = new THREE.AmbientLight( 0xffffff );
 	scene.add( light );
 	
-	var size = xRange;
-	var divisions = xRange / xStep;
-
-	var gridHelper = new THREE.GridHelper( size, divisions, 0xe0e0e0, 0xe0e0e0 );
-	gridHelper.geometry.rotateX( Math.PI / 2 );
-	scene.add( gridHelper );	
-	
-	axes = createAxes(xMin, xMax, yMin, yMax, zMin, zMax);
+	var axes = createAxes({ labels: false });
 	scene.add(axes);
 	
 	for(x = -20; x <= 20; x=x+5) {
 		for(y = -20; y <= 20; y=y+5) {
 			for(z = -20; z <= 20; z=z+5) {
-				scene.add(Vector( { start: [x, y, z], end: [y + 1, -y + 1, 0], length: 3 }));
+				var vector = new Vector( { start: [x, y, z], end: [y + 1, -y + 1, 0], length: 3 });
+				scene.add(vector.getObject());
 			}
 		}
 	}
@@ -124,12 +108,6 @@ function update()
 {
 	// delta = change in time since last call (in seconds)
 	var delta = clock.getDelta(); 
-
-	// functionality provided by THREEx.KeyboardState.js
-	if ( keyboard.pressed("1") )
-		document.getElementById('message').innerHTML = ' Have a nice day! - 1';	
-	if ( keyboard.pressed("2") )
-		document.getElementById('message').innerHTML = ' Have a nice day! - 2 ';	
 		
 	controls.update();
 	stats.update();
