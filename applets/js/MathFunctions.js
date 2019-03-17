@@ -2264,19 +2264,23 @@ function plot(curve, relation, start_x, end_x, args) {
 ////////////////////////////////////////////////////////////////////
 
 function displayNumber(val) {
-	s = val.toFixed(4);
-	if(s.includes('.')) {
-		while(s.slice(-1) == '0') {
-			s = s.substring(0, s.length - 1);
+	if(val < 0.00001) {
+		return val.toExponential(3);
+	} else {
+		s = val.toFixed(4);
+		if(s.includes('.')) {
+			while(s.slice(-1) == '0') {
+				s = s.substring(0, s.length - 1);
+			}
+			if(s.slice(-1) == '.') {
+				s = s.substring(0, s.length - 1);
+			}
 		}
-		if(s.slice(-1) == '.') {
-			s = s.substring(0, s.length - 1);
+		if(s.includes('e')) {
+			s = s.substring(0, 4) + s.substring(s.indexOf('e'),s.length);
 		}
+		return s;
 	}
-	if(s.includes('e')) {
-		s = s.substring(0, 4) + s.substring(s.indexOf('e'),s.length);
-	}
-	return s;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
