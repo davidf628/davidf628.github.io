@@ -1870,6 +1870,9 @@ function plot_function(curve, relation, start_x, end_x, args) {
 	var lowerendpoint = args.lowerendpoint ? args.lowerendpoint : -1;
 	var upperendpoint = args.upperendpoint ? args.upperendpoint : -1;
 	var hole = args.hole ? args.hole : -1;
+	var yMax = args.yMax ? args.yMax : 10;
+	var yMin = args.yMin ? args.yMin : -10;
+	var yScl = args.yScl ? args.yScl : 1;
 		
 	var restricted_interval = false;
 	
@@ -1937,6 +1940,19 @@ function plot_function(curve, relation, start_x, end_x, args) {
 	// This is an explicit function of the form: f(x)
 	curve.dataX = math.range(start_x, end_x + density, density).toArray();
 	curve.dataY = curve.dataX.map(function(x) { return expr.eval({x: x}); });
+	
+	
+	// If the curve shoots off to infinity, this will prevent the curve from
+	// drawing an "asymptote" at that value
+	
+	for(var i = 0; i < curve.dataY.length; i++) {
+		if(curve.dataY[i] > yMax + 2*(yScl)) {
+			curve.dataY[i] = NaN;
+		} else if(curve.dataY[i] < yMin - 2*(yScl)) {
+			curve.dataY[i] = NaN;
+		}
+	}	
+	
 	curve.updateParametricCurve();
 
 }
@@ -2108,6 +2124,115 @@ function plot_parametric(curve, x_t, y_t, tmin, tmax, args) {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// Draws the plot of a function implicity, however, very slowly. Uses the
+//   marching squares algorithm and plots using multiple segments. There's
+//   probably a way of speeding the algorithm up, but for right now this at
+//   least works :)
+//
+// It currently doesn't allow for erasing and redrawing when the window is
+//   resized, so that would be the next thing to work on
+//
+// TODO: Allow for removal of curve when window resized
+//
+///////////////////////////////////////////////////////////////////////////////
+
+function implicit_plot(relation, args) {
+	
+	if(args === undefined) {
+		args = {};
+	}
+	
+	var color = args.color ? args.color : 'red';
+	var density = args.density ? args.density : 0.1;
+	
+	var bounds = JSXGetBounds(board);
+
+	var nVertPoints = (bounds.ymax - bounds.ymin) / density;
+	var nHorizPoints = (bounds.xmax - bounds.xmin) / density;
+
+	var nVertCells = nVertPoints - 1;
+	var nHorizCells = nHorizPoints - 1;
+
+	var expr = math.compile(relation);
+
+	var segmentparams = { color: color, fixed: true, highlight: false };
+
+	for(var x = bounds.xmin; x <= bounds.xmax - density; x += density) {
+		for(var y = bounds.ymin+density; y <= bounds.ymax; y += density) {
+			var nw = expr.eval({x: x, y: y});
+			var ne = expr.eval({x: x + density, y: y});
+			var se = expr.eval({x: x + density, y: y - density});
+			var sw = expr.eval({x: x, y: y - density});
+			
+			var total = 0;
+			if(nw > 0) total += 8;
+			if(ne > 0) total += 4;
+			if(se > 0) total += 2;
+			if(sw > 0) total += 1;
+			
+			var bottomInterp = -sw / (se - sw) * density;
+			var topInterp    = -nw / (ne - nw) * density;
+			var leftInterp   = -nw / (sw - nw) * density;
+			var rightInterp	 = -ne / (se - ne) * density;
+			
+			switch (total) {
+				case 0:
+					break;
+				case 1:
+					board.create('segment', [[x, y - leftInterp], [x + bottomInterp, y - density]], segmentparams);
+					break;
+				case 2:
+					board.create('segment', [[x + bottomInterp, y - density], [x + density, y - rightInterp]], segmentparams);
+					break;
+				case 3:
+					board.create('segment', [[x, y - leftInterp], [x + density, y - rightInterp]], segmentparams);
+					break;
+				case 4:
+					board.create('segment', [[x + topInterp, y], [x + density, y - rightInterp]], segmentparams);
+					break;
+				case 5:
+					board.create('segment', [[x, y - leftInterp], [x + topInterp, y]], segmentparams);
+					board.create('segment', [[x + bottomInterp, y - density], [x + density, y - rightInterp]], segmentparams);
+					break;
+				case 6:
+					board.create('segment', [[x + topInterp, y], [x + bottomInterp, y - density]], segmentparams);
+					break;
+				case 7:
+					board.create('segment', [[x, y - leftInterp], [x + topInterp, y]], segmentparams);
+					break;
+				case 8:
+					board.create('segment', [[x, y - leftInterp], [x + topInterp, y]], segmentparams);
+					break;
+				case 9:
+					board.create('segment', [[x + topInterp, y], [x + bottomInterp, y - density]], segmentparams);
+					break;
+				case 10:
+					board.create('segment', [[x + topInterp, y], [x + density, y - rightInterp]], segmentparams);
+					board.create('segment', [[x, y - leftInterp], [x + bottomInterp, y - density]], segmentparams);
+					break;
+				case 11:
+					board.create('segment', [[x + topInterp, y], [x + density, y - rightInterp]], segmentparams);
+					break;
+				case 12:
+					board.create('segment', [[x, y - leftInterp], [x + density, y - rightInterp]], segmentparams);
+					break;
+				case 13:
+					board.create('segment', [[x + bottomInterp, y - density], [x + density, y - rightInterp]], segmentparams);
+					break;
+				case 14:
+					board.create('segment', [[x, y - leftInterp], [x + bottomInterp, y - density]], segmentparams);
+					break;
+				case 15:
+					break;
+			}
+		
+		}
+	
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // Plots a relation in two dimensions. The format of the input is expected to
 //    be one of the following formats: 
 //
@@ -2148,7 +2273,7 @@ function plot(curve, relation, start_x, end_x, args) {
 	
 	// if there is no function name given, and we can assume it is a function
 	// of x, then just append a y = 
-	if(fname == '' && (vars[0] == 'x' || vars.length == 0)) {
+	if(fname == '' && ((vars[0] == 'x' && vars.length == 1) || (vars.length == 0))) {
 		fname = 'y';
 	}
 	relation = removeFunctionName(relation);
@@ -2188,7 +2313,7 @@ function plot(curve, relation, start_x, end_x, args) {
 			
 				plot_polar(curve, relation, tmin, tmax, args);	
 			}
-		} // if(vars.length == 0)
+		} 
 		
 		if(vars.length == 1) {
 	
@@ -2247,7 +2372,7 @@ function plot(curve, relation, start_x, end_x, args) {
 		plot_parametric(curve, x_t, y_t, tmin, tmax, args);
 			
 	} else if(vars.length == 2) {
-		// implicity defined function
+		implicit_plot(relation, args);
 	} 
 
 }
@@ -2299,6 +2424,8 @@ function JSXSlopeField(board, derivative, args) {
 	var density = 1;
 	var color = 'blue';
 
+	var linesegs = [];
+
 	if(args !== undefined) {
 		length = args.length ? args.length : length;
 		density = args.density ? args.density : density;
@@ -2315,9 +2442,11 @@ function JSXSlopeField(board, derivative, args) {
 			var x2 = i - length / (2 * magnitude);
 			var y1 = slope * (x1 - i) + j;
 			var y2 = slope * (x2 - i) + j;
-			board.create('segment', [[x1, y1], [x2, y2]], { color: color, strokeWidth: 1, fixed: true });
+			linesegs.push(board.create('segment', [[x1, y1], [x2, y2]], { color: color, strokeWidth: 1, fixed: true }));
 		}
 	}	
+	
+	return linesegs;
 
 }
 

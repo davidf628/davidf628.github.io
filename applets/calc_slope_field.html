@@ -5,6 +5,7 @@
 	    <script src='./js/jsxgraphcore.js' type='text/javascript'></script>
 	    <script src='./js/MathFunctions.js' type='text/javascript'></script>
 	    <script src='./js/math.min.js' type='text/javascript'></script>
+	    <script src='./js/dat.gui.min.js' type='text/javascript'></script>
 		<script src='./js/helpers.js' type='text/javascript'></script>	
 	</meta>
 </head>
@@ -93,8 +94,49 @@ var board = JXG.JSXGraph.initBoard('jxgbox', {
 		selection: { enabled: false }
     });
 
+var curve;
+var linesegs = [];
 
+init();
 update();
+
+function init() {
+
+	curve = board.create('curve', [0, 0], 0, 0, { visible: false });
+	
+	parameters = {
+		f: '', 
+		color: '#FF0000',
+		c: 0, 
+		updater: function() { updateGraph() }
+	};
+	
+	var gui = new dat.GUI();	
+	gui.add(parameters, 'f').name('Equation: ');
+	gui.addColor(parameters, 'color').name('Color:');
+	gui.add(parameters, 'c').name('c').min(-10).max(10).step(0.1).onChange(
+		function() {
+			updateGraph();
+		});
+	gui.add(parameters, 'updater').name('Update Graph');
+	
+}
+
+function updateGraph() {
+	
+	var window = JSXGetBounds(board);
+	
+	var func = parameters.f.replace("c", parameters.c);
+		
+	plot(curve, func, window.xmin, window.xmax, { 
+		color: parameters.color,  
+		yMin: window.ymin,
+		yMax: window.ymax,
+	});
+
+	board.update();
+
+}
 
 function update() {
 
@@ -104,7 +146,7 @@ function update() {
 
 	var window = JSXGetBounds(board);
 
-	board = JXG.JSXGraph.initBoard('jxgbox', {
+	/*board = JXG.JSXGraph.initBoard('jxgbox', {
 		boundingbox: [window.xmin,window.ymin,window.xmax,window.ymax], 
       	showCopyright: false, 
       	showNavigation: true,
@@ -118,7 +160,11 @@ function update() {
             eps: 0.1
         },
 		selection: { enabled: false }
-    });
+    });*/
+    
+    for(var i = 0; i < linesegs.length; i++) {
+    	board.removeObject(linesegs[i]);
+    }
 
 	board.resizeContainer(width, height);
 	board.setBoundingBox(orgbounds, false);
@@ -127,7 +173,9 @@ function update() {
 	var length = parseFloat(document.getElementById('length').value);
 	var density = parseFloat(document.getElementById('density').value);
 	
-	JSXSlopeField(board, derivative, { length: length, density: density });
+	linesegs = JSXSlopeField(board, derivative, { length: length, density: density });
+	//curve = board.create('curve', [0, 0], 0, 0, { visible: false });
+	updateGraph();
 	
 	board.update();
 
