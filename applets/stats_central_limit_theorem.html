@@ -14,8 +14,16 @@
 
 <body>
 
+<!-- Libraries for MathJax to display math formulas on screen -->
+<script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+      tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]},
+      });
+</script>
+<script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+
 <h1>Central Limit Theorem</h1>
-Sample Size: <input type="text" id="sample_size" value="30">
+Sample Size: <input type="text" id="sample_size" value="32">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 n Samples: <input type="text" id="samples" value="1">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -32,6 +40,8 @@ n Samples: <input type="text" id="samples" value="1">
 </div>
 
 <script type='text/javascript'>
+		
+JXG.Options.text.useMathJax = true;		
 		
 var board = JXG.JSXGraph.initBoard('jxgbox', {
 		boundingbox: [0,10,10,0], 
@@ -111,12 +121,11 @@ function initialize() {
 	samplemeans = [];
 	
 	meanOutput = textoutputboard.create('text', [1, 9, 'Sample Means: ']);
-	populationMeanOutput = textoutputboard.create('text', [1, 3, 'Mean of Sample Means: ']);
-	population_txt = textoutputboard.create('text', [1, 2.5, 'Population Mean: ' + formatNumber(mean(populationdata), 4)]);
-	populationstdev = textoutputboard.create('text', [1, 2, 'Standard Deviation of Sample Means: ']);
+	populationMeanOutput = textoutputboard.create('text', [6, 2, function() { return '$\\mu_{ \\bar{x} }=$' }], { fontSize: 18, fixed: true });
+	population_txt = textoutputboard.create('text', [1, 2, function() { return '$\\mu=$ ' + formatNumber(mean(populationdata), 4); }], { fontSize: 18, fixed: true });
+	populationstdev = textoutputboard.create('text', [6, 1.25, function() { return '$\\sigma_{ \\bar{x} } =$ '; }], { fontSize: 18 });
 
-	populationstdev_txt = textoutputboard.create('text', [1, 1.5, 'Population Standard Deviation: ' + formatNumber(stdevp(populationdata), 4)]);
-	popdivsqrtn = textoutputboard.create('text', [1, 1, 'Pop Std Dev / Sqrt(n) = ' + formatNumber(stdevp(populationdata) / sqrt(sampleSize), 4)]);
+	popdivsqrtn = textoutputboard.create('text', [0.5, 1.25, function() { return '$ \\frac{\\sigma}{\\sqrt{' + sampleSize + '}}=$ ' + formatNumber(stdevp(populationdata) / sqrt(sampleSize), 4); }], { fontSize: 18, fixed: true });
 	nSamples = textoutputboard.create('text', [1, 0.5, 'Number of Samples: 0']);
 	
 	poplulationhistogram = JSXHistogram(histogramboard, [0], populationbins);
@@ -143,10 +152,10 @@ function process() {
 	histogramboard.unsuspendUpdate();
 	samplehistogramboard.unsuspendUpdate();
 	
-	populationMeanOutput.setText('Mean of Sample Means: ' + formatNumber(mean(samplemeans), 4));
-	populationstdev.setText('Standard Deviation of Sample Means: ' + formatNumber(stdevp(samplemeans), 4));
+	populationMeanOutput.setText(function() { return '$ \\mu_{ \\bar{x} } = $ ' + formatNumber(mean(samplemeans), 4); });
+	populationstdev.setText(function() { return '$\\sigma_{ \\bar{x} } =$ ' + formatNumber(stdevp(samplemeans), 4); });
 	
-	popdivsqrtn.setText('Pop Std Dev / Sqrt(n) = ' + formatNumber(stdevp(populationdata) / sqrt(sampleSize), 4));
+	popdivsqrtn.setText(function() { return '$ \\frac{\\sigma}{\\sqrt{' + sampleSize + '}} =$ ' + formatNumber(stdevp(populationdata) / sqrt(sampleSize), 4); });
 	
 	nSamples.setText('Number of Samples: ' + samples.length);
 	
