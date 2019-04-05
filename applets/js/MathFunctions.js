@@ -1542,11 +1542,13 @@ function JSXSetBounds(board, bounds, keepAspectRatio) {
 ///////////////////////////////////////////////////////////////////////////////
 
 function JSXCheckbox(board, xLoc, yLoc, label, checked, onChange, args) {
+	
 	if(args == undefined) {
-		var cbox = board.create('checkbox', [xLoc, yLoc, label]);
-	} else {
-		var cbox = board.create('checkbox', [xLoc, yLoc, label], args);
+		args = {};
 	}
+	args.fixed = (args.fixed == undefined) ? true : args.fixed;
+	
+	var cbox = board.create('checkbox', [xLoc, yLoc, label], args);
 	cbox.rendNodeCheckbox.checked = checked;
 	cbox._value = checked;
 	JXG.addEvent(cbox.rendNodeCheckbox, 'change', onChange, cbox);

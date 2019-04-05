@@ -19,6 +19,7 @@
 		<script src='./js/jsxgraphcore.js' type='text/javascript'></script>
 		<script src='./js/MathFunctions.js' type='text/javascript'></script>
 		<script src='./js/math.min.js' type='text/javascript'></script>
+		<script src='./js/helpers.js' type='text/javascript'></script>
 	</meta>
 </head>
 
@@ -30,6 +31,8 @@ f(x) = <input type="text" id="input_function" value="">
 x approaches = <input type="text" id="limit_value" value="">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <input type="button" value="Update" onClick="update()">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
 </br></br>
 <div>
 <div id="jxgbox" class="jxgbox" style="width:720px; height:720px; float:left; resize: both"></div>
@@ -64,7 +67,9 @@ var displayboard = JXG.JSXGraph.initBoard('display', {
       	showCopyright: false, 
       	showNavigation: false,
 		keepaspectratio: false,
-		axis: false	
+		axis: false,
+		pan: { enabled: false },
+		zoom: { enabled: false }
     });
 		
 // Initialize curve so that we have something we can update
@@ -81,6 +86,7 @@ for(var i = 0; i < 30; i++) {
 
 // These are used when we want to look at a limit sequence
 sequencepoints = [];
+seriespoints = [];
 
 left_xvals = [];
 left_yvals = [];
@@ -97,42 +103,42 @@ texts[LEFT][Y] = [];
 texts[RIGHT][X] = [];
 texts[RIGHT][Y] = [];
 
-textoptions = { fontSize: 24 };
+textoptions = { fontSize: 24, fixed: true };
 
 leftlabel = displayboard.create('text', [1, 9.5, 'Limit from the Left:'], textoptions);
-leftxlabel = displayboard.create('text', [2, 8.75, 'x'], textoptions);
-leftylabel = displayboard.create('text', [6, 8.75, 'f(x)'], textoptions);
-leftline1 = displayboard.create('text', [2, 8.5, '------'], textoptions);
-leftline2 = displayboard.create('text', [6, 8.5, '------'], textoptions);
+leftxlabel = displayboard.create('text', [2, 9, 'x'], textoptions);
+leftylabel = displayboard.create('text', [6, 9, 'f(x)'], textoptions);
+leftline1 = displayboard.create('text', [2, 8.75, '------'], textoptions);
+leftline2 = displayboard.create('text', [6, 8.75, '------'], textoptions);
 
-texts[LEFT][X][0] = displayboard.create('text', [2, 8, ''], textoptions);
-texts[LEFT][X][1] = displayboard.create('text', [2, 7.5, ''], textoptions);
-texts[LEFT][X][2] = displayboard.create('text', [2, 7, ''], textoptions);
-texts[LEFT][X][3] = displayboard.create('text', [2, 6.5, ''], textoptions);
+texts[LEFT][X][0] = displayboard.create('text', [2, 8.25, ''], textoptions);
+texts[LEFT][X][1] = displayboard.create('text', [2, 7.75, ''], textoptions);
+texts[LEFT][X][2] = displayboard.create('text', [2, 7.25, ''], textoptions);
+texts[LEFT][X][3] = displayboard.create('text', [2, 6.75, ''], textoptions);
 
-texts[LEFT][Y][0] = displayboard.create('text', [6, 8, ''], textoptions);
-texts[LEFT][Y][1] = displayboard.create('text', [6, 7.5, ''], textoptions);
-texts[LEFT][Y][2] = displayboard.create('text', [6, 7, ''], textoptions);
-texts[LEFT][Y][3] = displayboard.create('text', [6, 6.5, ''], textoptions);
+texts[LEFT][Y][0] = displayboard.create('text', [6, 8.25, ''], textoptions);
+texts[LEFT][Y][1] = displayboard.create('text', [6, 7.75, ''], textoptions);
+texts[LEFT][Y][2] = displayboard.create('text', [6, 7.25, ''], textoptions);
+texts[LEFT][Y][3] = displayboard.create('text', [6, 6.75, ''], textoptions);
 
-rightlabel = displayboard.create('text', [1, 5.5, 'Limit from the Right:'], textoptions);
-rightxlabel = displayboard.create('text', [2, 4.75, 'x'], textoptions);
-rightylabel = displayboard.create('text', [6, 4.75, 'f(x)'], textoptions);
-rightline1 = displayboard.create('text', [2, 4.5, '------'], textoptions);
-rightline2 = displayboard.create('text', [6, 4.5, '------'], textoptions);
+rightlabel = displayboard.create('text', [1, 6, 'Limit from the Right:'], textoptions);
+rightxlabel = displayboard.create('text', [2, 5.5, 'x'], textoptions);
+rightylabel = displayboard.create('text', [6, 5.5, 'f(x)'], textoptions);
+rightline1 = displayboard.create('text', [2, 5.25, '------'], textoptions);
+rightline2 = displayboard.create('text', [6, 5.25, '------'], textoptions);
 
-texts[RIGHT][X][0] = displayboard.create('text', [2, 4, ''], textoptions);
-texts[RIGHT][X][1] = displayboard.create('text', [2, 3.5, ''], textoptions);
-texts[RIGHT][X][2] = displayboard.create('text', [2, 3, ''], textoptions);
-texts[RIGHT][X][3] = displayboard.create('text', [2, 2.5, ''], textoptions);
+texts[RIGHT][X][0] = displayboard.create('text', [2, 4.75, ''], textoptions);
+texts[RIGHT][X][1] = displayboard.create('text', [2, 4.25, ''], textoptions);
+texts[RIGHT][X][2] = displayboard.create('text', [2, 3.75, ''], textoptions);
+texts[RIGHT][X][3] = displayboard.create('text', [2, 3.25, ''], textoptions);
 
-texts[RIGHT][Y][0] = displayboard.create('text', [6, 4, ''], textoptions);
-texts[RIGHT][Y][1] = displayboard.create('text', [6, 3.5, ''], textoptions);
-texts[RIGHT][Y][2] = displayboard.create('text', [6, 3, ''], textoptions);
-texts[RIGHT][Y][3] = displayboard.create('text', [6, 2.5, ''], textoptions);
+texts[RIGHT][Y][0] = displayboard.create('text', [6, 4.75, ''], textoptions);
+texts[RIGHT][Y][1] = displayboard.create('text', [6, 4.25, ''], textoptions);
+texts[RIGHT][Y][2] = displayboard.create('text', [6, 3.75, ''], textoptions);
+texts[RIGHT][Y][3] = displayboard.create('text', [6, 3.25, ''], textoptions);
 
-slider_horiz_zoom = displayboard.create('slider', [[1, 2], [7, 2], [-10, 1, 10]]);
-horiz_zoom_label = displayboard.create('text', [9, 2, 'x zoom']);
+slider_horiz_zoom = displayboard.create('slider', [[1, 2.5], [7, 2.5], [-10, 1, 10]]);
+horiz_zoom_label = displayboard.create('text', [9, 2.5, 'x zoom'], { fixed: true });
 horiz_zoom_level = 1;
 slider_horiz_zoom.on('drag', 
 	function() {
@@ -149,8 +155,8 @@ slider_horiz_zoom.on('drag',
 		horiz_zoom_level = newfactor;
 	});
 
-slider_vert_zoom = displayboard.create('slider', [[1, 1.5], [7, 1.5], [-10, 1, 10]]);
-vert_zoom_label = displayboard.create('text', [9, 1.5, 'y zoom']);
+slider_vert_zoom = displayboard.create('slider', [[1, 2], [7, 2], [-10, 1, 10]]);
+vert_zoom_label = displayboard.create('text', [9, 2, 'y zoom'], { fixed: true });
 vert_zoom_level = 1;
 slider_vert_zoom.on('drag', 
 	function() {
@@ -167,8 +173,14 @@ slider_vert_zoom.on('drag',
 		vert_zoom_level = newfactor;
 	});	
 	
-cb_function = JSXCheckBox(displayboard, 6, 0.5, 'Show Function', true, function() { update(); });
-cb_sequence = JSXCheckBox(displayboard, 1, 0.5, 'Show Sequence', false, function() { update(); });
+cb_function = JSXCheckbox(displayboard, 6, 1, 'Show Function', true, 
+	function() { 
+		update(); 
+	}
+);
+
+cb_sequence = JSXCheckbox(displayboard, 1, 1, 'Show Sequence', false, function() { update(); });
+cb_series = JSXCheckbox(displayboard, 1, 0.5, 'Show Series', false, function() { update(); });
 
 function setLLimitVisible(value) {
 	lpoint_xaxis.setAttribute({ visible: value });
@@ -190,8 +202,8 @@ function setRLimitVisible(value) {
 	ry_label.setAttribute({ visible: value });
 }
 
-cb_llimit = JSXCheckBox(displayboard, 1, 1, 'Show Left Limit', true, function() { setLLimitVisible(cb_llimit.Value()); });
-cb_rlimit = JSXCheckBox(displayboard, 6, 1, 'Show Right Limit', true, function() { setRLimitVisible(cb_rlimit.Value()); });
+cb_llimit = JSXCheckbox(displayboard, 1, 1.5, 'Show Left Limit', false, function() { setLLimitVisible(cb_llimit.Value()); });
+cb_rlimit = JSXCheckbox(displayboard, 6, 1.5, 'Show Right Limit', false, function() { setRLimitVisible(cb_rlimit.Value()); });
 
 // Define all the points that will be used to show the limits
 
@@ -257,6 +269,9 @@ rline2 = board.create('segment', [rpoint_yaxis, rpoint_f], { color: 'green' });
 rx_label = board.create('text', [0, 0, function() { return 'x = ' + displayNumber(rpoint_xaxis.X()); }], { anchor: rpoint_xaxis, color: 'green', fontSize: 18 });	
 ry_label = board.create('text', [0, 0, function() { return 'y = ' + displayNumber(rpoint_yaxis.Y()); }], { anchor: rpoint_yaxis, color: 'green', fontSize: 18 });	
 	
+setLLimitVisible(false);
+setRLimitVisible(false);	
+	
 function evaluate_list(f, xlist) {
 	if(f == '') {
 		return '';
@@ -295,24 +310,32 @@ function update() {
 	var f = document.getElementById('input_function').value;
 	var fs = f.split(";");
 	
-	if(cb_function.Value()) {
-		var tmpendpoints = [];
-		for(var i = 0; i < fs.length; i++) {
-			var interval = getInterval(fs[i]);
-			if(interval != '') {
-				fs[i] = removeInterval(fs[i]);
-			}
-			plot_function(curves[i], fs[i], 
-				window.xmin, window.xmax, { 
-					lowerendpoint: endpoints[2*i],
-					upperendpoint: endpoints[2*i+1],
-					interval: interval	
-				});
+	var tmpendpoints = [];
+	for(var i = 0; i < fs.length; i++) {
+		var interval = getInterval(fs[i]);
+		if(interval != '') {
+			fs[i] = removeInterval(fs[i]);
+		}
+		plot_function(curves[i], fs[i], 
+			window.xmin, window.xmax, { 
+				lowerendpoint: endpoints[2*i],
+				upperendpoint: endpoints[2*i+1],
+				interval: interval	
+			});
+		if(cb_function.Value()) {
+			curves[i].setAttribute( { visible: true } );
+		} else {
+			curves[i].setAttribute( { visible: false });
 		}
 	}
+
 	
 	for(var i = 0; i < sequencepoints.length; i++) {
 		board.removeObject(sequencepoints[i]);
+	}
+	
+	for(var i = 0; i < seriespoints.length; i++) {
+		board.removeObject(seriespoints[i]);
 	}
 	
 	var limit_value = document.getElementById('limit_value').value;
@@ -372,10 +395,19 @@ function update() {
 	}
 	
 	if(cb_sequence.Value()) {
-		var bounds = board.getBoundingBox();
-		var maxX = Math.floor(bounds[2]);
+		var maxX = Math.floor(window.xmax);
 		for(var n = 1; n <= maxX; n++) {
 			sequencepoints[n] = board.create('point', [n, evaluate(f, n)], { withLabel: false, color: 'orange' });
+		}
+	}
+	
+	if(cb_series.Value()) {
+		var maxX = Math.floor(window.xmax);
+		var sum = 0;
+		for(var n = 1; n <= maxX; n++) {
+			var val = evaluate(f, n);
+			sum += val;
+			seriespoints[n] = board.create('point', [n, sum], { withLabel: false, color: 'purple' });
 		}
 	}
 	
