@@ -143,8 +143,8 @@ var approximation = board.create('functiongraph', [ function(x) { return evalApp
 var predictionText = displayboard.create('text', [2, 4.5,
 	function() {
 		var t = '$x = ' + x_val.X() + '\\\\';
-		t += '\\' + getFunction() + ' = ' + y_val.Y() + '\\\\';
-		t += '\\' + getFunction() + ' &asymp; ' + y_val_pred.Y() + '$';
+		t += getFunction() + ' = ' + y_val.Y() + '\\\\';
+		t += getFunction() + ' &asymp; ' + y_val_pred.Y() + '$';
 		return t;
 	}],
 	{ fixed: true, fontSize: 16, visible: false });
@@ -340,17 +340,17 @@ function evalApproximation(x) {
 
 function getFunction() {
 	if(currentFunction == 'freeinput') {
-		return document.getElementById('funcText').value; 
+		return '\\' + document.getElementById('funcText').value; 
 	} if (currentFunction == 'sine') {
-		return 'sin(x)';
+		return '\\sin(x)';
 	} if (currentFunction == 'cosine') {
-		return 'cos(x)';
+		return '\\cos(x)';
 	} if (currentFunction == 'arctangent') {
-		return 'atan(x)';
+		return '\\tan^{-1}(x)';
 	} if (currentFunction == 'exponential') {
-		return 'e^x';
+		return 'e^{x}';
 	} if (currentFunction == 'logarithm') {
-		return 'ln(x)';
+		return '\\ln(x)';
 	}
 }
 		

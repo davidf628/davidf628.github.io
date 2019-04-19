@@ -17,6 +17,7 @@
 	<script src='./js/MathFunctions.js' type='text/javascript'></script>
 	<script src='./js/dat.gui.min.js' type='text/javascript'></script>
 	<script src='./js/math.min.js' type='text/javascript'></script>
+	<script src='./js/helpers.js' type='text/javascript'></script>
 	</meta>
 </head>
 
@@ -107,6 +108,18 @@ function update() {
 		
 }
 
+function zoomsquare() {
+
+	var bounds = JSXGetBounds(board);
+	var yRatio = (bounds.ymax - bounds.ymin) / board.canvasHeight;
+	var xmax = yRatio * board.canvasWidth + bounds.xmin;
+	parameters.xmax = xmax;
+	//JSXSetBounds(board, { xmax: xmax }, false);
+	//update();
+	updateWindowBounds(board);
+	
+}
+
 function init() {
 
 	var xValues = [Number.NaN];
@@ -141,7 +154,9 @@ function init() {
 		gridtype: 'Rectangular',
 		angle: 'Radians',
 		density: '0.01',
-		a: 0, b: 0, c: 0, d: 0, 
+		a: 0, b: 0, c: 0, d: 0,
+		zoomsquare: function() { zoomsquare() },
+		fullscreen: function() { fullscreen() },
 		updater: function() { update() }
 	};	
 
@@ -213,6 +228,8 @@ function init() {
 	variables.add(parameters, 'c').name('c').min(-20).max(20).step(0.1);
 	variables.add(parameters, 'd').name('d').min(-20).max(20).step(0.1);
 	
+	gui.add(parameters, 'zoomsquare').name('Zoom Square');
+	gui.add(parameters, 'fullscreen').name('Fullscreen');
 	gui.add(parameters, 'updater').name('Update Graph');
 	
 	board.on('boundingbox', 
