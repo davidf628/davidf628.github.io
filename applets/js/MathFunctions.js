@@ -1865,6 +1865,10 @@ function evaluate(f, x, args) {
 
 function plot_function(curve, relation, start_x, end_x, args) {
 		
+	if(args === undefined) {
+		args = {};
+	}		
+		
 	var color = args.color ? args.color : 'blue';
 	var interval = args.interval ? args.interval : '';
 	var density = args.density ? args.density : 0.01;

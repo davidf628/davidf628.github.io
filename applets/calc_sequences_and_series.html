@@ -1,0 +1,279 @@
+
+<html>
+<head>
+	<meta charset="utf-8">  
+		<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
+		<script src='./js/jsxgraphcore.js' type='text/javascript'></script>
+		<script src='./js/MathFunctions.js' type='text/javascript'></script>
+		<script src='./js/math.min.js' type='text/javascript'></script>
+		<script src='./js/helpers.js' type='text/javascript'></script>
+		
+		<!-- Libraries for MathJax to display math formulas on screen -->
+		<script type="text/x-mathjax-config">
+			MathJax.Hub.Config({ tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}, });
+		</script>
+		<script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+		
+	</meta>
+</head>
+
+<body>
+
+<h1>Sequences and Series</h1>
+
+$a_n = $ <input type="text" id="sequence_a" value="">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+$b_n = $ <input type="text" id="sequence_b" value="">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+$n$ Start = <input type="text" id="n_start" value="1">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<input type="button" value="Update" onClick="update()">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+</br></br>
+
+<div>
+	<div id="jxgbox" class="jxgbox" style="width:840px; height:720px; float:left; resize: both"></div>
+	<div id="display" class="jxgbox" style="width:450px; height:720px; float:left"></div>
+</div>
+
+<script type='text/javascript'>
+	
+var board = JXG.JSXGraph.initBoard('jxgbox', {
+		boundingbox: [-1,5,20,-1], 
+      	showCopyright: false, 
+      	showNavigation: true,
+		keepaspectratio: false,
+		axis: true,
+      	zoom: {
+            factorX: 1.25,
+            factorY: 1.25,
+            wheel: true,
+            needShift: true,
+			min: 0.001,
+			max: 1000,
+			pinchHorizontal: true,
+			pinchVertical: true,
+			pinchSensitivity: 7
+        },
+		pan: {
+			enabled: true,
+			needTwoFingers: false,
+			needShift: true
+		}
+    });	
+		
+var displayboard = JXG.JSXGraph.initBoard('display', {
+		boundingbox: [0,10,12,0], 
+      	showCopyright: false, 
+      	showNavigation: false,
+		keepaspectratio: false,
+		axis: false,
+		pan: { enabled: false },
+		zoom: { enabled: false }
+    });
+
+// Global Variables
+
+var a_curve = board.create('curve', [0, 0], 0, 0, { visible: false });
+var b_curve = board.create('curve', [0, 0], 0, 0, { visible: false });;
+var a_sequencepoints = [];
+var b_sequencepoints = [];
+var a_seriespoints = [];	
+var b_seriespoints = [];
+var lct_seriespoints = [];
+var ratio_points = [];
+var abs_points = [];	
+
+var line1 = board.create('line', [[0,0], [5,0]], { dash: 2, visible: false });
+var line2 = board.create('line', [[0,-1], [5,-1]], { dash: 2, visible: false });
+
+init();		
+
+function update() {
+
+	orgbounds = board.getBoundingBox();
+	width = document.getElementById('jxgbox').clientWidth;
+	height = document.getElementById('jxgbox').clientHeight;
+
+	var window = JSXGetBounds(board);
+	var maxX = Math.floor(window.xmax);
+
+	board.resizeContainer(width, height);
+	board.setBoundingBox(orgbounds, false);
+
+	var a_n = document.getElementById('sequence_a').value;
+	var b_n = document.getElementById('sequence_b').value;
+	var n_start = parseInt(document.getElementById('n_start').value);
+	
+	if(cb_function_a.Value()) {
+		plot_function(a_curve, a_n, window.xmin, window.xmax);
+	} else {
+		plot_function(a_curve, '', window.xmin, window.xmax);
+	}
+	
+	if(cb_function_b.Value()) {
+		plot_function(b_curve, b_n, window.xmin, window.xmax, { color: 'red' });
+	} else {
+		plot_function(b_curve, '', window.xmin, window.xmax);
+	}
+	
+	for(var i = 0; i < a_sequencepoints.length; i++) {
+		board.removeObject(a_sequencepoints[i]);
+		board.removeObject(b_sequencepoints[i]);
+		board.removeObject(a_seriespoints[i]);
+		board.removeObject(b_seriespoints[i]);
+		board.removeObject(lct_seriespoints[i]);
+		board.removeObject(ratio_points[i]);
+		board.removeObject(abs_points[i]);
+	}
+	
+	if(cb_sequence_a.Value()) {
+		for(var n = n_start; n <= maxX; n++) {
+			var a = evaluate(a_n, n);
+			if(a != NaN && a != undefined) {
+				a_sequencepoints[n] = board.create('point', [n, a], { withLabel: false, color: 'lightblue', fixed: true });
+			}
+			
+		}
+	}
+	
+	if(cb_sequence_b.Value()) {
+		for(var n = n_start; n <= maxX; n++) {
+			var b = evaluate(b_n, n);
+			if(b != NaN && b != undefined) {
+				b_sequencepoints[n] = board.create('point', [n, b], { withLabel: false, color: '#ffaaaa', fixed: true });
+			}
+		}
+	}
+	
+	if(cb_series_a.Value()) {
+		var sum = 0;
+		for(var n = n_start; n <= maxX; n++) {
+			var val = evaluate(a_n, n);
+			sum += val;
+			a_seriespoints[n] = board.create('point', [n, sum], { withLabel: false, color: 'blue', fixed: true });
+		}
+	}
+	
+	if(cb_series_b.Value()) {
+		var sum = 0;
+		for(var n = n_start; n <= maxX; n++) {
+			var val = evaluate(b_n, n);
+			sum += val;
+			b_seriespoints[n] = board.create('point', [n, sum], { withLabel: false, color: 'red', fixed: true });
+		}
+	}
+	
+	if(cb_lct.Value()) {
+		var ratio = 0;
+		for(var n = n_start; n <= maxX; n++) {
+			var aval = evaluate(a_n, n);
+			var bval = evaluate(b_n, n);
+			ratio = aval / bval;
+			lct_seriespoints[n] = board.create('point', [n, ratio], { withLabel: false, color: 'purple', fixed: true });
+		}
+	}
+	
+	if(cb_ratio.Value()) {
+		var ratio = 0;
+		for(var n = n_start; n <= maxX; n++) {
+			var aval = evaluate(a_n + 1, n);
+			var bval = evaluate(a_n, n);
+			ratio = aval / bval;
+			ratio_points[n] = board.create('point', [n, ratio], { withLabel: false, color: 'green', fixed: true });
+		}
+	}
+	
+	if(cb_abs.Value()) {
+		for(var n = n_start; n <= maxX; n++) {
+			var absval = evaluate('abs(' + a_n + ')', n);
+			abs_points[n] = board.create('point', [n, absval], { withLabel: false, color: 'orange', fixed: true });
+		}
+	}
+	
+	if(cb_showlines.Value()) {
+		line1.setAttribute({ visible: true });
+		line2.setAttribute({ visible: true });
+	} else {
+		line1.setAttribute({ visible: false });
+		line2.setAttribute({ visible: false });
+	}
+	
+	board.update();	
+		
+}
+
+function init() {
+
+	board.on('up', function() { update(); });
+
+	slider_horiz_zoom = displayboard.create('slider', [[1, 2.5], [7, 2.5], [-10, 1, 10]]);
+	horiz_zoom_label = displayboard.create('text', [9, 2.5, 'x zoom'], { fixed: true });
+	horiz_zoom_level = 1;
+	slider_horiz_zoom.on('drag', 
+		function() {
+			var orgbounds = board.getBoundingBox();
+			var newfactor = slider_horiz_zoom.Value();
+			if(horiz_zoom_level > newfactor) {
+				orgbounds[0] = orgbounds[0] * 1.1;
+				orgbounds[2] = orgbounds[2] * 1.1;
+			} else {
+				orgbounds[0] = orgbounds[0] / 1.1;
+				orgbounds[2] = orgbounds[2] / 1.1;
+			}
+			board.setBoundingBox(orgbounds, false);
+			horiz_zoom_level = newfactor;
+		});
+
+	slider_vert_zoom = displayboard.create('slider', [[1, 2], [7, 2], [-10, 1, 10]]);
+	vert_zoom_label = displayboard.create('text', [9, 2, 'y zoom'], { fixed: true });
+	vert_zoom_level = 1;
+	slider_vert_zoom.on('drag', 
+		function() {
+			var orgbounds = board.getBoundingBox();
+			var newfactor = slider_vert_zoom.Value();
+			if(vert_zoom_level > newfactor) {
+				orgbounds[1] = orgbounds[1] * 1.1;
+				orgbounds[3] = orgbounds[3] * 1.1;
+			} else {
+				orgbounds[1] = orgbounds[1] / 1.1;
+				orgbounds[3] = orgbounds[3] / 1.1;
+			}
+			board.setBoundingBox(orgbounds, false);
+			vert_zoom_level = newfactor;
+		});	
+	
+	cb_sequence_a = JSXCheckbox(displayboard, 1, 9, 'Show Sequence a', true, function() { update(); }, { fontSize: 18 });
+	cb_series_a = JSXCheckbox(displayboard, 1, 8.5, 'Show Series a', true, function() { update(); }, { fontSize: 18 });
+	cb_function_a = JSXCheckbox(displayboard, 1, 8, 'Show Function a', false, function() { update(); }, { fontSize: 18 });
+	
+	cb_sequence_b = JSXCheckbox(displayboard, 6, 9, 'Show Sequence b', false, function() { update(); }, { fontSize: 18 });
+	cb_series_b = JSXCheckbox(displayboard, 6, 8.5, 'Show Series b', false, function() { update(); }, { fontSize: 18 });
+	cb_function_b = JSXCheckbox(displayboard, 6, 8, 'Show Function b', false, function() { update(); }, { fontSize: 18 });
+	
+	cb_lct = JSXCheckbox(displayboard, 1, 7, lct_label(), false, function() { update(); }, { fontSize: 18 });
+	cb_ratio = JSXCheckbox(displayboard, 1, 6.25, ratio_label(), false, function() { update(); }, { fontSize: 18 });
+	cb_abs = JSXCheckbox(displayboard, 1, 5.5, abs_label(), false, function() { update(); }, { fontSize: 18 });
+	
+	cb_showlines = JSXCheckbox(displayboard, 1, 4.5, 'Show Horizontal Lines', false, function() { update(); }, { fontSize: 18 });
+	
+	update();
+	
+}
+
+function lct_label() {
+	return 'Show Limit Comarison ' + '$\\frac{a_n}{b_n}$';
+}
+
+function ratio_label() {
+	return 'Show Ratio Test ' + '$\\frac{a_{n+1}}{a_n}$';
+}
+
+function abs_label() {
+	return 'Show Absolute Value of ' + '$a_n$';
+}
+
+</script>
+</body>
+</html>
