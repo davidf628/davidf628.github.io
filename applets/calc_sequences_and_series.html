@@ -178,7 +178,7 @@ function update() {
 	if(cb_ratio.Value()) {
 		var ratio = 0;
 		for(var n = n_start; n <= maxX; n++) {
-			var aval = evaluate(a_n + 1, n);
+			var aval = evaluate(a_n, n + 1);
 			var bval = evaluate(a_n, n);
 			ratio = aval / bval;
 			ratio_points[n] = board.create('point', [n, ratio], { withLabel: false, color: 'green', fixed: true });
