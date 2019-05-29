@@ -1,0 +1,36 @@
+<html>
+
+<head>
+	<meta charset="utf-8">  
+		<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
+		<script src='./js/jsxgraphcore.js' type='text/javascript'></script>
+		<script src='./js/MathFunctions.js' type='text/javascript'></script>
+		<script src='./js/math.min.js' type='text/javascript'></script>
+		<script src='./js/helpers.js' type='text/javascript'></script>
+		
+		<!-- Libraries for MathJax to display math formulas on screen -->
+		<script type="text/x-mathjax-config">
+			MathJax.Hub.Config({ tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}, });
+		</script>
+		<script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+		
+	</meta>
+</head>
+
+<div id="jxgbox" class="jxgbox" style="width:500px; height:500px;"></div>
+
+<script type='text/javascript'>
+
+board = JXG.JSXGraph.initBoard('jxgbox', {
+          boundingbox:[-10,10,10,-10], 
+          showCopyright:false, 
+          showNavigation:false, 
+          axis:true,
+          keepaspectratio:true
+        });
+
+
+
+</script>
+
+</html>

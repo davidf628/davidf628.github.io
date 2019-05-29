@@ -32,39 +32,7 @@
 <script src="js/3dmath.js"></script>
 
 <!-- Library for the menuing system -->
-<<<<<<< HEAD
 <script type='text/javascript' src='js/DAT.GUI.min.js'></script>
-=======
-<script type='text/javascript' src='js/dat.gui.min.js'></script>
-
-<!-- Libraries for MathJax to display math formulas on screen -->
-<script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-      tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]},
-      });
-    </script>
-    <script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
-
-<!-- jQuery code to display an information button and box when clicked. -->
-<script src="js/jquery-1.9.1.js"></script>
-<script src="js/jquery-ui.js"></script>
-<link rel=stylesheet href="css/jquery-ui.css" />
-<link rel=stylesheet href="css/info.css"/>
-<script src="js/info.js"></script>
-<div id="infoButton"></div>
-<div id="infoBox" title="Intersection of Two Planes">
-	This program shows the solution in 3D of the 2x3 system of equations:</br></br>
-	<p align='center'>Plane 1: $-x+y+z=2$</p>
-	<p align='center'>Plane 2: $-3x-2y+z=-4$</p>
-	</br>
-	Which is the line in space defined by the parametric equations: $$x=\frac{3}{t}t,y=2-\frac{2}{5}t,z=t$$
-	You can rotate by swiping with your finger or dragging with the mouse. You can zoom by pinching the screen or using the mousewheel.
-	Pressing 'm' will make the window toggle fullscreen mode.</br></br>
-	Note that the x-axis is green, the y-axis is red and the z-axis is blue.
-</div>
-
-<!--------------------------------------------------------------------------------->
->>>>>>> 473b300672592ba4e09af63ab7ce2e460681f2b7
 
 <!-- Libraries for MathJax to display math formulas on screen -->
 <script type="text/x-mathjax-config">
@@ -101,24 +69,11 @@ var keyboard = new THREEx.KeyboardState();
 var clock = new THREE.Clock();
 
 var plane1, plane2, intersection;
-<<<<<<< HEAD
 
 var parameters = {
 
-=======
-
-var parameters = {
-
->>>>>>> 473b300672592ba4e09af63ab7ce2e460681f2b7
-	toggleplane1: function() { plane1.toggleVisible(); },
-	toggleplane2: function() { plane2.toggleVisible(); },
-	toggleintersection: function() { intersection.toggleVisible(); }, 
-	toggledirectionvectors: 
-		function() { 
-			vector1.toggleVisible();
-			vector2.toggleVisible();
-			crossproduct.toggleVisible();
-		}
+	toggleresultant: function() { line1.toggleVisible(); line2.toggleVisible(); resultant.toggleVisible(); },
+	toggleplane: function() { plane.toggleVisible(); },
 	
 };
 
@@ -136,6 +91,7 @@ function init() {
 	// CAMERA 	
 	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;	
 	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+	//var camera = new THREE.OrthographicCamera( SCREEN_WIDTH / - 2, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, SCREEN_HEIGHT / - 2, 1, 1000 );
 	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
 	scene.add(camera);
 	camera.position.set(40,40,10);
@@ -171,10 +127,8 @@ function init() {
 	
 	// GUI CONTROLLER
 	var gui = new dat.GUI();
-	gui.add(parameters, 'toggleplane1').name('Toggle Plane 1');
-	gui.add(parameters, 'toggleplane2').name('Toggle Plane 2');
-	gui.add(parameters, 'toggleintersection').name('Toggle Intersection');
-	gui.add(parameters, 'toggledirectionvectors').name('Toggle Vectors');
+	gui.add(parameters, 'toggleresultant').name('Toggle Resultant');
+	gui.add(parameters, 'toggleplane').name('Toggle Plane');
 	
 	createScene();
 }
@@ -188,35 +142,23 @@ function createScene() {
 	var light = new THREE.AmbientLight( 0xffffff );
 	scene.add( light );	
 
-	//var intersection = new ParametricGraph('3/5*t', '2-2/5*t', 't', -20, 20, new THREE.Color('black'))
+	viewingWindow.setBounds(-5, 5, 1, -5, 5, 1, -5, 5, 1);
 	
-	plane1 = new Surface('x-y+2', { color: new THREE.Color('green'), visible: false });
-	plane2 = new Surface('3*x+2*y-4', { color: new THREE.Color('blue'), visible: false });
-	intersection = new ParametricGraph('3/5*t', '2-2/5*t', 't', -20, 20, { visible: false });
-	vector1 = new Vector( { end: [1, -1, -1], visible: false } );
-	vector2 = new Vector( { end: [3,  2, -1], visible: false } );
-	crossproduct = new Vector( { end: [3, -2, 5], visible: false });
+	vector1 = new Vector( { end: [-1, 3, 2], visible: true } );
+	vector2 = new Vector( { end: [5,  -4, 1], visible: true } );
+	resultant = new Vector( { end: [4, -1, 3], visible: false });
+	plane = new Surface('x+y', { color: new THREE.Color('green'), visible: false });
+	line1 = new Line({ start: [-1, 3, 2], end: [4, -1, 3], visible: false, dashed: true });
+	line2 = new Line({ start: [4, -1, 3], end: [5, -4, 1], visible: false, dashed: true });
 	
-	scene.add(createAxes( { labels: false } ));
-	scene.add(plane1.getObject());
-	scene.add(plane2.getObject());
-<<<<<<< HEAD
-	
-	scene.add(intersection.getObject());
+	scene.add(createAxes( { labels: true } ));
 
 	scene.add(vector1.getObject());
 	scene.add(vector2.getObject());
-	scene.add(crossproduct.getObject());
-	
-	intersection.updateBounds(-2, 2);
-=======
-	
-	scene.add(intersection.getObject());
-
-	scene.add(vector1.getObject());
-	scene.add(vector2.getObject());
-	scene.add(crossproduct.getObject());
->>>>>>> 473b300672592ba4e09af63ab7ce2e460681f2b7
+	scene.add(resultant.getObject());
+	scene.add(plane.getObject());
+	scene.add(line1.getObject());
+	scene.add(line2.getObject());
 
 }
 

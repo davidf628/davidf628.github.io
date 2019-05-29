@@ -1,0 +1,148 @@
+<html>
+<head>
+	<meta charset="utf-8">  
+		<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
+		<script src='./js/jsxgraphcore.js' type='text/javascript'></script>
+		<script src='./js/MathFunctions.js' type='text/javascript'></script>
+		<script src='./js/DAT.GUI.min.js' type='text/javascript'></script>
+		<script src='./js/math.min.js' type='text/javascript'></script>
+	</meta>
+</head>
+
+<body>
+
+<div id="jxgbox" class="jxgbox" style="width:640px; height:640px; float:left; resize: both"></div>
+
+<script type='text/javascript'>
+
+var board = JXG.JSXGraph.initBoard('jxgbox', {
+		boundingbox: [-10,10,10,-10], 
+      	showCopyright: false, 
+      	showNavigation: true,
+		keepaspectratio: true,
+		axis: true,
+      	zoom: {
+            factorX: 1.25,
+            factorY: 1.25,
+            wheel: true,
+            needshift: false,
+            eps: 0.1
+        }		
+    });
+	
+var relation = 'y^2 - x^3 + 2x - 1';
+//var relation = 'x^2 + y^2 - 25';
+var density = 0.1;
+
+var bounds = JSXGetBounds(board);
+
+var nVertPoints = (bounds.ymax - bounds.ymin) / density;
+var nHorizPoints = (bounds.xmax - bounds.xmin) / density;
+
+var nVertCells = nVertPoints - 1;
+var nHorizCells = nHorizPoints - 1;
+
+var expr = math.compile(relation);
+
+/*for(var x = bounds.xmin; x <= bounds.xmax; x += density) {
+	for(var y = bounds.ymin; y <= bounds.ymax; y += density) {
+		if((expr.eval({ x: x, y: y}) - height) > 0) {
+			board.create('point', [x, y], { color: '#00FF00', size: 1, withLabel: false });
+		} else {
+			board.create('point', [x, y], { color: '#0000FF', size: 1, withLabel: false });
+		}
+	}
+}*/
+
+var segmentparams = { color: 'red', fixed: true, highlight: false };
+
+for(var x = bounds.xmin; x <= bounds.xmax - density; x += density) {
+	for(var y = bounds.ymin+density; y <= bounds.ymax; y += density) {
+	    var nw = expr.eval({x: x, y: y});
+		var ne = expr.eval({x: x + density, y: y});
+		var se = expr.eval({x: x + density, y: y - density});
+		var sw = expr.eval({x: x, y: y - density});
+		
+		var total = 0;
+		if(nw > 0) total += 8;
+		if(ne > 0) total += 4;
+		if(se > 0) total += 2;
+		if(sw > 0) total += 1;
+		
+		var bottomInterp = -sw / (se - sw) * density;
+		var topInterp    = -nw / (ne - nw) * density;
+		var leftInterp   = -nw / (sw - nw) * density;
+		var rightInterp	 = -ne / (se - ne) * density;
+		
+		switch (total) {
+			case 0:
+				break;
+			case 1:
+				board.create('segment', [[x, y - leftInterp], [x + bottomInterp, y - density]], segmentparams);
+				//board.create('segment', [[x, y - density / 2], [x + density / 2, y - density]], segmentparams);
+				break;
+			case 2:
+				board.create('segment', [[x + bottomInterp, y - density], [x + density, y - rightInterp]], segmentparams);
+				//board.create('segment', [[x + density / 2, y - density], [x + density, y - density / 2]], segmentparams);
+				break;
+			case 3:
+				board.create('segment', [[x, y - leftInterp], [x + density, y - rightInterp]], segmentparams);
+				//board.create('segment', [[x, y - density / 2], [x + density, y - density / 2]], segmentparams);
+				break;
+			case 4:
+				board.create('segment', [[x + topInterp, y], [x + density, y - rightInterp]], segmentparams);
+				//board.create('segment', [[x + density / 2, y], [x + density, y - density / 2]], segmentparams);
+				break;
+			case 5:
+				board.create('segment', [[x, y - leftInterp], [x + topInterp, y]], segmentparams);
+				board.create('segment', [[x + bottomInterp, y - density], [x + density, y - rightInterp]], segmentparams);
+				//board.create('segment', [[x, y - density / 2], [x + density / 2, y]], segmentparams);
+				//board.create('segment', [[x + density / 2, y - density], [x + density, y - density / 2]], segmentparams);
+				break;
+			case 6:
+				board.create('segment', [[x + topInterp, y], [x + bottomInterp, y - density]], segmentparams);
+				//board.create('segment', [[x + density / 2, y], [x + density / 2, y - density]], segmentparams);
+				break;
+			case 7:
+				board.create('segment', [[x, y - leftInterp], [x + topInterp, y]], segmentparams);
+				//board.create('segment', [[x, y - density / 2], [x + density / 2, y]], segmentparams);
+				break;
+			case 8:
+				board.create('segment', [[x, y - leftInterp], [x + topInterp, y]], segmentparams);
+				//board.create('segment', [[x, y - density / 2], [x + density / 2, y]], segmentparams);
+				break;
+			case 9:
+				board.create('segment', [[x + topInterp, y], [x + bottomInterp, y - density]], segmentparams);
+				//board.create('segment', [[x + density / 2, y], [x + density / 2, y - density]], segmentparams);
+				break;
+			case 10:
+				board.create('segment', [[x + topInterp, y], [x + density, y - rightInterp]], segmentparams);
+				board.create('segment', [[x, y - leftInterp], [x + bottomInterp, y - density]], segmentparams);
+				//board.create('segment', [[x + density / 2, y], [x + density, y - density / 2]], segmentparams);
+				//board.create('segment', [[x, y - density / 2], [x + density / 2, y - density]], segmentparams);
+				break;
+			case 11:
+				board.create('segment', [[x + topInterp, y], [x + density, y - rightInterp]], segmentparams);
+				//board.create('segment', [[x + density / 2, y], [x + density, y - density / 2]], segmentparams);
+				break;
+			case 12:
+				board.create('segment', [[x, y - leftInterp], [x + density, y - rightInterp]], segmentparams);
+				//board.create('segment', [[x, y - density / 2], [x + density, y - density / 2]], segmentparams);
+				break;
+			case 13:
+				board.create('segment', [[x + bottomInterp, y - density], [x + density, y - rightInterp]], segmentparams);
+				//board.create('segment', [[x + density / 2, y - density], [x + density, y - density / 2]], segmentparams);
+				break;
+			case 14:
+				board.create('segment', [[x, y - leftInterp], [x + bottomInterp, y - density]], segmentparams);
+				//board.create('segment', [[x, y - density / 2], [x + density / 2, y - density]], segmentparams);
+				break;
+			case 15:
+				break;
+		}
+		
+		//board.create('text', [x + density/2, y-density/2, total]);
+	}
+}
+
+</script>

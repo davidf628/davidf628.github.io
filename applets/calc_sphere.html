@@ -1,8 +1,9 @@
 <!doctype html>
+<meta charset="utf-8">
+
 <html lang="en">
 <head>
-	<title>3D Vector Field</title>
-	<meta charset="utf-8">
+	<title>3D Playground</title>
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 </head>
 <body>
@@ -27,6 +28,15 @@ var container, scene, camera, renderer, controls, stats;
 var keyboard = new THREEx.KeyboardState();
 var clock = new THREE.Clock();
 
+var c, sphere, x, y, z, nx, ny, nz;
+
+var parameters = {
+
+	togglesphere: function() { sphere.toggleVisible(); },
+	togglepoints: function() { x.toggleVisible(); y.toggleVisible(); z.toggleVisible(); nx.toggleVisible(); ny.toggleVisible(); nz.toggleVisible(); }
+	
+};
+
 // initialization
 init();
 
@@ -48,8 +58,9 @@ function init() {
 	camera.lookAt(scene.position);	
 	
 	// RENDERER 	
-	renderer = new THREE.WebGLRenderer( {antialias:true, alpha: true} );	
-	renderer.setClearColor( 0xffffff);
+	renderer = new THREE.WebGLRenderer( {antialias:true, alpha: true} );
+	// Set background color as white
+	renderer.setClearColor( 0xffffff ); 
 	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 	renderer.sortObjects = false;
 	renderer.localClippingEnabled = true;
@@ -65,12 +76,19 @@ function init() {
 	// CONTROLS 
 	controls = new THREE.OrbitControls( camera, renderer.domElement );
 	
+	
 	// STATS 	
 	stats = new Stats();
 	stats.domElement.style.position = 'absolute';
 	stats.domElement.style.bottom = '0px';
 	stats.domElement.style.zIndex = 100;
-	container.appendChild( stats.domElement );	
+	container.appendChild( stats.domElement );
+		
+	// GUI
+	var gui = new dat.GUI();
+	gui.add(parameters, 'togglesphere').name('Toggle Sphere');
+	gui.add(parameters, 'togglepoints').name('Toggle Points');
+	
 	
 	createScene();
 }
@@ -84,19 +102,35 @@ function createScene() {
 	var light = new THREE.AmbientLight( 0xffffff );
 	scene.add( light );
 	
-	var axes = createAxes({ labels: false });
+	//viewingWindow.setBounds(-5, 5, 1, -5, 5, 1, -5, 5, 1);
+	
+	var axes = createAxes( { labels: true } );
+	
 	scene.add(axes);
+
+	sphere = new Sphere({ coords: [-2, 1, -5], radius: 13, color: new THREE.Color('blue') });
+	c = new Point({ coords: [-2, 1, -5] });
 	
-	for(x = -20; x <= 20; x=x+5) {
-		for(y = -20; y <= 20; y=y+5) {
-			for(z = -20; z <= 20; z=z+5) {
-				var vector = new Vector( { start: [x, y, z], end: [y + 1, -y + 1, 0], length: 3 });
-				scene.add(vector.getObject());
-			}
-		}
-	}
+	x = new Point({ coords: [11, 1, -5], visible: false, color: new THREE.Color('green') });
+	y = new Point({ coords: [-2, 14, -5], visible: false, color: new THREE.Color('red') });
+	z = new Point({ coords: [-2, 1, 8], visible: false, color: new THREE.Color('blue') });
+	nx = new Point({ coords: [-15, 1, -5], visible: false, color: new THREE.Color('green') });
+	ny = new Point({ coords: [-2, -12, -5], visible: false, color: new THREE.Color('red') });
+	nz = new Point({ coords: [-2, 1, -18], visible: false, color: new THREE.Color('blue') });
 	
+	addToScene(scene, sphere);
+	addToScene(scene, c);
+	
+	addToScene(scene, x);
+	addToScene(scene, y);
+	addToScene(scene, z);
+	addToScene(scene, nx);
+	addToScene(scene, ny);
+	addToScene(scene, nz);
+	
+
 }
+
 
 function animate() {
     requestAnimationFrame( animate );

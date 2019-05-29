@@ -18,27 +18,15 @@
 <script src="./js/THREEx.WindowResize.js"></script>
 <script src="./js/3dmath.js"></script>
 
-<script type='text/javascript' src='js/DAT.GUI.min.js'></script>
+<script type='text/javascript' src='js/dat.gui.min.js'></script>
 
 <div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
+
 <script>
-
-// Color Constants:
-
-RED = 0xff0000;
-GREEN = 0x00ff00;
-BLUE = 0x0000ff;
 
 var container, scene, camera, renderer, controls, stats;
 var keyboard = new THREEx.KeyboardState();
 var clock = new THREE.Clock();
-
-var xMin = -20, xMax = 20, xStep = 5;
-var yMin = -20, yMax = 20, yStep = 5;
-var zMin = -20, zMax = 20, zStep = 5;
-var xRange = xMax - xMin;
-var yRange = yMax - yMin;
-var zRange = zMax - zMin;
 
 var a = 0;
 var x = 0;
@@ -48,6 +36,8 @@ var gui_a;
 var gui_x;
 var gui_y;
 var gui_z;
+
+var plane;
 
 // initialization
 init();
@@ -143,22 +133,16 @@ function createScene() {
 	var light = new THREE.AmbientLight( 0xffffff );
 	scene.add( light );
 	
-	var size = xRange;
-	var divisions = xRange / xStep;
-
-	var gridHelper = new THREE.GridHelper( size, divisions, 0xe0e0e0, 0xe0e0e0 );
-	gridHelper.geometry.rotateX( Math.PI / 2 );
-	scene.add( gridHelper );	
-	
-	axes = createAxes(xMin, xMax, yMin, yMax, zMin, zMax);
+	var axes = createAxes({ labels: false });
 	scene.add(axes);
 	
-	scene.add(Surface('sqrt(x^2 + y^2)', RED));
-	scene.add(Surface('-sqrt(x^2 + y^2)', RED));
-	plane = Plane2(0, 0, 1, 0);
-	scene.add( plane );
+	var uppercone = new Surface('sqrt(x^2 + y^2)', { color: new THREE.Color('red') });
+	var lowercone = new Surface('-sqrt(x^2 + y^2)', { color: new THREE.Color('red') });
+	plane = Plane(0, 0, 1, 0);
 	
-
+	scene.add(uppercone.getObject());
+	scene.add(lowercone.getObject());
+	scene.add(plane);
 
 }
 

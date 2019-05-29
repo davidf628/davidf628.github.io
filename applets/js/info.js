@@ -17,7 +17,7 @@ $(function()
 	  "background":"rgba(0,0,0,0)", "opacity":"0.9", 
 	  "position":"absolute", "top":"4px", "left":"4px"
 	}) // adds CSS
-    .append("<img width='32' height='32' src='images/icon-info.png'/>")
+    .append("<img width='32' height='32' src='img/icon-info.png'/>")
     .button()
 	.click( 
 		function() 
