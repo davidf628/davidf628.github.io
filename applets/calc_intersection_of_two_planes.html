@@ -32,9 +32,7 @@
 <script src="js/3dmath.js"></script>
 
 <!-- Library for the menuing system -->
-<<<<<<< HEAD
 <script type='text/javascript' src='js/DAT.GUI.min.js'></script>
-=======
 <script type='text/javascript' src='js/dat.gui.min.js'></script>
 
 <!-- Libraries for MathJax to display math formulas on screen -->
@@ -64,7 +62,6 @@
 </div>
 
 <!--------------------------------------------------------------------------------->
->>>>>>> 473b300672592ba4e09af63ab7ce2e460681f2b7
 
 <!-- Libraries for MathJax to display math formulas on screen -->
 <script type="text/x-mathjax-config">
@@ -101,15 +98,9 @@ var keyboard = new THREEx.KeyboardState();
 var clock = new THREE.Clock();
 
 var plane1, plane2, intersection;
-<<<<<<< HEAD
 
 var parameters = {
 
-=======
-
-var parameters = {
-
->>>>>>> 473b300672592ba4e09af63ab7ce2e460681f2b7
 	toggleplane1: function() { plane1.toggleVisible(); },
 	toggleplane2: function() { plane2.toggleVisible(); },
 	toggleintersection: function() { intersection.toggleVisible(); }, 
@@ -200,7 +191,6 @@ function createScene() {
 	scene.add(createAxes( { labels: false } ));
 	scene.add(plane1.getObject());
 	scene.add(plane2.getObject());
-<<<<<<< HEAD
 	
 	scene.add(intersection.getObject());
 
@@ -209,14 +199,24 @@ function createScene() {
 	scene.add(crossproduct.getObject());
 	
 	intersection.updateBounds(-2, 2);
-=======
+	
+	plane1 = new Surface('x-y+2', { color: new THREE.Color('green'), visible: false });
+	plane2 = new Surface('3*x+2*y-4', { color: new THREE.Color('blue'), visible: false });
+	intersection = new ParametricGraph('3/5*t', '2-2/5*t', 't', -20, 20, { visible: false });
+	vector1 = new Vector( { end: [1, -1, -1], visible: false } );
+	vector2 = new Vector( { end: [3,  2, -1], visible: false } );
+	crossproduct = new Vector( { end: [3, -2, 5], visible: false });
+	
+	scene.add(createAxes( { labels: false } ));
+	scene.add(plane1.getObject());
+	scene.add(plane2.getObject());
 	
 	scene.add(intersection.getObject());
 
 	scene.add(vector1.getObject());
 	scene.add(vector2.getObject());
 	scene.add(crossproduct.getObject());
->>>>>>> 473b300672592ba4e09af63ab7ce2e460681f2b7
+
 
 }
 

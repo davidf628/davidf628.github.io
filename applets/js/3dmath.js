@@ -561,7 +561,6 @@ class Vector {
 	
 }
 
-<<<<<<< HEAD
 class Line {
 	
 	constructor(args) {
@@ -679,8 +678,6 @@ function addToScene(scene, obj) {
 	scene.add(obj.getObject());
 }
 
-=======
->>>>>>> 473b300672592ba4e09af63ab7ce2e460681f2b7
 class Surface {
 
 	// skin types:
@@ -732,9 +729,7 @@ class Surface {
 			this.surface = createShadedMesh(geometry, this.color);
 		} else if(this.skin == 'vertexColor') {
 			this.surface = createVertexColorMesh(geometry, this.color);
-		} else if(this.skin == 'rainbow') {
-			this.surface = createRainbowMesh(geometry);
-		}
+		} 
 		
 		if(this.wireframe) {
 			this.surface.add(createWireFrame(f, this.wireframecolor));
@@ -774,83 +769,43 @@ function createSurfaceGeometry(f, slices, stacks) {
 	return new THREE.ParametricGeometry(zFunc, slices, stacks);
 
 }		
-<<<<<<< HEAD
 		
 	/*
-=======
-
-function createRainbowMesh(geometry) {
-
->>>>>>> 473b300672592ba4e09af63ab7ce2e460681f2b7
 	///////////////////////////////////////////////
 	// calculate vertex colors based on Z values //
 	///////////////////////////////////////////////
-	geometry.computeBoundingBox();
-	var zMin, zMax;
-	if(geometry.boundingBox.min.z > viewingWindow.zMin) {
-		zMin = geometry.boundingBox.min.z;
-	} else {
-		zMin = viewingWindow.zMin;
-	}
-	if(geometry.boundingBox.max.z < viewingWindow.zMax) {
-		zMax = geometry.boundingBox.max.z;
-	} else {
-		zMax = viewingWindow.zMax;
-	}
-	//zMin = viewingWindow.zMin;//geometry.boundingBox.min.z;
-	//zMax = viewingWindow.zMax;//geometry.boundingBox.max.z;
-	//zMax = geometry.boundingBox.max.z;
+	graphGeometry.computeBoundingBox();
+	zMin = graphGeometry.boundingBox.min.z;
+	zMax = graphGeometry.boundingBox.max.z;
 	zRange = zMax - zMin;
 	var color, point, face, numberOfSides, vertexIndex;
 	// faces are indexed using characters
 	var faceIndices = [ 'a', 'b', 'c', 'd' ];
 	// first, assign colors to vertices as desired
-	for ( var i = 0; i < geometry.vertices.length; i++ ) 
+	for ( var i = 0; i < graphGeometry.vertices.length; i++ ) 
 	{
-		point = geometry.vertices[ i ];
-		color = new THREE.Color( 0xffffff );
-		color.setHSL( 0.7 * (zMax - point.z) / zRange, 1, 0.5 );
-		//color.setRGB(0.75 * (point.z - zMin)/zRange, 0, 0);
-		geometry.colors[i] = color; // use this array for convenience
+		point = graphGeometry.vertices[ i ];
+		color = new THREE.Color( 0x0000ff );
+		//color.setHSL( 0.7 * (zMax - point.z) / zRange, 1, 0.5 );
+		color.setRGB(0.75 * (point.z - zMin)/zRange, 0, 0);
+		graphGeometry.colors[i] = color; // use this array for convenience
 	}
 	// copy the colors as necessary to the face's vertexColors array.
-	for ( var i = 0; i < geometry.faces.length; i++ ) 
+	for ( var i = 0; i < graphGeometry.faces.length; i++ ) 
 	{
-		face = geometry.faces[ i ];
+		face = graphGeometry.faces[ i ];
 		numberOfSides = ( face instanceof THREE.Face3 ) ? 3 : 4;
 		for( var j = 0; j < numberOfSides; j++ ) 
 		{
 			vertexIndex = face[ faceIndices[ j ] ];
-			face.vertexColors[ j ] = geometry.colors[ vertexIndex ];
+			face.vertexColors[ j ] = graphGeometry.colors[ vertexIndex ];
 		}
 	}
 	///////////////////////
 	// end vertex colors //
 	///////////////////////
-<<<<<<< HEAD
 	*/
-=======
->>>>>>> 473b300672592ba4e09af63ab7ce2e460681f2b7
 
-	upperZClip = new THREE.Plane( sCoord(0, 0, viewingWindow.zMin), 1);
-	lowerZClip = new THREE.Plane( sCoord(0, 0, viewingWindow.zMax), 1);
-	upperXClip = new THREE.Plane( sCoord(viewingWindow.xMax, 0, 0), 1);
-	lowerXClip = new THREE.Plane( sCoord(viewingWindow.xMin, 0, 0), 1);
-	upperYClip = new THREE.Plane( sCoord(0, viewingWindow.yMax, 0), 1);
-	lowerYClip = new THREE.Plane( sCoord(0, viewingWindow.yMin, 0), 1);	
-	
-    var material = new THREE.MeshBasicMaterial({
-		clippingPlanes: [upperZClip, lowerZClip, lowerXClip, upperXClip, lowerYClip, upperYClip],
-		vertexColors: THREE.VertexColors, 
-		side: THREE.DoubleSide,
-		transparent: true,
-		opacity: 0.5
-	});
-	
-	return new THREE.Mesh(geometry, material);
-
-}
-	
 function createWireFrame (f, color) {
 
 	var wireFrame = new THREE.Object3D();
