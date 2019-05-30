@@ -1,0 +1,186 @@
+<!doctype html>
+<meta charset="utf-8">
+
+<html lang="en">
+<head>
+	<title>Parallelogram</title>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+</head>
+<body>
+
+<script src="js/three.min.js"></script>
+<script src="js/SceneUtils.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/OrbitControls.js"></script>
+<script src="js/DragControls.js"></script>
+<script src="js/parser.js"></script>
+<script src="js/THREEx.KeyboardState.js"></script>
+<script src="js/THREEx.FullScreen.js"></script>
+<script src="js/THREEx.WindowResize.js"></script>
+<script src="js/3dmath.js"></script>
+
+<script type='text/javascript' src='js/dat.gui.min.js'></script>
+
+<div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
+<script>
+
+var container, scene, camera, renderer, controls, stats;
+var keyboard = new THREEx.KeyboardState();
+var clock = new THREE.Clock();
+
+var a, b, c, d, ab, ac, ad, bc, bd, cd, plane, l1, l2, l3, l4;
+
+var parameters = {
+
+	toggleplane: function() { plane.toggleVisible(); },
+	toggleparallelogram: function() { l1.toggleVisible(); l2.toggleVisible(); l3.toggleVisible(); l4.toggleVisible(); },
+	togglepoints: function() { a.toggleVisible(); b.toggleVisible(); c.toggleVisible(); d.toggleVisible(); },
+	toggleab: function() { ab.toggleVisible(); },
+	toggleac: function() { ac.toggleVisible(); },
+	togglead: function() { ad.toggleVisible(); },
+	togglebc: function() { bc.toggleVisible(); },
+	togglebd: function() { bd.toggleVisible(); },
+	togglecd: function() { cd.toggleVisible(); }
+	
+};
+
+// initialization
+init();
+
+// animation loop / game loop
+animate();
+					
+function init() {
+
+	// SCENE 	
+	scene = new THREE.Scene();
+
+	// CAMERA 	
+	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;	
+	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+	scene.add(camera);
+	camera.position.set(40,40,10);
+	camera.up.set(0, 0, 1);  // make sure z-axis is facing up
+	camera.lookAt(scene.position);	
+	
+	// RENDERER 	
+	renderer = new THREE.WebGLRenderer( {antialias:true, alpha: true} );
+	// Set background color as white
+	renderer.setClearColor( 0xffffff ); 
+	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+	renderer.sortObjects = false;
+	renderer.localClippingEnabled = true;
+	
+	// attach div element to variable to contain the renderer
+	container = document.getElementById( 'ThreeJS' );
+	container.appendChild( renderer.domElement );
+	
+	// EVENTS 	
+	THREEx.WindowResize(renderer, camera);
+	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
+	
+	// CONTROLS 
+	controls = new THREE.OrbitControls( camera, renderer.domElement );
+	
+	
+	// STATS 	
+	stats = new Stats();
+	stats.domElement.style.position = 'absolute';
+	stats.domElement.style.bottom = '0px';
+	stats.domElement.style.zIndex = 100;
+	container.appendChild( stats.domElement );
+		
+	// GUI
+	var gui = new dat.GUI();
+	gui.add(parameters, 'toggleparallelogram').name('Parallelogram');
+	gui.add(parameters, 'toggleplane').name('Toggle Plane');
+	gui.add(parameters, 'togglepoints').name('Toggle Points');
+	gui.add(parameters, 'toggleab').name('Toggle AB');
+	gui.add(parameters, 'toggleac').name('Toggle AC');
+	gui.add(parameters, 'togglead').name('Toggle AD');
+	gui.add(parameters, 'togglebc').name('Toggle BC');
+	gui.add(parameters, 'togglebd').name('Toggle BD');
+	gui.add(parameters, 'togglecd').name('Toggle CD');
+	
+	
+	createScene();
+}
+
+function createScene() {
+
+	while(scene.children.length > 0){ 
+		scene.remove(scene.children[0]); 
+	}
+
+	var light = new THREE.AmbientLight( 0xffffff );
+	scene.add( light );
+	
+	var axes = createAxes( { labels: true } );
+	
+	scene.add(axes);
+
+	a = new Point( { coords: [2,  9, 1], color: new THREE.Color('blue') });
+	b = new Point( { coords: [3, 11, 4], color: new THREE.Color('blue') });
+	c = new Point( { coords: [0, 10, 2], color: new THREE.Color('blue') });	
+	d = new Point( { coords: [1, 12, 5], color: new THREE.Color('blue') });
+	
+	l1 = new Line({ start: a.getCoords(), end: b.getCoords(), dashed: true, visible: false });
+	l2 = new Line({ start: a.getCoords(), end: c.getCoords(), dashed: true, visible: false });
+	l3 = new Line({ start: b.getCoords(), end: d.getCoords(), dashed: true, visible: false });
+	l4 = new Line({ start: c.getCoords(), end: d.getCoords(), dashed: true, visible: false });
+	
+	ab = new Vector( { start: a.getCoords(), end: b.getCoords(), visible: false });
+	ac = new Vector( { start: a.getCoords(), end: c.getCoords(), visible: false });
+	ad = new Vector( { start: a.getCoords(), end: d.getCoords(), visible: false });
+	bc = new Vector( { start: b.getCoords(), end: c.getCoords(), visible: false });
+	bd = new Vector( { start: b.getCoords(), end: d.getCoords(), visible: false });
+	cd = new Vector( { start: c.getCoords(), end: d.getCoords(), visible: false });
+	
+	plane = new Surface('(1/5)*x + (7/5)*y - 12', { visible: false });
+	
+	addToScene(scene, a);
+	addToScene(scene, b);
+	addToScene(scene, c);
+	addToScene(scene, d);
+	
+	addToScene(scene, l1);	
+	addToScene(scene, l2);
+	addToScene(scene, l3);
+	addToScene(scene, l4);
+	
+	addToScene(scene, ab);	
+	addToScene(scene, ac);
+	addToScene(scene, ad);
+	addToScene(scene, bc);
+	addToScene(scene, bd);
+	addToScene(scene, cd);
+	
+	addToScene(scene, plane);
+
+}
+
+
+function animate() {
+    requestAnimationFrame( animate );
+	render();		
+	update();
+}
+
+function update()
+{
+	// delta = change in time since last call (in seconds)
+	var delta = clock.getDelta(); 
+		
+	controls.update();
+	stats.update();
+}
+
+function render() {	
+	renderer.render( scene, camera );
+}
+
+</script>
+
+</body>
+</html>
