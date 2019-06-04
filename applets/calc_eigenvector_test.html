@@ -1,0 +1,162 @@
+<html>
+
+<head>
+	<meta charset="utf-8">  
+		<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
+		<script src='./js/jsxgraphcore.js' type='text/javascript'></script>
+		<script src='./js/MathFunctions.js' type='text/javascript'></script>
+		<script src='./js/math.min.js' type='text/javascript'></script>
+		<script src='./js/helpers.js' type='text/javascript'></script>
+		
+		<!-- Libraries for MathJax to display math formulas on screen -->
+		<script type="text/x-mathjax-config">
+			MathJax.Hub.Config({ tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}, });
+		</script>
+		<script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+		
+	</meta>
+</head>
+
+<div id="jxgbox" class="jxgbox" style="width:500px; height:500px;"></div>
+
+<script type='text/javascript'>
+
+board = JXG.JSXGraph.initBoard('jxgbox', {
+          boundingbox:[-5,5,5,-5], 
+          showCopyright:false, 
+          showNavigation:false, 
+          axis:true,
+          keepaspectratio:true,
+          showScreenshot: true
+        });
+
+function transform(p, m) {
+
+	var newx = m[0][0] * p.X() + m[0][1] * p.Y();
+	var newy = m[1][0] * p.X() + m[1][1] * p.Y();
+	
+	p.moveTo([newx, newy]);
+
+}
+
+function determinant(m) {
+	
+	return m[0][0] * m[1][1] - m[1][0] * m[0][1];
+
+}
+
+function inverse(m) {
+	
+	var scl = 1 / determinant(m);
+	
+	var r1 = [scl *  m[1][1], scl * -m[0][1]];
+	var r2 = [scl * -m[1][0], scl *  m[0][0]];
+	
+	return [r1, r2];
+	
+}
+
+var lineOpts = { strokeWidth: 1, highlight: false, fixed: true };
+
+var i1 = [];
+var i2 = [];
+
+var p = [];
+
+//var i = board.create('point', [1, 0], { name: 'i', snapToGrid: true, snapSizeX: 0.5, snapSizeY: 0.5 });
+//var j = board.create('point', [0, 1], { name: 'j', snapToGrid: true, snapSizeX: 0.5, snapSizeY: 0.5 });
+
+var i = board.create('point', [1, 0], { withLabel: false });
+var j = board.create('point', [0, 1], { withLabel: false});
+
+board.create('arrow', [[0,0], i], { strokeWidth: 5, opacity: 0.5, color: 'blue', name: 'i', fixed: true });
+board.create('arrow', [[0,0], j], { strokeWidth: 5, opacity: 0.5, color: 'red', name: 'j', fixed: true });
+
+
+
+
+p[0] = board.create('point', [0, 0], { fixed: true });
+p[1] = board.create('point', [3, 4], { fixed: true });
+p[2] = board.create('point', [0, 0], { fixed: true });
+p[3] = board.create('point', [1, -1], { fixed: true });
+
+var l1 = board.create('line', [p[0], p[1]], { color: 'red', strokeWidth: 3 });
+var l2 = board.create('line', [p[2], p[3]], { color: 'green', strokeWidth: 3 });
+
+var bounds = JSXGetBounds(board);
+
+
+for(var k = bounds.xmin; k <= bounds.xmax; k++) {
+
+	i1[k] = board.create('point', [k, 0], { visible: false });
+	i2[k] = board.create('point', [k, 1], { visible: false });
+	board.create('line', [i1[k], i2[k]], lineOpts);
+	
+}
+	
+var j1 = [];
+var j2 = [];
+
+for(var k = bounds.ymin; k <= bounds.ymax; k++) {
+	j1[k] = board.create('point', [0, k], { visible: false });
+	j2[k] = board.create('point', [1, k], { visible: false });
+	board.create('line', [j1[k], j2[k]], lineOpts);
+} 
+
+var minv = inverse([[i.X(), j.X()], [i.Y(), j.Y()]]);
+
+i.on('drag', function() { transformPlane(); });
+j.on('drag', function() { transformPlane(); });
+
+function transformPlane() {
+	
+	for(var k = bounds.xmin; k <= bounds.xmax; k++) {
+		
+		transform(i1[k], minv);
+		transform(i2[k], minv);
+		transform(i1[k], [[i.X(), j.X()], [i.Y(), j.Y()]]);
+		transform(i2[k], [[i.X(), j.X()], [i.Y(), j.Y()]]);			
+		
+	}
+
+	for(var k = bounds.ymin; k <= bounds.ymax; k++) {
+		
+		transform(j1[k], minv);
+		transform(j2[k], minv);
+		transform(j1[k], [[i.X(), j.X()], [i.Y(), j.Y()]]);
+		transform(j2[k], [[i.X(), j.X()], [i.Y(), j.Y()]]);			
+		
+	}
+
+	transform(p[0], minv);
+	transform(p[1], minv);
+	transform(p[2], minv);
+	transform(p[3], minv);
+
+	transform(p[0], [[i.X(), j.X()], [i.Y(), j.Y()]]);
+	transform(p[1], [[i.X(), j.X()], [i.Y(), j.Y()]]);
+	transform(p[2], [[i.X(), j.X()], [i.Y(), j.Y()]]);
+	transform(p[3], [[i.X(), j.X()], [i.Y(), j.Y()]]);
+	
+
+	minv = inverse([[i.X(), j.X()], [i.Y(), j.Y()]]);
+}
+
+
+//i.moveTo([3,1]);
+//j.moveTo([-2,1]);
+
+var slider = board.create('slider',[[-4.5,-4.5],[4.5,-4.5],[0,0,10]],{name:'t',snapWidth:1});
+
+slider.on('drag', function() { i.moveTo([i.X() + 0.2, i.Y() + 0.1]); transformPlane(); });
+
+
+//i.moveTo([-1, 1]);
+//j.moveTo([3, 2]);
+
+//transformPlane();
+
+
+</script>
+
+</html>

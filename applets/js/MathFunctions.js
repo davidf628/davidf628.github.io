@@ -1850,6 +1850,11 @@ function evaluate(f, x, args) {
 	return expr.eval({x: x});
 }
 
+function evalf(f, parameters) {
+	var expr = math.compile(f);
+	return expr.eval(parameters);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Plots a function, it can restrict to a specified interval or display

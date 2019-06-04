@@ -886,9 +886,21 @@ class ParametricGraph {
 			var ty = yFunc(t);
 			var tz = zFunc(t);
 
-			return new THREE.Vector3( tx, ty, tz ).multiplyScalar( this.scale );
+			return new THREE.Vector3( tx, ty, tz );
+			//return sCoord(tx, ty, tx).multiplyScalar(this.scale);
 
 		};
+
+		/*var f_z = Parser.parse(f).toJSFunction(['x', 'y']);
+	
+		zFunc = function (u, v, target) {
+      
+			var x = viewingWindow.xRange() * u + viewingWindow.xMin;
+			var y = viewingWindow.yRange() * v + viewingWindow.yMin;
+			var z = f_z(x, y);
+
+			return target.set(xCoord(x), yCoord(y), zCoord(z));
+		};*/
 
 		var path = new CustomCurve( 1 );
 		var geometry = new THREE.TubeGeometry( path, 200, 0.1, 8, false );
