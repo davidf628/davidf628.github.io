@@ -298,8 +298,8 @@ function createAxes(args) {
 		texture.needsUpdate = true;
 
 		var spriteMaterial = new THREE.SpriteMaterial({
-		  map: texture,
-		  useScreenCoordinates: false
+		  map: texture//,
+		  //useScreenCoordinates: false
 		});
 		var sprite = new THREE.Sprite(spriteMaterial);
 		//sprite.scale.set(100, 50, 1.0);
@@ -549,6 +549,18 @@ class Vector {
 		this.length = direction.length();
 		this.vector.setLength(this.length, this.headLength, this.headWidth);
 		this.vector.setDirection(direction.normalize());
+
+	}
+	
+	setStartPoint(coords) {
+		
+		this.start[0] = coords[0];
+		this.start[1] = coords[1];
+		this.start[2] = coords[2];
+		
+		this.vector.position.x = coords[0];
+		this.vector.position.y = coords[1];
+		this.vector.position.z = coords[2];
 
 	}
 	
