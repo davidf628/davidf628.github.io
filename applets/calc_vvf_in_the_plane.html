@@ -1,0 +1,193 @@
+<html>
+<head>
+	<meta charset="utf-8">  
+		<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
+	    <script src='./js/jsxgraphcore.js' type='text/javascript'></script>
+	    <script src='./js/MathFunctions.js' type='text/javascript'></script>
+	    <script src='./js/math.min.js' type='text/javascript'></script>
+	    <script src='./js/helpers.js' type='text/javascript'></script>
+	</meta>
+</head>
+
+<!--
+	
+-->
+
+<body>
+
+<h1>Two-Dimensional Vector-Valued Functions</h1>
+
+x(t) = <input type="text" id="x_text" value="t">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+y(t) = <input type="text" id="y_text" value="t^2-1">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<input type="button" value="Update" onClick="update()">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+</br></br>
+
+<div>
+	<div id="jxgbox" class="jxgbox" style="width:1000px; height:720px; float:left; resize: both"></div>
+	<div id="display" class="jxgbox" style="width:320px; height:720px; float:left; resize: both"></div>
+</div>
+
+<script type='text/javascript'>
+		
+var board = JXG.JSXGraph.initBoard('jxgbox', {
+		boundingbox: [-5,5,5,-5], 
+      	showCopyright: false, 
+      	showNavigation: true,
+		keepaspectratio: true,
+		axis: true,
+      	zoom: {
+            factorX: 1.25,
+            factorY: 1.25,
+            wheel: true,
+            needshift: false,
+            eps: 0.1
+        }		
+    });
+
+var display = JXG.JSXGraph.initBoard('display', {
+		boundingbox: [0,10,10,0], 
+      	showCopyright: false, 
+      	showNavigation: false,
+		keepaspectratio: false,
+		axis: false,
+      	zoom: {
+            factorX: 1.25,
+            factorY: 1.25,
+            wheel: true,
+            needshift: false,
+            eps: 0.1
+        }		
+    });
+	
+var curve = board.create('curve', [[Number.NaN], [Number.NaN]], { strokeWidth: 2 });
+
+var x_text = document.getElementById('x_text').value;
+var y_text = document.getElementById('y_text').value;
+	
+var x_func = math.compile(x_text);
+var y_func = math.compile(y_text);
+
+var x_d1 = math.derivative(x_text, 't').toString();
+var x_d2 = math.derivative(x_d1, 't').toString();
+
+var y_d1 = math.derivative(y_text, 't').toString();
+var y_d2 = math.derivative(y_d1, 't').toString();
+
+var x_d1_func = math.compile(x_d1);
+var x_d2_func = math.compile(x_d2);
+
+var y_d1_func = math.compile(y_d1);
+var y_d2_func = math.compile(y_d2);
+
+var t = display.create('slider', [[1, 1], [9, 1], [-10, 0, 10]]);
+
+var p = board.create('point', [x_func.eval({ t: t.Value() }),
+							   y_func.eval({ t: t.Value() })], { name: 'P' });
+
+var s = board.create('arrow', [[0, 0], [x_func.eval({ t: t.Value() }), y_func.eval({ t: t.Value() })]], { strokeWidth: 4, strokeColor: 'black', opacity: 0.8 });
+	
+var v = board.create('arrow', [[0, 0], [0, 0]], { strokeWidth: 4, strokeColor: 'green', opacity: 0.8 });
+var a = board.create('arrow', [[0, 0], [0, 0]], { strokeWidth: 4, strokeColor: 'red', opacity: 0.8 });
+
+	
+t.on('drag',
+	function() {
+		var xval = x_func.eval({ t: t.Value() });
+		var yval = y_func.eval({ t: t.Value() });
+		p.moveTo([xval, yval]);
+		s.point2.moveTo([xval, yval]);
+		v.point1.moveTo([xval, yval]);
+		v.point2.moveTo([xval + x_d1_func.eval({ t: t.Value() }), yval + y_d1_func.eval({ t: t.Value() })]);
+		a.point1.moveTo([xval, yval]);
+		a.point2.moveTo([xval + x_d2_func.eval({ t: t.Value() }), yval + y_d2_func.eval({ t: t.Value() })]);
+		
+		board.update();
+	});
+
+var stoggle = JSXCheckbox(display, 1, 9, 'Toggle Vector', true,
+	function() { 
+		s.setAttribute({ visible: !s.getAttribute('visible') });
+		board.update();
+	});
+
+var vtoggle = JSXCheckbox(display, 1, 8.5, 'Toggle Velocity', true,
+	function() { 
+		v.setAttribute({ visible: !v.getAttribute('visible') });
+		board.update();
+	});
+
+var atoggle = JSXCheckbox(display, 1, 8, 'Toggle Acceleration', true,
+	function() { 
+		a.setAttribute({ visible: !a.getAttribute('visible') });
+		board.update();
+	});
+
+update();
+
+function update() {
+
+	var orgbounds = board.getBoundingBox();
+	var width = document.getElementById('jxgbox').clientWidth;
+	var height = document.getElementById('jxgbox').clientHeight;
+
+	board.resizeContainer(width, height);
+	board.setBoundingBox(orgbounds, false);
+
+	x_text = document.getElementById('x_text').value;
+	y_text = document.getElementById('y_text').value;
+	
+	x_func = math.compile(x_text);
+	y_func = math.compile(y_text);
+	
+	f = '[' + x_text + ',' + y_text + ']';
+	
+	plot(curve, f, -10, 10, {});
+	
+//	d = JXG.Math.Numerics.D(relation);
+//	d2 = JXG.Math.Numerics.D(d);
+	
+/*	fd = math.derivative(f, 'x').toString();
+	tx = '1';
+	ty = fd;
+	tm = '((' + tx + ')^2 + (' + ty + ')^2)^(1/2)';
+
+	Tx = tx + ' / ' + tm;
+	Ty = ty + ' / ' + tm;
+
+	nx = math.derivative(Tx, 'x').toString();
+	ny = math.derivative(Ty, 'x').toString();
+
+	nm = '((' + nx + ')^2 + (' + ny + ')^2)^(1/2)';
+
+	Nx = nx + ' / ' + nm;
+	Ny = ny + ' / ' + nm;*/
+	
+//	board.removeObject(curve);
+//	board.removeObject(p);
+
+	
+//	curve = board.create('curve', [function(t) { return x_func(t); }, function(t) { return y_func(t); }, -10, 10], { strokeWidth: 2 });
+
+
+/*	p.on('drag', 
+		function() { 
+			a.moveTo([p.X(), evaluate(]);		
+			display.update();
+		});	*/
+		
+	//p_label = display.create('text', [0.5, 9.5, function() { return 'p = (' + p.X().toFixed(2) + ', ' + p.Y().toFixed(2) + ')'; }], { fontSize: 18 });
+	//k_label = display.create('text', [0.5, 8.75, function() { return 'K = ' + (1/r(p.X())).toFixed(5); }], { fontSize: 18 });
+	//r_label = display.create('text', [0.5, 8, function() { return 'r = ' + r(p.X()).toFixed(2); }], { fontSize: 18 });
+		
+	board.update();	
+	display.update();
+		
+}
+
+</script>
+</body>
+</html>
