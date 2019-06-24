@@ -1,0 +1,178 @@
+<!doctype html>
+<meta charset="utf-8">
+
+<html lang="en">
+<head>
+	<title>A Limit that Does Not Exist</title>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+</head>
+<body>
+
+<script src="js/three.min.js"></script>
+<script src="js/SceneUtils.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/OrbitControls.js"></script>
+<script src="js/DragControls.js"></script>
+<script src="js/parser.js"></script>
+<script src="js/THREEx.KeyboardState.js"></script>
+<script src="js/THREEx.FullScreen.js"></script>
+<script src="js/THREEx.WindowResize.js"></script>
+<script src="js/3dmath.js"></script>
+
+<script type='text/javascript' src='js/DAT.GUI.min.js'></script>
+
+<div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
+<script>
+
+var container, scene, camera, renderer, controls, stats;
+var keyboard = new THREEx.KeyboardState();
+var clock = new THREE.Clock();
+
+var parameters = {
+
+	toggles: function() { s.toggleVisible(); },
+	togglew: function() { w.toggleVisible(); },
+	togglep1: function() { p1.toggleVisible(); },
+	togglep2: function() { p2.toggleVisible(); },
+	togglep3: function() { p3.toggleVisible(); },
+	togglep4: function() { p4.toggleVisible(); },
+	togglep5: function() { p5.toggleVisible(); },
+	togglep6: function() { p6.toggleVisible(); }
+	
+};
+
+
+var a = 0;
+var gui_a;
+
+var points = [];
+var line;
+
+// initialization
+init();
+
+// animation loop / game loop
+animate();
+					
+function init() {
+
+	// SCENE 	
+	scene = new THREE.Scene();
+
+	// CAMERA 	
+	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;	
+	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+	scene.add(camera);
+	camera.position.set(40,40,10);
+	camera.up.set(0, 0, 1);  // make sure z-axis is facing up
+	camera.lookAt(scene.position);	
+	
+	// RENDERER 	
+	renderer = new THREE.WebGLRenderer( {antialias:true, alpha: true} );
+	// Set background color as white
+	renderer.setClearColor( 0xffffff ); 
+	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+	renderer.sortObjects = false;
+	renderer.localClippingEnabled = true;
+	
+	// attach div element to variable to contain the renderer
+	container = document.getElementById( 'ThreeJS' );
+	container.appendChild( renderer.domElement );
+	
+	// EVENTS 	
+	THREEx.WindowResize(renderer, camera);
+	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
+	
+	// CONTROLS 
+	controls = new THREE.OrbitControls( camera, renderer.domElement );
+	
+	
+	// STATS 	
+	stats = new Stats();
+	stats.domElement.style.position = 'absolute';
+	stats.domElement.style.bottom = '0px';
+	stats.domElement.style.zIndex = 100;
+	container.appendChild( stats.domElement );
+		
+	// GUI
+	gui = new dat.GUI();	
+	gui.add(parameters, 'toggles').name('Toggle Surface');
+	gui.add(parameters, 'togglew').name('Toggle Wireframe');
+	gui.add(parameters, 'togglep1').name('Toggle x=0');
+	gui.add(parameters, 'togglep2').name('Toggle y=0');
+	gui.add(parameters, 'togglep3').name('Toggle y=x');
+	gui.add(parameters, 'togglep4').name('Toggle y=x^2');
+	gui.add(parameters, 'togglep5').name('Toggle abs(x)');
+	gui.add(parameters, 'togglep6').name('Toggle sin(x)');	
+	
+	createScene();
+}
+
+function createScene() {
+
+	while(scene.children.length > 0){ 
+		scene.remove(scene.children[0]); 
+	}
+
+	var light = new THREE.AmbientLight( 0xffffff );
+	scene.add( light );
+	
+	viewingWindow.setBounds(-10, 10, 1, -10, 10, 1, -2, 2, 0.25);
+	
+	var axes = createAxes( { labels: true } );
+	scene.add(axes);
+
+	
+	
+	s = new Surface('(x^2-y^2)/(x^2+y^2)', { color: 'green', visible: false });
+	addToScene(scene, s);
+	
+	w = new Surface('(x^2-y^2)/(x^2+y^2)', { color: 'green', wireframe: true, dx: 0.5, visible: false });
+	addToScene(scene, w);
+	
+	p1 = new ParametricGraph('0','t','-1', -20, 20, { visible: false });
+	addToScene(scene, p1);
+	
+	p2 = new ParametricGraph('t','0','1', -20, 20, { visible: false });
+	addToScene(scene, p2);
+	
+	p3 = new ParametricProjection('t','t','(x^2-y^2)/(x^2+y^2)', -10, 10, { visible: false });
+	addToScene(scene, p3);
+	
+	p4 = new ParametricProjection('t','t^2','(x^2-y^2)/(x^2+y^2)', -5, 5, { visible: false });
+	addToScene(scene, p4);
+	
+	p5 = new ParametricProjection('t','abs(t)','(x^2-y^2)/(x^2+y^2)', -10, 10, { visible: false });
+	addToScene(scene, p5); 
+	
+	p6 = new ParametricProjection('t','sin(t)','(x^2-y^2)/(x^2+y^2)', -10, 10, { visible: false });
+	addToScene(scene, p6);
+
+
+
+}
+
+function animate() {
+    requestAnimationFrame( animate );
+	render();		
+	update();
+}
+
+function update()
+{
+	// delta = change in time since last call (in seconds)
+	var delta = clock.getDelta(); 
+		
+	controls.update();
+	stats.update();
+}
+
+function render() {	
+	renderer.render( scene, camera );
+}
+
+</script>
+
+</body>
+</html>

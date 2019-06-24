@@ -1,0 +1,203 @@
+<!doctype html>
+<meta charset="utf-8">
+
+<html lang="en">
+<head>
+	<title>Graphing 4d Surfaces</title>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+</head>
+<body>
+
+<script src="js/three.min.js"></script>
+<script src="js/SceneUtils.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/OrbitControls.js"></script>
+<script src="js/DragControls.js"></script>
+<script src="js/parser.js"></script>
+<script src="js/THREEx.KeyboardState.js"></script>
+<script src="js/THREEx.FullScreen.js"></script>
+<script src="js/THREEx.WindowResize.js"></script>
+<script src="js/3dmath.js"></script>
+
+<script type='text/javascript' src='js/DAT.GUI.min.js'></script>
+
+<div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
+<script>
+
+var container, scene, camera, renderer, controls, stats;
+var keyboard = new THREEx.KeyboardState();
+var clock = new THREE.Clock();
+
+var surfaces = [], textbox;
+var goingup = true;
+
+var parameters = {
+	t: 0,
+	animate: false,
+	wireframe: false,
+	showtextbox: false	
+};
+
+// initialization
+init();
+
+// animation loop / game loop
+animate();
+					
+function init() {
+
+	// SCENE 	
+	scene = new THREE.Scene();
+
+	// CAMERA 	
+	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;	
+	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+	scene.add(camera);
+	camera.position.set(40,40,10);
+	camera.up.set(0, 0, 1);  // make sure z-axis is facing up
+	camera.lookAt(scene.position);	
+	
+	// RENDERER 	
+	renderer = new THREE.WebGLRenderer( {antialias:true, alpha: true} );
+	// Set background color as white
+	renderer.setClearColor( 0xffffff ); 
+	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+	renderer.sortObjects = false;
+	renderer.localClippingEnabled = true;
+	
+	// attach div element to variable to contain the renderer
+	container = document.getElementById( 'ThreeJS' );
+	container.appendChild( renderer.domElement );
+	
+	// EVENTS 	
+	THREEx.WindowResize(renderer, camera);
+	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
+	
+	// CONTROLS 
+	controls = new THREE.OrbitControls( camera, renderer.domElement );
+	
+	
+	// STATS 	
+	stats = new Stats();
+	stats.domElement.style.position = 'absolute';
+	stats.domElement.style.bottom = '0px';
+	stats.domElement.style.zIndex = 100;
+	container.appendChild( stats.domElement );
+		
+	// GUI
+	gui = new dat.GUI();
+	gui.add(parameters, 't').min(0).max(49).step(1).onChange(
+		function() {
+			scene.remove(textbox.getObject());
+			for(var i = 0; i < surfaces.length; i++) {
+				surfaces[i].setVisible(false);
+				surfaces[i].setWireframeVisible(false);
+			}
+			surfaces[parameters.t].setVisible(true);
+			surfaces[parameters.t].setWireframeVisible(parameters.wireframe);
+			textbox	= new TextBox([0, 2, 6], 
+				surfaces[parameters.t].getFunction(), { 
+					borderColor: {r:255, g:0, b:0, a:1.0}, 
+		  	  		backgroundColor: {r:255, g:100, b:100, a:0.8}, 
+		  	  	visible: parameters.showtextbox 
+			});
+			addToScene(scene, textbox);
+		}
+	);
+	gui.add(parameters, 'animate').name('Animate');
+	gui.add(parameters, 'wireframe').name('Wireframe');
+	gui.add(parameters, 'showtextbox').name('Show Function').onChange(
+		function() {
+			textbox.toggleVisible();
+		}
+	);
+		
+	createScene();
+}
+
+function createScene() {
+
+	while(scene.children.length > 0){ 
+		scene.remove(scene.children[0]); 
+	}
+
+	var light = new THREE.AmbientLight( 0xffffff );
+	scene.add( light );
+	
+	viewingWindow.setBounds(-10, 10, 1, -10, 10, 1, -10, 10, 1);
+	
+	var axes = createAxes( { labels: false } );
+	scene.add(axes);
+
+	for(var i = 0.2; i <= 10; i+=.2) {
+		//if(i < 0) {
+		//	func = '9-x^2-y^2' + i;
+		//} else {
+	//		func = '9-x^2-y^2 + ' + i;
+	//	}
+		var c = '(' + i + ' *  ' + i + ')';
+		func = ' 5 - x^2 / ' + c + ' * y^2 / ' + c;
+		var surface = new Surface(func, { visible: false, wireframevisible: false });
+		surfaces.push(surface);
+		addToScene(scene, surface);
+	}
+	surfaces[0].setVisible(true);
+	textbox	= new TextBox([0, 2, 6], 
+		surfaces[0].getFunction(), 
+		{ borderColor: {r:255, g:0, b:0, a:1.0}, 
+		  backgroundColor: {r:255, g:100, b:100, a:0.8}, 
+		  visible: parameters.showtextbox 
+		});
+	addToScene(scene, textbox);
+}
+
+function animate() {
+
+	if(parameters.animate) {
+		textbox.setVisible(false);
+		if(goingup) {
+			if(parameters.t <= 48) {
+				parameters.t++;
+			} else if(parameters.t > 48) {
+				goingup = false;
+			}
+		}
+		if(!goingup) {
+			if(parameters.t >= 1) {
+				parameters.t--;
+			} else if(parameters.t < 1) {
+				goingup = true;
+			}
+		}
+		for(var i = 0; i < surfaces.length; i++) {
+			surfaces[i].setVisible(false);
+			surfaces[i].setWireframeVisible(false);
+		}
+		surfaces[parameters.t].setVisible(true);
+		surfaces[parameters.t].setWireframeVisible(parameters.wireframe);
+	} else {
+		textbox.setVisible(parameters.showtextbox);
+	}
+    requestAnimationFrame( animate );
+	render();		
+	update();
+}
+
+function update()
+{
+	// delta = change in time since last call (in seconds)
+	var delta = clock.getDelta(); 
+		
+	controls.update();
+	stats.update();
+}
+
+function render() {	
+	renderer.render( scene, camera );
+}
+
+</script>
+
+</body>
+</html>

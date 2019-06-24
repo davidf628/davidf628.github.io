@@ -119,35 +119,56 @@ function createScene() {
 	//scene.add( gridHelper );	
 	
 	//viewingWindow.setScale(1.0, 1.0, 0.5);	
-	viewingWindow.setBounds(-10, 10, 1, -10, 10, 1, -10, 10, 1);
+	//viewingWindow.setBounds(-10, 10, 1, -10, 10, 1, -1, 1, 0.25);
 	
-	var axes = createAxes( { yzGrid: true, labels: true } );
 	
-	scene.add(axes);
+
 	
 	//var surface = new Surface('4 - x^2 - y^2', { skin: 'transparent' });
 	//scene.add(surface.getObject());
 	//scene.add(createWireFrame('3*x - 2*y + 4', new THREE.Color('blue')));
 	
-	
 	//line = new Line({ start: [0, 0, 0], end: [10, 10, 10], dashed: true });
 	//scene.add(line.getObject());
 	//line.updateEndPoint([-4, 10, 15]);
 
-	cube = new Box({ position: [1, 0, 0], depth: 4 });
-	cube2 = new Box({ position: [2, 0, 0], depth: 5 });
-	addToScene(scene, cube);
-	addToScene(scene, cube2);
+	//cube = new Box({ position: [1, 0, 0], depth: 4 });
+	//cube2 = new Box({ position: [2, 0, 0], depth: 5 });
+	//addToScene(scene, cube);
+	//addToScene(scene, cube2);
 	
-	addToScene(scene, new Point({ coords: [1,1,1] }));
-	addToScene(scene, new Point({ coords: [-2, 0, 1] }));
-	addToScene(scene, new Point({ coords: [-1, 3, 5] }));
-	addToScene(scene, new Point({ coords: [8, -2, -7], color: new THREE.Color('blue') }));
-	addToScene(scene, new Point({ coords: [8, -2, -6], color: new THREE.Color('red') }));
+	//addToScene(scene, new Point({ coords: [1,1,1] }));
+	//addToScene(scene, new Point({ coords: [-2, 0, 1] }));
+	//addToScene(scene, new Point({ coords: [-1, 3, 5] }));
+	//addToScene(scene, new Point({ coords: [8, -2, -7], color: new THREE.Color('blue') }));
+	//addToScene(scene, new Point({ coords: [8, -2, -6], color: new THREE.Color('red') }));
 	
-	//scene.add(Surface('3*x*x-6*x*y+2*y^2-4', BLUE));
-	addToScene(scene, new ParametricGraph('-3*t-2', '-2*t-5', 't', -20, 20, 0x000000));
-	addToScene(scene, new Surface('(3/2)*y - (1/2)*x'), new THREE.Color('green'));
+	
+	viewingWindow.setBounds(-5, 5, 1, -5, 5, 1, -1, 1, 1);
+	var axes = createAxes( { labels: true } );
+	scene.add(axes);
+	addToScene(scene, new Surface('0.5*sin(0.2*(x^2 + y^2))', { wireframe: true, dx: 0.25, color: 'orange' }));
+	
+	p = new PlaneSurface('xz', 3, { color: 'red' });
+	addToScene(scene, p);
+	
+	//q = new PlaneSurface(1, 0, 0, 1, { color: 'green' });
+	//addToScene(scene, q);
+
+	
+	
+	//////////////////
+	// end
+	//////////////////
+	
+	
+	//addToScene(scene, new ParametricGraph('t', '0', '0', -5, 5));
+	//addToScene(scene, new ParametricGraph('0', 't', '1-t^2', -5, 5));
+	//addToScene(scene, new ParametricGraph('t', '0', '1-t^2', -5, 5));
+	
+	//addToScene(scene, new ParametricGraph('-3*t-2', '-2*t-5', 't', -200, 200, 0x000000));
+
+	//addToScene(scene, new Surface('(3/2)*y - (1/2)*x'), new THREE.Color('green'));
 	//scene.add(ParametricGraph('sin(t)', 'cos(t)', '0', -6.28, 6.28, 0x000000));
 	//scene.add(ParametricProjection('sin(t)', 'cos(t)', '3*x^2-6*x*y+2*y^2-4', -6.28, 6.28, 0x000000));
 	//scene.add(ParametricProjection('3/5*t', '2-2/5*t', '3*x^2-6*x*y+2*y^2-4', -20, 20, 0x000000));

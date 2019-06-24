@@ -1,0 +1,153 @@
+<!doctype html>
+<meta charset="utf-8">
+
+<html lang="en">
+<head>
+	<title>A Limit that Exists Through Simplification</title>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+</head>
+<body>
+
+<script src="js/three.min.js"></script>
+<script src="js/SceneUtils.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/OrbitControls.js"></script>
+<script src="js/DragControls.js"></script>
+<script src="js/parser.js"></script>
+<script src="js/THREEx.KeyboardState.js"></script>
+<script src="js/THREEx.FullScreen.js"></script>
+<script src="js/THREEx.WindowResize.js"></script>
+<script src="js/3dmath.js"></script>
+
+<script type='text/javascript' src='js/DAT.GUI.min.js'></script>
+
+<div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
+<script>
+
+var container, scene, camera, renderer, controls, stats;
+var keyboard = new THREEx.KeyboardState();
+var clock = new THREE.Clock();
+
+var parameters = {
+
+	toggles1: function() { s1.toggleVisible(); },
+	toggles2: function() { s2.toggleVisible(); },
+	togglep: function() { p.toggleVisible(); }
+	
+};
+
+
+var a = 0;
+var gui_a;
+
+var points = [];
+var line;
+
+// initialization
+init();
+
+// animation loop / game loop
+animate();
+					
+function init() {
+
+	// SCENE 	
+	scene = new THREE.Scene();
+
+	// CAMERA 	
+	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;	
+	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+	scene.add(camera);
+	camera.position.set(40,40,10);
+	camera.up.set(0, 0, 1);  // make sure z-axis is facing up
+	camera.lookAt(scene.position);	
+	
+	// RENDERER 	
+	renderer = new THREE.WebGLRenderer( {antialias:true, alpha: true} );
+	// Set background color as white
+	renderer.setClearColor( 0xffffff ); 
+	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+	renderer.sortObjects = false;
+	renderer.localClippingEnabled = true;
+	
+	// attach div element to variable to contain the renderer
+	container = document.getElementById( 'ThreeJS' );
+	container.appendChild( renderer.domElement );
+	
+	// EVENTS 	
+	THREEx.WindowResize(renderer, camera);
+	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
+	
+	// CONTROLS 
+	controls = new THREE.OrbitControls( camera, renderer.domElement );
+	
+	
+	// STATS 	
+	stats = new Stats();
+	stats.domElement.style.position = 'absolute';
+	stats.domElement.style.bottom = '0px';
+	stats.domElement.style.zIndex = 100;
+	container.appendChild( stats.domElement );
+		
+	// GUI
+	gui = new dat.GUI();	
+	gui.add(parameters, 'toggles1').name('Show Surface');
+	gui.add(parameters, 'toggles2').name('Show Simplified');
+	gui.add(parameters, 'togglep').name('Show limit');
+
+	
+	createScene();
+}
+
+function createScene() {
+
+	while(scene.children.length > 0){ 
+		scene.remove(scene.children[0]); 
+	}
+
+	var light = new THREE.AmbientLight( 0xffffff );
+	scene.add( light );
+	
+	viewingWindow.setBounds(-10, 10, 1, -10, 10, 1, -10, 10, 1);
+	
+	var axes = createAxes( { labels: true } );
+	scene.add(axes);
+
+	s1 = new Surface('(x^2-2*x*y+y^2)/(x-y)', { color: 'red',  visible: false });
+	addToScene(scene, s1);
+	
+	s2 = new Surface('x-y', { color: 'blue', visible: false });
+	addToScene(scene, s2);
+
+	p = new Point({ coords: [1, 1, 0], color: 'blue', radius: 0.35, visible: false });
+	addToScene(scene, p);
+		
+
+}
+
+
+
+function animate() {
+    requestAnimationFrame( animate );
+	render();		
+	update();
+}
+
+function update()
+{
+	// delta = change in time since last call (in seconds)
+	var delta = clock.getDelta(); 
+		
+	controls.update();
+	stats.update();
+}
+
+function render() {	
+	renderer.render( scene, camera );
+}
+
+</script>
+
+</body>
+</html>

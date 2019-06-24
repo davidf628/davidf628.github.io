@@ -160,15 +160,15 @@ function createAxes(args) {
 	var axes = new THREE.Object3D();
 	var origin = sCoord(0, 0, 0);
 	
-	axes.add(buildAxis(origin, sCoord(viewingWindow.xMax, 0, 0), new THREE.Color('green'), false)); // +X
-	axes.add(buildAxis(origin, sCoord(viewingWindow.xMin, 0, 0), new THREE.Color('green'), true));  // -X
-	axes.add(buildAxis(origin, sCoord(0, viewingWindow.yMax, 0), new THREE.Color('red'), false));   // +Y
-	axes.add(buildAxis(origin, sCoord(0, viewingWindow.yMin, 0), new THREE.Color('red'), true));    // -Y
+	axes.add(buildAxis(origin, sCoord(viewingWindow.xMax, 0, 0), new THREE.Color('red'), false)); // +X
+	axes.add(buildAxis(origin, sCoord(viewingWindow.xMin, 0, 0), new THREE.Color('red'), true));  // -X
+	axes.add(buildAxis(origin, sCoord(0, viewingWindow.yMax, 0), new THREE.Color('green'), false));   // +Y
+	axes.add(buildAxis(origin, sCoord(0, viewingWindow.yMin, 0), new THREE.Color('green'), true));    // -Y
 	axes.add(buildAxis(origin, sCoord(0, 0, viewingWindow.zMax), new THREE.Color('blue'), false));  // +Z
 	axes.add(buildAxis(origin, sCoord(0, 0, viewingWindow.zMin), new THREE.Color('blue'), true));   // -Z
 
-	axes.add(buildAxisCone(new THREE.Color('green'), xCoord(viewingWindow.xMax), yCoord(0), zCoord(0), "x")); // x-axis cone
-	axes.add(buildAxisCone(new THREE.Color('red'),   xCoord(0), yCoord(viewingWindow.yMax), zCoord(0), "y")); // y-axis cone
+	axes.add(buildAxisCone(new THREE.Color('red'), xCoord(viewingWindow.xMax), yCoord(0), zCoord(0), "x")); // x-axis cone
+	axes.add(buildAxisCone(new THREE.Color('green'),   xCoord(0), yCoord(viewingWindow.yMax), zCoord(0), "y")); // y-axis cone
 	axes.add(buildAxisCone(new THREE.Color('blue'),  xCoord(0), yCoord(0), zCoord(viewingWindow.zMax), "z")); // z-axis cone
 	
 	if(args !== undefined) {
@@ -326,6 +326,10 @@ class Point {
 			this.color = args.color ? args.color : this.color;
 			this.visible = (args.visible == undefined) ? this.visible : args.visible;
 		}	
+		
+		if(typeof this.color === 'string' || this.color instanceof String) {
+			this.color = new THREE.Color(this.color);
+		}
 	
 		var geometry = new THREE.SphereGeometry(this.radius);
 		var material = new THREE.MeshBasicMaterial( { color: this.color } );
@@ -705,31 +709,33 @@ class Surface {
 
 	constructor(f, args) {
 		
-		this.color = new THREE.Color('red');
-		this.wireframe = false;
-		this.wireframecolor = new THREE.Color('black');
-		this.skin = 'transparent';
-		this.slices = 60;
-		this.stacks = 60;
-		this.visible = true;
+		if(args === undefined) {
+			args = {};
+		}
+
+		// Set default parameters
+		this.color = args.color ? args.color : new THREE.Color('red');
+		if(typeof this.color === 'string' || this.color instanceof String) {
+			this.color = new THREE.Color(this.color);
+		}
+			
+		this.wireframevisible = (args.wireframevisible !== undefined) ? args.wireframevisible : false;
+		this.wireframecolor = args.wireframecolor ? args.wireframecolor : new THREE.Color('black');
+		if(typeof this.color === 'string' || this.color instanceof String) {
+			this.color = new THREE.Color(this.color);
+		}
 		
-		this.surface;	
+		this.func = f;	
+			
+		this.skin = args.skin ? args.skin : 'transparent';	
 		
-		if(args !== undefined) {
+		this.slices = args.slices ? args.slices : 60;
+		this.stacks = args.stacks ? args.stacks : 60;
 			
-			this.color = args.color ? args.color : this.color;
-			this.wireframe = (args.wireframe == undefined) ? this.wireframe : args.wireframe;
-			
-			this.wireframecolor = args.wireframecolor ? args.wireframecolor : this.wireframecolor;
-			
-			this.skin = args.skin ? args.skin : this.skin;	
-			
-			this.slices = args.slices ? args.slices : this.slices;
-			this.stacks = args.stacks ? args.stacks : this.stacks;
-			
-			this.visible = (args.visible == undefined) ? this.visible : args.visible;
-					
-		}	
+		this.visible = (args.visible !== undefined) ? args.visible : true;
+		
+		this.dx = args.dx ? args.dx : 1;
+		this.dy = args.dy ? args.dy : this.dx;
 		
     	var geometry = createSurfaceGeometry(f, this.slices, this.stacks); 
 		
@@ -741,17 +747,21 @@ class Surface {
 			this.surface = createShadedMesh(geometry, this.color);
 		} else if(this.skin == 'vertexColor') {
 			this.surface = createVertexColorMesh(geometry, this.color);
-		} 
-		
-		if(this.wireframe) {
-			this.surface.add(createWireFrame(f, this.wireframecolor));
+		} else if(this.skin == 'solid') {
+			this.surface = createSolidColorMesh(geometry, this.color);
 		}
+		
+		this.wireframe = createWireFrame(f, this.wireframecolor, this.dx, this.dy);
+		this.wireframe.visible = this.wireframevisible;
+		this.surface.add(this.wireframe);
+		this.surface.children
 		
 		this.surface.visible = this.visible;
 		
 	}
 
 	getObject() { return this.surface; }
+	getFunction() { return this.func; }
 	
 	setVisible(b) {
 		this.visible = b;
@@ -762,6 +772,15 @@ class Surface {
 		this.visible = !this.visible;
 		this.surface.visible = this.visible;
 	}
+	
+	toggleWireframe() {
+		this.wireframevisible = !this.wireframevisible;
+		this.wireframe.visible = this.wireframevisible;
+	}
+	setWireframeVisible(b) {
+		this.wireframevisible = b;
+		this.wireframe.visible = b;
+	}
 
 }
 
@@ -769,7 +788,7 @@ function createSurfaceGeometry(f, slices, stacks) {
 	
 	var f_z = Parser.parse(f).toJSFunction(['x', 'y']);
 	
-	zFunc = function (u, v, target) {
+	var zFunc = function (u, v, target) {
       
         var x = viewingWindow.xRange() * u + viewingWindow.xMin;
         var y = viewingWindow.yRange() * v + viewingWindow.yMin;
@@ -818,7 +837,7 @@ function createSurfaceGeometry(f, slices, stacks) {
 	///////////////////////
 	*/
 
-function createWireFrame (f, color) {
+function createWireFrame (f, color, dx, dy) {
 
 	var wireFrame = new THREE.Object3D();
 
@@ -826,23 +845,23 @@ function createWireFrame (f, color) {
 	var geometry = new THREE.Geometry();
 	var zFunc = Parser.parse(f).toJSFunction(['x', 'y']);
 
-	for(var i = viewingWindow.xMin; i <= viewingWindow.xMax; i += 1) {
+	for(var i = viewingWindow.xMin; i <= viewingWindow.xMax; i += dx) {
 		geometry = new THREE.Geometry();
-		for(var j = viewingWindow.yMin; j <= viewingWindow.yMax; j += 1) {
+		for(var j = viewingWindow.yMin; j <= viewingWindow.yMax; j += dx) {
 			var z = zFunc(i, j);
 			if(z <= viewingWindow.zMax && z >= viewingWindow.zMin) {
-				geometry.vertices.push(new THREE.Vector3(i, j, z));
+				geometry.vertices.push(sCoord(i, j, z));
 			}
 			wireFrame.add(new THREE.Line(geometry, material));
 		}
 	}
 	
-	for(var j = viewingWindow.yMin; j <= viewingWindow.yMax; j += 1) {
+	for(var j = viewingWindow.yMin; j <= viewingWindow.yMax; j += dy) {
 		geometry = new THREE.Geometry();
-		for(var i = viewingWindow.xMin; i <= viewingWindow.xMax; i += 1) {
+		for(var i = viewingWindow.xMin; i <= viewingWindow.xMax; i += dy) {
 			var z = zFunc(i, j);
 			if(z <= viewingWindow.zMax && z >= viewingWindow.zMin) {
-				geometry.vertices.push(new THREE.Vector3(i, j, z));
+				geometry.vertices.push(sCoord(i, j, z));
 			}
 			wireFrame.add(new THREE.Line(geometry, material));
 		}
@@ -853,33 +872,32 @@ function createWireFrame (f, color) {
 	
 class ParametricGraph {
 	
-	/*	// extrusion segments -- how many sample points to take along curve.
-	var segments = 120;
-	// how many sides the tube cross-section has
-	var radiusSegments = 2;
-	var tubeRadius = 0.02 */
-
 	constructor (xFuncText, yFuncText, zFuncText, tMin, tMax, args) {
 	
-		this.color = new THREE.Color('black');
-		this.visible = true;
+		if(args === undefined) {
+			args = {};
+		}
+			
+		this.color = args.color ? args.color : new THREE.Color('black');
+		if(typeof this.color === 'string' || this.color instanceof String) {
+			this.color = new THREE.Color(this.color);
+		}
+		this.visible = (args.visible !== undefined) ? args.visible : true;
+		this.segments = args.segments ? args.segments : 200;
+		this.radius = args.radius ? args.radius : 0.1;
+		this.radialsegments = args.radialsegments ? args.radialsegments : 8;
+		
 		this.xFuncText = xFuncText;
 		this.yFuncText = yFuncText;
 		this.zFuncText = zFuncText;
 		this.tMin = tMin;
 		this.tMax = tMax;
-		
-		if(args !== undefined) {
-			this.color = args.color ? args.color : this.color;
-			this.visible = (args.visible !== undefined) ? args.visible : this.visible;
-		}
 	
 		var tRange = tMax - tMin;
 		
 		var xFunc = Parser.parse(xFuncText).toJSFunction( ['t'] );
 		var yFunc = Parser.parse(yFuncText).toJSFunction( ['t'] );
 		var zFunc = Parser.parse(zFuncText).toJSFunction( ['t'] );
-
 
 		function CustomCurve( scale ) {
 
@@ -891,31 +909,20 @@ class ParametricGraph {
 		CustomCurve.prototype = Object.create( THREE.Curve.prototype );
 		CustomCurve.prototype.constructor = CustomCurve;
 
-		CustomCurve.prototype.getPoint = function ( t ) {
+		CustomCurve.prototype.getPoint = function (t) {
 
 			t = t * tRange + tMin;
 			var tx = xFunc(t);
 			var ty = yFunc(t);
 			var tz = zFunc(t);
 
-			return new THREE.Vector3( tx, ty, tz );
-			//return sCoord(tx, ty, tx).multiplyScalar(this.scale);
+			return new THREE.Vector3( xCoord(tx), yCoord(ty), zCoord(tz));
 
 		};
-
-		/*var f_z = Parser.parse(f).toJSFunction(['x', 'y']);
-	
-		zFunc = function (u, v, target) {
-      
-			var x = viewingWindow.xRange() * u + viewingWindow.xMin;
-			var y = viewingWindow.yRange() * v + viewingWindow.yMin;
-			var z = f_z(x, y);
-
-			return target.set(xCoord(x), yCoord(y), zCoord(z));
-		};*/
-
+		
 		var path = new CustomCurve( 1 );
-		var geometry = new THREE.TubeGeometry( path, 200, 0.1, 8, false );
+		var geometry = new THREE.TubeGeometry( path, this.segments, this.radius, this.radialsegments, false );
+	
 		this.graph = createParametricMesh(geometry, this.color);
 		
 		this.graph.visible = this.visible;
@@ -934,17 +941,36 @@ class ParametricGraph {
 		this.graph.visible = this.visible;
 	}
 
-	updateBounds(tMin, tMax) {
+}	
 
-		this.graph.geometry.dispose();
+class ParametricProjection {
+
+	constructor(xFuncText, yFuncText, zFuncText, tMin, tMax, args) {
+	
+		if(args === undefined) {
+			args = {};
+		}
+			
+		this.color = args.color ? args.color : new THREE.Color('black');
+		if(typeof this.color === 'string' || this.color instanceof String) {
+			this.color = new THREE.Color(this.color);
+		}
+		this.visible = (args.visible !== undefined) ? args.visible : true;
+		this.segments = args.segments ? args.segments : 200;
+		this.radius = args.radius ? args.radius : 0.1;
+		this.radialsegments = args.radialsegments ? args.radialsegments : 8;
 		
-		var tRange = tMax - tMin;
+		this.xFuncText = xFuncText;
+		this.yFuncText = yFuncText;
+		this.zFuncText = zFuncText;
 		this.tMin = tMin;
 		this.tMax = tMax;
-		
-		var xFunc = Parser.parse(this.xFuncText).toJSFunction( ['t'] );
-		var yFunc = Parser.parse(this.yFuncText).toJSFunction( ['t'] );
-		var zFunc = Parser.parse(this.zFuncText).toJSFunction( ['t'] );
+
+		var tRange = tMax - tMin;
+	
+		var xFunc = Parser.parse(xFuncText).toJSFunction( ['t'] );
+		var yFunc = Parser.parse(yFuncText).toJSFunction( ['t'] );
+		var zFunc = Parser.parse(zFuncText).toJSFunction( ['x', 'y'] );
 
 
 		function CustomCurve( scale ) {
@@ -962,64 +988,94 @@ class ParametricGraph {
 			t = t * tRange + tMin;
 			var tx = xFunc(t);
 			var ty = yFunc(t);
-			var tz = zFunc(t);
+			var tz = zFunc(tx, ty);
 
-			return new THREE.Vector3( tx, ty, tz ).multiplyScalar( this.scale );
-
-		};
-
-		var path = new CustomCurve( 1 );
-		var geometry = new THREE.TubeGeometry( path, 200, 0.1, 8, false );
-		
-		this.graph.geometry = geometry;
-
-	}
-
-	updateParameters(xFuncText, yFuncText, zFuncText) {
-
-		this.graph.geometry.dispose();
-		
-		var tRange = this.tMax - this.tMin;
-		
-		this.xFuncText = xFuncText;
-		this.yFuncText = yFuncText;
-		this.zFuncText = zFuncText;
-		
-		var xFunc = Parser.parse(xFuncText).toJSFunction( ['t'] );
-		var yFunc = Parser.parse(yFuncText).toJSFunction( ['t'] );
-		var zFunc = Parser.parse(zFuncText).toJSFunction( ['t'] );
-
-
-		function CustomCurve( scale ) {
-
-			THREE.Curve.call( this );
-			this.scale = ( scale === undefined ) ? 1 : scale;
-
-		}
-
-		CustomCurve.prototype = Object.create( THREE.Curve.prototype );
-		CustomCurve.prototype.constructor = CustomCurve;
-
-		CustomCurve.prototype.getPoint = function ( t ) {
-
-			t = t * tRange + this.tMin;
-			var tx = xFunc(t);
-			var ty = yFunc(t);
-			var tz = zFunc(t);
-
-			return new THREE.Vector3( tx, ty, tz ).multiplyScalar( this.scale );
+			return new THREE.Vector3( xCoord(tx), yCoord(ty), zCoord(tz));
 
 		};
 
 		var path = new CustomCurve( 1 );
-		var geometry = new THREE.TubeGeometry( path, 200, 0.1, 8, false );
-		
-		this.graph.geometry = geometry;
-
-	}
-
-}	
+		var geometry = new THREE.TubeGeometry( path, this.segments, this.radius, this.radialsegements, false );
+		this.graph = createParametricMesh(geometry, this.color);
 	
+		this.graph.visible = this.visible;
+
+	}
+	
+	getObject() { return this.graph; }
+
+	setVisible(b) {
+		this.visible = b;
+		this.graph.visible = b;
+	}
+	
+	toggleVisible() {
+		this.visible = !this.visible;
+		this.graph.visible = this.visible;
+	}
+	
+}
+
+class PlaneSurface {
+	
+	constructor(type, location, args) {
+		
+		if(args === undefined) {
+			args = {};
+		}
+		
+		this.color = args.color ? args.color : new THREE.Color('purple');
+		if(typeof this.color === 'string' || this.color instanceof String) {
+			this.color = new THREE.Color(this.color);
+		}
+		this.visible = (args.visible !== undefined)? args.visible : true;
+		this.type = type;
+		this.location = location;
+		
+		var geometry = new THREE.PlaneGeometry(100, 100);
+		this.plane = createTransparentMesh(geometry, this.color);
+		this.plane.visible = this.visible;
+		
+		if(type == 'xy') {
+			this.plane.lookAt(new THREE.Vector3(0, 0, 1));
+			this.plane.position.z = zCoord(location);
+		} else if(type == 'xz') {
+			this.plane.lookAt(new THREE.Vector3(0, 1, 0));
+			this.plane.position.y = yCoord(location);
+		} else if(type == 'yz') {
+			this.plane.lookAt(new THREE.Vector3(1, 0, 0));
+			this.plane.position.x = xCoord(location);
+		}
+		
+	}
+	
+	getObject() { return this.plane; }
+
+	setVisible(b) {
+		this.visible = b;
+		this.plane.visible = b;
+	}
+	
+	toggleVisible() {
+		this.visible = !this.visible;
+		this.plane.visible = this.visible;
+	}
+	
+	setLocation(loc) {
+	
+		this.location = loc;
+	
+		if(this.type == 'xy') {
+			this.plane.position.z = zCoord(loc);
+		} else if(this.type == 'xz') {
+			this.plane.position.y = yCoord(loc);
+		} else if(this.type == 'yz') {
+			this.plane.position.x = xCoord(loc);
+		}
+	}
+	
+	
+}
 
 function Plane (a, b, c, d) {
 
@@ -1070,62 +1126,18 @@ function rotatePlane(plane, eqnArr) {
 	
 }
 
-function ParametricProjection(xFuncText, yFuncText, zFuncText, tMin, tMax, color) {
-	
-/*	// extrusion segments -- how many sample points to take along curve.
-	var segments = 120;
-	// how many sides the tube cross-section has
-	var radiusSegments = 2;
-	var tubeRadius = 0.02 */
-	var tRange = tMax - tMin;
-	
-	xFunc = Parser.parse(xFuncText).toJSFunction( ['t'] );
-	yFunc = Parser.parse(yFuncText).toJSFunction( ['t'] );
-	zFunc = Parser.parse(zFuncText).toJSFunction( ['x', 'y'] );
-
-
-	function CustomCurve( scale ) {
-
-		THREE.Curve.call( this );
-		this.scale = ( scale === undefined ) ? 1 : scale;
-
-	}
-
-	CustomCurve.prototype = Object.create( THREE.Curve.prototype );
-	CustomCurve.prototype.constructor = CustomCurve;
-
-	CustomCurve.prototype.getPoint = function ( t ) {
-
-		t = t * tRange + tMin;
-		var tx = xFunc(t);
-		var ty = yFunc(t);
-		var tz = zFunc(tx, ty);
-
-		return new THREE.Vector3( tx, ty, tz ).multiplyScalar( this.scale );
-
-	};
-
-	var path = new CustomCurve( 1 );
-	var geometry = new THREE.TubeGeometry( path, 200, 0.1, 8, false );
-	var material = new THREE.MeshBasicMaterial( { color: color } );
-	var mesh = createParametricMesh(geometry, color);
-	return mesh;
-
-}
-
-
 function createTransparentMesh(geometry, color) {
 	
-	upperZClip = new THREE.Plane( sCoord(0, 0, viewingWindow.zMin), 1);
-	lowerZClip = new THREE.Plane( sCoord(0, 0, viewingWindow.zMax), 1);
-	upperXClip = new THREE.Plane( sCoord(viewingWindow.xMax, 0, 0), 1);
-	lowerXClip = new THREE.Plane( sCoord(viewingWindow.xMin, 0, 0), 1);
-	upperYClip = new THREE.Plane( sCoord(0, viewingWindow.yMax, 0), 1);
-	lowerYClip = new THREE.Plane( sCoord(0, viewingWindow.yMin, 0), 1);	
+	var upperXClip = new THREE.Plane( sCoord(-viewingWindow.xMax, 0, 0), 1);
+	var lowerXClip = new THREE.Plane( sCoord(-viewingWindow.xMin, 0, 0), 1);
+	var upperYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMax, 0), 1);
+	var lowerYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMin, 0), 1);	
+	var upperZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMax), 1);
+	var lowerZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMin), 1);
 	
     var meshMaterial = new THREE.MeshLambertMaterial({
 		color: color, 
-		clippingPlanes: [upperZClip, lowerZClip, lowerXClip, upperXClip, lowerYClip, upperYClip], 
+		clippingPlanes: [lowerXClip, upperXClip, lowerYClip, upperYClip, lowerZClip, upperZClip], 
 		transparent: true,
 		side: THREE.DoubleSide,
 		opacity: .3
@@ -1133,7 +1145,7 @@ function createTransparentMesh(geometry, color) {
 
 	var mesh2material = new THREE.MeshBasicMaterial({
 		color: color,
-		clippingPlanes: [upperZClip,lowerZClip, lowerXClip, upperXClip, lowerYClip, upperYClip],
+		clippingPlanes: [lowerXClip, upperXClip, lowerYClip, upperYClip, lowerZClip, upperZClip],
 		transparent: true,
 		side: THREE.DoubleSide,
 		depthTest: false,
@@ -1145,15 +1157,15 @@ function createTransparentMesh(geometry, color) {
 
 function createNormalMesh(geometry) {
 	
-	upperZClip = new THREE.Plane( sCoord(0, 0, viewingWindow.zMin), 1);
-	lowerZClip = new THREE.Plane( sCoord(0, 0, viewingWindow.zMax), 1);
-	upperXClip = new THREE.Plane( sCoord(viewingWindow.xMax, 0, 0), 1);
-	lowerXClip = new THREE.Plane( sCoord(viewingWindow.xMin, 0, 0), 1);
-	upperYClip = new THREE.Plane( sCoord(0, viewingWindow.yMax, 0), 1);
-	lowerYClip = new THREE.Plane( sCoord(0, viewingWindow.yMin, 0), 1);	
-	
+	var upperXClip = new THREE.Plane( sCoord(-viewingWindow.xMax, 0, 0), 1);
+	var lowerXClip = new THREE.Plane( sCoord(-viewingWindow.xMin, 0, 0), 1);
+	var upperYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMax, 0), 1);
+	var lowerYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMin, 0), 1);	
+	var upperZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMax), 1);
+	var lowerZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMin), 1);
+
     var meshMaterial = new THREE.MeshNormalMaterial({
-		clippingPlanes: [upperZClip, lowerZClip, lowerXClip, upperXClip, lowerYClip, upperYClip], 
+		clippingPlanes: [lowerXClip, upperXClip, lowerYClip, upperYClip, upperZClip, lowerZClip], 
 		side: THREE.DoubleSide,
 		transparent: true,
 		opacity: 0.8
@@ -1162,16 +1174,48 @@ function createNormalMesh(geometry) {
 	return new THREE.Mesh(geometry, meshMaterial);
 }
 
+function createSolidColorMesh(geometry, color) {
+	
+	var upperXClip = new THREE.Plane( sCoord(-viewingWindow.xMax, 0, 0), 1);
+	var lowerXClip = new THREE.Plane( sCoord(-viewingWindow.xMin, 0, 0), 1);
+	var upperYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMax, 0), 1);
+	var lowerYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMin, 0), 1);	
+	var upperZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMax), 1);
+	var lowerZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMin), 1);
+
+    var meshMaterial = new THREE.MeshBasicMaterial({
+		color: color,
+		clippingPlanes: [lowerXClip, upperXClip, lowerYClip, upperYClip, upperZClip, lowerZClip], 
+		side: THREE.DoubleSide,
+		transparent: false,
+		opacity: 1
+	});
+		
+	return new THREE.Mesh(geometry, meshMaterial);
+}
+
+function createBasicNoClipMesh(geometry, color) {
+
+    var meshMaterial = new THREE.MeshBasicMaterial({
+		color: color,
+		side: THREE.DoubleSide,
+		transparent: false,
+		opacity: 1
+	});
+		
+	return new THREE.Mesh(geometry, meshMaterial);
+}
+
 function createShadedMesh(geometry, color) {
+		
+	upperXClip = new THREE.Plane( sCoord(-viewingWindow.xMax, 0, 0), 1);
+	lowerXClip = new THREE.Plane( sCoord(-viewingWindow.xMin, 0, 0), 1);
+	upperYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMax, 0), 1);
+	lowerYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMin, 0), 1);	
+	upperZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMax), 1);
+	lowerZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMin), 1);
 	
-	upperZClip = new THREE.Plane( sCoord(0, 0, viewingWindow.zMin), 1);
-	lowerZClip = new THREE.Plane( sCoord(0, 0, viewingWindow.zMax), 1);
-	upperXClip = new THREE.Plane( sCoord(viewingWindow.xMax, 0, 0), 1);
-	lowerXClip = new THREE.Plane( sCoord(viewingWindow.xMin, 0, 0), 1);
-	upperYClip = new THREE.Plane( sCoord(0, viewingWindow.yMax, 0), 1);
-	lowerYClip = new THREE.Plane( sCoord(0, viewingWindow.yMin, 0), 1);	
-	
-    var meshMaterial = new THREE.MeshLambertMaterial({
+    var meshMaterial = new THREE.MeshPhongMaterial({
 		clippingPlanes: [upperZClip, lowerZClip, lowerXClip, upperXClip, lowerYClip, upperYClip], 
 		side: THREE.DoubleSide,
 		color: color
@@ -1182,12 +1226,12 @@ function createShadedMesh(geometry, color) {
 
 function createVertexColorMesh(geometry, color) {
 	
-	upperZClip = new THREE.Plane( sCoord(0, 0, viewingWindow.zMin), 1);
-	lowerZClip = new THREE.Plane( sCoord(0, 0, viewingWindow.zMax), 1);
-	upperXClip = new THREE.Plane( sCoord(viewingWindow.xMax, 0, 0), 1);
-	lowerXClip = new THREE.Plane( sCoord(viewingWindow.xMin, 0, 0), 1);
-	upperYClip = new THREE.Plane( sCoord(0, viewingWindow.yMax, 0), 1);
-	lowerYClip = new THREE.Plane( sCoord(0, viewingWindow.yMin, 0), 1);	
+	upperXClip = new THREE.Plane( sCoord(-viewingWindow.xMax, 0, 0), 1);
+	lowerXClip = new THREE.Plane( sCoord(-viewingWindow.xMin, 0, 0), 1);
+	upperYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMax, 0), 1);
+	lowerYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMin, 0), 1);	
+	upperZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMax), 1);
+	lowerZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMin), 1);
 	
     var meshMaterial = new THREE.MeshBasicMaterial({
 		clippingPlanes: [upperZClip, lowerZClip, lowerXClip, upperXClip, lowerYClip, upperYClip], 
@@ -1201,12 +1245,12 @@ function createVertexColorMesh(geometry, color) {
 
 function createBasicMesh(geometry) {
 	
-	upperZClip = new THREE.Plane( sCoord(0, 0, viewingWindow.zMin), 1);
-	lowerZClip = new THREE.Plane( sCoord(0, 0, viewingWindow.zMax), 1);
-	upperXClip = new THREE.Plane( sCoord(viewingWindow.xMax, 0, 0), 1);
-	lowerXClip = new THREE.Plane( sCoord(viewingWindow.xMin, 0, 0), 1);
-	upperYClip = new THREE.Plane( sCoord(0, viewingWindow.yMax, 0), 1);
-	lowerYClip = new THREE.Plane( sCoord(0, viewingWindow.yMin, 0), 1);	
+	upperXClip = new THREE.Plane( sCoord(-viewingWindow.xMax, 0, 0), 1);
+	lowerXClip = new THREE.Plane( sCoord(-viewingWindow.xMin, 0, 0), 1);
+	upperYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMax, 0), 1);
+	lowerYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMin, 0), 1);	
+	upperZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMax), 1);
+	lowerZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMin), 1);
 	
     var meshMaterial = new THREE.MeshBasicMaterial({
 		clippingPlanes: [upperZClip, lowerZClip, lowerXClip, upperXClip, lowerYClip, upperYClip]
@@ -1217,12 +1261,12 @@ function createBasicMesh(geometry) {
 
 function createParametricMesh(geometry, color) {
 
-	upperZClip = new THREE.Plane( new THREE.Vector3(0, 0, viewingWindow.zMin), 1);
-	lowerZClip = new THREE.Plane( new THREE.Vector3(0, 0, viewingWindow.zMax), 1);
-	upperXClip = new THREE.Plane( new THREE.Vector3(viewingWindow.xMin, 0, 0), 1);
-	lowerXClip = new THREE.Plane( new THREE.Vector3(viewingWindow.xMax, 0, 0), 1);
-	upperYClip = new THREE.Plane( new THREE.Vector3(0, viewingWindow.yMin, 0), 1);
-	lowerYClip = new THREE.Plane( new THREE.Vector3(0, viewingWindow.yMax, 0), 1);
+	upperXClip = new THREE.Plane( sCoord(-viewingWindow.xMin, 0, 0), 1);
+	lowerXClip = new THREE.Plane( sCoord(-viewingWindow.xMax, 0, 0), 1);
+	upperYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMin, 0), 1);
+	lowerYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMax, 0), 1);
+	upperZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMin), 1);
+	lowerZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMax), 1);
 	
     var meshMaterial = new THREE.MeshBasicMaterial({
 		color: color, 
@@ -1231,3 +1275,137 @@ function createParametricMesh(geometry, color) {
 		
 	return new THREE.Mesh(geometry, meshMaterial);
 }
+
+class TextBox {
+
+	constructor(position, message, args) {
+	
+		if(args === undefined) {
+			args = {};
+		}
+	
+		this.location = position;
+		this.visible = args.hasOwnProperty("visible") ? args["visible"] : true;
+	
+		this.textbox = makeTextSprite(message, args);
+		this.textbox.position.set(xCoord(position[0]), yCoord(position[1]), zCoord(position[2]));
+		this.textbox.visible = this.visible;
+		
+	}
+
+	getObject() { return this.textbox; }
+
+	setVisible(b) {
+		this.visible = b;
+		this.textbox.visible = b;
+	}
+	
+	toggleVisible() {
+		this.visible = !this.visible;
+		this.textbox.visible = this.visible;
+	}
+	
+	setLocation(loc) {
+	
+		this.location = loc;
+		this.textbox.position.set(xCoord(position[0]), yCoord(position[1]), zCoord(position[2]));
+	
+	}
+
+	getLocation() {
+		return this.location;
+	}
+
+}
+
+
+// This function was taken from Leon Strokowski's Polyhedra viewing example
+
+function makeTextSprite( message, parameters )
+{
+	if ( parameters === undefined ) parameters = {};
+	
+	var fontface = parameters.hasOwnProperty("fontface") ? 
+		parameters["fontface"] : "Arial";
+	
+	var fontsize = parameters.hasOwnProperty("fontsize") ? 
+		parameters["fontsize"] : 18;
+	
+	var borderThickness = parameters.hasOwnProperty("borderThickness") ? 
+		parameters["borderThickness"] : 4;
+	
+	var borderColor = parameters.hasOwnProperty("borderColor") ?
+		parameters["borderColor"] : { r: 0, g: 0, b: 0, a: 1.0 };
+	if(typeof borderColor === 'string' || borderColor instanceof String) {
+		borderColor = new THREE.Color(borderColor);
+	}		
+	
+	var backgroundColor = parameters.hasOwnProperty("backgroundColor") ?
+		parameters["backgroundColor"] : { r: 255, g: 255, b: 255, a: 0.8 };
+	if(typeof backgroundColor === 'string' || backgroundColor instanceof String) {
+		backgroundColor = new THREE.Color(backgroundColor);
+	}	
+
+	var textColor = parameters.hasOwnProperty("textColor") ?
+		parameters["textColor"] : { r: 0, g: 0, b: 0, a: 1.0 };
+	if(typeof textColor === 'string' || textColor instanceof String) {
+		textColor = new THREE.Color(textColor);
+	}	
+
+	var canvas = document.createElement('canvas');
+	canvas.width = 1000;
+	var context = canvas.getContext('2d');
+	context.font = "Bold " + fontsize + "px " + fontface;
+    
+	// get size data (height depends only on font size)
+	var metrics = context.measureText( message );
+	var textWidth = metrics.width;
+	
+	//canvas.width = textWidth;
+	
+	// background color - alpha channel: 1.0
+	context.fillStyle   = "rgba(" + backgroundColor.r + "," + backgroundColor.g + ","
+								  + backgroundColor.b + "," + backgroundColor.a  + ")";
+
+	// border color - alpha channel: 0.8
+	context.strokeStyle = "rgba(" + borderColor.r + "," + borderColor.g + ","
+								  + borderColor.b + "," + borderColor.a + ")";
+
+	context.lineWidth = borderThickness;
+	roundRect(context, borderThickness/2, borderThickness/2, textWidth + borderThickness, fontsize * 1.4 + borderThickness, 6);
+	// 1.4 is extra height factor for text below baseline: g,j,p,q.
+	
+	// text color - alpha channel: 1.0
+	context.fillStyle = "rgba(" + textColor.r + "," + textColor.g + ","
+								+ textColor.b + "," + textColor.a + ")";
+
+	context.fillText( message, borderThickness, fontsize + borderThickness);
+	
+	// canvas contents will be used for a texture
+	var texture = new THREE.Texture(canvas) 
+	texture.needsUpdate = true;
+
+	var spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+	var sprite = new THREE.Sprite(spriteMaterial);
+	sprite.scale.set(50,10,1);
+	return sprite;	
+}
+
+// function for drawing rounded rectangles
+function roundRect(ctx, x, y, w, h, r) 
+{
+    ctx.beginPath();
+    ctx.moveTo(x+r, y);
+    ctx.lineTo(x+w-r, y);
+    ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+    ctx.lineTo(x+w, y+h-r);
+    ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+    ctx.lineTo(x+r, y+h);
+    ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+    ctx.lineTo(x, y+r);
+    ctx.quadraticCurveTo(x, y, x+r, y);
+    ctx.closePath();
+    ctx.fill();
+	ctx.stroke();   
+}
+

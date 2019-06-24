@@ -1,0 +1,624 @@
+<!doctype html>
+<meta charset="utf-8">
+
+<html lang="en">
+<head>
+	<title>Partial Derivatives and Gradients</title>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+</head>
+<body>
+
+<script src="js/three.min.js"></script>
+<script src="js/SceneUtils.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/OrbitControls.js"></script>
+<script src="js/DragControls.js"></script>
+<script src="js/parser.js"></script>
+<script src="js/THREEx.KeyboardState.js"></script>
+<script src="js/THREEx.FullScreen.js"></script>
+<script src="js/THREEx.WindowResize.js"></script>
+<script src="js/3dmath.js"></script>
+
+<script type='text/javascript' src='js/dat.gui.min.js'></script>
+<script src='./js/math.min.js' type='text/javascript'></script>
+
+<div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
+<script>
+
+var container, scene, camera, renderer, controls, stats;
+var keyboard = new THREEx.KeyboardState();
+var clock = new THREE.Clock();
+
+var surface, xzplane, yzplane, xzplane, p, fx, fy, fxsurface, fysurface;
+var xztrace, yztrace;
+var zxvectors = [], zyvectors = [];
+var dirderiv, dirderivtextbox;
+var gradient = [], levelgradient = [];
+var tangentplane;
+
+
+var parameters = {
+
+	zText: '0.5*sin(0.2*(x^2 + y^2))',
+	xzpos: 0,
+	yzpos: 0,
+	xypos: 0,
+	xzvisible: false,
+	yzvisible: false,
+	xyvisible: false,
+	pvisible: false,
+	fxvisible: false,
+	fyvisible: false,
+	fxsurfacevisible: false,
+	fysurfacevisible: false,
+	xztracevisible: false,
+	yztracevisible: false,
+	zxvectorsvisible: false,
+	zyvectorsvisible: false,
+	dirderivvisible: false,
+	direction: 0,
+	tangentplanevisible: false,
+	gradientvisible: false,
+	levelgradientvisible: false,
+	wireframevisible: true,
+	update: function() { updateGraph(); }
+	
+};
+
+var zFunc = Parser.parse(parameters.zText).toJSFunction(['x', 'y']);
+
+var zx = math.derivative(parameters.zText, 'x').toString();
+var zy = math.derivative(parameters.zText, 'y').toString();
+
+var zxFunc = Parser.parse(zx).toJSFunction(['x', 'y']);
+var zyFunc = Parser.parse(zy).toJSFunction(['x', 'y']);
+
+// initialization
+init();
+
+// animation loop / game loop
+animate();
+		
+					
+function init() {
+
+	// SCENE 	
+	scene = new THREE.Scene();
+
+	// CAMERA 	
+	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;	
+	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+	scene.add(camera);
+	camera.position.set(40,40,10);
+	camera.up.set(0, 0, 1);  // make sure z-axis is facing up
+	camera.lookAt(scene.position);	
+	
+	// RENDERER 	
+	renderer = new THREE.WebGLRenderer( {antialias:true, alpha: true} );
+	// Set background color as white
+	renderer.setClearColor( 0xffffff ); 
+	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+	renderer.sortObjects = false;
+	renderer.localClippingEnabled = true;
+	
+	// attach div element to variable to contain the renderer
+	container = document.getElementById( 'ThreeJS' );
+	container.appendChild( renderer.domElement );
+	
+	// EVENTS 	
+	THREEx.WindowResize(renderer, camera);
+	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
+	
+	// CONTROLS 
+	controls = new THREE.OrbitControls( camera, renderer.domElement );
+	
+	
+	// STATS 	
+	stats = new Stats();
+	stats.domElement.style.position = 'absolute';
+	stats.domElement.style.bottom = '0px';
+	stats.domElement.style.zIndex = 100;
+	container.appendChild( stats.domElement );
+		
+	// GUI
+	gui = new dat.GUI();
+	gui.add(parameters, 'zText').name('z = ');	
+	gui.add(parameters, 'xzvisible').name("View xz-plane").onChange( 
+		function() {
+			xzplane.toggleVisible();
+		});
+	gui.add(parameters, 'xzvisible').name("View yz-plane").onChange( 
+		function() {
+			yzplane.toggleVisible();
+		});
+	gui.add(parameters, 'xyvisible').name("View xy-plane").onChange( 
+		function() {
+			xyplane.toggleVisible();
+		});
+	gui.add(parameters, 'pvisible').name("View point-P").onChange( 
+		function() {
+			p.toggleVisible();
+		});
+	gui.add(parameters, 'fxvisible').name("View dz/dx").onChange( 
+		function() {
+			fx.toggleVisible();
+		});
+	gui.add(parameters, 'fyvisible').name("View dz/dy").onChange( 
+		function() {
+			fy.toggleVisible();
+		});
+	gui.add(parameters, 'fxsurfacevisible').name("View Zx-Surface").onChange( 
+		function() {
+			fxsurface.toggleVisible();
+		});
+	gui.add(parameters, 'fysurfacevisible').name("View Zy-Surface").onChange( 
+		function() {
+			fysurface.toggleVisible();
+		});
+	gui.add(parameters, 'xztracevisible').name("View xz-trace").onChange( 
+		function() {
+			xztrace.toggleVisible();
+		});
+	gui.add(parameters, 'yztracevisible').name("View yz-trace").onChange( 
+		function() {
+			yztrace.toggleVisible();
+		});
+	gui.add(parameters, 'zxvectorsvisible').name("View zx-vectors").onChange( 
+		function() {
+			for(var i = 0; i < zxvectors.length; i++) {
+				if(zxvectors[i].start[2] <= viewingWindow.zMax && zxvectors[i].start[2] >= viewingWindow.zMin) {
+					zxvectors[i].toggleVisible();
+				}
+			}
+		});
+	gui.add(parameters, 'zyvectorsvisible').name("View zy-vectors").onChange( 
+		function() {
+			for(var i = 0; i < zyvectors.length; i++) {
+				if(zyvectors[i].start[2] <= viewingWindow.zMax && zyvectors[i].start[2] >= viewingWindow.zMin) {
+					zyvectors[i].toggleVisible();
+				}
+			}
+		});
+	gui.add(parameters, 'dirderivvisible').name("Directional Deriv").onChange( 
+		function() {
+			dirderiv.toggleVisible();
+			dirderivtextbox.toggleVisible();
+		});
+	
+	gui.add(parameters, 'direction').min(0).max(360).step(1).name('direction = ').onChange(
+	    function() {
+			updateDirectionalDerivative();	    
+	    }
+	);
+	gui.add(parameters, 'tangentplanevisible').name("Tangent Plane").onChange( 
+		function() {
+			tangentplane.toggleVisible();
+		});
+	gui.add(parameters, 'gradientvisible').name("View Gradient").onChange( 
+		function() {
+			for(var i = 0; i < gradient.length; i++) {
+				if(gradient[i].start[2] <= viewingWindow.zMax && gradient[i].start[2] >= viewingWindow.zMin) {
+					gradient[i].toggleVisible();
+				}
+			}
+		});
+		
+	gui.add(parameters, 'levelgradientvisible').name("View Level Grad").onChange( 
+		function() {
+			for(var i = 0; i < levelgradient.length; i++) {
+				if(levelgradient[i].start[2] <= viewingWindow.zMax && levelgradient[i].start[2] >= viewingWindow.zMin) {
+					levelgradient[i].toggleVisible();
+				}
+			}
+		});
+	
+	gui.add(parameters, 'wireframevisible').name("View wireframe").onChange( 
+		function() {
+			surface.toggleWireframe();
+		});
+	gui.add(parameters, 'xzpos').min(-5).max(5).step(0.01).name('xz-position = ').onChange(
+	    function() {
+			xzplane.setLocation(parameters.xzpos);
+			p.moveTo([parameters.yzpos, parameters.xzpos, zFunc(parameters.yzpos, parameters.xzpos)]);
+			
+			scene.remove(fx.getObject());
+			fx = new ParametricGraph(parameters.yzpos + ' + t', parameters.xzpos + ' ', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zxFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'red', visible: parameters.fxvisible });
+			addToScene(scene, fx);
+			
+			scene.remove(fy.getObject());
+			fy = new ParametricGraph(parameters.yzpos + ' ', parameters.xzpos + ' + t', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zyFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'green', visible: parameters.fyvisible });
+			addToScene(scene, fy);
+			
+			scene.remove(xztrace.getObject());
+			xztrace = new ParametricProjection(parameters.yzpos + ' + t', parameters.xzpos + ' ', parameters.zText, -5, 5, { visible: parameters.xztracevisible });
+			addToScene(scene, xztrace);
+			
+			updateDirectionalDerivative();
+			
+			scene.remove(tangentplane.getObject());
+			updateTangentPlane();
+			addToScene(scene, tangentplane);
+			
+	    }
+	);
+	gui.add(parameters, 'yzpos').min(-5).max(5).step(0.01).name('yz-position = ').onChange(
+	    function() {
+			yzplane.setLocation(parameters.yzpos);
+			p.moveTo([parameters.yzpos, parameters.xzpos, zFunc(parameters.yzpos, parameters.xzpos)]);
+			
+			scene.remove(fx.getObject());
+			fx = new ParametricGraph(parameters.yzpos + ' + t', parameters.xzpos + ' ', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zxFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'red', visible: parameters.fxvisible });
+			addToScene(scene, fx);
+			
+			scene.remove(fy.getObject());
+			fy = new ParametricGraph(parameters.yzpos + ' ', parameters.xzpos + ' + t', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zyFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'green', visible: parameters.fyvisible });
+			addToScene(scene, fy);
+			
+			scene.remove(yztrace.getObject());
+			yztrace = new ParametricProjection(parameters.yzpos + ' ', parameters.xzpos + ' + t ', parameters.zText, -5, 5, { visible: parameters.yztracevisible });
+			addToScene(scene, yztrace);
+			
+			updateDirectionalDerivative();
+			
+			scene.remove(tangentplane.getObject());
+			updateTangentPlane();
+			addToScene(scene, tangentplane);
+		
+	    }
+	);
+	gui.add(parameters, 'xypos').min(-1).max(1).step(0.01).name('z-position = ').onChange(
+		function() {
+			xyplane.setLocation(parameters.xypos);
+		}
+	);
+	gui.add(parameters, 'update').name('Update Graph');
+	
+	
+	createScene();
+}
+
+function createScene() {
+
+	while(scene.children.length > 0){ 
+		scene.remove(scene.children[0]); 
+	}
+
+	var light = new THREE.AmbientLight( 0xffffff );
+	scene.add( light );
+	
+	viewingWindow.setBounds(-5, 5, 1, -5, 5, 1, -1, 1, 1);
+	
+	var axes = createAxes( { labels: true } );
+	scene.add(axes);
+	
+	surface = new Surface(parameters.zText, { wireframevisible: parameters.wireframevisible, dx: 0.25, color: 'teal' });
+	addToScene(scene, surface);
+	
+	xzplane = new PlaneSurface('xz', parameters.xzpos, { color: 'red', visible: parameters.xzvisible });
+	addToScene(scene, xzplane);
+	
+	yzplane = new PlaneSurface('yz', parameters.yzpos, { color: 'green', visible: parameters.yzvisible });
+	addToScene(scene, yzplane);
+	
+	xyplane = new PlaneSurface('xy', parameters.xypos, { color: 'blue', visible: parameters.xyvisible });
+	addToScene(scene, xyplane);
+
+	p = new Point({ coords: [parameters.yzpos, parameters.xzpos, zFunc(parameters.yzpos, parameters.xzpos)], visible: parameters.pvisible, color: 'blue', radius: 0.4 });
+	addToScene(scene, p);;
+	
+	fx = new ParametricGraph(parameters.yzpos + ' + t', parameters.xzpos + ' ', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zxFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'red', visible: parameters.fxvisible });
+	addToScene(scene, fx); 
+
+	fy = new ParametricGraph(parameters.yzpos + ' ', parameters.xzpos + ' + t', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zyFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'green', visible: parameters.fyvisible });
+	addToScene(scene, fy); 
+
+	fxsurface = new Surface(zx, { color: 'red', visible: parameters.fxsurfacevisible });
+	addToScene(scene, fxsurface);
+	
+	fysurface = new Surface(zy, { color: 'green', visible: parameters.fysurfacevisible });
+	addToScene(scene, fysurface);
+	
+	xztrace = new ParametricProjection(parameters.yzpos + ' + t', parameters.xzpos + ' ', parameters.zText, -10, 10, { visible: parameters.xztracevisible });
+	addToScene(scene, xztrace);
+	
+	yztrace = new ParametricProjection(parameters.yzpos + ' ', parameters.xzpos + ' + t ', parameters.zText, -10, 10, { visible: parameters.yztracevisible });
+	addToScene(scene, yztrace);
+	
+	// Set up the directional derivative
+	
+	var x0 = parameters.yzpos, y0 = parameters.xzpos, z0 = zFunc(x0, y0);
+	var dir = parameters.direction * Math.PI / 180;
+	var xdir = Math.cos(dir), ydir = Math.sin(dir);
+	var zslope = zxFunc(x0, y0) * xdir + zyFunc(x0, y0) * ydir;
+	var len = Math.sqrt(xdir * xdir + ydir * ydir + zslope * zslope);
+	if(len == 0) { len = 1e-20; }
+	
+	dirderiv = new Vector( { start: [x0, y0, z0], end: [x0 + xdir / len, y0 + ydir / len, z0 + zslope / len ], color: 'blue', visible: parameters.dirderivvisible }); 
+	addToScene(scene, dirderiv);
+	
+	dirderivtextbox = new TextBox([0, 2, 0.75], 
+		"   angle = " + parameters.direction + "       slope = " + zslope, 
+		{ fontSize: 18, 
+		  borderColor: {r:255, g:0, b:0, a:1.0}, 
+		  backgroundColor: {r:255, g:100, b:100, a:0.8}, 
+		  visible: parameters.dirderivvisible 
+		});
+	scene.add(dirderivtextbox.getObject());
+	
+	// Make the tangent plane
+
+	updateTangentPlane();
+	addToScene(scene, tangentplane);
+	
+	// Calculate the slopes of fx and fy
+	
+	for(var i = viewingWindow.xMin; i < viewingWindow.xMax; i++) {
+		for(var j = viewingWindow.yMin; j < viewingWindow.yMax; j++) {
+		
+			var x0 = i;
+			var y0 = j;
+			var z0 = zFunc(x0, y0);
+			
+			var a = 1;
+			var b = 0;
+			var c = zxFunc(x0, y0);
+			
+			var len = Math.sqrt(a * a + b * b + c * c);
+			
+			var vector = new Vector({ start: [x0, y0, z0], end: [x0 + a / len, y0 + b / len, z0 + c / len], visible: parameters.zxvectorsvisible });
+
+			zxvectors.push(vector);
+			addToScene(scene, vector);
+		}
+	}
+	
+	for(var i = viewingWindow.xMin; i < viewingWindow.xMax; i++) {
+		for(var j = viewingWindow.yMin; j < viewingWindow.yMax; j++) {
+		
+			var x0 = i;
+			var y0 = j;
+			var z0 = zFunc(x0, y0);
+			
+			var a = 0;
+			var b = 1;
+			var c = zyFunc(x0, y0);
+			
+			var len = Math.sqrt(a * a + b * b + c * c);
+			
+			var vector = new Vector({ start: [x0, y0, z0], end: [x0 + a / len, y0 + b / len, z0 + c / len], visible: parameters.zyvectorsvisible, color: 'green' });
+			
+			zyvectors.push(vector);
+			addToScene(scene, vector);
+		}
+	}
+	
+	// Find the gradient vectors
+	
+	for(var i = viewingWindow.xMin; i < viewingWindow.xMax; i++) {
+		for(var j = viewingWindow.yMin; j < viewingWindow.yMax; j++) {
+		
+			var x0 = i;
+			var y0 = j;
+			var z0 = zFunc(x0, y0);
+			
+			var a = zxFunc(x0, y0);
+			var b = zyFunc(x0, y0);
+			var c = zxFunc(x0, y0) * a + zyFunc(x0, y0) * b;
+			
+			var len = Math.sqrt(a * a + b * b + c * c);
+			
+			var vector = new Vector({ start: [x0, y0, z0], end: [x0 + a / len, y0 + b / len, z0 + c / len], visible: parameters.gradientvisible, color: 'purple' });
+			
+			gradient.push(vector);
+			addToScene(scene, vector);
+			
+			var vector = new Vector({ start: [x0, y0, z0], end: [x0 + a / len, y0 + b / len, z0 ], visible: parameters.levelgradientvisible, color: 'purple' });
+			levelgradient.push(vector);
+			addToScene(scene, vector);
+			
+		}
+	}
+	
+
+}
+
+function updateGraph() {
+
+	zFunc = Parser.parse(parameters.zText).toJSFunction(['x', 'y']);
+
+	zx = math.derivative(parameters.zText, 'x').toString();
+	zy = math.derivative(parameters.zText, 'y').toString();
+
+	zxFunc = Parser.parse(zx).toJSFunction(['x', 'y']);
+	zyFunc = Parser.parse(zy).toJSFunction(['x', 'y']);
+	
+	scene.remove(surface.getObject());
+	
+	surface = new Surface(parameters.zText, { wireframevisible: parameters.wireframevisible, dx: 0.25, color: 'teal' });
+	addToScene(scene, surface);
+	
+	p.moveTo([parameters.yzpos, parameters.xzpos, zFunc(parameters.yzpos, parameters.xzpos)]);
+			
+	scene.remove(fx.getObject());
+	fx = new ParametricGraph(parameters.yzpos + ' + t', parameters.xzpos + ' ', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zxFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'red', visible: parameters.fxvisible });
+	addToScene(scene, fx);
+			
+	scene.remove(fy.getObject());
+	fy = new ParametricGraph(parameters.yzpos + ' ', parameters.xzpos + ' + t', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zyFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'green', visible: parameters.fyvisible });
+	addToScene(scene, fy);
+	
+	scene.remove(fxsurface.getObject());
+	fxsurface = new Surface(zx, { color: 'red', visible: parameters.fxsurfacevisible });
+	addToScene(scene, fxsurface);
+	
+	scene.remove(fysurface.getObject());
+	fysurface = new Surface(zy, { color: 'green', visible: parameters.fysurfacevisible });
+	addToScene(scene, fysurface);
+
+	scene.remove(xztrace.getObject());
+	xztrace = new ParametricProjection(parameters.yzpos + ' + t', parameters.xzpos + ' ', parameters.zText, -10, 10, { visible: parameters.xztracevisible });
+	addToScene(scene, xztrace);
+
+	scene.remove(yztrace.getObject());
+	yztrace = new ParametricProjection(parameters.yzpos + ' ', parameters.xzpos + ' + t ', parameters.zText, -10, 10, { visible: parameters.yztracevisible });
+	addToScene(scene, yztrace);
+	
+	updateDirectionalDerivative();
+	
+	for(var i = 0; i < zxvectors.length; i++) {
+		scene.remove(zxvectors[i].getObject());
+	}
+	
+	for(var i = 0; i < zyvectors.length; i++) {
+		scene.remove(zyvectors[i].getObject());
+	}
+	
+	for(var i = 0; i < gradient.length; i++) {
+		scene.remove(gradient[i].getObject());
+		scene.remove(levelgradient[i].getObject());
+	}
+	
+	for(var i = viewingWindow.xMin; i < viewingWindow.xMax; i++) {
+		for(var j = viewingWindow.yMin; j < viewingWindow.yMax; j++) {
+		
+			var x0 = i;
+			var y0 = j;
+			var z0 = zFunc(x0, y0);
+			
+			var a = 1;
+			var b = 0;
+			var c = zxFunc(x0, y0);
+			
+			var len = Math.sqrt(a * a + b * b + c * c);
+			
+			var vector = new Vector({ start: [x0, y0, z0], end: [x0 + a / len, y0 + b / len, z0 + c / len], visible: parameters.zxvectorsvisible });
+			
+			zxvectors.push(vector);
+			addToScene(scene, vector);
+		}
+	}
+	
+	for(var i = viewingWindow.xMin; i < viewingWindow.xMax; i++) {
+		for(var j = viewingWindow.yMin; j < viewingWindow.yMax; j++) {
+		
+			var x0 = i;
+			var y0 = j;
+			var z0 = zFunc(x0, y0);
+			
+			var a = 0;
+			var b = 1;
+			var c = zyFunc(x0, y0);
+			
+			var len = Math.sqrt(a * a + b * b + c * c);
+			
+			var vector = new Vector({ start: [x0, y0, z0], end: [x0 + a / len, y0 + b / len, z0 + c / len], visible: parameters.zyvectorsvisible });
+			
+			zyvectors.push(vector);
+			addToScene(scene, vector);
+		}
+	}
+
+	for(var i = viewingWindow.xMin; i < viewingWindow.xMax; i++) {
+		for(var j = viewingWindow.yMin; j < viewingWindow.yMax; j++) {
+		
+			var x0 = i;
+			var y0 = j;
+			var z0 = zFunc(x0, y0);
+			
+			var a = zxFunc(x0, y0);
+			var b = zyFunc(x0, y0);
+			var c = zxFunc(x0, y0) * a + zyFunc(x0, y0) * b;
+			
+			var len = Math.sqrt(a * a + b * b + c * c);
+			
+			var vector = new Vector({ start: [x0, y0, z0], end: [x0 + a / len, y0 + b / len, z0 + c / len], visible: parameters.gradientvisible, color: 'purple' });
+			
+			gradient.push(vector);
+			addToScene(scene, vector);
+			
+			var vector = new Vector({ start: [x0, y0, z0], end: [x0 + a / len, y0 + b / len, z0 ], visible: parameters.levelgradientvisible, color: 'purple' });
+			levelgradient.push(vector);
+			addToScene(scene, vector);
+			
+		}
+	}
+
+}
+
+function updateDirectionalDerivative() {
+
+	scene.remove(dirderiv.getObject());
+	scene.remove(dirderivtextbox.getObject());
+	
+	var x0 = parameters.yzpos, y0 = parameters.xzpos, z0 = zFunc(x0, y0);
+	var dir = parameters.direction * Math.PI / 180;
+	var xdir = Math.cos(dir), ydir = Math.sin(dir);
+	var zslope = zxFunc(x0, y0) * xdir + zyFunc(x0, y0) * ydir;
+	var len = Math.sqrt(xdir * xdir + ydir * ydir + zslope * zslope);
+	if(len == 0) { len = 1e-20; }
+	
+	dirderiv = new Vector( { start: [x0, y0, z0], end: [x0 + xdir / len, y0 + ydir / len, z0 + zslope / len ], color: 'blue', visible: parameters.dirderivvisible }); 
+	addToScene(scene, dirderiv);
+
+	dirderivtextbox = new TextBox([0, 2, 0.75], 
+		"   angle = " + parameters.direction + "       slope = " + zslope.toFixed(3), 
+		{ fontSize: 36, 
+		  borderColor: {r:255, g:0, b:0, a:1.0}, 
+		  backgroundColor: {r:255, g:100, b:100, a:0.8}, 
+		  visible: parameters.dirderivvisible 
+		});
+	scene.add(dirderivtextbox.getObject());
+
+}
+
+function updateTangentPlane() {
+
+	// Set up the tangent plane
+	
+	var vx = new THREE.Vector3(1, 0, zxFunc(parameters.yzpos, parameters.xzpos));
+	var vy = new THREE.Vector3(0, 1, zyFunc(parameters.yzpos, parameters.xzpos));
+	var v = vx.cross(vy);
+	var d = (v.x * parameters.yzpos + v.y * parameters.xzpos + v.z * zFunc(parameters.yzpos, parameters.xzpos)) / v.z;
+	var a = -(v.x / v.z);
+	var b = -(v.y / v.z);
+	var f = d + ' '; 
+
+	if(a < 0) {
+		f += a + ' * x ';
+	} else {
+		f += ' + ' + a + ' * x ';
+	}
+	
+	if(b < 0) {
+		f += b + ' * y ';
+	} else {
+		f += ' + ' + b + ' * y ';
+	}
+	tangentplane = new Surface(f, { color: 'purple', visible: parameters.tangentplanevisible });
+	
+}
+
+function animate() {
+    requestAnimationFrame( animate );
+	render();		
+	update();
+}
+
+function update()
+{
+	// delta = change in time since last call (in seconds)
+	var delta = clock.getDelta(); 
+		
+	controls.update();
+	stats.update();
+}
+
+function render() {	
+	renderer.render( scene, camera );
+}
+
+</script>
+
+</body>
+</html>

@@ -86,7 +86,7 @@ var y_d2_func = math.compile(y_d2);
 var t = display.create('slider', [[1, 1], [9, 1], [-10, 0, 10]]);
 
 var p = board.create('point', [x_func.eval({ t: t.Value() }),
-							   y_func.eval({ t: t.Value() })], { name: 'P' });
+							   y_func.eval({ t: t.Value() })], { name: 'P', fixed: true });
 
 var s = board.create('arrow', [[0, 0], [x_func.eval({ t: t.Value() }), y_func.eval({ t: t.Value() })]], { strokeWidth: 4, strokeColor: 'black', opacity: 0.8 });
 	
@@ -142,46 +142,21 @@ function update() {
 	
 	x_func = math.compile(x_text);
 	y_func = math.compile(y_text);
+
+	x_d1 = math.derivative(x_text, 't').toString();
+	x_d2 = math.derivative(x_d1, 't').toString();
+
+	y_d1 = math.derivative(y_text, 't').toString();
+	y_d2 = math.derivative(y_d1, 't').toString();
+
+	x_d1_func = math.compile(x_d1);
+	x_d2_func = math.compile(x_d2);
+
+	y_d1_func = math.compile(y_d1);
+	y_d2_func = math.compile(y_d2);
 	
-	f = '[' + x_text + ',' + y_text + ']';
-	
+	var f = '[' + x_text + ',' + y_text + ']';
 	plot(curve, f, -10, 10, {});
-	
-//	d = JXG.Math.Numerics.D(relation);
-//	d2 = JXG.Math.Numerics.D(d);
-	
-/*	fd = math.derivative(f, 'x').toString();
-	tx = '1';
-	ty = fd;
-	tm = '((' + tx + ')^2 + (' + ty + ')^2)^(1/2)';
-
-	Tx = tx + ' / ' + tm;
-	Ty = ty + ' / ' + tm;
-
-	nx = math.derivative(Tx, 'x').toString();
-	ny = math.derivative(Ty, 'x').toString();
-
-	nm = '((' + nx + ')^2 + (' + ny + ')^2)^(1/2)';
-
-	Nx = nx + ' / ' + nm;
-	Ny = ny + ' / ' + nm;*/
-	
-//	board.removeObject(curve);
-//	board.removeObject(p);
-
-	
-//	curve = board.create('curve', [function(t) { return x_func(t); }, function(t) { return y_func(t); }, -10, 10], { strokeWidth: 2 });
-
-
-/*	p.on('drag', 
-		function() { 
-			a.moveTo([p.X(), evaluate(]);		
-			display.update();
-		});	*/
-		
-	//p_label = display.create('text', [0.5, 9.5, function() { return 'p = (' + p.X().toFixed(2) + ', ' + p.Y().toFixed(2) + ')'; }], { fontSize: 18 });
-	//k_label = display.create('text', [0.5, 8.75, function() { return 'K = ' + (1/r(p.X())).toFixed(5); }], { fontSize: 18 });
-	//r_label = display.create('text', [0.5, 8, function() { return 'r = ' + r(p.X()).toFixed(2); }], { fontSize: 18 });
 		
 	board.update();	
 	display.update();

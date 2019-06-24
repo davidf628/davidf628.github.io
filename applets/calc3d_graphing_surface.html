@@ -1,0 +1,181 @@
+<!doctype html>
+<meta charset="utf-8">
+
+<html lang="en">
+<head>
+	<title>Graphing 3d Surfaces</title>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+</head>
+<body>
+
+<script src="js/three.min.js"></script>
+<script src="js/SceneUtils.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/OrbitControls.js"></script>
+<script src="js/DragControls.js"></script>
+<script src="js/parser.js"></script>
+<script src="js/THREEx.KeyboardState.js"></script>
+<script src="js/THREEx.FullScreen.js"></script>
+<script src="js/THREEx.WindowResize.js"></script>
+<script src="js/3dmath.js"></script>
+
+<script type='text/javascript' src='js/DAT.GUI.min.js'></script>
+
+<div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
+<script>
+
+var container, scene, camera, renderer, controls, stats;
+var keyboard = new THREEx.KeyboardState();
+var clock = new THREE.Clock();
+
+var parameters = {
+
+	step1: function() { step1(); },
+	step2: function() { step2(); },
+	step3: function() { step3(); },
+	step4: function() { step4(); },
+	toggley: function() { y.toggleVisible(); },
+	togglez: function() { z.toggleVisible(); },
+	toggleplane: function() { plane.toggleVisible(); }
+	
+};
+
+
+var a = 0;
+var gui_a;
+
+var points = [];
+var line;
+
+// initialization
+init();
+
+// animation loop / game loop
+animate();
+					
+function init() {
+
+	// SCENE 	
+	scene = new THREE.Scene();
+
+	// CAMERA 	
+	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;	
+	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+	scene.add(camera);
+	camera.position.set(40,40,10);
+	camera.up.set(0, 0, 1);  // make sure z-axis is facing up
+	camera.lookAt(scene.position);	
+	
+	// RENDERER 	
+	renderer = new THREE.WebGLRenderer( {antialias:true, alpha: true} );
+	// Set background color as white
+	renderer.setClearColor( 0xffffff ); 
+	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+	renderer.sortObjects = false;
+	renderer.localClippingEnabled = true;
+	
+	// attach div element to variable to contain the renderer
+	container = document.getElementById( 'ThreeJS' );
+	container.appendChild( renderer.domElement );
+	
+	// EVENTS 	
+	THREEx.WindowResize(renderer, camera);
+	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
+	
+	// CONTROLS 
+	controls = new THREE.OrbitControls( camera, renderer.domElement );
+	
+	
+	// STATS 	
+	stats = new Stats();
+	stats.domElement.style.position = 'absolute';
+	stats.domElement.style.bottom = '0px';
+	stats.domElement.style.zIndex = 100;
+	container.appendChild( stats.domElement );
+		
+	// GUI
+	gui = new dat.GUI();	
+	gui.add(parameters, 'step1');
+	gui.add(parameters, 'step2');
+	gui.add(parameters, 'step3');
+	gui.add(parameters, 'step4');	
+	
+	createScene();
+}
+
+function createScene() {
+
+	while(scene.children.length > 0){ 
+		scene.remove(scene.children[0]); 
+	}
+
+	var light = new THREE.AmbientLight( 0xffffff );
+	scene.add( light );
+	
+	viewingWindow.setBounds(-3, 3, 0.25, -3, 3, 0.25, -5, 5, 1);
+	
+	var axes = createAxes( { labels: false } );
+	scene.add(axes);
+	//scene.add(surface.getObject());
+
+}
+
+function step1() {
+	
+	for(var i = -3; i <= 3; i += 0.25) {
+		for(var j = -3; j <= 3; j += 0.25) {
+			var p = new Point( { coords: [i, j, 0] });
+			points.push(p);
+			scene.add(p.getObject());
+		}
+	}
+
+}
+
+function step2() {
+	
+	for(var i = 0; i < points.length; i++) {
+	
+		var x = points[i].X();
+		var y = points[i].Y();
+		var z = Math.sin( 0.5 * (x * x + y * y) );
+	
+		points[i].moveTo([x, y, z]);
+	}
+
+}
+
+function step3() {
+	var wireframe = createWireFrame('sin(0.5 * (x^2 + y^2) )', new THREE.Color('black'), 0.25, 0.25);
+	scene.add(wireframe);
+}
+
+function step4() {
+	var surface = new Surface('sin(0.5*(x^2 + y^2))', { color: 'blue' });
+	scene.add(surface.getObject());
+}
+
+function animate() {
+    requestAnimationFrame( animate );
+	render();		
+	update();
+}
+
+function update()
+{
+	// delta = change in time since last call (in seconds)
+	var delta = clock.getDelta(); 
+		
+	controls.update();
+	stats.update();
+}
+
+function render() {	
+	renderer.render( scene, camera );
+}
+
+</script>
+
+</body>
+</html>
