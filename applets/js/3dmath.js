@@ -435,7 +435,7 @@ class Sphere {
 			this.visible = (args.visible == undefined) ? this.visible : args.visible;
 		}	
 	
-		var geometry = new THREE.SphereGeometry(this.radius, 32, 32);
+		var geometry = new THREE.SphereGeometry(xCoord(this.radius), 32, 32);
 		this.sphere = createNormalMesh(geometry);
 	
 		this.sphere.position.x = xCoord(this.coords[0]);
@@ -648,12 +648,12 @@ class Box {
 		this.depth = args.depth ? args.depth : 1;       // z dimension
 		this.visible = (args.visible == undefined) ? true : args.visible;
 		
-		var geometry = new THREE.BoxGeometry(this.width, this.height, this.depth, 1, 1, 1);
+		var geometry = new THREE.BoxGeometry(xCoord(this.width), yCoord(this.height), zCoord(this.depth), 1, 1, 1);
 		
 		this.box = createTransparentMesh(geometry, this.color);
-		this.box.translateX(this.position[0] + this.width / 2);
-		this.box.translateY(this.position[1] + this.height / 2);
-		this.box.translateZ(this.position[2] + this.depth / 2);
+		this.box.translateX(xCoord(this.position[0]) + xCoord(this.width) / 2);
+		this.box.translateY(yCoord(this.position[1]) + yCoord(this.height) / 2);
+		this.box.translateZ(zCoord(this.position[2]) + zCoord(this.depth) / 2);
 
 		this.box.visible = this.visible;
 		
@@ -691,7 +691,11 @@ class Box {
 }
 
 function addToScene(scene, obj) {
-	scene.add(obj.getObject());
+	if(typeof obj === "undefined") {
+		console.warn('Two parameters expected for addToScene. First must be "scene"!');
+	} else {
+		scene.add(obj.getObject());
+	}
 }
 
 class Surface {

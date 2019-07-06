@@ -3,7 +3,7 @@
 
 <html lang="en">
 <head>
-	<title>A Limit that Exists Through Simplification</title>
+	<title>Calculating Volume with Double Integrals</title>
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 </head>
 <body>
@@ -30,18 +30,18 @@ var clock = new THREE.Clock();
 
 var parameters = {
 
-	toggles1: function() { s1.toggleVisible(); },
-	toggles2: function() { s2.toggleVisible(); },
-	togglep: function() { p.toggleVisible(); }
+	step1: function() { step1(); },
+	step2: function() { step2(); },
+	step3: function() { step3(); },
+	step4: function() { step4(); },
+	step5: function() { step5(); },
+	step6: function() { step6(); },
+	step7: function() { step7(); },
+	f_text: '1-.125*x^2-0.125*y^2',
 	
 };
 
-
-var a = 0;
-var gui_a;
-
-var points = [];
-var line;
+var f_func;
 
 // initialization
 init();
@@ -92,10 +92,13 @@ function init() {
 		
 	// GUI
 	gui = new dat.GUI();	
-	gui.add(parameters, 'toggles1').name('Show Surface');
-	gui.add(parameters, 'toggles2').name('Show Simplified');
-	gui.add(parameters, 'togglep').name('Show limit');
-
+	gui.add(parameters, 'step1').name('Divide x-y plane');
+	gui.add(parameters, 'step2').name('Show Region');
+	gui.add(parameters, 'step3').name('show rect 1');
+	gui.add(parameters, 'step4').name('show rect 2');
+	gui.add(parameters, 'step5').name('show rect 3');
+	gui.add(parameters, 'step6').name('show rect 4');
+	gui.add(parameters, 'step7').name('show all');	
 	
 	createScene();
 }
@@ -109,24 +112,65 @@ function createScene() {
 	var light = new THREE.AmbientLight( 0xffffff );
 	scene.add( light );
 	
-	viewingWindow.setBounds(-10, 10, 1, -10, 10, 1, -10, 10, 1);
+	viewingWindow.setBounds(0, 2, 0.25, 0, 2, 0.25, -1, 2, .5);
 	
 	var axes = createAxes( { labels: true } );
 	scene.add(axes);
-
-	s1 = new Surface('(x^2-2*x*y+y^2)/(x-y)', { color: 'red',  visible: false });
-	addToScene(scene, s1);
 	
-	s2 = new Surface('x-y', { color: 'blue', visible: false });
-	addToScene(scene, s2);
-
-	p = new Point({ coords: [1, 1, 0], color: 'blue', radius: 0.35, visible: false });
-	addToScene(scene, p);
-		
+	var surface = new Surface(parameters.f_text);
+	scene.add(surface.getObject());
+	
+	f_func = Parser.parse(parameters.f_text).toJSFunction(['x', 'y']);
 
 }
 
+function step1() {
+	
+	for(var i = 0; i <= 1; i += 0.25) {
+		addToScene(scene, new Line({ start: [i, 0, 0], end: [i, 1, 0] }));
+		addToScene(scene, new Line({ start: [0, i, 0], end: [1, i, 0] }));
+	}
+	
 
+}
+
+function step2() {
+	
+	addToScene(scene, new ParametricProjection('t', '0', parameters.f_text, 0, 1));
+	addToScene(scene, new ParametricProjection('0', 't', parameters.f_text, 0, 1));
+	addToScene(scene, new ParametricProjection('t', '1', parameters.f_text, 0, 1));
+	addToScene(scene, new ParametricProjection('1', 't', parameters.f_text, 0, 1));
+	addToScene(scene, new Line({ start: [0, 0, 0], end: [0, 0, f_func(0, 0)] }));
+	addToScene(scene, new Line({ start: [0, 1, 0], end: [0, 1, f_func(0, 1)] }));
+	addToScene(scene, new Line({ start: [1, 0, 0], end: [1, 0, f_func(1, 0)] }));
+	addToScene(scene, new Line({ start: [1, 1, 0], end: [1, 1, f_func(1, 1)] }));
+
+}
+
+function step3() {
+	addToScene(scene, new Box({ position: [0, 0, 0], width: 0.25, height: 0.25, depth: f_func(0, 0) }));
+}
+
+function step4() {
+	addToScene(scene, new Box({ position: [0.25, 0, 0], width: 0.25, height: 0.25, depth: f_func(0.25, 0) }));
+}
+
+function step5() {
+	addToScene(scene, new Box({ position: [0.5, 0, 0], width: 0.25, height: 0.25, depth: f_func(0.5, 0) }));
+}
+
+function step6() {
+	addToScene(scene, new Box({ position: [0.75, 0, 0], width: 0.25, height: 0.25, depth: f_func(0.75, 0) }));
+}
+
+function step7() {
+	for(var i = 0; i < 1; i += 0.25) {
+		for(var j = 0.25; j < 1; j += 0.25) {
+			addToScene(scene, new Box({ position: [i, j, 0], width: 0.25, height: 0.25, depth: f_func(i, j) }));
+		}
+	}
+	
+}
 
 function animate() {
     requestAnimationFrame( animate );
