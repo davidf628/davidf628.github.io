@@ -323,7 +323,7 @@ class Point {
 		if(args !== undefined) {
 			this.coords = args.coords ? args.coords : this.coords;
 			this.radius = args.radius ? args.radius : this.radius;
-			this.color = args.color ? args.color : this.color;
+			this.color = args.color ? initColor(args.color) : this.color;
 			this.visible = (args.visible == undefined) ? this.visible : args.visible;
 		}	
 		
@@ -431,7 +431,7 @@ class Sphere {
 		if(args !== undefined) {
 			this.coords = args.coords ? args.coords : this.coords;
 			this.radius = args.radius ? args.radius : this.radius;
-			this.color = args.color ? args.color : this.color;
+			this.color = args.color ? initColor(args.color) : this.color;
 			this.visible = (args.visible == undefined) ? this.visible : args.visible;
 		}	
 	
@@ -498,7 +498,7 @@ class Vector {
 			direction = to.clone().sub(from);
 			this.length = args.length ? args.length : direction.length();
 			
-			this.color = args.color ? args.color : this.color;			
+			this.color = args.color ? initColor(args.color) : this.color;			
 			this.visible = (args.visible == undefined) ? this.visible : args.visible;
 			
 			this.headLength = args.headLength ? args.headLength : this.headLength;
@@ -585,7 +585,7 @@ class Line {
 			args = {};
 		}
 		
-		this.color = args.color ? new THREE.Color(args.color) : new THREE.Color('black');
+		this.color = args.color ? initColor(args.color) : new THREE.Color('black');
 		this.start = args.start ? args.start : [0, 0, 0];
 		this.end = args.end ? args.end : [1, 1, 1];
 		this.dashed = args.dashed === undefined ? false : args.dashed;
@@ -641,7 +641,7 @@ class Box {
 			args = {};
 		}
 		
-		this.color = args.color ? new THREE.Color(args.color) : new THREE.Color('green');
+		this.color = args.color ? initColor(args.color) : new THREE.Color('green');
 		this.position = args.position ? args.position : [0, 0, 0];
 		this.width = args.width ? args.width : 1;       // x dimension
 		this.height = args.height ? args.height : 1;    // y dimension
@@ -690,12 +690,54 @@ class Box {
 
 }
 
-function addToScene(scene, obj) {
-	if(typeof obj === "undefined") {
-		console.warn('Two parameters expected for addToScene. First must be "scene"!');
-	} else {
-		scene.add(obj.getObject());
+/***********************************************************
+**
+** Creates a Quadrilateral in space using any 4 coordinates.
+** It is assumed that the coordinates are making a convex
+** figure.
+**
+** Usage:
+**   q = new Quadrilateral(p1, p2, p3, p4, args)
+**
+**     where p1, p2, p3, p4 are 4 coordinates in space of
+**        the form: p = [x, y, z]
+**
+**   args:
+**     - color: eg 'green', '#00ff00', 0x00ff00
+**     - visible: true/false
+**
+************************************************************/ 
+
+class Quadrilateral {
+	
+	constructor(p1, p2, p3, p4, args) {
+		
+		if(args === undefined) {
+			args = {};
+		}
+		
+		this.color = args.color ? initColor(args.color) : new THREE.Color('green');
+		this.visible = (args.visible == undefined) ? true : args.visible;
+		
+		var geometry = new THREE.Geometry();
+		geometry.vertices = [ sCoordV(p1), sCoordV(p2), sCoordV(p3), sCoordV(p4) ];
+		geometry.faces = [ new THREE.Face3(2, 0, 1), new THREE.Face3(3, 0, 2) ];
+	
+		this.quad = createTransparentMesh(geometry, this.color);
+
+		this.quad.visible = this.visible;
+		
 	}
+	
+	getObject() {
+		return this.quad;
+	}
+	
+	toggleVisible() {
+		this.visible = !this.visible;
+		this.quad.visible = this.visible;
+	}
+
 }
 
 class Surface {
@@ -718,16 +760,10 @@ class Surface {
 		}
 
 		// Set default parameters
-		this.color = args.color ? args.color : new THREE.Color('red');
-		if(typeof this.color === 'string' || this.color instanceof String) {
-			this.color = new THREE.Color(this.color);
-		}
+		this.color = args.color ? initColor(args.color) : new THREE.Color('red');
 			
 		this.wireframevisible = (args.wireframevisible !== undefined) ? args.wireframevisible : false;
-		this.wireframecolor = args.wireframecolor ? args.wireframecolor : new THREE.Color('black');
-		if(typeof this.color === 'string' || this.color instanceof String) {
-			this.color = new THREE.Color(this.color);
-		}
+		this.wireframecolor = args.wireframecolor ? initColor(args.wireframecolor) : new THREE.Color('black');
 		
 		this.func = f;	
 			
@@ -882,10 +918,7 @@ class ParametricGraph {
 			args = {};
 		}
 			
-		this.color = args.color ? args.color : new THREE.Color('black');
-		if(typeof this.color === 'string' || this.color instanceof String) {
-			this.color = new THREE.Color(this.color);
-		}
+		this.color = args.color ? initColor(args.color) : new THREE.Color('black');
 		this.visible = (args.visible !== undefined) ? args.visible : true;
 		this.segments = args.segments ? args.segments : 200;
 		this.radius = args.radius ? args.radius : 0.1;
@@ -955,10 +988,7 @@ class ParametricProjection {
 			args = {};
 		}
 			
-		this.color = args.color ? args.color : new THREE.Color('black');
-		if(typeof this.color === 'string' || this.color instanceof String) {
-			this.color = new THREE.Color(this.color);
-		}
+		this.color = args.color ? initColor(args.color) : new THREE.Color('black');
 		this.visible = (args.visible !== undefined) ? args.visible : true;
 		this.segments = args.segments ? args.segments : 200;
 		this.radius = args.radius ? args.radius : 0.1;
@@ -1020,6 +1050,66 @@ class ParametricProjection {
 	
 }
 
+class PathProjection {
+
+	constructor(xFuncText, yFuncText, zFuncText, tMin, tMax, tStep, args) {
+	
+		if(args === undefined) {
+			args = {};
+		}
+			
+		this.color = args.color ? initColor(args.color) : new THREE.Color('black');
+		this.visible = (args.visible !== undefined) ? args.visible : true;
+		
+		this.xFuncText = xFuncText;
+		this.yFuncText = yFuncText;
+		this.zFuncText = zFuncText;
+		this.tMin = tMin;
+		this.tMax = tMax;
+	
+		var xFunc = Parser.parse(xFuncText).toJSFunction( ['t'] );
+		var yFunc = Parser.parse(yFuncText).toJSFunction( ['t'] );
+		var zFunc = Parser.parse(zFuncText).toJSFunction( ['x', 'y'] );
+
+		this.path = new THREE.Object3D();
+
+		for(var t = tMin; t < tMax; t += tStep) {
+		
+			var x0 = xFunc(t);
+			var y0 = yFunc(t);
+			var z0 = zFunc(x0, y0);
+			
+			var x1 = xFunc(t + tStep);
+			var y1 = yFunc(t + tStep);
+			var z1 = zFunc(x1, y1);
+			
+			var quad = new Quadrilateral(
+							[x0, y0,  0], [x1, y1, 0], 
+							[x1, y1, z1], [x0, y0, z0],
+							{ color: this.color, visible: this.visible } );
+			
+			this.path.add(quad.getObject());
+			
+		}
+
+	}
+	
+	getObject() { return this.path; }
+
+	setVisible(b) {
+		for(var i = 0; i < this.path.children.length; i++) {
+			this.path.children[i].visible = b;
+		}
+		this.visible = b;
+	}
+	
+	toggleVisible() {
+		this.visible = !this.visible;
+		this.setVisible(this.visible);
+	}
+	
+}
+
 class PlaneSurface {
 	
 	constructor(type, location, args) {
@@ -1028,10 +1118,7 @@ class PlaneSurface {
 			args = {};
 		}
 		
-		this.color = args.color ? args.color : new THREE.Color('purple');
-		if(typeof this.color === 'string' || this.color instanceof String) {
-			this.color = new THREE.Color(this.color);
-		}
+		this.color = args.color ? initColor(args.color) : new THREE.Color('purple');
 		this.visible = (args.visible !== undefined)? args.visible : true;
 		this.type = type;
 		this.location = location;
@@ -1413,3 +1500,42 @@ function roundRect(ctx, x, y, w, h, r)
 	ctx.stroke();   
 }
 
+/***********************************************************
+**
+** Adds a 3D object to a scene. This is just a helper
+** function so that you don't have to remember to call
+** .getObject() every time you add an object.
+**
+** Warns the user that the scene has to be specified first
+** in order for an object to be added to the scene.
+**
+************************************************************/ 
+
+function addToScene(scene, obj) {
+	if(scene instanceof THREE.Scene) {
+		scene.add(obj.getObject());
+	} else {
+		console.warn('Two parameters expected for addToScene. First must be "scene"!');
+	}
+}
+
+/***********************************************************
+**
+** Initializes a color object, allowing the user to 
+** specify the color either by a string: '#00FF00', by a 
+** number: 0x00ff00, by the name of a color: 'green', or
+** by a pre-defined THREE.Color object. If none of these
+** fit, a default color of black is assigned.
+**
+************************************************************/
+
+function initColor(color) {
+	if(typeof color === 'string') {
+		color = new THREE.Color(color);
+	} else if(typeof color === 'number') {
+		color = new THREE.Color(color);
+	} else if(!(color instanceof THREE.Color)) {
+		color = new THREE.Color(0x000000);
+	} 
+	return color;
+}
