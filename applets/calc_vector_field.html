@@ -125,6 +125,7 @@ var parameters = {
 		ymax: '10',
 		density: '1',
 		length: '1',
+		mode: 'Uniform Length',
 		updatewindow: function() { updatewindow() }
 	};	
 
@@ -134,8 +135,8 @@ function init() {
 
 	var bounds = JSXGetBounds(board);
 	
-	for(var i = bounds.xmin; i < bounds.xmax; i++) {
-		for(var j = bounds.ymin; j < bounds.ymax; j++) {
+	for(var i = bounds.xmin; i <= bounds.xmax; i++) {
+		for(var j = bounds.ymin; j <= bounds.ymax; j++) {
 			particles.push(board.create('point', [i, j], { color: 'green', withLabel: false }));
 			vectors.push(board.create('arrow', [[i, j], [i+1, j+1]], { color: 'red', strokeWidth: 2, fixed: true }));
 		}
@@ -185,7 +186,8 @@ function init() {
 	windowSettings.add(parameters, 'ymin').name('y Min:');
 	windowSettings.add(parameters, 'ymax').name('y Max:');
 	windowSettings.add(parameters, 'density').name('Vector Density:');
-	windowSettings.add(parameters, 'length').name('Vector Length:');
+	windowSettings.add(parameters, 'length').name('Vector Scale:');
+	windowSettings.add(parameters, 'mode', ['Uniform Length', 'Variable Length']).name('Vector Type:');
 	windowSettings.add(parameters, 'updatewindow').name('Update Window');
 
 	update();
@@ -204,8 +206,8 @@ function update() {
 	var bounds = JSXGetBounds(board);
     
 	var k = 0;
-	for(var i = bounds.xmin; i < bounds.xmax; i++) {
-		for(var j = bounds.ymin; j < bounds.ymax; j++) {	
+	for(var i = bounds.xmin; i <= bounds.xmax; i++) {
+		for(var j = bounds.ymin; j <= bounds.ymax; j++) {	
 			if(particles[k] !== undefined) {
 				particles[k].moveTo([i, j], 1);
 				particles[k].setAttribute({ visible: showPoints.Value() });
@@ -260,22 +262,27 @@ function update() {
 	var length = parseFloat(parameters.length);
 	var density = parseFloat(parameters.density);
 	
-	for(var i = bounds.xmin; i < bounds.xmax; i += density) {
-		for(var j = bounds.ymin; j < bounds.ymax; j += density) {
+	for(var i = bounds.xmin; i <= bounds.xmax; i += density) {
+		for(var j = bounds.ymin; j <= bounds.ymax; j += density) {
 			
 			var x0 = i;
 			var y0 = j;
 			
 			var u = mfunc(i, j);
 			var v = nfunc(i, j);
+			
+			if(parameters.mode == 'Uniform Length') {			
+				var mag = Math.sqrt(u * u + v * v);
 						
-			var mag = Math.sqrt(u * u + v * v);
+				var x1 = x0 + (u / mag) * length;
+				var y1 = y0 + (v / mag) * length;
+			}
 			
-			var x1 = x0 + (u / mag) * length;
-			var y1 = y0 + (v / mag) * length;
+			else if(parameters.mode == 'Variable Length') {
 			
-			//var x1 = x0 + u * 0.01;
-			//var y1 = y0 + v * 0.01;
+				var x1 = x0 + u * length;
+				var y1 = y0 + v * length;
+			}
 			
 			if(vectors[k] !== undefined) {
 				vectors[k].point1.setPosition(JXG.COORDS_BY_USER, [x0, y0]);
@@ -346,8 +353,8 @@ function updatewindow() {
 	
 	var density = parseFloat(parameters.density);
 	
-	for(var i = bounds.xmin; i < bounds.xmax; i += density) {
-		for(var j = bounds.ymin; j < bounds.ymax; j += density) {
+	for(var i = bounds.xmin; i <= bounds.xmax; i += density) {
+		for(var j = bounds.ymin; j <= bounds.ymax; j += density) {
 			particles.push(board.create('point', [i, j], { color: 'green', withLabel: false }));
 			vectors.push(board.create('arrow', [[i, j], [i+1, j+1]], { color: 'red', strokeWidth: 2, fixed: true }));
 		}
