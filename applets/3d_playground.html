@@ -107,95 +107,27 @@ function init() {
 
 function createScene() {
 
-	while(scene.children.length > 0){ 
-		scene.remove(scene.children[0]); 
-	}
-
 	var light = new THREE.AmbientLight( 0xffffff );
 	scene.add( light );
 	
 	
-	viewingWindow.setBounds(-10, 10, 1, -10, 10, 1, -10, 10, 1);
-	var axes = createAxes( { labels: false } );
+	viewingWindow.setBounds(0, 5, 1, 0, 5, 1, 0, 5, 1);
+	var axes = createAxes( { labels: false, xzgrid: true, yzgrid: true } );
 	scene.add(axes);
-	
-	g1 = new THREE.Geometry();
-	g1.vertices.push(sCoordV([0, 0, 0]));
-	g1.vertices.push(sCoordV([1, 1, 0]));
-	g1.vertices.push(sCoordV([1, 1, 2]));
-	
-	g1.faces.push(new THREE.Face3(0, 1, 2));
-	
-	var mesh1 = createTransparentMesh(g1, 0x0000ff);
-	scene.add(mesh1);
-	
-	g2 = new THREE.Geometry();
-	g2.vertices.push(sCoordV([1, 1, 0]));
-	g2.vertices.push(sCoordV([2, 1, 0]));
-	g2.vertices.push(sCoordV([2, 1, 3]));
-	g2.vertices.push(sCoordV([1, 1, 2]));
-	
-	g2.faces.push(new THREE.Face3(2, 0, 1));
-	g2.faces.push(new THREE.Face3(3, 0, 2));
-	
-	var mesh2 = createTransparentMesh(g2, 0x0000ff);
-	scene.add(mesh2);
-	
-	g3 = new THREE.Geometry();
-	g3.vertices.push(sCoordV([2, 1, 0]));
-	g3.vertices.push(sCoordV([2, 2, 0]));
-	g3.vertices.push(sCoordV([2, 2, 4]));
-	g3.vertices.push(sCoordV([2, 1, 3]));
-	
-	g3.faces.push(new THREE.Face3(2, 0, 1));
-	g3.faces.push(new THREE.Face3(3, 0, 2));
-	
-	var mesh3 = createTransparentMesh(g3, 0x0000ff);
-	scene.add(mesh3);
-	
-	g4 = new THREE.Geometry();
-	g4.vertices.push(sCoordV([2, 2, 0]));
-	g4.vertices.push(sCoordV([3, 1, 0]));
-	g4.vertices.push(sCoordV([3, 1, 4]));
-	g4.vertices.push(sCoordV([2, 2, 4]));
-	
-	g4.faces.push(new THREE.Face3(2, 0, 1));
-	g4.faces.push(new THREE.Face3(3, 0, 2));
-	
-	var mesh4 = createTransparentMesh(g4, 0x0000ff);
-	scene.add(mesh4);
-	
-	geometry = new THREE.Geometry();
-	geometry.vertices.push(sCoordV([0, 0, 0]));
-	geometry.vertices.push(sCoordV([1, 1, 0]));
-	geometry.vertices.push(sCoordV([2, 1, 0]));
-	geometry.vertices.push(sCoordV([2, 2, 0]));
-	geometry.vertices.push(sCoordV([3, 1, 0]));
-	
-	geometry.vertices.push(sCoordV([3, 1, zfunc(3, 1)]));
-	geometry.vertices.push(sCoordV([2, 2, zfunc(2, 2)]));
-	geometry.vertices.push(sCoordV([2, 1, zfunc(2, 1)]));
-	geometry.vertices.push(sCoordV([1, 1, zfunc(1, 1)]));
-	geometry.vertices.push(sCoordV([0, 0, zfunc(0, 0)]));
-	geometry.vertices.push(sCoordV([0, 0, 0]));
-		
-	var material = new THREE.LineBasicMaterial( { color: 0x000000 }) ;
-		
-	
-	line = new THREE.Line(geometry, material);
 
-	//line.computeLineDistances();
+	addToScene(scene, new Line({ start: [0,0,0], end: [0,4,0] }));
+	addToScene(scene, new Line({ start: [0,0,0], end: [4,0,0] }));
+	addToScene(scene, new Line({ start: [4,0,0], end: [4,4,0] }));
+	addToScene(scene, new Line({ start: [0,4,0], end: [4,4,0] }));
 	
-	scene.add(line);
-
-	addToScene(scene, new Quadrilateral([0,0,0], [5,0,0], [5, 0, 5], [0, 0, 5], { color: 'blue' }));
+	addToScene(scene, new Line({ start: [0,0,0], end: [0,0,4] }));
+	addToScene(scene, new Line({ start: [0,4,0], end: [0,4,4] }));
+	addToScene(scene, new Line({ start: [4,0,0], end: [0,0,4] }));
+	addToScene(scene, new Line({ start: [4,4,0], end: [0,4,4] }));
+	addToScene(scene, new Line({ start: [0,0,4], end: [0,4,4] }));
 	
-	proj = new PathProjection('t', 't^2', 'x+y', 0, 2, 0.1, { color: 'red' });
-	
-	addToScene(scene, proj);
-
-	addToScene(scene, new Surface('x+y', { color: 'green' }));
-	proj.setVisible(false);
+	addToScene(scene, new Quadrilateral([0, 0, 4], [0, 4, 4], [4, 4, 0], [4, 0, 0], { color: 'gray' } ));
+	addToScene(scene, new Quadrilateral([0, 4, 4], [4, 4, 0], [0, 4, 0], [0, 4, 4], { color: 'gray' } ));
 
 }
 

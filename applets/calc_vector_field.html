@@ -133,6 +133,8 @@ init();
 
 function init() {
 
+	board.suspendUpdate();
+
 	var bounds = JSXGetBounds(board);
 	
 	for(var i = bounds.xmin; i <= bounds.xmax; i++) {
@@ -163,9 +165,11 @@ function init() {
 
 	showPoints = JSXCheckbox(displayboard, 1, 4, 'Show Particles', true, 
 			function() {
+				board.suspendUpdate();
 				for(var i = 0; i < particles.length; i++) {
 					particles[i].setAttribute( { visible: !particles[i].getAttribute( 'visible' ) });
 				}
+				board.unsuspendUpdate();
 			},
 			{ fixed: true, fontSize: 18 });
 			
@@ -189,12 +193,16 @@ function init() {
 	windowSettings.add(parameters, 'length').name('Vector Scale:');
 	windowSettings.add(parameters, 'mode', ['Uniform Length', 'Variable Length']).name('Vector Type:');
 	windowSettings.add(parameters, 'updatewindow').name('Update Window');
+	
+	board.unsuspendUpdate();
 
 	update();
 		
 }
 
 function update() {
+
+	board.suspendUpdate();
 
 	orgbounds = board.getBoundingBox();
 	width = document.getElementById('jxgbox').clientWidth;
@@ -292,6 +300,7 @@ function update() {
 		}
 	}	
 	
+	board.unsuspendUpdate();
 	board.update();
 
 }
@@ -302,12 +311,14 @@ function anim() {
 
 	id = setInterval(frame2, 1000);
 	function frame2() {
+		board.suspendUpdate();
 		for(var i = 0; i < particles.length; i++) {
 			var x = particles[i].X();
 			var y = particles[i].Y();
 			particles[i].moveTo([x + mfunc(x, y) * .1, y + nfunc(x, y) * .1], 1000);
 		}
 		rep++;
+		board.unsuspendUpdate();
 		if(rep == 10) {
 			clearInterval(id);
 		}
@@ -331,6 +342,8 @@ function newpath() {
 }
 
 function updatewindow() {
+	
+	board.suspendUpdate();
 	
 	var bounds = {
 		xmin: parseFloat(parameters.xmin),
@@ -360,6 +373,7 @@ function updatewindow() {
 		}
 	}
 	
+	board.unsuspendUpdate();
 	update();
 	
 }
