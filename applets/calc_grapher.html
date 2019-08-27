@@ -48,6 +48,8 @@ var endpoints = [];
 var nFunctions = 9;
 var curveIsDrawn = [];
 
+var cv = new CanvasPlotter(board, function(x, y) {return -1;});
+
 init();
 
 function update() {

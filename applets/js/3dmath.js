@@ -23,6 +23,95 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+var container, scene, camera, renderer, controls, stats, axes;
+
+function init() {
+
+	// SCENE 	
+	scene = new THREE.Scene();
+
+	// CAMERA 	
+	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;	
+	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+	
+	perspectivecamera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+	perspectivecamera.position.set(40,40,10);
+	perspectivecamera.up.set(0, 0, 1);  // make sure z-axis is facing up
+	scene.add(perspectivecamera);
+
+	orthographiccamera = new THREE.OrthographicCamera(-50, 50, 30, -30, NEAR, FAR);
+	orthographiccamera.position.set(40,40,10);
+	orthographiccamera.up.set(0, 0, 1);  // make sure z-axis is facing up	
+	scene.add(orthographiccamera);
+		
+	// Set up a light that follows the camera
+	var light = new THREE.DirectionalLight(0xffffff, 0.5);
+    light.position.set(0,0,1);
+	
+	perspectivecamera.add(light);
+	orthographiccamera.add(light);
+	
+	scene.add(new THREE.AmbientLight( 0xffffff ));
+	
+	perspectivecamera.lookAt(scene.position);	
+	
+	// RENDERER 	
+	renderer = new THREE.WebGLRenderer( { antialias:true, alpha: true } );
+	
+	// Set background color as white
+	renderer.setClearColor( 0xffffff ); 
+	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+	renderer.sortObjects = false;
+	renderer.localClippingEnabled = true;
+	
+	// attach div element to variable to contain the renderer
+	container = document.getElementById( 'ThreeJS' );
+	container.appendChild( renderer.domElement );
+	
+	// EVENTS 	
+	THREEx.WindowResize(renderer, perspectivecamera);
+	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
+	
+	// CONTROLS 
+	perspectivecontrols = new THREE.OrbitControls( perspectivecamera, renderer.domElement );
+	orthographiccontrols = new THREE.OrbitControls( orthographiccamera, renderer.domElement );
+	
+	// STATS 	
+	stats = new Stats();
+	stats.domElement.style.position = 'absolute';
+	stats.domElement.style.bottom = '0px';
+	stats.domElement.style.zIndex = 100;
+	container.appendChild( stats.domElement );
+		
+	// GUI
+
+	var window_menu = gui.addFolder('Window Settings');
+	window_menu.add(window_param, 'xmin').name('x Min');
+	window_menu.add(window_param, 'xmax').name('x Max');
+	window_menu.add(window_param, 'xscl').name('x Scale');
+	window_menu.add(window_param, 'ymin').name('y Min');
+	window_menu.add(window_param, 'ymax').name('y Max');
+	window_menu.add(window_param, 'yscl').name('y Scale');
+	window_menu.add(window_param, 'zmin').name('z Min');
+	window_menu.add(window_param, 'zmax').name('z Max');
+	window_menu.add(window_param, 'zscl').name('z Scale');
+	window_menu.add(window_param, 'xygrid').name('Show XY Plane');
+	window_menu.add(window_param, 'xzgrid').name('Show XZ Plane');
+	window_menu.add(window_param, 'yzgrid').name('Show YZ Plane');
+	window_menu.add(window_param, 'polargrid').name('Show Polar Plane');
+	window_menu.add(window_param, 'labels').name('Show Labels');
+	window_menu.add(window_param, 'activecamera', ['Perspective', 'Orthographic']).name('Camera Type');
+	window_menu.add(window_param, 'updateWindow').name('Update Window');
+	
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+							window_param.ymin, window_param.ymax, window_param.yscl,
+							window_param.zmin, window_param.zmax, window_param.zscl);
+	
+	axes = new Axes( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid} );
+	addToScene(scene, axes);
+	
+	createScene();
+}
 
 // This structure keeps track of all the variables required in maintaing the
 // viewing window on screen, none of these variables should be directly
@@ -75,20 +164,23 @@ var viewingWindow = {
 		    //this.xShift = this.xMin - xMin;
 			this.xMin = xMin;
 			this.xMax = xMax;
-			this.xStep = xStep;
+			this.xStep = xStep < 0.1 ? 0.1 : xStep;
 			this.xScale = 40 / (xMax - xMin);
+			//this.xShift = (Math.abs(xMin) - Math.abs(xMax)) * this.xScale;
 
-			//this.yShift = this.yMin - yMin;
+			//this.yShift = -2;
 			this.yMin = yMin;
 			this.yMax = yMax;
-			this.yStep = yStep;
+			this.yStep = yStep < 0.1 ? 0.1 : yStep;
 			this.yScale = 40 / (yMax - yMin);
+			//this.yShift = (Math.abs(yMin) - Math.abs(yMax)) * this.yScale;
 
 			//this.zShift = this.zMin - zMin;
 			this.zMin = zMin;
 			this.zMax = zMax;
-			this.zStep = zStep;
+			this.zStep = zStep < 0.1 ? 0.1 : zStep;
 			this.zScale = 40 / (zMax - zMin);
+			//this.zShift = (Math.abs(zMin) - Math.abs(zMax)) * this.zScale;
 			
 		}	
 		
@@ -114,169 +206,308 @@ function sCoordV(vector) {
 	return new THREE.Vector3(xCoord(vector[0]), yCoord(vector[1]), zCoord(vector[2]));
 }
 
-function buildAxis(src, dst, color, dashed) { 
+var objectlist = [];
 
-	var geometry = new THREE.Geometry(), material;
-	
-	if(dashed) {
-		material = new THREE.LineDashedMaterial( { linewidth: 2, color: color, dashSize: 0.5, gapSize: 0.5 } );
-	} else {
-		material = new THREE.LineBasicMaterial( { linewidth: 2, color: color } );
+class Axes {
+
+	constructor (args) {
+		
+		if(args === undefined) {
+			args = {};
+		}
+
+		this.zaxis = (args.zaxis === undefined) ? true : args.zaxis;
+		this.xygrid = (args.xygrid === undefined) ? true : args.xygrid;
+		this.yzgrid = (args.yzgrid === undefined) ? false : args.yzgrid;
+		this.xzgrid = (args.xzgrid === undefined) ? false : args.xzgrid;
+		this.polargrid = (args.polargrid === undefined) ? false : args.polargrid;
+		this.labels = (args.labels === undefined) ? true : args.labels;
+		
+		this.xaxiscolor = new THREE.Color('red');
+		this.yaxiscolor = new THREE.Color('green');
+		this.zaxiscolor = new THREE.Color('blue');
+		this.gridcolor = new THREE.Color(0xe0e0e0);
+
+		this.redraw();
+			
 	}
 	
-	geometry.vertices.push(src.clone());
-	geometry.vertices.push(dst.clone());
-	var axis = new THREE.Line(geometry, material, THREE.LineSegments);	
-	axis.computeLineDistances();
-	
-	return axis;
-}
+	setParameters(args) {
 
-function buildAxisCone(color, posX, posY, posZ, axis) {
-	
-	var geometry = new THREE.CylinderGeometry(0, 0.2, 0.4, 20, 5, false) ;
-	var material = new THREE.MeshBasicMaterial( { color: color } );
-	var cone = new THREE.Mesh( geometry, material );
-	cone.position.set(posX, posY, posZ);
-	
-	if(axis == "x") {
-		geometry.applyMatrix( new THREE.Matrix4().makeRotationZ( -Math.PI / 2));
-	} else if(axis == "y") {
-		geometry.applyMatrix( new THREE.Matrix4().makeRotationY( Math.PI / 2));
-	} else if(axis == "z") {
-		geometry.applyMatrix( new THREE.Matrix4().makeRotationX( Math.PI / 2));
+		this.zaxis = (args.zaxis === undefined) ? this.zaxis : args.zaxis;
+		this.xygrid = (args.xygrid === undefined) ? this.xygrid : args.xygrid;
+		this.yzgrid = (args.yzgrid === undefined) ? this.yzgrid : args.yzgrid;
+		this.xzgrid = (args.xzgrid === undefined) ? this.xzgrid : args.xzgrid;
+		this.polargrid = (args.polargrid === undefined) ? this.polargrid : args.polargrid;
+		this.labels = (args.labels === undefined) ? this.labels : args.labels;
+
 	}
 	
-	return cone;
-}
-
-function createAxes(args) {
-
-	var xyGrid = true;
-	var yzGrid = false;
-	var xzGrid = false;
-	var showLabels = true;
-
-	var axes = new THREE.Object3D();
-	var origin = sCoord(0, 0, 0);
+	redraw() {
+		
+		this.axes = new THREE.Object3D();
 	
-	axes.add(buildAxis(origin, sCoord(viewingWindow.xMax, 0, 0), new THREE.Color('red'), false)); // +X
-	axes.add(buildAxis(origin, sCoord(viewingWindow.xMin, 0, 0), new THREE.Color('red'), true));  // -X
-	axes.add(buildAxis(origin, sCoord(0, viewingWindow.yMax, 0), new THREE.Color('green'), false));   // +Y
-	axes.add(buildAxis(origin, sCoord(0, viewingWindow.yMin, 0), new THREE.Color('green'), true));    // -Y
-	axes.add(buildAxis(origin, sCoord(0, 0, viewingWindow.zMax), new THREE.Color('blue'), false));  // +Z
-	axes.add(buildAxis(origin, sCoord(0, 0, viewingWindow.zMin), new THREE.Color('blue'), true));   // -Z
-
-	axes.add(buildAxisCone(new THREE.Color('red'), xCoord(viewingWindow.xMax), yCoord(0), zCoord(0), "x")); // x-axis cone
-	axes.add(buildAxisCone(new THREE.Color('green'),   xCoord(0), yCoord(viewingWindow.yMax), zCoord(0), "y")); // y-axis cone
-	axes.add(buildAxisCone(new THREE.Color('blue'),  xCoord(0), yCoord(0), zCoord(viewingWindow.zMax), "z")); // z-axis cone
+		var origin = sCoord(0, 0, 0);
+		var gridmaterial_noclip = new THREE.LineBasicMaterial( { color: this.gridcolor, linewidth: 1 });
+		var gridmaterial = new THREE.LineBasicMaterial( { color: this.gridcolor, linewidth: 1, clippingPlanes: getClippingPlanes() });
+		var gridgeometry = new THREE.Geometry();
 	
-	if(args !== undefined) {
-		xyGrid = (args.xyGrid == undefined) ? xyGrid : args.xyGrid;
-		xzGrid = (args.xzGrid == undefined) ? xzGrid : args.xzGrid;
-		yzGrid = (args.yzGrid == undefined) ? yzGrid : args.yzGrid;
-		showLabels = (args.labels == undefined) ? showLabels : args.labels;
-	}
-	
-	// Create the x-y grid
-	
-	var gridmaterial = new THREE.LineBasicMaterial( { color: 0xe0e0e0, linewidth: 1 });
-	var gridgeometry = new THREE.Geometry();
-	
-	var xRange = viewingWindow.xMax - viewingWindow.xMin;
-	var yRange = viewingWindow.yMax - viewingWindow.yMin;
-	
-	var xWidth = xRange / viewingWindow.xStep;
-	var yWidth = yRange / viewingWindow.yStep;
+		var xWidth = viewingWindow.xRange / viewingWindow.xStep;
+		var yWidth = viewingWindow.yRange / viewingWindow.yStep;
+		
+		// Draw Axes
+		
+		this.axes.add(this.buildAxis(origin, sCoord(viewingWindow.xMax, 0, 0), this.xaxiscolor, false)); // +X
+		this.axes.add(this.buildAxis(origin, sCoord(viewingWindow.xMin, 0, 0), this.xaxiscolor, true));  // -X
+		this.axes.add(this.buildAxisCone(this.xaxiscolor, xCoord(viewingWindow.xMax), yCoord(0), zCoord(0), "x")); // x-axis cone
+		if(this.labels) {
+			var xlabel = this.makeTextSprite('x');
+			xlabel.position.set(xCoord(viewingWindow.xMax)+1, yCoord(0), zCoord(0));
+			this.axes.add(xlabel);
+		}
+		
+		this.axes.add(this.buildAxis(origin, sCoord(0, viewingWindow.yMax, 0), this.yaxiscolor, false));   // +Y
+		this.axes.add(this.buildAxis(origin, sCoord(0, viewingWindow.yMin, 0), this.yaxiscolor, true));    // -Y
+		this.axes.add(this.buildAxisCone(this.yaxiscolor, xCoord(0), yCoord(viewingWindow.yMax), zCoord(0), "y")); // y-axis cone
+		if(this.labels) {
+			var ylabel = this.makeTextSprite('y');
+			ylabel.position.set(xCoord(0), yCoord(viewingWindow.yMax)+1, zCoord(0));
+			this.axes.add(ylabel);
+		}
+		
+		if(this.zaxis) {
+			this.axes.add(this.buildAxis(origin, sCoord(0, 0, viewingWindow.zMax), this.zaxiscolor, false));  // +Z
+			this.axes.add(this.buildAxis(origin, sCoord(0, 0, viewingWindow.zMin), this.zaxiscolor, true));   // -Z
+			this.axes.add(this.buildAxisCone(this.zaxiscolor,  xCoord(0), yCoord(0), zCoord(viewingWindow.zMax), "z")); // z-axis cone
+			if(this.labels) {
+				var zlabel = this.makeTextSprite('z');
+				zlabel.position.set(xCoord(0), yCoord(0), zCoord(viewingWindow.zMax)+1);
+				this.axes.add(zlabel);
+			}
+		}
     
-	// Draw the x-y gridlines
+		// Draw the x-y gridlines
 	
-	for(var i = viewingWindow.xMin; i <= viewingWindow.xMax; i += viewingWindow.xStep) {
-		if(Math.abs(i) > 0.0001) { // Don't draw a gridline at zero, this covers the axis
-			if(xyGrid) {
-				gridgeometry = new THREE.Geometry();
-				gridgeometry.vertices.push(sCoord(i, viewingWindow.yMin, 0));
-				gridgeometry.vertices.push(sCoord(i, viewingWindow.yMax, 0));
-				axes.add(new THREE.Line(gridgeometry, gridmaterial));
-			}
-			if(showLabels) {
-				var label = makeTextSprite(i);
-				label.position.set(xCoord(i), yCoord(0), zCoord(0));
-				axes.add(label);
-			}
-		}
-	}
-	
-	for(var i = viewingWindow.yMin; i <= viewingWindow.yMax; i += viewingWindow.yStep) {
-		if(Math.abs(i) > 0.0001) {
-			if(xyGrid) {
-				gridgeometry = new THREE.Geometry();
-				gridgeometry.vertices.push(sCoord(viewingWindow.xMin, i, 0));
-				gridgeometry.vertices.push(sCoord(viewingWindow.xMax, i, 0));
-				axes.add(new THREE.Line(gridgeometry, gridmaterial));
+		for(var i = viewingWindow.xMin; i <= viewingWindow.xMax; i += viewingWindow.xStep) {
+			if(Math.abs(i) > 0.0001) { // Don't draw a gridline at zero, this covers the axis
+				if(this.xygrid) {
+					gridgeometry = new THREE.Geometry();
+					gridgeometry.vertices.push(sCoord(i, viewingWindow.yMin, 0));
+					gridgeometry.vertices.push(sCoord(i, viewingWindow.yMax, 0));
+					this.axes.add(new THREE.Line(gridgeometry, gridmaterial_noclip));
+				}
+				if(this.labels) {
+					var label = this.makeTextSprite(i);
+					label.position.set(xCoord(i), yCoord(0), zCoord(0));
+					this.axes.add(label);
+				}
 			}
 		}
-	}
 	
-	// x-z Gridlines
-	
-	for(var i = viewingWindow.zMin; i <= viewingWindow.zMax; i += viewingWindow.zStep) {
-		if(Math.abs(i) > 0.0001) { // Don't draw a gridline at zero, this covers the axis
-			if(xzGrid) {
-				gridgeometry = new THREE.Geometry();
-				gridgeometry.vertices.push(sCoord(viewingWindow.xMin, 0, i));
-				gridgeometry.vertices.push(sCoord(viewingWindow.xMax, 0, i));
-				axes.add(new THREE.Line(gridgeometry, gridmaterial));
-			}
-			if(showLabels) {
-				var label = makeTextSprite(i);
-				label.position.set(xCoord(0), yCoord(0), zCoord(i));
-				axes.add(label);
+		for(var i = viewingWindow.yMin; i <= viewingWindow.yMax; i += viewingWindow.yStep) {
+			if(Math.abs(i) > 0.0001) {
+				if(this.xygrid) {
+					gridgeometry = new THREE.Geometry();
+					gridgeometry.vertices.push(sCoord(viewingWindow.xMin, i, 0));
+					gridgeometry.vertices.push(sCoord(viewingWindow.xMax, i, 0));
+					this.axes.add(new THREE.Line(gridgeometry, gridmaterial_noclip));
+				}
 			}
 		}
-	}
 	
-	for(var i = viewingWindow.xMin; i <= viewingWindow.xMax; i += viewingWindow.xStep) {
-		if(Math.abs(i) > 0.0001) {
-			if(xzGrid) {
-				gridgeometry = new THREE.Geometry();
-				gridgeometry.vertices.push(sCoord(i, 0, viewingWindow.zMin));
-				gridgeometry.vertices.push(sCoord(i, 0, viewingWindow.zMax));
-				axes.add(new THREE.Line(gridgeometry, gridmaterial));
+		// x-z Gridlines
+	
+		for(var i = viewingWindow.zMin; i <= viewingWindow.zMax; i += viewingWindow.zStep) {
+			if(Math.abs(i) > 0.0001) { // Don't draw a gridline at zero, this covers the axis
+				if(this.xzgrid) {
+					gridgeometry = new THREE.Geometry();
+					gridgeometry.vertices.push(sCoord(viewingWindow.xMin, 0, i));
+					gridgeometry.vertices.push(sCoord(viewingWindow.xMax, 0, i));
+					this.axes.add(new THREE.Line(gridgeometry, gridmaterial_noclip));
+				}
+				if(this.labels) {
+					var label = this.makeTextSprite(i);
+					label.position.set(xCoord(0), yCoord(0), zCoord(i));
+					this.axes.add(label);
+				}
 			}
 		}
-	}
 	
-	// y-z Gridlines
-	
-	for(var i = viewingWindow.yMin; i <= viewingWindow.yMax; i += viewingWindow.yStep) {
-		if(Math.abs(i) > 0.0001) {
-			if(yzGrid) {
-				gridgeometry = new THREE.Geometry();
-				gridgeometry.vertices.push(sCoord(0, i, viewingWindow.zMin));
-				gridgeometry.vertices.push(sCoord(0, i, viewingWindow.zMax));
-				axes.add(new THREE.Line(gridgeometry, gridmaterial));
-			}
-			if(showLabels) {
-				var label = makeTextSprite(i);
-				label.position.set(xCoord(0), yCoord(i), zCoord(0));
-				axes.add(label);
+		for(var i = viewingWindow.xMin; i <= viewingWindow.xMax; i += viewingWindow.xStep) {
+			if(Math.abs(i) > 0.0001) {
+				if(this.xzgrid) {
+					gridgeometry = new THREE.Geometry();
+					gridgeometry.vertices.push(sCoord(i, 0, viewingWindow.zMin));
+					gridgeometry.vertices.push(sCoord(i, 0, viewingWindow.zMax));
+					this.axes.add(new THREE.Line(gridgeometry, gridmaterial_noclip));
+				}
 			}
 		}
-	}
 	
-	for(var i = viewingWindow.zMin; i <= viewingWindow.zMax; i += viewingWindow.zStep) {
-		if(Math.abs(i) > 0.0001) { // Don't draw a gridline at zero, this covers the axis
-			if(yzGrid) {
-				gridgeometry = new THREE.Geometry();
-				gridgeometry.vertices.push(sCoord(0, viewingWindow.yMin, i));
-				gridgeometry.vertices.push(sCoord(0, viewingWindow.yMax, i));
-				axes.add(new THREE.Line(gridgeometry, gridmaterial));
+		// y-z Gridlines
+	
+		for(var i = viewingWindow.yMin; i <= viewingWindow.yMax; i += viewingWindow.yStep) {
+			if(Math.abs(i) > 0.0001) {
+				if(this.yzgrid) {
+					gridgeometry = new THREE.Geometry();
+					gridgeometry.vertices.push(sCoord(0, i, viewingWindow.zMin));
+					gridgeometry.vertices.push(sCoord(0, i, viewingWindow.zMax));
+					this.axes.add(new THREE.Line(gridgeometry, gridmaterial_noclip));
+				}
+				if(this.labels) {
+					var label = this.makeTextSprite(i);
+					label.position.set(xCoord(0), yCoord(i), zCoord(0));
+					this.axes.add(label);
+				}
 			}
 		}
+	
+		for(var i = viewingWindow.zMin; i <= viewingWindow.zMax; i += viewingWindow.zStep) {
+			if(Math.abs(i) > 0.0001) { // Don't draw a gridline at zero, this covers the axis
+				if(this.yzgrid) {
+					gridgeometry = new THREE.Geometry();
+					gridgeometry.vertices.push(sCoord(0, viewingWindow.yMin, i));
+					gridgeometry.vertices.push(sCoord(0, viewingWindow.yMax, i));
+					this.axes.add(new THREE.Line(gridgeometry, gridmaterial_noclip));
+				}
+			}
+		}
+	
+		// Draw a Polar Grid in the x-y plane
+		if(this.polargrid) {
+		
+			var nCircles = Math.max(Math.abs(viewingWindow.xMin), Math.abs(viewingWindow.xMax), Math.abs(viewingWindow.yMin), Math.abs(viewingWindow.yMax)) / viewingWindow.xStep; 
+		
+			// Draw the circles
+			
+			for(var i = 1; i <= nCircles; i += viewingWindow.xStep) {
+				var curve = new THREE.EllipseCurve(
+					0,  0,            // ax, aY
+					xCoord(i),  yCoord(i),            // xRadius, yRadius
+					0,  2 * Math.PI,  // aStartAngle, aEndAngle
+					false,            // aClockwise
+					0                 // aRotation
+				);
+
+				var points = curve.getPoints( 50 );
+				var geometry = new THREE.BufferGeometry().setFromPoints( points );
+
+				// Create the final object to add to the scene
+				var ellipse = new THREE.Line( geometry, gridmaterial );
+				this.axes.add(ellipse);
+			}
+		
+			// Draw the lines for each 15 degree increment of theta
+		
+			var x_15 = nCircles * xCoord(Math.sqrt(2 + Math.sqrt(3)) / 2);
+			var x_30 = nCircles * xCoord(Math.sqrt(3) / 2);
+			var x_45 = nCircles * xCoord(1 / Math.sqrt(2));
+			var x_60 = nCircles * xCoord(1/2);
+			var x_75 = nCircles * xCoord((Math.sqrt(6) - Math.sqrt(2)) / 4);
+		
+			var y_15 = nCircles * yCoord(Math.sqrt(2 - Math.sqrt(3)) / 2);
+			var y_30 = nCircles * yCoord(1/2);
+			var y_45 = nCircles * yCoord(1 / Math.sqrt(2));
+			var y_60 = nCircles * yCoord(Math.sqrt(3)/2);
+			var y_75 = nCircles * yCoord((Math.sqrt(6) + Math.sqrt(2)) / 4);
+		
+			gridgeometry = new THREE.Geometry();
+		
+			gridgeometry.vertices.push(new THREE.Vector3(-x_15, -y_15, 0));
+			gridgeometry.vertices.push(new THREE.Vector3(x_15, y_15, 0));
+			this.axes.add(new THREE.Line(gridgeometry, gridmaterial));
+		
+			gridgeometry = new THREE.Geometry();
+			gridgeometry.vertices.push(new THREE.Vector3(-x_30, -y_30, 0));
+			gridgeometry.vertices.push(new THREE.Vector3(x_30, y_30, 0));
+			this.axes.add(new THREE.Line(gridgeometry, gridmaterial));
+		
+			gridgeometry = new THREE.Geometry();
+			gridgeometry.vertices.push(new THREE.Vector3(-x_45, -y_45, 0));
+			gridgeometry.vertices.push(new THREE.Vector3(x_45, y_45, 0));
+			this.axes.add(new THREE.Line(gridgeometry, gridmaterial));
+				
+			gridgeometry = new THREE.Geometry();
+			gridgeometry.vertices.push(new THREE.Vector3(-x_60, -y_60, 0));
+			gridgeometry.vertices.push(new THREE.Vector3(x_60, y_60, 0));
+			this.axes.add(new THREE.Line(gridgeometry, gridmaterial));
+		
+			gridgeometry = new THREE.Geometry();
+			gridgeometry.vertices.push(new THREE.Vector3(-x_75, -y_75, 0));
+			gridgeometry.vertices.push(new THREE.Vector3(x_75, y_75, 0));
+			this.axes.add(new THREE.Line(gridgeometry, gridmaterial));
+		
+			gridgeometry = new THREE.Geometry();
+			gridgeometry.vertices.push(new THREE.Vector3(-x_45, y_45, 0));
+			gridgeometry.vertices.push(new THREE.Vector3(x_45, -y_45, 0));
+			this.axes.add(new THREE.Line(gridgeometry, gridmaterial));
+		
+			gridgeometry = new THREE.Geometry();
+			gridgeometry.vertices.push(new THREE.Vector3(-x_30, y_30, 0));
+			gridgeometry.vertices.push(new THREE.Vector3(x_30, -y_30, 0));
+			this.axes.add(new THREE.Line(gridgeometry, gridmaterial));
+		
+			gridgeometry = new THREE.Geometry();
+			gridgeometry.vertices.push(new THREE.Vector3(-x_60, y_60, 0));
+			gridgeometry.vertices.push(new THREE.Vector3(x_60, -y_60, 0));
+			this.axes.add(new THREE.Line(gridgeometry, gridmaterial));
+		
+			gridgeometry = new THREE.Geometry();
+			gridgeometry.vertices.push(new THREE.Vector3(-x_15, y_15, 0));
+			gridgeometry.vertices.push(new THREE.Vector3(x_15, -y_15, 0));
+			this.axes.add(new THREE.Line(gridgeometry, gridmaterial));
+		
+			gridgeometry = new THREE.Geometry();
+			gridgeometry.vertices.push(new THREE.Vector3(-x_75, y_75, 0));
+			gridgeometry.vertices.push(new THREE.Vector3(x_75, -y_75, 0));
+			this.axes.add(new THREE.Line(gridgeometry, gridmaterial));
+		
+		}
+
+		
 	}
 	
-	function makeTextSprite(message, opts) {
+	getObject() {
+		return this.axes;
+	}
+	
+	buildAxis(src, dst, color, dashed) { 
+
+		var geometry = new THREE.Geometry(), material;
+	
+		if(dashed) {
+			material = new THREE.LineDashedMaterial( { linewidth: 2, color: color, dashSize: 0.5, gapSize: 0.5 } );
+		} else {
+			material = new THREE.LineBasicMaterial( { linewidth: 2, color: color } );
+		}
+		geometry.vertices.push(src.clone());
+		geometry.vertices.push(dst.clone());
+		
+		var axis = new THREE.Line(geometry, material, THREE.LineSegments);	
+		axis.computeLineDistances();
+	
+		return axis;
+	}	
+
+	buildAxisCone(color, posX, posY, posZ, axis) {
+	
+		var geometry = new THREE.CylinderGeometry(0, 0.2, 0.4, 20, 5, false) ;
+		var material = new THREE.MeshBasicMaterial( { color: color } );
+		var cone = new THREE.Mesh( geometry, material );
+		cone.position.set(posX, posY, posZ);
+	
+		if(axis == "x") {
+			geometry.applyMatrix( new THREE.Matrix4().makeRotationZ( -Math.PI / 2));
+		} else if(axis == "y") {
+			geometry.applyMatrix( new THREE.Matrix4().makeRotationY( Math.PI / 2));
+		} else if(axis == "z") {
+			geometry.applyMatrix( new THREE.Matrix4().makeRotationX( Math.PI / 2));
+		}
+	
+		return cone;
+	}
+	
+	makeTextSprite(message, opts) {
 		var parameters = opts || {};
 		var fontface = parameters.fontface || 'Helvetica';
 		var fontsize = parameters.fontsize || 70;
@@ -297,39 +528,32 @@ function createAxes(args) {
 		texture.minFilter = THREE.LinearFilter;
 		texture.needsUpdate = true;
 
-		var spriteMaterial = new THREE.SpriteMaterial({
-		  map: texture//,
-		  //useScreenCoordinates: false
-		});
+		var spriteMaterial = new THREE.SpriteMaterial({ map: texture });
 		var sprite = new THREE.Sprite(spriteMaterial);
-		//sprite.scale.set(100, 50, 1.0);
 		sprite.scale.set(1.5, 1.5, 1.0);
 		return sprite;
 	}
-		
-	return axes;
 	
 }
 
+
 class Point {
 
-	constructor (args) {
+	constructor (coords, args) {
 		
-		this.coords = [0, 0, 0];
-		this.radius = 0.2;
-		this.color = new THREE.Color('black');
-		this.visible = true;
+		if(coords === undefined) {
+			console.warn('The coordinates of where to create the point must be specified');
+			return;
+		}		
 		
-		if(args !== undefined) {
-			this.coords = args.coords ? args.coords : this.coords;
-			this.radius = args.radius ? args.radius : this.radius;
-			this.color = args.color ? initColor(args.color) : this.color;
-			this.visible = (args.visible == undefined) ? this.visible : args.visible;
-		}	
-		
-		if(typeof this.color === 'string' || this.color instanceof String) {
-			this.color = new THREE.Color(this.color);
+		if(args === undefined) {
+			args = {};
 		}
+				
+		this.coords = coords;
+		this.radius = args.radius ? args.radius : 0.2;
+		this.color = args.color ? initColor(args.color) : 'black';
+		this.visible = (args.visible !== undefined) ? args.visible : true;
 	
 		var geometry = new THREE.SphereGeometry(this.radius);
 		var material = new THREE.MeshBasicMaterial( { color: this.color } );
@@ -369,9 +593,9 @@ class Point {
 	
 	getObject() { return this.sphere; }
 	getCoords() { return this.coords; }
-	getX() { return this.coords[0]; }
-	getY() { return this.coords[1]; }
-	getZ() { return this.coords[2]; }
+	X() { return this.coords[0]; }
+	Y() { return this.coords[1]; }
+	Z() { return this.coords[2]; }
 	getColor() { return this.color; }
 	getRadius() { return this.radius; }
 	getVisible() { return this.visible; }
@@ -405,17 +629,63 @@ class Point {
         scene.add(this.sphere);
 	}
 	
-	X() {
-		return this.coords[0];
+	redraw() {
+		this.moveTo(this.coords);
+	}
+
+	
+}
+
+class Path {
+
+	constructor (points, args) {
+		
+		if(points === undefined) {
+			console.warn('The points for the path must be specified.');
+			return;
+		}		
+		
+		if(args === undefined) {
+			args = {};
+		}
+				
+		this.points = points;
+		this.type = args.type ? args.type : 'linear';
+		this.color = args.color ? initColor(args.color) : 'black';
+		this.visible = (args.visible !== undefined) ? args.visible : true;
+	
+		var geometry = new THREE.Geometry();
+		for(var i = 0; i < this.points.length; i++) {
+			geometry.vertices.push(sCoordV(this.points[i]));
+		}
+		
+		var material = new THREE.LineBasicMaterial( { color: this.color } );
+		this.path = new THREE.Line(geometry, material);
+		
+		this.path.visible = this.visible;
+			
+	}	
+
+	getObject() {
+		return this.path;
+	}
+
+	getVisible() { return this.visible; }
+	
+	setVisible(b) {
+		this.visible = b;
+		this.sphere.visible = b;
 	}
 	
-	Y() { 
-		return this.coords[1];
+	toggleVisible() {
+		this.visible = !this.visible;
+		this.sphere.visible = this.visible;
 	}
 	
-	Z() {
-		return this.coords[2];
+	redraw() {
+		// TOOD: write up re-draw code
 	}
+
 	
 }
 
@@ -467,45 +737,161 @@ class Sphere {
 	
 }
 
+class Lathe {
+
+	constructor (xfunc, yfunc, tmin, tmax, axis, args) {
+		
+		if(args === undefined) {
+			args = {};
+		}
+		
+		this.angle = args.angle ? args.angle : 0.0001;
+		this.dt = args.dt ? args.dt : 0.25;
+		this.color = args.color ? initColor(args.color) : this.color;
+		this.visible = (args.visible !== undefined) ? args.visible : true;
+		this.connect = args.connect ? args.connect : 'none';
+	
+		this.xfunc = xfunc;
+		this.yfunc = yfunc;
+		this.tmin = tmin;
+		this.tmax = tmax;
+		this.axis = axis;
+	
+		this.drawLathe()
+		
+		this.lathe.visible = this.visible;
+			
+	}
+	
+	drawLathe() {		
+	
+		this.points = [];
+		
+		// Set up first point to contact axis, this makes the object look solid
+		if(this.connect == 'x') {
+			if(this.axis == 'x') {
+				this.points.push(new THREE.Vector2(xCoord(0), yCoord(this.tmin)));
+			} else if(this.axis == 'y') {
+				this.points.push(new THREE.Vector2(xCoord(this.tmin), yCoord(0)));
+			}
+		} else if(this.connect == 'y') {
+			if(this.axis == 'x') {
+				this.points.push(new THREE.Vector2(xCoord(0), yCoord(this.tmin)));
+			} else if(this.axis == 'y') {
+				this.points.push(new THREE.Vector2(xCoord(this.tmin), yCoord(0)));
+			}
+		}
+		
+		for(var t = this.tmin; t <= this.tmax; t += this.dt ) {
+			var x = math.eval(this.xfunc, { t: t });
+			var y = math.eval(this.yfunc, { t: t });
+			if(this.axis == 'x') {
+				this.points.push(new THREE.Vector2(xCoord(y), yCoord(x)));
+			} else if(this.axis == 'y') {
+				this.points.push(new THREE.Vector2(xCoord(x), yCoord(y)));
+			}
+		}
+		
+		if(this.connect == 'x') {
+			if(this.axis == 'x') {
+				this.points.push(new THREE.Vector2(xCoord(0), yCoord(this.tmax)));
+			} else if(this.axis == 'y') {
+				this.points.push(new THREE.Vector2(xCoord(this.tmax), yCoord(0)));
+			}
+		} else if(this.connect == 'y') {
+			if(this.axis == 'x') {
+				this.points.push(new THREE.Vector2(xCoord(math.eval(this.yfunc, { t: this.tmax })), yCoord(0)));
+			} else if(this.axis == 'y') {
+				this.points.push(new THREE.Vector2(xCoord(0), yCoord(math.eval(this.yfunc, { t: this.tmax }))));
+			}
+		}
+		
+		// inputs: point list, number of segments, start angle, rotation angle
+		if(this.axis == 'x') {
+			var geometry = new THREE.LatheGeometry( this.points, 48, Math.PI / 2, this.angle );
+			this.lathe = createDepthMesh(geometry, 0xff0000);
+			this.lathe.applyMatrix( new THREE.Matrix4().makeRotationZ( -Math.PI / 2));
+		} else if(this.axis == 'y') {
+			var geometry = new THREE.LatheGeometry( this.points, 48, Math.PI / 2, this.angle );
+			this.lathe = createDepthMesh(geometry, 0xff0000);
+		}
+
+	}
+	
+	getObject() { return this.lathe; }
+
+	getVisible() { return this.visible; }
+	
+	setVisible(b) {
+		this.visible = b;
+		this.lathe.visible = b;
+	}
+	
+	toggleVisible() {
+		this.visible = !this.visible;
+		this.lathe.visible = this.visible;
+	}
+	
+	setFunction(scene, xfunc, yfunc, tmin, tmax) {
+		scene.remove(this.lathe);
+		this.xfunc = xfunc;
+		this.yfunc = yfunc;
+		this.tmin = tmin;
+		this.tmax = tmax;
+		this.drawLathe();
+		scene.add(this.lathe);
+	}
+	
+	setAxisOfRotation(scene, axis) {
+		scene.remove(this.lathe);
+		this.axis = axis;
+		this.drawLathe();
+		scene.add(this.lathe);
+	}
+	
+	setConnect(scene, connect) {
+		scene.remove(this.lathe);
+		this.connect = connect;
+		this.drawLathe();
+		scene.add(this.lathe);
+	}
+	
+	setAngle(scene, angle) {
+		scene.remove(this.lathe);
+		this.angle = angle;
+		this.drawLathe();
+		scene.add(this.lathe);
+		
+	}
+	
+	redraw() {
+		this.drawLathe();
+	}
+	
+}
 
 class Vector {
 	
 	constructor (args) {
 
-		this.start = [0, 0, 0];
-		this.end = [1, 1, 1];		
-		this.length = 1;
-		this.color = new THREE.Color('red');
-		this.visible = true;
-		this.headLengh = 1;
-		this.headWidth = 0.5;
-		
-		//var from = new THREE.Vector3( this.start[0], this.start[1], this.start[2] );
+		if(args === undefined) {
+			args = {};
+		}
+
+		this.start = args.start ? args.start : [0, 0, 0];
+		this.end = args.end ? args.end : [1, 1, 1];	
 		var from = sCoord(this.start[0], this.start[1], this.start[2]);
-		//var to = new THREE.Vector3( this.end[0], this.end[1], this.end[2] );
 		var to = sCoord(this.end[0], this.end[1], this.end[2]);
-		var direction = to.clone().sub(from);
-	
-		if(args !== undefined) {
+		this.direction = to.clone().sub(from);
+		this.length = args.length ? args.length : this.direction.length();
 			
-			this.start = args.start ? args.start : this.start;
-			this.end = args.end ? args.end : this.end;
+		this.color = args.color ? initColor(args.Color) : new THREE.Color('red');
+		this.visible = (args.visible !== undefined) ? args.visible : true;
 			
-			//from = new THREE.Vector3( this.start[0], this.start[1], this.start[2] );
-			from = sCoord(this.start[0], this.start[1], this.start[2]);
-			//to = new THREE.Vector3( this.end[0], this.end[1], this.end[2] );
-			to = sCoord(this.end[0], this.end[1], this.end[2]);
-			direction = to.clone().sub(from);
-			this.length = args.length ? args.length : direction.length();
-			
-			this.color = args.color ? initColor(args.color) : this.color;			
-			this.visible = (args.visible == undefined) ? this.visible : args.visible;
-			
-			this.headLength = args.headLength ? args.headLength : this.headLength;
-			this.headWidth = args.headWidth ? args.headWidth : this.headWidth;
-		}	
-		
-		this.vector = new THREE.ArrowHelper(direction.normalize(), from, this.length, this.color, this.headLength, this.headWidth );
+		this.headLengh = args.headLength ? args.headLength : 1;
+		this.headWidth = args.headWidth ? args.headWidth : 0.5;
+				
+		this.vector = new THREE.ArrowHelper(this.direction.normalize(), from, this.length, this.color, this.headLength, this.headWidth );
 		this.vector.visible = this.visible;
 
 	}
@@ -544,9 +930,7 @@ class Vector {
 		this.end[1] = coords[1];
 		this.end[2] = coords[2];
 		
-		//var from = new THREE.Vector3( this.start[0], this.start[1], this.start[2] );
 		var from = sCoord(this.start[0], this.start[1], this.start[2]);
-		//var to = new THREE.Vector3( this.end[0], this.end[1], this.end[2] );
 		var to = sCoord(this.end[0], this.end[1], this.end[2]);
 		var direction = to.clone().sub(from);
 		
@@ -562,18 +946,16 @@ class Vector {
 		this.start[1] = coords[1];
 		this.start[2] = coords[2];
 		
-		this.vector.position.x = coords[0];
-		this.vector.position.y = coords[1];
-		this.vector.position.z = coords[2];
+		this.vector.position.x = xCoord(coords[0]);
+		this.vector.position.y = yCoord(coords[1]);
+		this.vector.position.z = zCoord(coords[2]);
 
 	}
-	
-	// SetDirection
-	// SetLength
-	// Translate
-	// SetCoords
-	// SetHeadLength
-	// SetHeadWidth
+
+	redraw() {
+		this.setEndPoint(this.end);
+		this.setStartPoint(this.start);
+	}
 	
 }
 
@@ -675,7 +1057,7 @@ class Box {
 	setHeight(height) {
 	}
 	
-	setDept(depth) {
+	setDepth(depth) {
 	}
 	
 	setDimensions (length, height, depth) {
@@ -777,7 +1159,7 @@ class Surface {
 		this.dx = args.dx ? args.dx : 1;
 		this.dy = args.dy ? args.dy : this.dx;
 		
-    	var geometry = createSurfaceGeometry(f, this.slices, this.stacks); 
+    	var geometry = createSurfaceGeometry(this.func, this.slices, this.stacks); 
 		
 		if(this.skin == 'transparent') {
 			this.surface = createTransparentMesh(geometry, this.color); 	
@@ -785,16 +1167,22 @@ class Surface {
 			this.surface = createNormalMesh(geometry);
 		} else if(this.skin == 'shaded') {
 			this.surface = createShadedMesh(geometry, this.color);
-		} else if(this.skin == 'vertexColor') {
-			this.surface = createVertexColorMesh(geometry, this.color);
+		} else if(this.skin == 'phong') {
+			geometry.computeFaceNormals();
+			geometry.computeVertexNormals();
+			this.surface = createPhongMesh(geometry, this.color);
 		} else if(this.skin == 'solid') {
 			this.surface = createSolidColorMesh(geometry, this.color);
+		} else if(this.skin == 'rainbow') {
+			this.surface = createRainbowMesh(geometry);
+		} else if(this.skin == 'depth') {
+			this.surface = createDepthMesh(geometry);
 		}
 		
 		this.wireframe = createWireFrame(f, this.wireframecolor, this.dx, this.dy);
 		this.wireframe.visible = this.wireframevisible;
 		this.surface.add(this.wireframe);
-		this.surface.children
+		//this.surface.children
 		
 		this.surface.visible = this.visible;
 		
@@ -821,6 +1209,36 @@ class Surface {
 		this.wireframevisible = b;
 		this.wireframe.visible = b;
 	}
+	
+	setGridType(gridtype) {
+		this.gridtype = gridtype;
+	}
+	
+	redraw() {
+		var geometry = createSurfaceGeometry(this.func, this.slices, this.stacks);
+		
+		if(this.skin == 'transparent') {
+			this.surface = createTransparentMesh(geometry, this.color); 	
+		} else if(this.skin == 'normal') {
+			this.surface = createNormalMesh(geometry);
+		} else if(this.skin == 'shaded') {
+			this.surface = createShadedMesh(geometry, this.color);
+		} else if(this.skin == 'phong') {
+			geometry.computeFaceNormals();
+			geometry.computeVertexNormals();
+			this.surface = createPhongMesh(geometry, this.color);
+		} else if(this.skin == 'solid') {
+			this.surface = createSolidColorMesh(geometry, this.color);
+		}
+		
+		this.wireframe = createWireFrame(this.func, this.wireframecolor, this.dx, this.dy);
+		this.wireframe.visible = this.wireframevisible;
+		this.surface.add(this.wireframe);
+		//this.surface.children
+		
+		this.surface.visible = this.visible;
+	}
+	
 
 }
 
@@ -840,42 +1258,6 @@ function createSurfaceGeometry(f, slices, stacks) {
 	return new THREE.ParametricGeometry(zFunc, slices, stacks);
 
 }		
-		
-	/*
-	///////////////////////////////////////////////
-	// calculate vertex colors based on Z values //
-	///////////////////////////////////////////////
-	graphGeometry.computeBoundingBox();
-	zMin = graphGeometry.boundingBox.min.z;
-	zMax = graphGeometry.boundingBox.max.z;
-	zRange = zMax - zMin;
-	var color, point, face, numberOfSides, vertexIndex;
-	// faces are indexed using characters
-	var faceIndices = [ 'a', 'b', 'c', 'd' ];
-	// first, assign colors to vertices as desired
-	for ( var i = 0; i < graphGeometry.vertices.length; i++ ) 
-	{
-		point = graphGeometry.vertices[ i ];
-		color = new THREE.Color( 0x0000ff );
-		//color.setHSL( 0.7 * (zMax - point.z) / zRange, 1, 0.5 );
-		color.setRGB(0.75 * (point.z - zMin)/zRange, 0, 0);
-		graphGeometry.colors[i] = color; // use this array for convenience
-	}
-	// copy the colors as necessary to the face's vertexColors array.
-	for ( var i = 0; i < graphGeometry.faces.length; i++ ) 
-	{
-		face = graphGeometry.faces[ i ];
-		numberOfSides = ( face instanceof THREE.Face3 ) ? 3 : 4;
-		for( var j = 0; j < numberOfSides; j++ ) 
-		{
-			vertexIndex = face[ faceIndices[ j ] ];
-			face.vertexColors[ j ] = graphGeometry.colors[ vertexIndex ];
-		}
-	}
-	///////////////////////
-	// end vertex colors //
-	///////////////////////
-	*/
 
 function createWireFrame (f, color, dx, dy) {
 
@@ -923,6 +1305,7 @@ class ParametricGraph {
 		this.segments = args.segments ? args.segments : 200;
 		this.radius = args.radius ? args.radius : 0.1;
 		this.radialsegments = args.radialsegments ? args.radialsegments : 8;
+		this.density = args.density ? args.density : 0.1;
 		
 		this.xFuncText = xFuncText;
 		this.yFuncText = yFuncText;
@@ -930,40 +1313,32 @@ class ParametricGraph {
 		this.tMin = tMin;
 		this.tMax = tMax;
 	
-		var tRange = tMax - tMin;
+		this.redraw();
+
+	}
+	
+	redraw() {
 		
-		var xFunc = Parser.parse(xFuncText).toJSFunction( ['t'] );
-		var yFunc = Parser.parse(yFuncText).toJSFunction( ['t'] );
-		var zFunc = Parser.parse(zFuncText).toJSFunction( ['t'] );
-
-		function CustomCurve( scale ) {
-
-			THREE.Curve.call( this );
-			this.scale = ( scale === undefined ) ? 1 : scale;
+		this.graph = new THREE.Object3D();
+		
+		var tRange = this.tMax - this.tMin;
+		var tScl = tRange / this.density;
+		
+		var xFunc = Parser.parse(this.xFuncText).toJSFunction( ['t'] );
+		var yFunc = Parser.parse(this.yFuncText).toJSFunction( ['t'] );
+		var zFunc = Parser.parse(this.zFuncText).toJSFunction( ['t'] );
+		
+		var geometry = new THREE.Geometry();
+		for(var t = this.tMin; t <= this.tMax; t += this.density) {
+			geometry.vertices.push(sCoord(xFunc(t), yFunc(t), zFunc(t)));
 
 		}
-
-		CustomCurve.prototype = Object.create( THREE.Curve.prototype );
-		CustomCurve.prototype.constructor = CustomCurve;
-
-		CustomCurve.prototype.getPoint = function (t) {
-
-			t = t * tRange + tMin;
-			var tx = xFunc(t);
-			var ty = yFunc(t);
-			var tz = zFunc(t);
-
-			return new THREE.Vector3( xCoord(tx), yCoord(ty), zCoord(tz));
-
-		};
-		
-		var path = new CustomCurve( 1 );
-		var geometry = new THREE.TubeGeometry( path, this.segments, this.radius, this.radialsegments, false );
 	
-		this.graph = createParametricMesh(geometry, this.color);
+		var material = new THREE.LineBasicMaterial( { color: this.color, clippingPlanes: getClippingPlanes() });
+
+		this.graph.add(new THREE.Line(geometry, material));
 		
 		this.graph.visible = this.visible;
-
 	}
 	
 	getObject() { return this.graph; }
@@ -1046,6 +1421,10 @@ class ParametricProjection {
 	toggleVisible() {
 		this.visible = !this.visible;
 		this.graph.visible = this.visible;
+	}
+	
+	redraw() {
+		
 	}
 	
 }
@@ -1219,16 +1598,9 @@ function rotatePlane(plane, eqnArr) {
 
 function createTransparentMesh(geometry, color) {
 	
-	var upperXClip = new THREE.Plane( sCoord(-viewingWindow.xMax, 0, 0), 1);
-	var lowerXClip = new THREE.Plane( sCoord(-viewingWindow.xMin, 0, 0), 1);
-	var upperYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMax, 0), 1);
-	var lowerYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMin, 0), 1);	
-	var upperZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMax), 1);
-	var lowerZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMin), 1);
-	
     var meshMaterial = new THREE.MeshLambertMaterial({
 		color: color, 
-		clippingPlanes: [lowerXClip, upperXClip, lowerYClip, upperYClip, lowerZClip, upperZClip], 
+		clippingPlanes: getClippingPlanes(), 
 		transparent: true,
 		side: THREE.DoubleSide,
 		opacity: .3
@@ -1236,7 +1608,7 @@ function createTransparentMesh(geometry, color) {
 
 	var mesh2material = new THREE.MeshBasicMaterial({
 		color: color,
-		clippingPlanes: [lowerXClip, upperXClip, lowerYClip, upperYClip, lowerZClip, upperZClip],
+		clippingPlanes: getClippingPlanes(),
 		transparent: true,
 		side: THREE.DoubleSide,
 		depthTest: false,
@@ -1247,16 +1619,9 @@ function createTransparentMesh(geometry, color) {
 }
 
 function createNormalMesh(geometry) {
-	
-	var upperXClip = new THREE.Plane( sCoord(-viewingWindow.xMax, 0, 0), 1);
-	var lowerXClip = new THREE.Plane( sCoord(-viewingWindow.xMin, 0, 0), 1);
-	var upperYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMax, 0), 1);
-	var lowerYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMin, 0), 1);	
-	var upperZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMax), 1);
-	var lowerZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMin), 1);
 
     var meshMaterial = new THREE.MeshNormalMaterial({
-		clippingPlanes: [lowerXClip, upperXClip, lowerYClip, upperYClip, upperZClip, lowerZClip], 
+		clippingPlanes: getClippingPlanes(), 
 		side: THREE.DoubleSide,
 		transparent: true,
 		opacity: 0.8
@@ -1266,17 +1631,10 @@ function createNormalMesh(geometry) {
 }
 
 function createSolidColorMesh(geometry, color) {
-	
-	var upperXClip = new THREE.Plane( sCoord(-viewingWindow.xMax, 0, 0), 1);
-	var lowerXClip = new THREE.Plane( sCoord(-viewingWindow.xMin, 0, 0), 1);
-	var upperYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMax, 0), 1);
-	var lowerYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMin, 0), 1);	
-	var upperZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMax), 1);
-	var lowerZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMin), 1);
 
     var meshMaterial = new THREE.MeshBasicMaterial({
 		color: color,
-		clippingPlanes: [lowerXClip, upperXClip, lowerYClip, upperYClip, upperZClip, lowerZClip], 
+		clippingPlanes: getClippingPlanes(), 
 		side: THREE.DoubleSide,
 		transparent: false,
 		opacity: 1
@@ -1297,38 +1655,146 @@ function createBasicNoClipMesh(geometry, color) {
 	return new THREE.Mesh(geometry, meshMaterial);
 }
 
-function createShadedMesh(geometry, color) {
-		
-	upperXClip = new THREE.Plane( sCoord(-viewingWindow.xMax, 0, 0), 1);
-	lowerXClip = new THREE.Plane( sCoord(-viewingWindow.xMin, 0, 0), 1);
-	upperYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMax, 0), 1);
-	lowerYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMin, 0), 1);	
-	upperZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMax), 1);
-	lowerZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMin), 1);
+function createShadedMesh(geometry, color, gridtype) {
 	
     var meshMaterial = new THREE.MeshPhongMaterial({
-		clippingPlanes: [upperZClip, lowerZClip, lowerXClip, upperXClip, lowerYClip, upperYClip], 
+		clippingPlanes: getClippingPlanes(), 
 		side: THREE.DoubleSide,
+		specular: 0x555555,
+		transparent: true,
+		opacity: 0.6,
 		color: color
 	});
 		
 	return new THREE.Mesh(geometry, meshMaterial);
 }
 
-function createVertexColorMesh(geometry, color) {
+function createRainbowMesh(geometry) {
 	
-	upperXClip = new THREE.Plane( sCoord(-viewingWindow.xMax, 0, 0), 1);
-	lowerXClip = new THREE.Plane( sCoord(-viewingWindow.xMin, 0, 0), 1);
-	upperYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMax, 0), 1);
-	lowerYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMin, 0), 1);	
-	upperZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMax), 1);
-	lowerZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMin), 1);
+	///////////////////////////////////////////////
+	// calculate vertex colors based on Z values //
+	///////////////////////////////////////////////
+	geometry.computeBoundingBox();
+	//var zMin = geometry.boundingBox.min.z;
+	//var zMax = geometry.boundingBox.max.z;
+	var zMin = viewingWindow.zMin * viewingWindow.zScale + viewingWindow.zShift;
+	var zMax = viewingWindow.zMax * viewingWindow.zScale + viewingWindow.zShift;
+	var zRange = zMax - zMin;
+	var color, point, face, numberOfSides, vertexIndex;
+	// faces are indexed using characters
+	var faceIndices = [ 'a', 'b', 'c', 'd' ];
+	// first, assign colors to vertices as desired
+	for ( var i = 0; i < geometry.vertices.length; i++ ) 
+	{
+		point = geometry.vertices[ i ];
+		color = new THREE.Color( 0x00ff00 );
+		color.setHSL( 0.7 * (zMax - point.z) / zRange, 1, 0.5 );
+		//color.setRGB(0, 0.75 * (point.z - zMin)/zRange, 0);
+		geometry.colors[i] = color; // use this array for convenience
+	}
+	// copy the colors as necessary to the face's vertexColors array.
+	for ( var i = 0; i < geometry.faces.length; i++ ) 
+	{
+		face = geometry.faces[ i ];
+		numberOfSides = ( face instanceof THREE.Face3 ) ? 3 : 4;
+		for( var j = 0; j < numberOfSides; j++ ) 
+		{
+			vertexIndex = face[ faceIndices[ j ] ];
+			face.vertexColors[ j ] = geometry.colors[ vertexIndex ];
+		}
+	}
+	///////////////////////
+	// end vertex colors //
+	///////////////////////
 	
-    var meshMaterial = new THREE.MeshBasicMaterial({
-		clippingPlanes: [upperZClip, lowerZClip, lowerXClip, upperXClip, lowerYClip, upperYClip], 
+	var rainbowMaterial = new THREE.MeshBasicMaterial({
+		vertexColors: THREE.VertexColors,
+		side: THREE.DoubleSide,
+		transparent: true,
+		opacity: 0.75,
+		clippingPlanes: getClippingPlanes()
+	});
+	
+	graphMesh = new THREE.Mesh( geometry, rainbowMaterial );
+
+	return graphMesh;
+	
+}
+
+function createDepthMesh(geometry) {
+	
+	///////////////////////////////////////////////
+	// calculate vertex colors based on Z values //
+	///////////////////////////////////////////////
+	geometry.computeBoundingBox();
+	//var zMin = geometry.boundingBox.min.z;
+	//var zMax = geometry.boundingBox.max.z;
+	var zMin = viewingWindow.zMin * viewingWindow.zScale + viewingWindow.zShift;
+	var zMax = viewingWindow.zMax * viewingWindow.zScale + viewingWindow.zShift;
+	var zRange = zMax - zMin;
+	var color, point, face, numberOfSides, vertexIndex;
+	// faces are indexed using characters
+	var faceIndices = [ 'a', 'b', 'c', 'd' ];
+	// first, assign colors to vertices as desired
+	for ( var i = 0; i < geometry.vertices.length; i++ ) 
+	{
+		point = geometry.vertices[ i ];
+		color = new THREE.Color( 0x00ff00 );
+		//color.setHSL( 0.7 * (zMax - point.z) / zRange, 1, 0.5 );
+		color.setRGB(0, 0.75 * (point.z - zMin)/zRange, 0);
+		geometry.colors[i] = color; // use this array for convenience
+	}
+	// copy the colors as necessary to the face's vertexColors array.
+	for ( var i = 0; i < geometry.faces.length; i++ ) 
+	{
+		face = geometry.faces[ i ];
+		numberOfSides = ( face instanceof THREE.Face3 ) ? 3 : 4;
+		for( var j = 0; j < numberOfSides; j++ ) 
+		{
+			vertexIndex = face[ faceIndices[ j ] ];
+			face.vertexColors[ j ] = geometry.colors[ vertexIndex ];
+		}
+	}
+	///////////////////////
+	// end vertex colors //
+	///////////////////////
+	
+	var rainbowMaterial = new THREE.MeshBasicMaterial({
+		vertexColors: THREE.VertexColors,
+		side: THREE.DoubleSide,
+		transparent: true,
+		opacity: 0.75,
+		clippingPlanes: getClippingPlanes(),
+	});
+	
+	var mesh2material = new THREE.MeshBasicMaterial({
+		color: new THREE.Color('black'),
+		clippingPlanes: getClippingPlanes(),
+		side: THREE.DoubleSide,
+		wireframe: true
+	});
+		
+	return new THREE.SceneUtils.createMultiMaterialObject(geometry, [rainbowMaterial, mesh2material]);
+	
+	//graphMesh = new THREE.Mesh( geometry, rainbowMaterial );
+
+	//return graphMesh;
+	
+}
+
+function createPhongMesh(geometry, color) {
+	
+    var meshMaterial = new THREE.MeshPhongMaterial({
+		clippingPlanes: getClippingPlanes(), 
 		side: THREE.DoubleSide,
 		color: color,
-		vertexColors: THREE.VertexColors
+		specular: 0x080808,
+		//vertexColors: THREE.VertexColors,
+		transparent: true,
+		opacity: 0.75,
+		//polygonOffset: true,  
+		//polygonOffsetUnits: 1,
+		//polygonOffsetFactor: 1
 	});
 		
 	return new THREE.Mesh(geometry, meshMaterial);
@@ -1336,36 +1802,52 @@ function createVertexColorMesh(geometry, color) {
 
 function createBasicMesh(geometry) {
 	
-	upperXClip = new THREE.Plane( sCoord(-viewingWindow.xMax, 0, 0), 1);
-	lowerXClip = new THREE.Plane( sCoord(-viewingWindow.xMin, 0, 0), 1);
-	upperYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMax, 0), 1);
-	lowerYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMin, 0), 1);	
-	upperZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMax), 1);
-	lowerZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMin), 1);
-	
     var meshMaterial = new THREE.MeshBasicMaterial({
-		clippingPlanes: [upperZClip, lowerZClip, lowerXClip, upperXClip, lowerYClip, upperYClip]
+		clippingPlanes: getClippingPlanes()
 	});
 		
 	return new THREE.Mesh(geometry, meshMaterial);
 }
 
 function createParametricMesh(geometry, color) {
-
-	upperXClip = new THREE.Plane( sCoord(-viewingWindow.xMin, 0, 0), 1);
-	lowerXClip = new THREE.Plane( sCoord(-viewingWindow.xMax, 0, 0), 1);
-	upperYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMin, 0), 1);
-	lowerYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMax, 0), 1);
-	upperZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMin), 1);
-	lowerZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMax), 1);
 	
     var meshMaterial = new THREE.MeshBasicMaterial({
 		color: color, 
-		clippingPlanes: [upperZClip, lowerZClip, lowerXClip, upperXClip, lowerYClip, upperYClip]
+		clippingPlanes: getClippingPlanes()
 	});
 		
 	return new THREE.Mesh(geometry, meshMaterial);
 }
+
+function getClippingPlanes() {
+	
+	if(viewingWindow.xMin == 0) {
+		var upperXClip = new THREE.Plane(new THREE.Vector3( -1, 0, 0), xCoord(viewingWindow.xMax));
+		var lowerXClip = new THREE.Plane(new THREE.Vector3(  1, 0, 0), xCoord(viewingWindow.xMin));
+	} else {
+		var upperXClip = new THREE.Plane( sCoord(-viewingWindow.xMax, 0, 0), 1);
+		var lowerXClip = new THREE.Plane( sCoord(-viewingWindow.xMin, 0, 0), 1);
+	}
+	
+	if(viewingWindow.yMin == 0) {
+		var upperYClip = new THREE.Plane(new THREE.Vector3( 0, -1, 0), yCoord(viewingWindow.yMax));
+		var lowerYClip = new THREE.Plane(new THREE.Vector3( 0,  1, 0), yCoord(viewingWindow.yMin));
+	} else {
+		var upperYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMax, 0), 1);
+		var lowerYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMin, 0), 1);
+	}
+	
+	if(viewingWindow.zMin == 0) {
+		var upperZClip = new THREE.Plane(new THREE.Vector3( 0, 0, -1), zCoord(viewingWindow.zMax));
+		var lowerZClip = new THREE.Plane(new THREE.Vector3( 0, 0,  1), zCoord(viewingWindow.zMin));
+	} else {
+		var upperZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMax), 1);
+		var lowerZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMin), 1);
+	}
+	 
+	return [lowerZClip, upperZClip, lowerXClip, upperXClip, lowerYClip, upperYClip];
+}
+
 
 class TextBox {
 
@@ -1514,6 +1996,7 @@ function roundRect(ctx, x, y, w, h, r)
 function addToScene(scene, obj) {
 	if(scene instanceof THREE.Scene) {
 		scene.add(obj.getObject());
+		objectlist.push(obj);
 	} else {
 		console.warn('Two parameters expected for addToScene. First must be "scene"!');
 	}
@@ -1539,3 +2022,4 @@ function initColor(color) {
 	} 
 	return color;
 }
+

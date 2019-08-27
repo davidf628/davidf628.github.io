@@ -1,0 +1,124 @@
+<!doctype html>
+<meta charset="utf-8">
+
+<html lang="en">
+<head>
+	<title>Spheres</title>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+</head>
+<body>
+
+<script src="js/three.min.js"></script>
+<script src="js/SceneUtils.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/OrbitControls.js"></script>
+<script src="js/DragControls.js"></script>
+<script src="js/parser.js"></script>
+<script src="js/THREEx.KeyboardState.js"></script>
+<script src="js/THREEx.FullScreen.js"></script>
+<script src="js/THREEx.WindowResize.js"></script>
+<script src="js/3dmath.js"></script>
+
+<script type='text/javascript' src='js/dat.gui.min.js'></script>
+
+<div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
+<script>
+
+var window_param = {
+	xmin : -20,
+	xmax : 20,
+	xscl : 1,
+	ymin : -20,
+	ymax : 20,
+	yscl : 1,
+	zmin : -20,
+	zmax : 20,
+	zscl : 1,
+	xygrid: true,
+	yzgrid: false,
+	xzgrid: false,
+	polargrid: false,
+	labels: false,
+	activecamera: 'Perspective',
+	updateWindow: function() { redrawScene(); },
+};
+
+var c, sphere, x, y, z, nx, ny, nz;
+
+var parameters = {
+
+	togglesphere: function() { sphere.toggleVisible(); },
+	togglepoints: function() { x.toggleVisible(); y.toggleVisible(); z.toggleVisible(); nx.toggleVisible(); ny.toggleVisible(); nz.toggleVisible(); }
+	
+};
+
+// GUI
+var gui = new dat.GUI();
+gui.add(parameters, 'togglesphere').name('Toggle Sphere');
+gui.add(parameters, 'togglepoints').name('Toggle Points');
+
+
+init();
+
+animate();
+					
+function createScene() {
+
+	sphere = new Sphere({ coords: [-2, 1, -5], radius: 13, color: 'blue' });
+	c = new Point([-2, 1, -5]);
+	
+	x = new Point([11, 1, -5], { visible: false, color: 'red' });
+	y = new Point([-2, 14, -5], { visible: false, color: 'green' });
+	z = new Point([-2, 1, 8], { visible: false, color: 'blue' });
+	nx = new Point([-15, 1, -5], { visible: false, color: 'red' });
+	ny = new Point([-2, -12, -5], { visible: false, color: 'green' });
+	nz = new Point([-2, 1, -18], { visible: false, color: 'blue' });
+	
+	addToScene(scene, sphere);
+	addToScene(scene, c);
+	
+	addToScene(scene, x);
+	addToScene(scene, y);
+	addToScene(scene, z);
+	addToScene(scene, nx);
+	addToScene(scene, ny);
+	addToScene(scene, nz);
+	
+
+}
+
+function animate() {
+    requestAnimationFrame( animate );
+
+	if(window_param.activecamera == 'Perspective') {
+		renderer.render( scene, perspectivecamera );
+	} else {
+		renderer.render( scene, orthographiccamera );
+	}
+
+	perspectivecontrols.update();
+	orthographiccontrols.update();
+	stats.update();
+
+}
+
+function redrawScene() {
+
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+							window_param.ymin, window_param.ymax, window_param.yscl,
+							window_param.zmin, window_param.zmax, window_param.zscl);
+	
+	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
+	
+	for(var i = 0; i < objectlist.length; i++) {
+		scene.remove(objectlist[i].getObject());
+		objectlist[i].redraw();
+		scene.add(objectlist[i].getObject());
+	}
+	
+}
+
+</script>
+
+</body>
+</html>

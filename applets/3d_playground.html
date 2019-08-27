@@ -18,21 +18,46 @@
 <script src="js/THREEx.FullScreen.js"></script>
 <script src="js/THREEx.WindowResize.js"></script>
 <script src="js/3dmath.js"></script>
+<script src='./js/math.min.js' type='text/javascript'></script>
 
 <script type='text/javascript' src='js/dat.gui.min.js'></script>
 
 <div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
 <script>
 
-var container, scene, camera, renderer, controls, stats;
-var keyboard = new THREEx.KeyboardState();
-var clock = new THREE.Clock();
+// All 3d programs must contain this set of parameters
 
-var a = 0;
-var gui_a;
+var window_param = {
+	xmin : -10,
+	xmax : 10,
+	xscl : 1,
+	ymin : -10,
+	ymax : 10,
+	yscl : 1,
+	zmin : -10,
+	zmax : 10,
+	zscl : 1,
+	xygrid: true,
+	yzgrid: false,
+	xzgrid: false,
+	polargrid: false,
+	labels: false,
+	activecamera: 'Perspective',
+	updateWindow: function() { redrawScene(); },
+};
 
-var point;
-var line;
+var parameters = {
+	angle: 0.01
+}
+
+// Define a gui and add anything you want to it before initializing the scene
+
+var gui = new dat.GUI();	
+
+gui.add(parameters, 'angle').name('Angle').min(0.01).max(6.28).step(.01).onChange(updatelathe);
+
+//var lathe = new Lathe('t', 't^2', 0, 1, { axis: 'x' });
+//var lathe2 = new Lathe('t', 'sqrt(t)', 0, 1, { axis: 'x' });
 
 // initialization
 init();
@@ -40,118 +65,98 @@ init();
 // animation loop / game loop
 animate();
 					
-function init() {
 
-	// SCENE 	
-	scene = new THREE.Scene();
-
-	// CAMERA 	
-	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;	
-	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
-	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
-	
-	//camera = new THREE.OrthographicCamera(-50, 50, -50, 50, NEAR, FAR);
-	
-	scene.add(camera);
-	camera.position.set(40,40,10);
-	camera.up.set(0, 0, 1);  // make sure z-axis is facing up
-	camera.lookAt(scene.position);	
-	
-	// RENDERER 	
-	renderer = new THREE.WebGLRenderer( {antialias:true, alpha: true} );
-	// Set background color as white
-	renderer.setClearColor( 0xffffff ); 
-	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-	renderer.sortObjects = false;
-	renderer.localClippingEnabled = true;
-	
-	// attach div element to variable to contain the renderer
-	container = document.getElementById( 'ThreeJS' );
-	container.appendChild( renderer.domElement );
-	
-	// EVENTS 	
-	THREEx.WindowResize(renderer, camera);
-	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
-	
-	// CONTROLS 
-	controls = new THREE.OrbitControls( camera, renderer.domElement );
-	
-	
-	// STATS 	
-	stats = new Stats();
-	stats.domElement.style.position = 'absolute';
-	stats.domElement.style.bottom = '0px';
-	stats.domElement.style.zIndex = 100;
-	container.appendChild( stats.domElement );
-		
-	// GUI
-	gui = new dat.GUI();	
-	/*window_menu = gui.addFolder('Window');
-	window_menu.add( this, 'xMin' ).name('x Min = ').onChange( 
-		function() { 
-			//xRange = xMax - xMin;
-			//createScene(); 
-		});*/
-
-	
-	gui.add(this, 'a').min(0).max(40).step(0.01).name('a = ').onChange(
-	    function() {
-			p.traceTo(scene, [Math.cos(a), Math.sin(a), 0.5 * a]);
-	        v.setEndPoint(p.getCoords());
-	    }
-	);
-	
-	
-	createScene();
-}
+// All 3d Programs must have a createScene() function that defines the objects
 
 function createScene() {
 
-	var light = new THREE.AmbientLight( 0xffffff );
-	scene.add( light );
+	//surface = new Surface('x^2-y^2-1', { color: '#BB0000', skin: 'rainbow', wireframevisible: false });
+	//addToScene(scene, surface);
 	
 	
-	viewingWindow.setBounds(0, 5, 1, 0, 5, 1, 0, 5, 1);
-	var axes = createAxes( { labels: false, xzgrid: true, yzgrid: true } );
-	scene.add(axes);
+//	addToScene(scene, lathe);
+//	addToScene(scene, lathe2);
+	
+/*	points2dx = [];
+	points2dy = [];
+	points3d = [];
+	for ( var t = 0; t < 2; t += 0.25 ) {
+		var x = math.eval('t', { t: t });
+		var y = math.eval('t^2', { t: t});
+		points2dx.push(new THREE.Vector2( xCoord(y) , yCoord(x) ) );
+		points2dy.push(new THREE.Vector2( xCoord(x), yCoord(y) ));
+		points3d.push([x, y, 0]);
+		addToScene(scene, new Point([x, y, 0]));
+	}
 
-	addToScene(scene, new Line({ start: [0,0,0], end: [0,4,0] }));
-	addToScene(scene, new Line({ start: [0,0,0], end: [4,0,0] }));
-	addToScene(scene, new Line({ start: [4,0,0], end: [4,4,0] }));
-	addToScene(scene, new Line({ start: [0,4,0], end: [4,4,0] }));
+	addToScene(scene, new Path(points3d));
 	
-	addToScene(scene, new Line({ start: [0,0,0], end: [0,0,4] }));
-	addToScene(scene, new Line({ start: [0,4,0], end: [0,4,4] }));
-	addToScene(scene, new Line({ start: [4,0,0], end: [0,0,4] }));
-	addToScene(scene, new Line({ start: [4,4,0], end: [0,4,4] }));
-	addToScene(scene, new Line({ start: [0,0,4], end: [0,4,4] }));
+	//addToScene(scene, new Point( { coords: [2, 3, 1] }));
 	
-	addToScene(scene, new Quadrilateral([0, 0, 4], [0, 4, 4], [4, 4, 0], [4, 0, 0], { color: 'gray' } ));
-	addToScene(scene, new Quadrilateral([0, 4, 4], [4, 4, 0], [0, 4, 0], [0, 4, 4], { color: 'gray' } ));
+
+/*	for(var k = viewingWindow.xMin; k <= viewingWindow.xMax; k++) {
+		var xstr = k.toString();
+		var ystr = 't';
+		addToScene(scene, new ParametricProjection(xstr, ystr, 'x^2-y^2-1', -5, 5, { gridtype: 'rectangular' }));
+		//var zstr = math.simplify('k^2 - t^2 - 1', { k: k }).toString();
+		//addToScene(scene, new ParametricGraph(xstr, ystr, zstr, -5, 5));
+	}
+
+	for(var k = viewingWindow.yMin; k <= viewingWindow.yMax; k++) {
+		var xstr = 't';
+		var ystr = k.toString();
+		addToScene(scene, new ParametricProjection(xstr, ystr, 'x^2-y^2-1', -5, 5));
+		//var zstr = math.simplify('t^2 - k^2 - 1', { k: k}).toString();
+		//addToScene(scene, new ParametricGraph(xstr, ystr, zstr, -5, 5));
+	}
+
+	/*for(var k = -5; k <= 4; k++) {
+		var xstr = 'sqrt(4 - (' + k + ')) * cos(t)';
+		var ystr = 'sqrt(4 - (' + k + ')) * sin(t)';
+		var zstr = k.toString();
+		addToScene(scene, new ParametricGraph(xstr, ystr, zstr, 0, 6.28));
+	}*/
 
 }
 
-function zfunc(x, y) {
-	return x + y;
+function updatelathe() {
+//	lathe.setAngle(scene, parameters.angle);
+//	lathe2.setAngle(scene, parameters.angle);
 }
+
+
+// All 3d programs need the animate and redrawScene() functions, in general you can
+// just copy and paste the ones below
 
 function animate() {
     requestAnimationFrame( animate );
-	render();		
-	update();
-}
 
-function update()
-{
-	// delta = change in time since last call (in seconds)
-	var delta = clock.getDelta(); 
-		
-	controls.update();
+	if(window_param.activecamera == 'Perspective') {
+		renderer.render( scene, perspectivecamera );
+	} else {
+		renderer.render( scene, orthographiccamera );
+	}
+
+	perspectivecontrols.update();
+	orthographiccontrols.update();
 	stats.update();
+
 }
 
-function render() {	
-	renderer.render( scene, camera );
+function redrawScene() {
+
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+							window_param.ymin, window_param.ymax, window_param.yscl,
+							window_param.zmin, window_param.zmax, window_param.zscl);
+	
+	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
+	
+	for(var i = 0; i < objectlist.length; i++) {
+		scene.remove(objectlist[i].getObject());
+		objectlist[i].redraw();
+		scene.add(objectlist[i].getObject());
+	}
+	
 }
 
 </script>

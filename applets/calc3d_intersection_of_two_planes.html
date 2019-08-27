@@ -1,0 +1,167 @@
+<!doctype html>
+<meta charset="utf-8">
+
+<html lang="en">
+<head>
+	<title>Intersection of Two Planes</title>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+</head>
+<body>
+
+<!-----------------------------------------------------------------------------
+-- This program shows the solution to the 2x3 system of equations:
+--
+--  -x +  y +  z =  2
+-- -3x - 2y +  z = -4
+--
+-- which is the line defined by the vector: < 3/5t, 2 - 2/5t, t >
+--
+------------------------------------------------------------------------------>
+
+<!-- Libraries for ThreeJS -->
+
+<script src="js/three.min.js"></script>
+<script src="js/SceneUtils.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/OrbitControls.js"></script>
+<script src="js/DragControls.js"></script>
+<script src="js/parser.js"></script>
+<script src="js/THREEx.KeyboardState.js"></script>
+<script src="js/THREEx.FullScreen.js"></script>
+<script src="js/THREEx.WindowResize.js"></script>
+<script src="js/3dmath.js"></script>
+
+<!-- Library for the menuing system -->
+<script type='text/javascript' src='js/dat.gui.min.js'></script>
+
+<!-- Libraries for MathJax to display math formulas on screen -->
+<script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+      tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]},
+      });
+    </script>
+    <script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+
+<!-- jQuery code to display an information button and box when clicked. -->
+<script src="js/jquery-1.9.1.js"></script>
+<script src="js/jquery-ui.js"></script>
+<link rel=stylesheet href="css/jquery-ui.css" />
+<link rel=stylesheet href="css/info.css"/>
+<script src="js/info.js"></script>
+<div id="infoButton"></div>
+<div id="infoBox" title="Intersection of Two Planes">
+	This program shows the solution in 3D of the 2x3 system of equations:</br></br>
+	<p align='center'>Plane 1: $-x+y+z=2$</p>
+	<p align='center'>Plane 2: $-3x-2y+z=-4$</p>
+	</br>
+	Which is the line in space defined by the parametric equations: $$x=\frac{3}{t}t,y=2-\frac{2}{5}t,z=t$$
+	You can rotate by swiping with your finger or dragging with the mouse. You can zoom by pinching the screen or using the mousewheel.
+	Pressing 'm' will make the window toggle fullscreen mode.</br></br>
+	Note that the x-axis is green, the y-axis is red and the z-axis is blue.
+</div>
+
+<!--------------------------------------------------------------------------------->
+
+<div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
+<script>
+
+var window_param = {
+	xmin : -10,
+	xmax : 10,
+	xscl : 1,
+	ymin : -10,
+	ymax : 10,
+	yscl : 1,
+	zmin : -10,
+	zmax : 10,
+	zscl : 1,
+	xygrid: true,
+	yzgrid: false,
+	xzgrid: false,
+	polargrid: false,
+	labels: false,
+	activecamera: 'Perspective',
+	updateWindow: function() { redrawScene(); },
+};
+
+var plane1, plane2, intersection;
+
+var parameters = {
+
+	toggleplane1: function() { plane1.toggleVisible(); },
+	toggleplane2: function() { plane2.toggleVisible(); },
+	toggleintersection: function() { intersection.toggleVisible(); }, 
+	toggledirectionvectors: 
+		function() { 
+			vector1.toggleVisible();
+			vector2.toggleVisible();
+			crossproduct.toggleVisible();
+		}
+	
+};
+
+// GUI CONTROLLER
+var gui = new dat.GUI();
+gui.add(parameters, 'toggleplane1').name('Toggle Plane 1');
+gui.add(parameters, 'toggleplane2').name('Toggle Plane 2');
+gui.add(parameters, 'toggleintersection').name('Toggle Intersection');
+gui.add(parameters, 'toggledirectionvectors').name('Toggle Vectors');
+
+init();
+animate();
+					
+function createScene() {
+	
+	plane1 = new Surface('x-y+2', { color: new THREE.Color('green'), visible: false });
+	plane2 = new Surface('3*x+2*y-4', { color: new THREE.Color('blue'), visible: false });
+	intersection = new ParametricGraph('3/5*t', '2-2/5*t', 't', -20, 20, { visible: false });
+	vector1 = new Vector( { end: [1, -1, -1], visible: false } );
+	vector2 = new Vector( { end: [3,  2, -1], visible: false } );
+	crossproduct = new Vector( { end: [3, -2, 5], visible: false });
+	
+
+	addToScene(scene, plane1);
+	addToScene(scene, plane2);
+	addToScene(scene, intersection);
+	
+	addToScene(scene, vector1);
+	addToScene(scene, vector2);
+	addToScene(scene, crossproduct);
+
+}
+
+function animate() {
+    requestAnimationFrame( animate );
+
+	if(window_param.activecamera == 'Perspective') {
+		renderer.render( scene, perspectivecamera );
+	} else {
+		renderer.render( scene, orthographiccamera );
+	}
+
+	perspectivecontrols.update();
+	orthographiccontrols.update();
+	stats.update();
+
+}
+
+function redrawScene() {
+
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+							window_param.ymin, window_param.ymax, window_param.yscl,
+							window_param.zmin, window_param.zmax, window_param.zscl);
+	
+	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
+	
+	for(var i = 0; i < objectlist.length; i++) {
+		scene.remove(objectlist[i].getObject());
+		objectlist[i].redraw();
+		scene.add(objectlist[i].getObject());
+	}
+	
+}
+
+</script>
+
+</body>
+</html>

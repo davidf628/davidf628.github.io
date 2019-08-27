@@ -3,7 +3,7 @@
 
 <html lang="en">
 <head>
-	<title>Graphing Vector Valued Functions</title>
+	<title>Velocity and Acceleration Vectors in 3D</title>
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 </head>
 <body>
@@ -54,9 +54,24 @@
 <div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
 <script>
 
-var container, scene, camera, renderer, controls, stats;
-var keyboard = new THREEx.KeyboardState();
-var clock = new THREE.Clock();
+var window_param = {
+	xmin : -20,
+	xmax : 20,
+	xscl : 5,
+	ymin : -20,
+	ymax : 20,
+	yscl : 5,
+	zmin : -20,
+	zmax : 20,
+	zscl : 5,
+	xygrid: true,
+	yzgrid: false,
+	xzgrid: false,
+	polargrid: false,
+	labels: true,
+	activecamera: 'Perspective',
+	updateWindow: function() { redrawScene(); },
+};
 
 var x_func, y_func, z_func, tmin, tmax, p, vgraph, v1, v2;
 var x_1, x_2, y_1, y_2, z_1, z_2;
@@ -78,118 +93,60 @@ y_2 = math.derivative(y_1, 't').toString();
 z_1 = math.derivative(parameters.z_text, 't').toString();
 z_2 = math.derivative(z_1, 't').toString();
 
-// initialization
-init();
-
-// animation loop / game loop
-animate();
-					
-function init() {
-
-	// SCENE 	
-	scene = new THREE.Scene();
-
-	// CAMERA 	
-	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;	
-	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
-	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
-	scene.add(camera);
-	camera.position.set(40,40,10);
-	camera.up.set(0, 0, 1);  // make sure z-axis is facing up
-	camera.lookAt(scene.position);	
-	
-	// RENDERER 	
-	renderer = new THREE.WebGLRenderer( {antialias:true, alpha: true} );	
-	renderer.setClearColor( 0xffffff);
-	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-	renderer.sortObjects = false;
-	renderer.localClippingEnabled = true;
-	
-	// attach div element to variable to contain the renderer
-	container = document.getElementById( 'ThreeJS' );
-	container.appendChild( renderer.domElement );
-	
-	// EVENTS 	
-	THREEx.WindowResize(renderer, camera);
-	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
-	
-	// CONTROLS 
-	controls = new THREE.OrbitControls( camera, renderer.domElement );
-	
-	
-	// STATS 	
-	stats = new Stats();
-	stats.domElement.style.position = 'absolute';
-	stats.domElement.style.bottom = '0px';
-	stats.domElement.style.zIndex = 100;
-	container.appendChild( stats.domElement );
+// GUI CONTROLLER
+var gui = new dat.GUI();
+gui.add(parameters, 'x_text').name('x(t):');
+gui.add(parameters, 'y_text').name('y(t):');
+gui.add(parameters, 'z_text').name('z(t):');
+gui.add(parameters, 'update').name('Update Function:');
+gui.add(parameters, 't').min(-30).max(30).step(0.01).name('t = ').onChange(
+	function() {
 		
-	// GUI CONTROLLER
-	var gui = new dat.GUI();
-	gui.add(parameters, 'x_text').name('x(t):');
-	gui.add(parameters, 'y_text').name('y(t):');
-	gui.add(parameters, 'z_text').name('z(t):');
-	gui.add(parameters, 'update').name('Update Function:');
-	gui.add(parameters, 't').min(-30).max(30).step(0.01).name('t = ').onChange(
-		function() {
+		var x_func = math.compile(parameters.x_text);
+		var x = x_func.eval({ t: parameters.t });
+		x_func = math.compile(x_1);
+		var x1 = x_func.eval({ t: parameters.t });
+		x_func = math.compile(x_2);
+		var x2 = x_func.eval({ t: parameters.t });			
 			
-			var x_func = math.compile(parameters.x_text);
-			var x = x_func.eval({ t: parameters.t });
-			x_func = math.compile(x_1);
-			var x1 = x_func.eval({ t: parameters.t });
-			x_func = math.compile(x_2);
-			var x2 = x_func.eval({ t: parameters.t });			
+		var y_func = math.compile(parameters.y_text);
+		var y = y_func.eval({ t: parameters.t });
+		y_func = math.compile(y_1);
+		var y1 = y_func.eval({ t: parameters.t });
+		y_func = math.compile(y_2);
+		var y2 = y_func.eval({ t: parameters.t });
 			
+		var z_func = math.compile(parameters.z_text);
+		var z = z_func.eval({ t: parameters.t });
+		z_func = math.compile(z_1);
+		var z1 = z_func.eval({ t: parameters.t });
+		z_func = math.compile(z_2);
+		var z2 = z_func.eval({ t: parameters.t });
 			
-			var y_func = math.compile(parameters.y_text);
-			var y = y_func.eval({ t: parameters.t });
-			y_func = math.compile(y_1);
-			var y1 = y_func.eval({ t: parameters.t });
-			y_func = math.compile(y_2);
-			var y2 = y_func.eval({ t: parameters.t });
-			
-			var z_func = math.compile(parameters.z_text);
-			var z = z_func.eval({ t: parameters.t });
-			z_func = math.compile(z_1);
-			var z1 = z_func.eval({ t: parameters.t });
-			z_func = math.compile(z_2);
-			var z2 = z_func.eval({ t: parameters.t });
-			
-			p.moveTo([x, y, z]);
+		p.moveTo([x, y, z]);
 
-			v1.setStartPoint([x, y, z]);
-			v1.setEndPoint([x + x1, y + y1, z + z1]);
+		v1.setStartPoint([x, y, z]);
+		v1.setEndPoint([x + x1, y + y1, z + z1]);
 			
-			v2.setStartPoint([x, y, z]);
-			v2.setEndPoint([x + x2, y + y2, z + z2]);
+		v2.setStartPoint([x, y, z]);
+		v2.setEndPoint([x + x2, y + y2, z + z2]);
 			
-		});
-	
-	createScene();
-}
+	});
+
+init();
+animate();
 
 function createScene() {
-
-	while(scene.children.length > 0){ 
-		scene.remove(scene.children[0]); 
-	}
-
-	var light = new THREE.AmbientLight( 0xffffff );
-	scene.add( light );
 	
-	var axes = createAxes({ labels: true });
-	
-	p = new Point({ coords: [0, 0, 0], radius: 0.4, color: new THREE.Color('blue') });
+	p = new Point({ coords: [0, 0, 0], radius: 0.4, color: 'blue' });
 	vgraph = new ParametricGraph(parameters.x_text, parameters.y_text, parameters.z_text, -20, 20);
 	v1 = new Vector({ end: [0, 0, 0] });
 	v2 = new Vector({ end: [0, 0, 0] });
-	
-	scene.add(axes);
-	
-	scene.add(p.getObject());
-	scene.add(vgraph.getObject());
-	scene.add(v1.getObject());
-	scene.add(v2.getObject());
+
+	addToScene(scene, p);
+	addToScene(scene, vgraph);
+	addToScene(scene, v1);
+	addToScene(scene, v2);
 
 }
 
@@ -209,21 +166,33 @@ function updategraph() {
 
 function animate() {
     requestAnimationFrame( animate );
-	render();		
-	update();
-}
 
-function update()
-{
-	// delta = change in time since last call (in seconds)
-	var delta = clock.getDelta(); 
-		
-	controls.update();
+	if(window_param.activecamera == 'Perspective') {
+		renderer.render( scene, perspectivecamera );
+	} else {
+		renderer.render( scene, orthographiccamera );
+	}
+
+	perspectivecontrols.update();
+	orthographiccontrols.update();
 	stats.update();
+
 }
 
-function render() {	
-	renderer.render( scene, camera );
+function redrawScene() {
+
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+							window_param.ymin, window_param.ymax, window_param.yscl,
+							window_param.zmin, window_param.zmax, window_param.zscl);
+	
+	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
+	
+	for(var i = 0; i < objectlist.length; i++) {
+		scene.remove(objectlist[i].getObject());
+		objectlist[i].redraw();
+		scene.add(objectlist[i].getObject());
+	}
+	
 }
 
 </script>

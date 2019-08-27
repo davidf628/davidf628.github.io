@@ -1,0 +1,138 @@
+<!doctype html>
+<meta charset="utf-8">
+
+<html lang="en">
+<head>
+	<title>Disks and Shells</title>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+</head>
+<body>
+
+<script src="js/three.min.js"></script>
+<script src="js/SceneUtils.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/OrbitControls.js"></script>
+<script src="js/DragControls.js"></script>
+<script src="js/parser.js"></script>
+<script src="js/THREEx.KeyboardState.js"></script>
+<script src="js/THREEx.FullScreen.js"></script>
+<script src="js/THREEx.WindowResize.js"></script>
+<script src="js/3dmath.js"></script>
+<script src='./js/math.min.js' type='text/javascript'></script>
+
+<script type='text/javascript' src='js/dat.gui.min.js'></script>
+
+<div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
+<script>
+
+// All 3d programs must contain this set of parameters
+
+var window_param = {
+	xmin : -10,
+	xmax : 10,
+	xscl : 1,
+	ymin : -10,
+	ymax : 10,
+	yscl : 1,
+	zmin : -10,
+	zmax : 10,
+	zscl : 1,
+	xygrid: true,
+	yzgrid: false,
+	xzgrid: false,
+	polargrid: false,
+	labels: false,
+	activecamera: 'Perspective',
+	updateWindow: function() { redrawScene(); },
+};
+
+var parameters = {
+	angle: 0.01,
+	xfunc: 't',
+	yfunc: 't^2',
+	tmin: 0,
+	tmax: 2,
+	axis: 'y',
+	connect: 'y',
+	updatelathe: function() { updateLathe(); }
+}
+
+var lathe;
+//var lathe2 = new Lathe('t', 'sqrt(t)', 0, 2, { axis: 'x' });
+
+var gui = new dat.GUI();	
+
+gui.add(parameters, 'angle').name('Angle').min(0.01).max(6.28).step(.01).onChange(updateLatheAngle);
+gui.add(parameters, 'xfunc').name('x(t)=');
+gui.add(parameters, 'yfunc').name('y(t)=');
+gui.add(parameters, 'tmin').name('t Min:');
+gui.add(parameters, 'tmax').name('t Max:');
+gui.add(parameters, 'axis', ['x', 'y']).name('Axis of Rotation').onChange(setAxisOfRotation);
+gui.add(parameters, 'connect', ['x', 'y', 'none']).name('Connect to axis').onChange(setConnectAxis);
+gui.add(parameters, 'updatelathe').name('Update');
+
+init();
+animate();
+
+function createScene() {	
+	
+	lathe = new Lathe(parameters.xfunc, parameters.yfunc, parameters.tmin, parameters.tmax, parameters.axis, { connect: parameters.connect });
+	addToScene(scene, lathe);
+
+}
+
+function updateLatheAngle() {
+	lathe.setAngle(scene, parameters.angle);
+	//lathe2.setAngle(scene, parameters.angle);
+}
+
+function updateLathe() {
+	lathe.setFunction(scene, parameters.xfunc, parameters.yfunc, parameters.tmin, parameters.tmax);
+	lathe.setAxisOfRotation(scene, parameters.axis);
+	lathe.setConnect(scene, parameters.connect);
+}
+
+function setAxisOfRotation() {
+	lathe.setAxisOfRotation(scene, parameters.axis);
+}
+
+function setConnectAxis() {
+	lathe.setConnect(scene, parameters.connect);
+}
+
+
+function animate() {
+    requestAnimationFrame( animate );
+
+	if(window_param.activecamera == 'Perspective') {
+		renderer.render( scene, perspectivecamera );
+	} else {
+		renderer.render( scene, orthographiccamera );
+	}
+
+	perspectivecontrols.update();
+	orthographiccontrols.update();
+	stats.update();
+
+}
+
+function redrawScene() {
+
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+							window_param.ymin, window_param.ymax, window_param.yscl,
+							window_param.zmin, window_param.zmax, window_param.zscl);
+	
+	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
+	
+	for(var i = 0; i < objectlist.length; i++) {
+		scene.remove(objectlist[i].getObject());
+		objectlist[i].redraw();
+		scene.add(objectlist[i].getObject());
+	}
+	
+}
+
+</script>
+
+</body>
+</html>

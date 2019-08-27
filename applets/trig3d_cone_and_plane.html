@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<title>Cone and Plane</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+</head>
+<body>
+
+<script src="./js/three.min.js"></script>
+<script src="./js/SceneUtils.js"></script>
+<script src="./js/stats.js"></script>
+<script src="./js/OrbitControls.js"></script>
+<script src="./js/DragControls.js"></script>
+<script src="./js/parser.js"></script>
+<script src="./js/THREEx.KeyboardState.js"></script>
+<script src="./js/THREEx.FullScreen.js"></script>
+<script src="./js/THREEx.WindowResize.js"></script>
+<script src="./js/3dmath.js"></script>
+
+<script type='text/javascript' src='js/dat.gui.min.js'></script>
+
+<div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
+
+<script>
+
+var window_param = {
+	xmin : -10,
+	xmax : 10,
+	xscl : 1,
+	ymin : -10,
+	ymax : 10,
+	yscl : 1,
+	zmin : -10,
+	zmax : 10,
+	zscl : 1,
+	xygrid: true,
+	yzgrid: false,
+	xzgrid: false,
+	polargrid: false,
+	labels: false,
+	activecamera: 'Perspective',
+	updateWindow: function() { redrawScene(); },
+};
+
+var t = 0;
+var y = 0;
+var z = 0;
+
+var plane;
+
+var gui = new dat.GUI();
+	
+gui.add(this, 'y').min(-18).max(18).step(1).name('Translate Y: ').onChange(
+	function() {
+		plane.position.y = y;
+	});
+	
+gui.add(this, 'z').min(-18).max(18).step(1).name('Translate Z: ').onChange(
+	function() {
+		plane.position.z = z;
+	});
+	
+gui.add(this, 't').min(-90).max(90).step(5).name('Theta: ').onChange(
+	function() {
+		plane.rotation.x = t * Math.PI / 180;
+	});
+
+init();
+animate();
+			
+function createScene() {
+
+	var uppercone = new Surface('sqrt(x^2 + y^2)', { color: new THREE.Color('red') });
+	var lowercone = new Surface('-sqrt(x^2 + y^2)', { color: new THREE.Color('red') });
+	plane = Plane(0, 0, 1, 0);
+	
+	addToScene(scene, uppercone);
+	addToScene(scene, lowercone);
+	scene.add(plane);
+
+}
+
+function animate() {
+    requestAnimationFrame( animate );
+
+	if(window_param.activecamera == 'Perspective') {
+		renderer.render( scene, perspectivecamera );
+	} else {
+		renderer.render( scene, orthographiccamera );
+	}
+
+	perspectivecontrols.update();
+	orthographiccontrols.update();
+	stats.update();
+}
+
+function redrawScene() {
+
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+							window_param.ymin, window_param.ymax, window_param.yscl,
+							window_param.zmin, window_param.zmax, window_param.zscl);
+	
+	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
+	
+	for(var i = 0; i < objectlist.length; i++) {
+		scene.remove(objectlist[i].getObject());
+		objectlist[i].redraw();
+		scene.add(objectlist[i].getObject());
+	}
+	
+}
+
+</script>
+
+</body>
+</html>

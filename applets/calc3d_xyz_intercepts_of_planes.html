@@ -1,0 +1,131 @@
+<!doctype html>
+<meta charset="utf-8">
+
+<html lang="en">
+<head>
+	<title>Intercepts of Surfaces</title>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+</head>
+<body>
+
+<script src="js/three.min.js"></script>
+<script src="js/SceneUtils.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/OrbitControls.js"></script>
+<script src="js/DragControls.js"></script>
+<script src="js/parser.js"></script>
+<script src="js/THREEx.KeyboardState.js"></script>
+<script src="js/THREEx.FullScreen.js"></script>
+<script src="js/THREEx.WindowResize.js"></script>
+<script src="js/3dmath.js"></script>
+
+<script type='text/javascript' src='js/dat.gui.min.js'></script>
+
+<div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
+<script>
+
+var window_param = {
+	xmin : -5,
+	xmax : 5,
+	xscl : 1,
+	ymin : -5,
+	ymax : 5,
+	yscl : 1,
+	zmin : -5,
+	zmax : 5,
+	zscl : 1,
+	xygrid: true,
+	yzgrid: true,
+	xzgrid: true,
+	polargrid: false,
+	labels: true,
+	activecamera: 'Perspective',
+	updateWindow: function() { redrawScene(); },
+};
+
+var xy, xz, yz, x, y, z, plane;
+
+var parameters = {
+
+	togglexy: function() { xy.toggleVisible(); },
+	togglexz: function() { xz.toggleVisible(); },
+	toggleyz: function() { yz.toggleVisible(); },
+	togglex: function() { x.toggleVisible(); },
+	toggley: function() { y.toggleVisible(); },
+	togglez: function() { z.toggleVisible(); },
+	toggleplane: function() { plane.toggleVisible(); }
+	
+};
+
+// GUI
+var gui = new dat.GUI();
+gui.add(parameters, 'togglexy').name('Toggle xy-int');
+gui.add(parameters, 'togglexz').name('Toggle xz-int');
+gui.add(parameters, 'toggleyz').name('Toggle yz-int');
+gui.add(parameters, 'togglex').name('Toggle x-int');
+gui.add(parameters, 'toggley').name('Toggle y-int');
+gui.add(parameters, 'togglez').name('Toggle z-int');
+gui.add(parameters, 'toggleplane').name('Toggle plane');
+
+init();
+animate();
+					
+function createScene() {
+
+	plane = new Surface('2-x-(2/3)*y');
+
+	xy = new ParametricGraph('2-(2/3)*t', 't', '0', -20, 20, { visible: false });
+	xz = new ParametricGraph('2-t', '0', 't', -20, 20, { visible: false });
+	yz = new ParametricGraph('0', '3-(3/2)*t', 't', -20, 20, { visible: false });
+	
+	x = new Point([2, 0, 0], { visible: false, radius: 0.3, color: 'blue' });
+	y = new Point([0, 3, 0], { visible: false, radius: 0.3, color: 'blue' });
+	z = new Point([0, 0, 2], { visible: false, radius: 0.3, color: 'blue' });
+	
+	addToScene(scene, xy);	
+	addToScene(scene, xz);
+	addToScene(scene, yz);
+	
+	addToScene(scene, x);	
+	addToScene(scene, y);
+	addToScene(scene, z);
+	
+	addToScene(scene, plane);
+
+}
+
+function animate() {
+    requestAnimationFrame( animate );
+
+	if(window_param.activecamera == 'Perspective') {
+		renderer.render( scene, perspectivecamera );
+	} else {
+		renderer.render( scene, orthographiccamera );
+	}
+
+	perspectivecontrols.update();
+	orthographiccontrols.update();
+	stats.update();
+
+}
+
+function redrawScene() {
+
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+							window_param.ymin, window_param.ymax, window_param.yscl,
+							window_param.zmin, window_param.zmax, window_param.zscl);
+	
+	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
+	
+	for(var i = 0; i < objectlist.length; i++) {
+		scene.remove(objectlist[i].getObject());
+		objectlist[i].redraw();
+		scene.add(objectlist[i].getObject());
+	}
+	
+}
+
+</script>
+
+</body>
+</html>
