@@ -792,6 +792,14 @@ class Lathe {
 			}
 		}
 		
+		var x = math.eval(this.xfunc, { t: this.tmax });
+		var y = math.eval(this.yfunc, { t: this.tmax });
+		if(this.axis == 'x') {
+			this.points.push(new THREE.Vector2(xCoord(y), yCoord(x)));
+		} else if(this.axis == 'y') {
+			this.points.push(new THREE.Vector2(xCoord(x), yCoord(y)));
+		}
+		
 		if(this.connect == 'x') {
 			if(this.axis == 'x') {
 				this.points.push(new THREE.Vector2(xCoord(0), yCoord(this.tmax)));
@@ -832,12 +840,13 @@ class Lathe {
 		this.lathe.visible = this.visible;
 	}
 	
-	setFunction(scene, xfunc, yfunc, tmin, tmax) {
+	setFunction(scene, xfunc, yfunc, tmin, tmax, dt) {
 		scene.remove(this.lathe);
 		this.xfunc = xfunc;
 		this.yfunc = yfunc;
 		this.tmin = tmin;
 		this.tmax = tmax;
+		this.dt = dt;
 		this.drawLathe();
 		scene.add(this.lathe);
 	}

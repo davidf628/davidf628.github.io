@@ -48,25 +48,31 @@ var window_param = {
 
 var parameters = {
 	angle: 0.01,
-	xfunc: 't',
-	yfunc: 't^2',
+	x1func: 't',
+	y1func: 't^2',
+	x2func: '',
+	y2func: '',
 	tmin: 0,
 	tmax: 2,
+	dt: 0.25,
 	axis: 'y',
 	connect: 'y',
 	updatelathe: function() { updateLathe(); }
 }
 
 var lathe;
-//var lathe2 = new Lathe('t', 'sqrt(t)', 0, 2, { axis: 'x' });
+var lathe2;
 
 var gui = new dat.GUI();	
 
 gui.add(parameters, 'angle').name('Angle').min(0.01).max(6.28).step(.01).onChange(updateLatheAngle);
-gui.add(parameters, 'xfunc').name('x(t)=');
-gui.add(parameters, 'yfunc').name('y(t)=');
+gui.add(parameters, 'x1func').name('x1(t)=');
+gui.add(parameters, 'y1func').name('y1(t)=');
+gui.add(parameters, 'x2func').name('x2(t)=');
+gui.add(parameters, 'y2func').name('y2(t)=');
 gui.add(parameters, 'tmin').name('t Min:');
 gui.add(parameters, 'tmax').name('t Max:');
+gui.add(parameters, 'dt').name('Density:');
 gui.add(parameters, 'axis', ['x', 'y']).name('Axis of Rotation').onChange(setAxisOfRotation);
 gui.add(parameters, 'connect', ['x', 'y', 'none']).name('Connect to axis').onChange(setConnectAxis);
 gui.add(parameters, 'updatelathe').name('Update');
@@ -76,28 +82,36 @@ animate();
 
 function createScene() {	
 	
-	lathe = new Lathe(parameters.xfunc, parameters.yfunc, parameters.tmin, parameters.tmax, parameters.axis, { connect: parameters.connect });
+	lathe = new Lathe(parameters.x1func, parameters.y1func, parameters.tmin, parameters.tmax, parameters.axis, { connect: parameters.connect, dt: parameters.dt });
+	lathe2 = new Lathe(parameters.x2func, parameters.y2func, parameters.tmin, parameters.tmax, parameters.axis, { connect: parameters.connect, dt: parameters.dt });
 	addToScene(scene, lathe);
+	addToScene(scene, lathe2);
 
 }
 
 function updateLatheAngle() {
 	lathe.setAngle(scene, parameters.angle);
-	//lathe2.setAngle(scene, parameters.angle);
+	lathe2.setAngle(scene, parameters.angle);
 }
 
 function updateLathe() {
-	lathe.setFunction(scene, parameters.xfunc, parameters.yfunc, parameters.tmin, parameters.tmax);
+	lathe.setFunction(scene, parameters.x1func, parameters.y1func, parameters.tmin, parameters.tmax, parameters.dt);
 	lathe.setAxisOfRotation(scene, parameters.axis);
 	lathe.setConnect(scene, parameters.connect);
+	
+	lathe2.setFunction(scene, parameters.x2func, parameters.y2func, parameters.tmin, parameters.tmax, parameters.dt);
+	lathe2.setAxisOfRotation(scene, parameters.axis);
+	lathe2.setConnect(scene, parameters.connect);
 }
 
 function setAxisOfRotation() {
 	lathe.setAxisOfRotation(scene, parameters.axis);
+	lathe2.setAxisOfRotation(scene, parameters.axis);
 }
 
 function setConnectAxis() {
 	lathe.setConnect(scene, parameters.connect);
+	lathe2.setConnect(scene, parameters.connect);
 }
 
 
