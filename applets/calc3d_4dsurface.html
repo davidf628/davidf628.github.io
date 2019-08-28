@@ -24,9 +24,24 @@
 <div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
 <script>
 
-var container, scene, camera, renderer, controls, stats;
-var keyboard = new THREEx.KeyboardState();
-var clock = new THREE.Clock();
+var window_param = {
+	xmin : -10,
+	xmax : 10,
+	xscl : 1,
+	ymin : -10,
+	ymax : 10,
+	yscl : 1,
+	zmin : -10,
+	zmax : 10,
+	zscl : 1,
+	xygrid: true,
+	yzgrid: false,
+	xzgrid: false,
+	polargrid: false,
+	labels: false,
+	activecamera: 'Perspective',
+	updateWindow: function() { redrawScene(); },
+};
 
 var surfaces = [], textbox;
 var goingup = true;
@@ -38,104 +53,40 @@ var parameters = {
 	showtextbox: false	
 };
 
-// initialization
+// GUI
+gui = new dat.GUI();
+gui.add(parameters, 't').min(0).max(49).step(1).onChange(
+	function() {
+		scene.remove(textbox.getObject());
+		for(var i = 0; i < surfaces.length; i++) {
+			surfaces[i].setVisible(false);
+			surfaces[i].setWireframeVisible(false);
+		}
+		surfaces[parameters.t].setVisible(true);
+		surfaces[parameters.t].setWireframeVisible(parameters.wireframe);
+		textbox	= new TextBox([0, 2, 6], 
+			surfaces[parameters.t].getFunction(), { 
+				borderColor: {r:255, g:0, b:0, a:1.0}, 
+	  	  		backgroundColor: {r:255, g:100, b:100, a:0.8}, 
+	  	  	visible: parameters.showtextbox 
+		});
+		addToScene(scene, textbox);
+	}
+);
+gui.add(parameters, 'animate').name('Animate');
+gui.add(parameters, 'wireframe').name('Wireframe');
+gui.add(parameters, 'showtextbox').name('Show Function').onChange(
+	function() {
+		textbox.toggleVisible();
+	}
+);
+
 init();
-
-// animation loop / game loop
 animate();
-					
-function init() {
-
-	// SCENE 	
-	scene = new THREE.Scene();
-
-	// CAMERA 	
-	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;	
-	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
-	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
-	scene.add(camera);
-	camera.position.set(40,40,10);
-	camera.up.set(0, 0, 1);  // make sure z-axis is facing up
-	camera.lookAt(scene.position);	
-	
-	// RENDERER 	
-	renderer = new THREE.WebGLRenderer( {antialias:true, alpha: true} );
-	// Set background color as white
-	renderer.setClearColor( 0xffffff ); 
-	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-	renderer.sortObjects = false;
-	renderer.localClippingEnabled = true;
-	
-	// attach div element to variable to contain the renderer
-	container = document.getElementById( 'ThreeJS' );
-	container.appendChild( renderer.domElement );
-	
-	// EVENTS 	
-	THREEx.WindowResize(renderer, camera);
-	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
-	
-	// CONTROLS 
-	controls = new THREE.OrbitControls( camera, renderer.domElement );
-	
-	
-	// STATS 	
-	stats = new Stats();
-	stats.domElement.style.position = 'absolute';
-	stats.domElement.style.bottom = '0px';
-	stats.domElement.style.zIndex = 100;
-	container.appendChild( stats.domElement );
-		
-	// GUI
-	gui = new dat.GUI();
-	gui.add(parameters, 't').min(0).max(49).step(1).onChange(
-		function() {
-			scene.remove(textbox.getObject());
-			for(var i = 0; i < surfaces.length; i++) {
-				surfaces[i].setVisible(false);
-				surfaces[i].setWireframeVisible(false);
-			}
-			surfaces[parameters.t].setVisible(true);
-			surfaces[parameters.t].setWireframeVisible(parameters.wireframe);
-			textbox	= new TextBox([0, 2, 6], 
-				surfaces[parameters.t].getFunction(), { 
-					borderColor: {r:255, g:0, b:0, a:1.0}, 
-		  	  		backgroundColor: {r:255, g:100, b:100, a:0.8}, 
-		  	  	visible: parameters.showtextbox 
-			});
-			addToScene(scene, textbox);
-		}
-	);
-	gui.add(parameters, 'animate').name('Animate');
-	gui.add(parameters, 'wireframe').name('Wireframe');
-	gui.add(parameters, 'showtextbox').name('Show Function').onChange(
-		function() {
-			textbox.toggleVisible();
-		}
-	);
-		
-	createScene();
-}
 
 function createScene() {
 
-	while(scene.children.length > 0){ 
-		scene.remove(scene.children[0]); 
-	}
-
-	var light = new THREE.AmbientLight( 0xffffff );
-	scene.add( light );
-	
-	viewingWindow.setBounds(-10, 10, 1, -10, 10, 1, -10, 10, 1);
-	
-	var axes = createAxes( { labels: false } );
-	scene.add(axes);
-
 	for(var i = 0.2; i <= 10; i+=.2) {
-		//if(i < 0) {
-		//	func = '9-x^2-y^2' + i;
-		//} else {
-	//		func = '9-x^2-y^2 + ' + i;
-	//	}
 		var c = '(' + i + ' *  ' + i + ')';
 		func = ' 5 - x^2 / ' + c + ' * y^2 / ' + c;
 		var surface = new Surface(func, { visible: false, wireframevisible: false });
@@ -180,21 +131,32 @@ function animate() {
 		textbox.setVisible(parameters.showtextbox);
 	}
     requestAnimationFrame( animate );
-	render();		
-	update();
-}
 
-function update()
-{
-	// delta = change in time since last call (in seconds)
-	var delta = clock.getDelta(); 
-		
-	controls.update();
+	if(window_param.activecamera == 'Perspective') {
+		renderer.render( scene, perspectivecamera );
+	} else {
+		renderer.render( scene, orthographiccamera );
+	}
+
+	perspectivecontrols.update();
+	orthographiccontrols.update();
 	stats.update();
 }
 
-function render() {	
-	renderer.render( scene, camera );
+function redrawScene() {
+
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+							window_param.ymin, window_param.ymax, window_param.yscl,
+							window_param.zmin, window_param.zmax, window_param.zscl);
+	
+	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
+	
+	for(var i = 0; i < objectlist.length; i++) {
+		scene.remove(objectlist[i].getObject());
+		objectlist[i].redraw();
+		scene.add(objectlist[i].getObject());
+	}
+	
 }
 
 </script>

@@ -25,10 +25,6 @@
 <div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
 <script>
 
-var container, scene, camera, renderer, controls, stats;
-var keyboard = new THREEx.KeyboardState();
-var clock = new THREE.Clock();
-
 var surface, xzplane, yzplane, xzplane, p, fx, fy, fxsurface, fysurface;
 var xztrace, yztrace;
 var zxvectors = [], zyvectors = [];
@@ -36,6 +32,24 @@ var dirderiv, dirderivtextbox;
 var gradient = [], levelgradient = [];
 var tangentplane;
 
+var window_param = {
+	xmin : -5,
+	xmax : 5,
+	xscl : 1,
+	ymin : -5,
+	ymax : 5,
+	yscl : 1,
+	zmin : -1,
+	zmax : 1,
+	zscl : 1,
+	xygrid: true,
+	yzgrid: false,
+	xzgrid: false,
+	polargrid: false,
+	labels: true,
+	activecamera: 'Perspective',
+	updateWindow: function() { redrawScene(); },
+};
 
 var parameters = {
 
@@ -73,224 +87,163 @@ var zy = math.derivative(parameters.zText, 'y').toString();
 var zxFunc = Parser.parse(zx).toJSFunction(['x', 'y']);
 var zyFunc = Parser.parse(zy).toJSFunction(['x', 'y']);
 
-// initialization
-init();
-
-// animation loop / game loop
-animate();
-		
-					
-function init() {
-
-	// SCENE 	
-	scene = new THREE.Scene();
-
-	// CAMERA 	
-	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;	
-	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
-	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
-	scene.add(camera);
-	camera.position.set(40,40,10);
-	camera.up.set(0, 0, 1);  // make sure z-axis is facing up
-	camera.lookAt(scene.position);	
-	
-	// RENDERER 	
-	renderer = new THREE.WebGLRenderer( {antialias:true, alpha: true} );
-	// Set background color as white
-	renderer.setClearColor( 0xffffff ); 
-	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-	renderer.sortObjects = false;
-	renderer.localClippingEnabled = true;
-	
-	// attach div element to variable to contain the renderer
-	container = document.getElementById( 'ThreeJS' );
-	container.appendChild( renderer.domElement );
-	
-	// EVENTS 	
-	THREEx.WindowResize(renderer, camera);
-	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
-	
-	// CONTROLS 
-	controls = new THREE.OrbitControls( camera, renderer.domElement );
-	
-	
-	// STATS 	
-	stats = new Stats();
-	stats.domElement.style.position = 'absolute';
-	stats.domElement.style.bottom = '0px';
-	stats.domElement.style.zIndex = 100;
-	container.appendChild( stats.domElement );
-		
-	// GUI
-	gui = new dat.GUI();
-	gui.add(parameters, 'zText').name('z = ');	
-	gui.add(parameters, 'xzvisible').name("View xz-plane").onChange( 
-		function() {
-			xzplane.toggleVisible();
-		});
-	gui.add(parameters, 'xzvisible').name("View yz-plane").onChange( 
-		function() {
-			yzplane.toggleVisible();
-		});
-	gui.add(parameters, 'xyvisible').name("View xy-plane").onChange( 
-		function() {
-			xyplane.toggleVisible();
-		});
-	gui.add(parameters, 'pvisible').name("View point-P").onChange( 
-		function() {
-			p.toggleVisible();
-		});
-	gui.add(parameters, 'fxvisible').name("View dz/dx").onChange( 
-		function() {
-			fx.toggleVisible();
-		});
-	gui.add(parameters, 'fyvisible').name("View dz/dy").onChange( 
-		function() {
-			fy.toggleVisible();
-		});
-	gui.add(parameters, 'fxsurfacevisible').name("View Zx-Surface").onChange( 
-		function() {
-			fxsurface.toggleVisible();
-		});
-	gui.add(parameters, 'fysurfacevisible').name("View Zy-Surface").onChange( 
-		function() {
-			fysurface.toggleVisible();
-		});
-	gui.add(parameters, 'xztracevisible').name("View xz-trace").onChange( 
-		function() {
-			xztrace.toggleVisible();
-		});
-	gui.add(parameters, 'yztracevisible').name("View yz-trace").onChange( 
-		function() {
-			yztrace.toggleVisible();
-		});
-	gui.add(parameters, 'zxvectorsvisible').name("View zx-vectors").onChange( 
-		function() {
-			for(var i = 0; i < zxvectors.length; i++) {
-				if(zxvectors[i].start[2] <= viewingWindow.zMax && zxvectors[i].start[2] >= viewingWindow.zMin) {
-					zxvectors[i].toggleVisible();
-				}
+// GUI
+gui = new dat.GUI();
+gui.add(parameters, 'zText').name('z = ');	
+gui.add(parameters, 'xzvisible').name("View xz-plane").onChange( 
+	function() {
+		xzplane.toggleVisible();
+	});
+gui.add(parameters, 'xzvisible').name("View yz-plane").onChange( 
+	function() {
+		yzplane.toggleVisible();
+	});
+gui.add(parameters, 'xyvisible').name("View xy-plane").onChange( 
+	function() {
+		xyplane.toggleVisible();
+	});
+gui.add(parameters, 'pvisible').name("View point-P").onChange( 
+	function() {
+		p.toggleVisible();
+	});
+gui.add(parameters, 'fxvisible').name("View dz/dx").onChange( 
+	function() {
+		fx.toggleVisible();
+	});
+gui.add(parameters, 'fyvisible').name("View dz/dy").onChange( 
+	function() {
+		fy.toggleVisible();
+	});
+gui.add(parameters, 'fxsurfacevisible').name("View Zx-Surface").onChange( 
+	function() {
+		fxsurface.toggleVisible();
+	});
+gui.add(parameters, 'fysurfacevisible').name("View Zy-Surface").onChange( 
+	function() {
+		fysurface.toggleVisible();
+	});
+gui.add(parameters, 'xztracevisible').name("View xz-trace").onChange( 
+	function() {
+		xztrace.toggleVisible();
+	});
+gui.add(parameters, 'yztracevisible').name("View yz-trace").onChange( 
+	function() {
+		yztrace.toggleVisible();
+	});
+gui.add(parameters, 'zxvectorsvisible').name("View zx-vectors").onChange( 
+	function() {
+		for(var i = 0; i < zxvectors.length; i++) {
+			if(zxvectors[i].start[2] <= viewingWindow.zMax && zxvectors[i].start[2] >= viewingWindow.zMin) {
+				zxvectors[i].toggleVisible();
 			}
-		});
-	gui.add(parameters, 'zyvectorsvisible').name("View zy-vectors").onChange( 
-		function() {
-			for(var i = 0; i < zyvectors.length; i++) {
-				if(zyvectors[i].start[2] <= viewingWindow.zMax && zyvectors[i].start[2] >= viewingWindow.zMin) {
-					zyvectors[i].toggleVisible();
-				}
-			}
-		});
-	gui.add(parameters, 'dirderivvisible').name("Directional Deriv").onChange( 
-		function() {
-			dirderiv.toggleVisible();
-			dirderivtextbox.toggleVisible();
-		});
-	
-	gui.add(parameters, 'direction').min(0).max(360).step(1).name('direction = ').onChange(
-	    function() {
-			updateDirectionalDerivative();	    
-	    }
-	);
-	gui.add(parameters, 'tangentplanevisible').name("Tangent Plane").onChange( 
-		function() {
-			tangentplane.toggleVisible();
-		});
-	gui.add(parameters, 'gradientvisible').name("View Gradient").onChange( 
-		function() {
-			for(var i = 0; i < gradient.length; i++) {
-				if(gradient[i].start[2] <= viewingWindow.zMax && gradient[i].start[2] >= viewingWindow.zMin) {
-					gradient[i].toggleVisible();
-				}
-			}
-		});
-		
-	gui.add(parameters, 'levelgradientvisible').name("View Level Grad").onChange( 
-		function() {
-			for(var i = 0; i < levelgradient.length; i++) {
-				if(levelgradient[i].start[2] <= viewingWindow.zMax && levelgradient[i].start[2] >= viewingWindow.zMin) {
-					levelgradient[i].toggleVisible();
-				}
-			}
-		});
-	
-	gui.add(parameters, 'wireframevisible').name("View wireframe").onChange( 
-		function() {
-			surface.toggleWireframe();
-		});
-	gui.add(parameters, 'xzpos').min(-5).max(5).step(0.01).name('xz-position = ').onChange(
-	    function() {
-			xzplane.setLocation(parameters.xzpos);
-			p.moveTo([parameters.yzpos, parameters.xzpos, zFunc(parameters.yzpos, parameters.xzpos)]);
-			
-			scene.remove(fx.getObject());
-			fx = new ParametricGraph(parameters.yzpos + ' + t', parameters.xzpos + ' ', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zxFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'red', visible: parameters.fxvisible });
-			addToScene(scene, fx);
-			
-			scene.remove(fy.getObject());
-			fy = new ParametricGraph(parameters.yzpos + ' ', parameters.xzpos + ' + t', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zyFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'green', visible: parameters.fyvisible });
-			addToScene(scene, fy);
-			
-			scene.remove(xztrace.getObject());
-			xztrace = new ParametricProjection(parameters.yzpos + ' + t', parameters.xzpos + ' ', parameters.zText, -5, 5, { visible: parameters.xztracevisible });
-			addToScene(scene, xztrace);
-			
-			updateDirectionalDerivative();
-			
-			scene.remove(tangentplane.getObject());
-			updateTangentPlane();
-			addToScene(scene, tangentplane);
-			
-	    }
-	);
-	gui.add(parameters, 'yzpos').min(-5).max(5).step(0.01).name('yz-position = ').onChange(
-	    function() {
-			yzplane.setLocation(parameters.yzpos);
-			p.moveTo([parameters.yzpos, parameters.xzpos, zFunc(parameters.yzpos, parameters.xzpos)]);
-			
-			scene.remove(fx.getObject());
-			fx = new ParametricGraph(parameters.yzpos + ' + t', parameters.xzpos + ' ', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zxFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'red', visible: parameters.fxvisible });
-			addToScene(scene, fx);
-			
-			scene.remove(fy.getObject());
-			fy = new ParametricGraph(parameters.yzpos + ' ', parameters.xzpos + ' + t', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zyFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'green', visible: parameters.fyvisible });
-			addToScene(scene, fy);
-			
-			scene.remove(yztrace.getObject());
-			yztrace = new ParametricProjection(parameters.yzpos + ' ', parameters.xzpos + ' + t ', parameters.zText, -5, 5, { visible: parameters.yztracevisible });
-			addToScene(scene, yztrace);
-			
-			updateDirectionalDerivative();
-			
-			scene.remove(tangentplane.getObject());
-			updateTangentPlane();
-			addToScene(scene, tangentplane);
-		
-	    }
-	);
-	gui.add(parameters, 'xypos').min(-1).max(1).step(0.01).name('z-position = ').onChange(
-		function() {
-			xyplane.setLocation(parameters.xypos);
 		}
-	);
-	gui.add(parameters, 'update').name('Update Graph');
-	
-	
-	createScene();
-}
+	});
+gui.add(parameters, 'zyvectorsvisible').name("View zy-vectors").onChange( 
+	function() {
+		for(var i = 0; i < zyvectors.length; i++) {
+			if(zyvectors[i].start[2] <= viewingWindow.zMax && zyvectors[i].start[2] >= viewingWindow.zMin) {
+				zyvectors[i].toggleVisible();
+			}
+		}
+	});
+gui.add(parameters, 'dirderivvisible').name("Directional Deriv").onChange( 
+	function() {
+		dirderiv.toggleVisible();
+		dirderivtextbox.toggleVisible();
+	});
 
-function createScene() {
+gui.add(parameters, 'direction').min(0).max(360).step(1).name('direction = ').onChange(
+    function() {
+		updateDirectionalDerivative();	    
+    }
+);
+gui.add(parameters, 'tangentplanevisible').name("Tangent Plane").onChange( 
+	function() {
+		tangentplane.toggleVisible();
+	});
+gui.add(parameters, 'gradientvisible').name("View Gradient").onChange( 
+	function() {
+		for(var i = 0; i < gradient.length; i++) {
+			if(gradient[i].start[2] <= viewingWindow.zMax && gradient[i].start[2] >= viewingWindow.zMin) {
+				gradient[i].toggleVisible();
+			}
+		}
+	});
+	
+gui.add(parameters, 'levelgradientvisible').name("View Level Grad").onChange( 
+	function() {
+		for(var i = 0; i < levelgradient.length; i++) {
+			if(levelgradient[i].start[2] <= viewingWindow.zMax && levelgradient[i].start[2] >= viewingWindow.zMin) {
+				levelgradient[i].toggleVisible();
+			}
+		}
+	});
 
-	while(scene.children.length > 0){ 
-		scene.remove(scene.children[0]); 
+gui.add(parameters, 'wireframevisible').name("View wireframe").onChange( 
+	function() {
+		surface.toggleWireframe();
+	});
+gui.add(parameters, 'xzpos').min(-5).max(5).step(0.01).name('xz-position = ').onChange(
+    function() {
+		xzplane.setLocation(parameters.xzpos);
+		p.moveTo([parameters.yzpos, parameters.xzpos, zFunc(parameters.yzpos, parameters.xzpos)]);
+		
+		scene.remove(fx.getObject());
+		fx = new ParametricGraph(parameters.yzpos + ' + t', parameters.xzpos + ' ', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zxFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'red', visible: parameters.fxvisible });
+		addToScene(scene, fx);
+		
+		scene.remove(fy.getObject());
+		fy = new ParametricGraph(parameters.yzpos + ' ', parameters.xzpos + ' + t', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zyFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'green', visible: parameters.fyvisible });
+		addToScene(scene, fy);
+		
+		scene.remove(xztrace.getObject());
+		xztrace = new ParametricProjection(parameters.yzpos + ' + t', parameters.xzpos + ' ', parameters.zText, -5, 5, { visible: parameters.xztracevisible });
+		addToScene(scene, xztrace);
+		
+		updateDirectionalDerivative();
+		
+		scene.remove(tangentplane.getObject());
+		updateTangentPlane();
+		addToScene(scene, tangentplane);
+		
+    }
+);
+gui.add(parameters, 'yzpos').min(-5).max(5).step(0.01).name('yz-position = ').onChange(
+    function() {
+		yzplane.setLocation(parameters.yzpos);
+		p.moveTo([parameters.yzpos, parameters.xzpos, zFunc(parameters.yzpos, parameters.xzpos)]);
+		
+		scene.remove(fx.getObject());
+		fx = new ParametricGraph(parameters.yzpos + ' + t', parameters.xzpos + ' ', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zxFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'red', visible: parameters.fxvisible });
+		addToScene(scene, fx);
+		
+		scene.remove(fy.getObject());
+		fy = new ParametricGraph(parameters.yzpos + ' ', parameters.xzpos + ' + t', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zyFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'green', visible: parameters.fyvisible });
+		addToScene(scene, fy);
+		
+		scene.remove(yztrace.getObject());
+		yztrace = new ParametricProjection(parameters.yzpos + ' ', parameters.xzpos + ' + t ', parameters.zText, -5, 5, { visible: parameters.yztracevisible });
+		addToScene(scene, yztrace);
+		
+		updateDirectionalDerivative();
+		
+		scene.remove(tangentplane.getObject());
+		updateTangentPlane();
+		addToScene(scene, tangentplane);
+	
+    }
+);
+gui.add(parameters, 'xypos').min(-1).max(1).step(0.01).name('z-position = ').onChange(
+	function() {
+		xyplane.setLocation(parameters.xypos);
 	}
+);
+gui.add(parameters, 'update').name('Update Graph');
 
-	var light = new THREE.AmbientLight( 0xffffff );
-	scene.add( light );
-	
-	viewingWindow.setBounds(-5, 5, 1, -5, 5, 1, -1, 1, 1);
-	
-	var axes = createAxes( { labels: true } );
-	scene.add(axes);
+init();
+animate();	
+				
+function createScene() {
 	
 	surface = new Surface(parameters.zText, { wireframevisible: parameters.wireframevisible, dx: 0.25, color: 'teal' });
 	addToScene(scene, surface);
@@ -304,8 +257,8 @@ function createScene() {
 	xyplane = new PlaneSurface('xy', parameters.xypos, { color: 'blue', visible: parameters.xyvisible });
 	addToScene(scene, xyplane);
 
-	p = new Point({ coords: [parameters.yzpos, parameters.xzpos, zFunc(parameters.yzpos, parameters.xzpos)], visible: parameters.pvisible, color: 'blue', radius: 0.4 });
-	addToScene(scene, p);;
+	p = new Point([parameters.yzpos, parameters.xzpos, zFunc(parameters.yzpos, parameters.xzpos)], { visible: parameters.pvisible, color: 'blue', radius: 0.4 });
+	addToScene(scene, p);
 	
 	fx = new ParametricGraph(parameters.yzpos + ' + t', parameters.xzpos + ' ', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zxFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'red', visible: parameters.fxvisible });
 	addToScene(scene, fx); 
@@ -601,21 +554,33 @@ function updateTangentPlane() {
 
 function animate() {
     requestAnimationFrame( animate );
-	render();		
-	update();
-}
 
-function update()
-{
-	// delta = change in time since last call (in seconds)
-	var delta = clock.getDelta(); 
-		
-	controls.update();
+	if(window_param.activecamera == 'Perspective') {
+		renderer.render( scene, perspectivecamera );
+	} else {
+		renderer.render( scene, orthographiccamera );
+	}
+
+	perspectivecontrols.update();
+	orthographiccontrols.update();
 	stats.update();
+
 }
 
-function render() {	
-	renderer.render( scene, camera );
+function redrawScene() {
+
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+							window_param.ymin, window_param.ymax, window_param.yscl,
+							window_param.zmin, window_param.zmax, window_param.zscl);
+	
+	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
+	
+	for(var i = 0; i < objectlist.length; i++) {
+		scene.remove(objectlist[i].getObject());
+		objectlist[i].redraw();
+		scene.add(objectlist[i].getObject());
+	}
+	
 }
 
 </script>

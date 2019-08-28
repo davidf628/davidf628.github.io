@@ -1340,8 +1340,8 @@ class ParametricGraph {
 		var geometry = new THREE.Geometry();
 		for(var t = this.tMin; t <= this.tMax; t += this.density) {
 			geometry.vertices.push(sCoord(xFunc(t), yFunc(t), zFunc(t)));
-
 		}
+		geometry.vertices.push(sCoord(xFunc(this.tMax), yFunc(this.tMax), zFunc(this.tMax)));
 	
 		var material = new THREE.LineBasicMaterial( { color: this.color, clippingPlanes: getClippingPlanes() });
 
@@ -1377,46 +1377,15 @@ class ParametricProjection {
 		this.segments = args.segments ? args.segments : 200;
 		this.radius = args.radius ? args.radius : 0.1;
 		this.radialsegments = args.radialsegments ? args.radialsegments : 8;
+		this.density = args.density ? args.density : 0.1;
 		
 		this.xFuncText = xFuncText;
 		this.yFuncText = yFuncText;
 		this.zFuncText = zFuncText;
 		this.tMin = tMin;
 		this.tMax = tMax;
-
-		var tRange = tMax - tMin;
 	
-		var xFunc = Parser.parse(xFuncText).toJSFunction( ['t'] );
-		var yFunc = Parser.parse(yFuncText).toJSFunction( ['t'] );
-		var zFunc = Parser.parse(zFuncText).toJSFunction( ['x', 'y'] );
-
-
-		function CustomCurve( scale ) {
-
-			THREE.Curve.call( this );
-			this.scale = ( scale === undefined ) ? 1 : scale;
-
-		}
-
-		CustomCurve.prototype = Object.create( THREE.Curve.prototype );
-		CustomCurve.prototype.constructor = CustomCurve;
-
-		CustomCurve.prototype.getPoint = function ( t ) {
-
-			t = t * tRange + tMin;
-			var tx = xFunc(t);
-			var ty = yFunc(t);
-			var tz = zFunc(tx, ty);
-
-			return new THREE.Vector3( xCoord(tx), yCoord(ty), zCoord(tz));
-
-		};
-
-		var path = new CustomCurve( 1 );
-		var geometry = new THREE.TubeGeometry( path, this.segments, this.radius, this.radialsegements, false );
-		this.graph = createParametricMesh(geometry, this.color);
-	
-		this.graph.visible = this.visible;
+		this.redraw();
 
 	}
 	
@@ -1433,7 +1402,68 @@ class ParametricProjection {
 	}
 	
 	redraw() {
+	
+	
+		this.graph = new THREE.Object3D();
 		
+		var tRange = this.tMax - this.tMin;
+		var tScl = tRange / this.density;
+		
+		var xFunc = Parser.parse(this.xFuncText).toJSFunction( ['t'] );
+		var yFunc = Parser.parse(this.yFuncText).toJSFunction( ['t'] );
+		var zFunc = Parser.parse(this.zFuncText).toJSFunction( ['x', 'y'] );
+		
+		var geometry = new THREE.Geometry();
+		for(var t = this.tMin; t <= this.tMax; t += this.density) {
+			var x = xFunc(t);
+			var y = yFunc(t);
+			var z = zFunc(x, y);
+			geometry.vertices.push(sCoord(x, y, z));
+		}
+		var xmax = xFunc(this.tMax);
+		var ymax = yFunc(this.tMax);
+		var zmax = zFunc(xmax, ymax);
+		geometry.vertices.push(sCoord(xmax, ymax, zmax));
+	
+		var material = new THREE.LineBasicMaterial( { color: this.color, clippingPlanes: getClippingPlanes() });
+
+		this.graph.add(new THREE.Line(geometry, material));
+		
+		this.graph.visible = this.visible;
+	
+	
+	/*	var tRange = this.tMax - this.tMin;
+		var xFunc = Parser.parse(this.xFuncText).toJSFunction( ['t'] );
+		var yFunc = Parser.parse(this.yFuncText).toJSFunction( ['t'] );
+		var zFunc = Parser.parse(this.zFuncText).toJSFunction( ['x', 'y'] );
+		
+		function CustomCurve( scale ) {
+
+			THREE.Curve.call( this );
+			this.scale = ( scale === undefined ) ? 1 : scale;
+
+		}
+
+		CustomCurve.prototype = Object.create( THREE.Curve.prototype );
+		CustomCurve.prototype.constructor = CustomCurve;
+
+		CustomCurve.prototype.getPoint = function ( t ) {
+
+			t = t * tRange + this.tMin;
+			var tx = xFunc(t);
+			var ty = yFunc(t);
+			var tz = zFunc(tx, ty);
+
+			return new THREE.Vector3( xCoord(tx), yCoord(ty), zCoord(tz));
+
+		};
+
+		var path = new CustomCurve( 1 );
+		var geometry = new THREE.TubeGeometry( path, this.segments, this.radius, this.radialsegements, false );
+		this.graph = createParametricMesh(geometry, this.color);
+	
+		this.graph.visible = this.visible;*/
+
 	}
 	
 }
@@ -1511,20 +1541,7 @@ class PlaneSurface {
 		this.type = type;
 		this.location = location;
 		
-		var geometry = new THREE.PlaneGeometry(100, 100);
-		this.plane = createTransparentMesh(geometry, this.color);
-		this.plane.visible = this.visible;
-		
-		if(type == 'xy') {
-			this.plane.lookAt(new THREE.Vector3(0, 0, 1));
-			this.plane.position.z = zCoord(location);
-		} else if(type == 'xz') {
-			this.plane.lookAt(new THREE.Vector3(0, 1, 0));
-			this.plane.position.y = yCoord(location);
-		} else if(type == 'yz') {
-			this.plane.lookAt(new THREE.Vector3(1, 0, 0));
-			this.plane.position.x = xCoord(location);
-		}
+		this.redraw();
 		
 	}
 	
@@ -1553,6 +1570,22 @@ class PlaneSurface {
 		}
 	}
 	
+	redraw() {
+		var geometry = new THREE.PlaneGeometry(100, 100);
+		this.plane = createTransparentMesh(geometry, this.color);
+		this.plane.visible = this.visible;
+		
+		if(this.type == 'xy') {
+			this.plane.lookAt(new THREE.Vector3(0, 0, 1));
+			this.plane.position.z = zCoord(this.location);
+		} else if(this.type == 'xz') {
+			this.plane.lookAt(new THREE.Vector3(0, 1, 0));
+			this.plane.position.y = yCoord(this.location);
+		} else if(this.type == 'yz') {
+			this.plane.lookAt(new THREE.Vector3(1, 0, 0));
+			this.plane.position.x = xCoord(this.location);
+		}
+	}
 	
 }
 

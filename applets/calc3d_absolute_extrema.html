@@ -24,9 +24,24 @@
 <div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
 <script>
 
-var container, scene, camera, renderer, controls, stats;
-var keyboard = new THREEx.KeyboardState();
-var clock = new THREE.Clock();
+var window_param = {
+	xmin : -7,
+	xmax : 7,
+	xscl : 1,
+	ymin : -7,
+	ymax : 7,
+	yscl : 1,
+	zmin : -20,
+	zmax : 20,
+	zscl : 5,
+	xygrid: true,
+	yzgrid: false,
+	xzgrid: false,
+	polargrid: false,
+	labels: true,
+	activecamera: 'Perspective',
+	updateWindow: function() { redrawScene(); },
+};
 
 var surface;
 var path1, path2, path3;
@@ -46,81 +61,19 @@ var parameters = {
 	
 };
 
-// initialization
-init();
+// GUI
+gui = new dat.GUI();
+gui.add(parameters, 'region').name('Show Region');
+gui.add(parameters, 'critical').name('Show Critical Value');
+gui.add(parameters, 'zpoints').name('xy-Plane Points');
+gui.add(parameters, 'projection').name('Show Projection');
+gui.add(parameters, 'boundarypoints').name('Boundary POI');	
+gui.add(parameters, 'fpoints').name('Surface Points');
 
-// animation loop / game loop
+init();
 animate();
 					
-function init() {
-
-	// SCENE 	
-	scene = new THREE.Scene();
-
-	// CAMERA 	
-	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;	
-	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
-	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
-	scene.add(camera);
-	camera.position.set(40,40,10);
-	camera.up.set(0, 0, 1);  // make sure z-axis is facing up
-	camera.lookAt(scene.position);	
-	
-	// RENDERER 	
-	renderer = new THREE.WebGLRenderer( {antialias:true, alpha: true} );
-	// Set background color as white
-	renderer.setClearColor( 0xffffff ); 
-	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-	renderer.sortObjects = false;
-	renderer.localClippingEnabled = true;
-	
-	// attach div element to variable to contain the renderer
-	container = document.getElementById( 'ThreeJS' );
-	container.appendChild( renderer.domElement );
-	
-	// EVENTS 	
-	THREEx.WindowResize(renderer, camera);
-	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
-	
-	// CONTROLS 
-	controls = new THREE.OrbitControls( camera, renderer.domElement );
-	
-	
-	// STATS 	
-	stats = new Stats();
-	stats.domElement.style.position = 'absolute';
-	stats.domElement.style.bottom = '0px';
-	stats.domElement.style.zIndex = 100;
-	container.appendChild( stats.domElement );
-		
-	// GUI
-	gui = new dat.GUI();
-	gui.add(parameters, 'region').name('Show Region');
-	gui.add(parameters, 'critical').name('Show Critical Value');
-	gui.add(parameters, 'zpoints').name('xy-Plane Points');
-	gui.add(parameters, 'projection').name('Show Projection');
-	gui.add(parameters, 'boundarypoints').name('Boundary POI');	
-	gui.add(parameters, 'fpoints').name('Surface Points');
-	
-	
-	
-	
-	createScene();
-}
-
 function createScene() {
-
-	while(scene.children.length > 0){ 
-		scene.remove(scene.children[0]); 
-	}
-
-	var light = new THREE.AmbientLight( 0xffffff );
-	scene.add( light );
-	
-	viewingWindow.setBounds(-7, 7, 1, -7, 7, 1, -20, 20, 5);
-	
-	var axes = createAxes( { labels: true } );
-	scene.add(axes);
 
 	surface = new Surface(parameters.zText);
 	addToScene(scene, surface);	
@@ -141,19 +94,19 @@ function createScene() {
 	addToScene(scene, proj2);
 	addToScene(scene, proj3);
 	
-	p1 = new Point({ coords: [0, 0, 0], color: 'blue', visible: false });
-	p2 = new Point({ coords: [3, 6, 0], color: 'blue', visible: false });
-	p3 = new Point({ coords: [0, 6, 0], color: 'blue', visible: false });
-	p4 = new Point({ coords: [1, 2, 0], color: 'blue', visible: false });
-	p5 = new Point({ coords: [1, 6, 0], color: 'blue', visible: false });
-	p6 = new Point({ coords: [0, 2, 0], color: 'blue', visible: false });
+	p1 = new Point([0, 0, 0], { color: 'blue', visible: false });
+	p2 = new Point([3, 6, 0], { color: 'blue', visible: false });
+	p3 = new Point([0, 6, 0], { color: 'blue', visible: false });
+	p4 = new Point([1, 2, 0], { color: 'blue', visible: false });
+	p5 = new Point([1, 6, 0], { color: 'blue', visible: false });
+	p6 = new Point([0, 2, 0], { color: 'blue', visible: false });
 	
-	q1 = new Point({ coords: [3, 6, 19], color: 'green', visible: false });
-	q2 = new Point({ coords: [0, 6, 13], color: 'green', visible: false });
-	q3 = new Point({ coords: [0, 0, 0], color: 'green', visible: false });
-	q4 = new Point({ coords: [1, 2, -5], color: 'green', visible: false });
-	q5 = new Point({ coords: [1, 6, 11], color: 'green', visible: false });
-	q6 = new Point({ coords: [0, 2, -3], color: 'green', visible: false });
+	q1 = new Point([3, 6, 19], { color: 'green', visible: false });
+	q2 = new Point([0, 6, 13], { color: 'green', visible: false });
+	q3 = new Point([0, 0, 0], { color: 'green', visible: false });
+	q4 = new Point([1, 2, -5], { color: 'green', visible: false });
+	q5 = new Point([1, 6, 11], { color: 'green', visible: false });
+	q6 = new Point([0, 2, -3], { color: 'green', visible: false });
 
 	addToScene(scene, p1);
 	addToScene(scene, p2);
@@ -219,17 +172,36 @@ function animate() {
 	update();
 }
 
-function update()
-{
-	// delta = change in time since last call (in seconds)
-	var delta = clock.getDelta(); 
-		
-	controls.update();
+
+function animate() {
+    requestAnimationFrame( animate );
+
+	if(window_param.activecamera == 'Perspective') {
+		renderer.render( scene, perspectivecamera );
+	} else {
+		renderer.render( scene, orthographiccamera );
+	}
+
+	perspectivecontrols.update();
+	orthographiccontrols.update();
 	stats.update();
+
 }
 
-function render() {	
-	renderer.render( scene, camera );
+function redrawScene() {
+
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+							window_param.ymin, window_param.ymax, window_param.yscl,
+							window_param.zmin, window_param.zmax, window_param.zscl);
+	
+	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
+	
+	for(var i = 0; i < objectlist.length; i++) {
+		scene.remove(objectlist[i].getObject());
+		objectlist[i].redraw();
+		scene.add(objectlist[i].getObject());
+	}
+	
 }
 
 </script>
