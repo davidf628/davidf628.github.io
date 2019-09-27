@@ -46,18 +46,9 @@ var window_param = {
 	updateWindow: function() { redrawScene(); },
 };
 
-var parameters = {
-	angle: 0.01
-}
-
 // Define a gui and add anything you want to it before initializing the scene
 
 var gui = new dat.GUI();	
-
-gui.add(parameters, 'angle').name('Angle').min(0.01).max(6.28).step(.01).onChange(updatelathe);
-
-//var lathe = new Lathe('t', 't^2', 0, 1, { axis: 'x' });
-//var lathe2 = new Lathe('t', 'sqrt(t)', 0, 1, { axis: 'x' });
 
 // initialization
 init();
@@ -70,60 +61,10 @@ animate();
 
 function createScene() {
 
-	//surface = new Surface('x^2-y^2-1', { color: '#BB0000', skin: 'rainbow', wireframevisible: false });
-	//addToScene(scene, surface);
-	
-	
-//	addToScene(scene, lathe);
-//	addToScene(scene, lathe2);
-	
-/*	points2dx = [];
-	points2dy = [];
-	points3d = [];
-	for ( var t = 0; t < 2; t += 0.25 ) {
-		var x = math.eval('t', { t: t });
-		var y = math.eval('t^2', { t: t});
-		points2dx.push(new THREE.Vector2( xCoord(y) , yCoord(x) ) );
-		points2dy.push(new THREE.Vector2( xCoord(x), yCoord(y) ));
-		points3d.push([x, y, 0]);
-		addToScene(scene, new Point([x, y, 0]));
-	}
-
-	addToScene(scene, new Path(points3d));
-	
-	//addToScene(scene, new Point( { coords: [2, 3, 1] }));
-	
-
-/*	for(var k = viewingWindow.xMin; k <= viewingWindow.xMax; k++) {
-		var xstr = k.toString();
-		var ystr = 't';
-		addToScene(scene, new ParametricProjection(xstr, ystr, 'x^2-y^2-1', -5, 5, { gridtype: 'rectangular' }));
-		//var zstr = math.simplify('k^2 - t^2 - 1', { k: k }).toString();
-		//addToScene(scene, new ParametricGraph(xstr, ystr, zstr, -5, 5));
-	}
-
-	for(var k = viewingWindow.yMin; k <= viewingWindow.yMax; k++) {
-		var xstr = 't';
-		var ystr = k.toString();
-		addToScene(scene, new ParametricProjection(xstr, ystr, 'x^2-y^2-1', -5, 5));
-		//var zstr = math.simplify('t^2 - k^2 - 1', { k: k}).toString();
-		//addToScene(scene, new ParametricGraph(xstr, ystr, zstr, -5, 5));
-	}
-
-	/*for(var k = -5; k <= 4; k++) {
-		var xstr = 'sqrt(4 - (' + k + ')) * cos(t)';
-		var ystr = 'sqrt(4 - (' + k + ')) * sin(t)';
-		var zstr = k.toString();
-		addToScene(scene, new ParametricGraph(xstr, ystr, zstr, 0, 6.28));
-	}*/
+	surface = new Surface('x^2-y^2-1', { color: '#BB0000', skin: 'rainbow', wireframevisible: false });
+	addToScene(scene, surface);
 
 }
-
-function updatelathe() {
-//	lathe.setAngle(scene, parameters.angle);
-//	lathe2.setAngle(scene, parameters.angle);
-}
-
 
 // All 3d programs need the animate and redrawScene() functions, in general you can
 // just copy and paste the ones below
@@ -152,9 +93,13 @@ function redrawScene() {
 	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
 	
 	for(var i = 0; i < objectlist.length; i++) {
-		scene.remove(objectlist[i].getObject());
-		objectlist[i].redraw();
-		scene.add(objectlist[i].getObject());
+		if((objectlist[i].name == 'wireframe') || (objectlist[i] == 'axes')) {
+			scene.remove(objectlist[i].getObject());
+			objectlist[i].redraw();
+			scene.add(objectlist[i].getObject());
+		} else {
+			objectlist[i].redraw();
+		}
 	}
 	
 }

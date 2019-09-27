@@ -2781,17 +2781,16 @@ var Implicit = function(func, finish) {
   };
  };
  
- // plotter code using jsxgraph
+// plotter code using jsxgraph
 
- var CanvasPlotter = function(board, func)
- {
-  var me = {};
+var CanvasPlotter = function(board, func) {
+var me = {};
 
-  me.board = board; me.func = func;
-  me.x1 = -10; me.x2 = 10;
-  me.y1 = -10; me.y2 = 10;
-  me.color = "green";
-  me.px = 300; me.py = 300;
+me.board = board; me.func = func;
+me.x1 = -10; me.x2 = 10;
+me.y1 = -10; me.y2 = 10;
+me.color = "green";
+me.px = 300; me.py = 300;
   me.tx = 0; me.ty = 0;
   me.working = false;
 

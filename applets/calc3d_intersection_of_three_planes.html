@@ -141,10 +141,12 @@ function redrawScene() {
 	
 	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
 	
+	scene.remove(axes.getObject());
+	axes.redraw();
+	scene.add(axes.getObject());
+	
 	for(var i = 0; i < objectlist.length; i++) {
-		scene.remove(objectlist[i].getObject());
 		objectlist[i].redraw();
-		scene.add(objectlist[i].getObject());
 	}
 	
 }

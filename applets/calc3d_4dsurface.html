@@ -43,13 +43,14 @@ var window_param = {
 	updateWindow: function() { redrawScene(); },
 };
 
-var surfaces = [], textbox;
+var surface, wireframe, textbox;
+var funcs = [];
 var goingup = true;
 
 var parameters = {
 	t: 0,
 	animate: false,
-	wireframe: false,
+	wireframevisible: true,
 	showtextbox: false	
 };
 
@@ -58,23 +59,22 @@ gui = new dat.GUI();
 gui.add(parameters, 't').min(0).max(49).step(1).onChange(
 	function() {
 		scene.remove(textbox.getObject());
-		for(var i = 0; i < surfaces.length; i++) {
-			surfaces[i].setVisible(false);
-			surfaces[i].setWireframeVisible(false);
-		}
-		surfaces[parameters.t].setVisible(true);
-		surfaces[parameters.t].setWireframeVisible(parameters.wireframe);
+
+		surface.setFunction(funcs[parameters.t]);
+		wireframe.setFunction(scene, surface.getFunction());
+
 		textbox	= new TextBox([0, 2, 6], 
-			surfaces[parameters.t].getFunction(), { 
+			surface.getFunction(), { 
 				borderColor: {r:255, g:0, b:0, a:1.0}, 
 	  	  		backgroundColor: {r:255, g:100, b:100, a:0.8}, 
 	  	  	visible: parameters.showtextbox 
 		});
-		addToScene(scene, textbox);
+		
+		scene.add(textbox.getObject());
 	}
 );
 gui.add(parameters, 'animate').name('Animate');
-gui.add(parameters, 'wireframe').name('Wireframe');
+gui.add(parameters, 'wireframevisible').name('Show Wireframe');
 gui.add(parameters, 'showtextbox').name('Show Function').onChange(
 	function() {
 		textbox.toggleVisible();
@@ -87,15 +87,22 @@ animate();
 function createScene() {
 
 	for(var i = 0.2; i <= 10; i+=.2) {
-		var c = '(' + i + ' *  ' + i + ')';
+		//var c = '(' + i + ' *  ' + i + ')';
+		var c = '(' + i + ')^2';
 		func = ' 5 - x^2 / ' + c + ' * y^2 / ' + c;
-		var surface = new Surface(func, { visible: false, wireframevisible: false });
-		surfaces.push(surface);
-		addToScene(scene, surface);
+		funcs.push(func);
 	}
-	surfaces[0].setVisible(true);
+	
+	surface = new Surface(funcs[0]);
+	addToScene(scene, surface);
+
+	wireframe = new Wireframe(funcs[0], { type: 'advanced' });
+	wireframe.setVisible(parameters.wireframevisible);
+	addToScene(scene, wireframe);
+	
+	
 	textbox	= new TextBox([0, 2, 6], 
-		surfaces[0].getFunction(), 
+		funcs[0],
 		{ borderColor: {r:255, g:0, b:0, a:1.0}, 
 		  backgroundColor: {r:255, g:100, b:100, a:0.8}, 
 		  visible: parameters.showtextbox 
@@ -121,12 +128,8 @@ function animate() {
 				goingup = true;
 			}
 		}
-		for(var i = 0; i < surfaces.length; i++) {
-			surfaces[i].setVisible(false);
-			surfaces[i].setWireframeVisible(false);
-		}
-		surfaces[parameters.t].setVisible(true);
-		surfaces[parameters.t].setWireframeVisible(parameters.wireframe);
+		surface.setFunction(funcs[parameters.t]);
+		wireframe.setFunction(scene, surface.getFunction());
 	} else {
 		textbox.setVisible(parameters.showtextbox);
 	}
@@ -152,9 +155,13 @@ function redrawScene() {
 	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
 	
 	for(var i = 0; i < objectlist.length; i++) {
-		scene.remove(objectlist[i].getObject());
-		objectlist[i].redraw();
-		scene.add(objectlist[i].getObject());
+		if((objectlist[i].name == 'wireframe') || (objectlist[i] == 'axes')) {
+			scene.remove(objectlist[i].getObject());
+			objectlist[i].redraw();
+			scene.add(objectlist[i].getObject());
+		} else {
+			objectlist[i].redraw();
+		}
 	}
 	
 }

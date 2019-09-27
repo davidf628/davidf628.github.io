@@ -60,8 +60,8 @@ var parameters = {
 	updatelathe: function() { updateLathe(); }
 }
 
-var lathe;
-var lathe2;
+var lathe, lathe2;
+var wireframe, wireframe2;
 
 var gui = new dat.GUI();	
 
@@ -82,36 +82,42 @@ animate();
 
 function createScene() {	
 	
-	lathe = new Lathe(parameters.x1func, parameters.y1func, parameters.tmin, parameters.tmax, parameters.axis, { connect: parameters.connect, dt: parameters.dt });
+	lathe = new Lathe(parameters.x1func, parameters.y1func, parameters.tmin, parameters.tmax, parameters.axis, { skin: 'transparent', connect: parameters.connect, dt: parameters.dt });
 	lathe2 = new Lathe(parameters.x2func, parameters.y2func, parameters.tmin, parameters.tmax, parameters.axis, { connect: parameters.connect, dt: parameters.dt });
 	addToScene(scene, lathe);
 	addToScene(scene, lathe2);
-
+	
+	wireframe = new ThreeJSWireframe(lathe.getGeometry());
+	addToScene(scene, wireframe);
+	wireframe2 = new ThreeJSWireframe(lathe2.getGeometry());
+	addToScene(scene, wireframe2);
 }
 
 function updateLatheAngle() {
-	lathe.setAngle(scene, parameters.angle);
-	lathe2.setAngle(scene, parameters.angle);
+	lathe.setAngle(parameters.angle);
+	lathe2.setAngle(parameters.angle);
+	wireframe.setGeometry(lathe.getGeometry());
+	wireframe2.setGeometry(lathe2.getGeometry());
 }
 
 function updateLathe() {
-	lathe.setFunction(scene, parameters.x1func, parameters.y1func, parameters.tmin, parameters.tmax, parameters.dt);
-	lathe.setAxisOfRotation(scene, parameters.axis);
-	lathe.setConnect(scene, parameters.connect);
+	lathe.setFunction(parameters.x1func, parameters.y1func, parameters.tmin, parameters.tmax, parameters.dt);
+	lathe.setAxisOfRotation( parameters.axis);
+	lathe.setConnect(parameters.connect);
 	
-	lathe2.setFunction(scene, parameters.x2func, parameters.y2func, parameters.tmin, parameters.tmax, parameters.dt);
-	lathe2.setAxisOfRotation(scene, parameters.axis);
-	lathe2.setConnect(scene, parameters.connect);
+	lathe2.setFunction(parameters.x2func, parameters.y2func, parameters.tmin, parameters.tmax, parameters.dt);
+	lathe2.setAxisOfRotation(parameters.axis);
+	lathe2.setConnect(parameters.connect);
 }
 
 function setAxisOfRotation() {
-	lathe.setAxisOfRotation(scene, parameters.axis);
-	lathe2.setAxisOfRotation(scene, parameters.axis);
+	lathe.setAxisOfRotation(parameters.axis);
+	lathe2.setAxisOfRotation(parameters.axis);
 }
 
 function setConnectAxis() {
-	lathe.setConnect(scene, parameters.connect);
-	lathe2.setConnect(scene, parameters.connect);
+	lathe.setConnect(parameters.connect);
+	lathe2.setConnect(parameters.connect);
 }
 
 
@@ -138,10 +144,12 @@ function redrawScene() {
 	
 	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
 	
+	scene.remove(axes.getObject());
+	axes.redraw();
+	scene.add(axes.getObject());
+	
 	for(var i = 0; i < objectlist.length; i++) {
-		scene.remove(objectlist[i].getObject());
 		objectlist[i].redraw();
-		scene.add(objectlist[i].getObject());
 	}
 	
 }
