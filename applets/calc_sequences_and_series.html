@@ -86,7 +86,7 @@ var ratio_points = [];
 var abs_points = [];	
 
 var line1 = board.create('line', [[0,0], [5,0]], { dash: 2, visible: false });
-var line2 = board.create('line', [[0,-1], [5,-1]], { dash: 2, visible: false });
+var line2 = board.create('line', [[0,-0.5], [5,-0.5]], { dash: 2, visible: false });
 
 init();		
 
@@ -118,7 +118,9 @@ function update() {
 		plot_function(b_curve, '', window.xmin, window.xmax);
 	}
 	
-	for(var i = 0; i < a_sequencepoints.length; i++) {
+	var maxlen = Math.max(a_sequencepoints.length, b_sequencepoints.length);
+	
+	for(var i = 0; i < maxlen; i++) {
 		board.removeObject(a_sequencepoints[i]);
 		board.removeObject(b_sequencepoints[i]);
 		board.removeObject(a_seriespoints[i]);
@@ -245,7 +247,7 @@ function init() {
 		});	
 	
 	cb_sequence_a = JSXCheckbox(displayboard, 1, 9, 'Show Sequence a', true, function() { update(); }, { fontSize: 18 });
-	cb_series_a = JSXCheckbox(displayboard, 1, 8.5, 'Show Series a', true, function() { update(); }, { fontSize: 18 });
+	cb_series_a = JSXCheckbox(displayboard, 1, 8.5, 'Show Series a', false, function() { update(); }, { fontSize: 18 });
 	cb_function_a = JSXCheckbox(displayboard, 1, 8, 'Show Function a', false, function() { update(); }, { fontSize: 18 });
 	
 	cb_sequence_b = JSXCheckbox(displayboard, 6, 9, 'Show Sequence b', false, function() { update(); }, { fontSize: 18 });
