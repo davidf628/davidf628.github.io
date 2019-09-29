@@ -107,15 +107,15 @@ function update() {
 	var n_start = parseInt(document.getElementById('n_start').value);
 	
 	if(cb_function_a.Value()) {
-		plot_function(a_curve, a_n, window.xmin, window.xmax);
+		plot_function(a_curve, a_n, window.xmin, window.xmax, { variable: 'n' });
 	} else {
-		plot_function(a_curve, '', window.xmin, window.xmax);
+		plot_function(a_curve, '', window.xmin, window.xmax, { variable: 'n' });
 	}
 	
 	if(cb_function_b.Value()) {
-		plot_function(b_curve, b_n, window.xmin, window.xmax, { color: 'red' });
+		plot_function(b_curve, b_n, window.xmin, window.xmax, { color: 'red', variable: 'n' });
 	} else {
-		plot_function(b_curve, '', window.xmin, window.xmax);
+		plot_function(b_curve, '', window.xmin, window.xmax, { variable: 'n' });
 	}
 	
 	var maxlen = Math.max(a_sequencepoints.length, b_sequencepoints.length);
@@ -132,7 +132,7 @@ function update() {
 	
 	if(cb_sequence_a.Value()) {
 		for(var n = n_start; n <= maxX; n++) {
-			var a = evaluate(a_n, n);
+			var a = evaluate(a_n, n, { variable: 'n' });
 			if(a != NaN && a != undefined) {
 				a_sequencepoints[n] = board.create('point', [n, a], { withLabel: false, color: 'lightblue', fixed: true });
 			}
@@ -142,7 +142,7 @@ function update() {
 	
 	if(cb_sequence_b.Value()) {
 		for(var n = n_start; n <= maxX; n++) {
-			var b = evaluate(b_n, n);
+			var b = evaluate(b_n, n, { variable: 'n' });
 			if(b != NaN && b != undefined) {
 				b_sequencepoints[n] = board.create('point', [n, b], { withLabel: false, color: '#ffaaaa', fixed: true });
 			}
@@ -152,7 +152,7 @@ function update() {
 	if(cb_series_a.Value()) {
 		var sum = 0;
 		for(var n = n_start; n <= maxX; n++) {
-			var val = evaluate(a_n, n);
+			var val = evaluate(a_n, n, { variable: 'n' });
 			sum += val;
 			a_seriespoints[n] = board.create('point', [n, sum], { withLabel: false, color: 'blue', fixed: true });
 		}
@@ -161,7 +161,7 @@ function update() {
 	if(cb_series_b.Value()) {
 		var sum = 0;
 		for(var n = n_start; n <= maxX; n++) {
-			var val = evaluate(b_n, n);
+			var val = evaluate(b_n, n, { variable: 'n' });
 			sum += val;
 			b_seriespoints[n] = board.create('point', [n, sum], { withLabel: false, color: 'red', fixed: true });
 		}
@@ -170,8 +170,8 @@ function update() {
 	if(cb_lct.Value()) {
 		var ratio = 0;
 		for(var n = n_start; n <= maxX; n++) {
-			var aval = evaluate(a_n, n);
-			var bval = evaluate(b_n, n);
+			var aval = evaluate(a_n, n, { variable: 'n' });
+			var bval = evaluate(b_n, n, { variable: 'n' });
 			ratio = aval / bval;
 			lct_seriespoints[n] = board.create('point', [n, ratio], { withLabel: false, color: 'purple', fixed: true });
 		}
@@ -180,8 +180,8 @@ function update() {
 	if(cb_ratio.Value()) {
 		var ratio = 0;
 		for(var n = n_start; n <= maxX; n++) {
-			var aval = evaluate(a_n, n + 1);
-			var bval = evaluate(a_n, n);
+			var aval = evaluate(a_n, n + 1, { variable: 'n' });
+			var bval = evaluate(a_n, n, { variable: 'n' });
 			ratio = aval / bval;
 			ratio_points[n] = board.create('point', [n, ratio], { withLabel: false, color: 'green', fixed: true });
 		}
@@ -189,7 +189,7 @@ function update() {
 	
 	if(cb_abs.Value()) {
 		for(var n = n_start; n <= maxX; n++) {
-			var absval = evaluate('abs(' + a_n + ')', n);
+			var absval = evaluate('abs(' + a_n + ')', n, { variable: 'n' });
 			abs_points[n] = board.create('point', [n, absval], { withLabel: false, color: 'orange', fixed: true });
 		}
 	}

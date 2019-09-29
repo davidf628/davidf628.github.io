@@ -1685,6 +1685,35 @@ function getVariables(expression) {
 
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// Changes all the instances of the variable 'x' and replaces it with 
+//
+///////////////////////////////////////////////////////////////////////////////
+
+function getVariables(expression) {
+	
+	var variables = [];	
+	var func = getFunctionName(expression);
+	
+	var node = math.parse(expression);
+	
+	node.traverse(	
+		function(node, path, parent) {
+			if(node.type == 'SymbolNode' && node.name != func) {
+				if(node.name != 'e' && node.name != 'pi' && node.name != 'i') {
+					if(variables.indexOf(node.name) == -1) {
+						variables.push(node.name);
+					}
+				}
+			}
+		}
+	);
+
+	return variables;
+
+}
+
 
 // Pattern for a restricted interval:
 
@@ -1811,11 +1840,11 @@ function upperBoundOpen(interval) {
 
 function evaluate(f, x, args) {
 		
-	var variable = 'x';
-	
-	if(args !== undefined) {
-		variable = args.variable ? args.variable : 'x';
+	if(args === undefined) {
+		args = {};
 	}
+	
+	var variable = args.variable ? args.variable : 'x';
 	
 	f = f.toLowerCase();
 	f = removeFunctionName(f);
@@ -1846,8 +1875,13 @@ function evaluate(f, x, args) {
 			f = NaN;//'0';//f.substring(0, f.search(regex_interval));
 		}
 	}
+	
 	var expr = math.compile(f);
-	return expr.eval({x: x});
+	var parameter = {};
+	parameter[variable] = x;
+	
+	return expr.eval(parameter);
+		
 }
 
 function evalf(f, parameters) {
@@ -1884,6 +1918,7 @@ function plot_function(curve, relation, start_x, end_x, args) {
 	var yMax = args.yMax ? args.yMax : 10;
 	var yMin = args.yMin ? args.yMin : -10;
 	var yScl = args.yScl ? args.yScl : 1;
+	var variable = args.variable ? args.variable : 'x';
 		
 	var restricted_interval = false;
 	
@@ -1908,7 +1943,9 @@ function plot_function(curve, relation, start_x, end_x, args) {
 		// See if there is a hole in the graph	
 		if(interval.search(regex_hole) != -1) {
 			hole_val = parseFloat(interval.split('=')[1]);
-			var y_val = expr.eval({ x: hole_val });
+			var parameter = {};
+			parameter[variable] = hole_val;
+			var y_val = expr.eval(parameter);
 			hole.moveTo([hole_val, y_val]);
 			hole.setAttribute( { visible: true, strokeColor: color, fillColor: 'white' });
 		}		
@@ -1923,7 +1960,9 @@ function plot_function(curve, relation, start_x, end_x, args) {
 			
 			if(lowerval != NEGATIVE_INFINITY) {
 				start_x = lowerval;
-				var y_val = expr.eval({x: lowerval});
+				var parameter = {};
+				parameter[variable] = lowerval;
+				var y_val = expr.eval(parameter);
 				lowerendpoint.moveTo([lowerval, y_val]);
 				lowerendpoint.setAttribute({ strokeColor: color, visible: true });
 				if(lowerBoundOpen(interval)) {
@@ -1935,7 +1974,9 @@ function plot_function(curve, relation, start_x, end_x, args) {
 			
 			if(upperval != POSITIVE_INFINITY) {
 				end_x = upperval;
-				var y_val = expr.eval({ x: upperval });	
+				var parameter = {};
+				parameter[variable] = upperval;
+				var y_val = expr.eval(parameter);	
 				upperendpoint.moveTo([upperval, y_val]);
 				upperendpoint.setAttribute({ strokeColor: color, visible: true });	
 				if(upperBoundOpen(interval)) {
@@ -1950,9 +1991,14 @@ function plot_function(curve, relation, start_x, end_x, args) {
 	
 	// This is an explicit function of the form: f(x)
 	curve.dataX = math.range(start_x, end_x + density, density).toArray();
-	curve.dataY = curve.dataX.map(function(x) { return expr.eval({x: x}); });
-	
-	
+	curve.dataY = curve.dataX.map(
+		function(x) { 
+			var parameter = {};
+			parameter[variable] = x;
+			return expr.eval(parameter);
+		}
+	);
+		
 	// If the curve shoots off to infinity, this will prevent the curve from
 	// drawing an "asymptote" at that value
 	
