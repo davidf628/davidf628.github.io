@@ -15,6 +15,7 @@
 		<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
 		<script src='./js/jsxgraphcore.js' type='text/javascript'></script>
 		<script src='./js/MathFunctions.js' type='text/javascript'></script>
+		<script src='./js/helpers.js' type='text/javascript'></script>
 
 		<style>
 			#table-wrapper { 
@@ -160,7 +161,10 @@
 	Probability = <input type = "text", id = "probability", value = "1.0000"></br></br>
 	<input type="checkbox" id="normal_overlay" value="normal_overlay">
     <label for="normal_overlay">Overlay Normal Distribution</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<input type="button" value="Update" onClick="update_page(document.getElementById('input_n').value, document.getElementById('input_p').value, document.getElementById('normal_overlay').checked)"></br></br>
+	<input type="button" value="Update" onClick="update_page(document.getElementById('input_n').value, document.getElementById('input_p').value, document.getElementById('normal_overlay').checked)">
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+	</br></br>
 
 	<div id="jxgbox" class="jxgbox" style="width:800px; height:500px; float:left"></div>
 	
