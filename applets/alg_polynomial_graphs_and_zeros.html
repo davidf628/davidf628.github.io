@@ -251,7 +251,12 @@
 		factored_polynomial = generate_factored_polynomial(zero_list);	
 		unfactored_polynomial = Algebrite.run(factored_polynomial);
 		
-		var f = board.jc.snippet(unfactored_polynomial, true, 'x', true);
+		var f;
+		if(unfactored_polynomial.search('i') == -1) {
+			f = board.jc.snippet(unfactored_polynomial, true, 'x', true);
+		} else {
+			f = function(x) { return NaN; };
+		}
 		
 		polynomial_curve = board.create('functiongraph', [f], curve_param);
 		
