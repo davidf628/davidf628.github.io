@@ -1,0 +1,302 @@
+<meta charset="utf-8"></meta>
+
+<html>
+
+<head>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({ tex2jax: { inlineMath: [["$", "$"],["\\(", "\\)"]] } });
+    </script>
+	<script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+	<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
+    <script src='./js/jsxgraphcore.js' type='text/javascript'></script>
+    <script src='./js/MathFunctions.js' type='text/javascript'></script>
+	<script src='./js/dat.gui.min.js' type='text/javascript'></script>
+	<script src='./js/math.min.js' type='text/javascript'></script>
+   	<script src='./js/helpers.js' type='text/javascript'></script>
+   	<script src="./js/algebrite.bundle-for-browser.js"></script>
+</head>
+  
+<body>
+    
+	<h1>Polynomial Graphs and Zeros</h1>
+
+	Enter new zero = <input type="text" id="new_zero" value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<input type="button" value="Add New Zero" onClick="add_new_zero()">	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+	<br/><br/>
+	Enter constant multiplier: <input type="text" id="const_multiplier" value="1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<input type="button" value="Apply Constant" onClick="apply_constant()">
+	<br/><br/>
+    
+<div>
+	<div id='jxgbox' class='jxgbox' style='width:900px; height:600px; float: left; resize: both'></div>
+	<div id='displayboard' class='jxgbox' style='width: 320; height: 600px; float: left'></div>
+	<div id='displayboard2' class='jxgbox' style='width: 1220px; height: 100px; float: left'></div>
+</div>
+	
+<script type='text/javascript'>
+		 
+    JXG.Options.text.useMathJax = true;
+			 
+    board = JXG.JSXGraph.initBoard('jxgbox', {
+        // -x, +y, +x, -y
+        boundingbox: [-5.5, 5.5, 5.5, -5.5], 
+        axis: true, 
+        showNavigation: true, 
+        showCopyright: false,
+        keepaspectratio: false,
+        showClearTraces: false,
+        zoom: {
+            factorX: 1.25,
+            factorY: 1.25,
+            wheel: true,
+            needshift: false,
+            eps: 0.1
+        }				 
+    });              
+
+    displayboard = JXG.JSXGraph.initBoard('displayboard', {
+	    // -x, +y, +x, -y
+        boundingbox: [0, 10, 10, 0], 
+        axis: false, 
+        showNavigation: false, 
+        showCopyright: false,
+        keepaspectratio: false,
+        showClearTraces: false,
+        zoom: {
+			enabled: false
+        },
+		pan: {
+			enabled: false
+		}
+    });    
+
+    displayboard2 = JXG.JSXGraph.initBoard('displayboard2', {
+	    // -x, +y, +x, -y
+        boundingbox: [0, 5, 5, 0], 
+        axis: false, 
+        showNavigation: false, 
+        showCopyright: false,
+        keepaspectratio: false,
+        showClearTraces: false,
+        zoom: {
+			enabled: false
+        },
+		pan: {
+			enabled: false
+		}
+    });
+
+	curve_param = { 
+		strokeWidth: 2, 
+		strokeColor: 'blue', 
+		fixed: true,
+		highlight: false
+	};
+	
+	zero_list = [];
+	constant_multiplier = "1";
+	factored_polynomial = generate_factored_polynomial(zero_list);
+	unfactored_polynomial = Algebrite.run(factored_polynomial);
+	
+	polynomial_curve = board.create('curve', [[Number.NaN], [Number.NaN]], curve_param);
+
+	polynomial_txt = displayboard2.create('text', [0.125, 3.75, 
+		function() {
+			var f = unfactored_polynomial;
+			while(f.indexOf('*') != -1) {
+				f = f.replace('*', '');
+			}
+			f = 'f(x)=' + f;
+			return '$' + f + '$';	
+		}], { fontSize: 18, fixed: true });
+	
+	factored_polynomial_txt = displayboard2.create('text', [0.125, 1.75, 
+		function() {
+			var f = factored_polynomial;
+			while(f.indexOf('*') != -1) {
+				f = f.replace('*', '');
+			}
+			f = 'f(x)=' + f;
+			return '$' + f + '$';		
+		}], { fontSize: 18, fixed: true });
+	
+	
+	cb_showPolynomial = JSXCheckbox(displayboard, 1, 9.5, 'Show Polynomial', true,
+		function() {
+			update_display();
+		}, { fontSize: 18 });
+	
+	cb_showFactoredPolynomial = JSXCheckbox(displayboard, 1, 9, 'Show Factored Polynomial', true,
+		function() {
+			update_display();
+		}, { fontSize: 18 });
+	
+	board.on('up', function() { board.update(); });
+
+	update_display();
+
+	function generate_factored_polynomial() {
+	
+		if(zero_list.length == 0) {
+		
+			factored_polynomial = constant_multiplier;
+			
+		} else if(zero_list.length == 1) {
+		
+			if(typeof(zero_list[0]) == 'string') {
+			
+				var zero = zero_list[0];
+				if(zero[0] == '-') {
+					zero = zero.substring(1);
+					factored_polynomial = 'x+' + zero;
+				} else {
+					factored_polynomial = 'x-' + zero;
+				}
+				
+			} else {
+				var real = zero_list[0].re;
+				var imag = zero_list[0].im;
+		
+				if(real == 0 && imag == 0) {
+					factored_polynomial = 'x';
+				} else if(imag == 0) {
+					factored_polynomial = real < 0 ? 'x+' + Math.abs(real) : 'x-' + real;
+				} else if(real == 0) {
+					if(imag == 1) {
+						factored_polynomial = 'x-i';
+					} else if(imag == -1) {
+						factored_polynomial = 'x+i';
+					} else {
+						factored_polynomial = imag < 0 ? 'x+' + Math.abs(imag) + 'i' : 'x-' + imag + 'i';
+					}	
+				} else {
+					factored_polynomial = 'x-(' + zero_list[0].format() + ')'
+				}		
+
+			}
+			
+			if(constant_multiplier != 1) {
+				factored_polynomial = constant_multiplier + '*(' + factored_polynomial + ')';	
+			}
+			 
+		} else {
+		
+			factored_polynomial = '';
+		
+			for(var i = 0; i < zero_list.length; i++) {
+				
+				if(typeof(zero_list[i]) == 'string') {
+				
+					var zero = zero_list[i];
+				
+					if(zero[0] == '-') {
+						zero = zero.substring(1);
+						factored_polynomial += '*(x+' + zero + ')';
+					} else { 
+						factored_polynomial += '*(x-' + zero + ')';
+					}
+				
+				} else {
+					
+					var real = zero_list[i].re;
+					var imag = zero_list[i].im;
+					
+					if(real == 0 && imag == 0) {
+						factored_polynomial += '*x';
+					} else if(imag == 0) {
+						factored_polynomial += real < 0 ? '*(x+' + Math.abs(real) + ')' : '*(x-' + real + ')';
+					} else if(real == 0) {
+						if(imag == 1) {
+							factored_polynomial += '*(x-i)';
+						} else if(imag == -1) {
+							factored_polynomial += '*(x+i)';
+						} else {
+							factored_polynomial += imag < 0 ? '*(x+' + Math.abs(imag) + 'i)' : '*(x-' + imag + 'i)';
+						}	
+					} else {
+						factored_polynomial += '*(x-(' + zero_list[i].format() + '))'
+					}	
+					
+				}
+				
+
+			}
+			
+			if(constant_multiplier != 1) {
+				factored_polynomial = constant_multiplier + factored_polynomial;	
+			} else {
+				factored_polynomial = factored_polynomial.substring(1);
+			}
+			
+		}
+		
+		return factored_polynomial;
+		
+	}
+
+	function add_new_zero() {
+		
+		board.removeObject(polynomial_curve);
+		
+		var zero;
+		
+		try {
+			zero = math.complex(document.getElementById("new_zero").value);
+		} catch(err) {
+			zero = document.getElementById("new_zero").value;
+		}
+		zero_list.push(zero);
+		
+		factored_polynomial = generate_factored_polynomial(zero_list);	
+		unfactored_polynomial = Algebrite.run(factored_polynomial);
+		
+		polynomial_curve = board.create('functiongraph', [ 
+			function(x) {
+				return math.eval(unfactored_polynomial, {x: x}); 
+			}], curve_param);
+		
+		update_display();
+			
+	}
+
+	function apply_constant() {
+	
+		constant_multiplier = document.getElementById("const_multiplier").value;
+		
+		factored_polynomial = generate_factored_polynomial(zero_list);
+		unfactored_polynomial = Algebrite.run(factored_polynomial);
+		
+		update_display();
+		
+	}
+
+	function update_display() {
+		var width = document.getElementById('jxgbox').clientWidth;
+		var height = document.getElementById('jxgbox').clientHeight;
+		
+		board.resizeContainer(width, height);
+		bounds = JSXGetBounds(board);
+		
+		if(cb_showPolynomial.Value()) {
+			polynomial_txt.setAttribute({ visible: true });
+		} else {
+			polynomial_txt.setAttribute({ visible: false });
+		}
+		
+		if(cb_showFactoredPolynomial.Value()) {
+			factored_polynomial_txt.setAttribute({ visible: true });
+		} else {
+			factored_polynomial_txt.setAttribute({ visible: false });
+		}
+		
+		board.update();
+		displayboard.update();
+		displayboard2.update();
+		
+	}
+
+    </script>
+</body>
+
+<html>
