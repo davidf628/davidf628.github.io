@@ -236,9 +236,7 @@
 	}
 
 	function add_new_zero() {
-		
-		board.removeObject(polynomial_curve);
-		
+			
 		var zero;
 		
 		try {
@@ -250,16 +248,7 @@
 		
 		factored_polynomial = generate_factored_polynomial(zero_list);	
 		unfactored_polynomial = Algebrite.run(factored_polynomial);
-		
-		var f;
-		if(unfactored_polynomial.search('i') == -1) {
-			f = board.jc.snippet(unfactored_polynomial, true, 'x', true);
-		} else {
-			f = function(x) { return NaN; };
-		}
-		
-		polynomial_curve = board.create('functiongraph', [f], curve_param);
-		
+				
 		update_display();
 			
 	}
@@ -281,6 +270,17 @@
 		
 		board.resizeContainer(width, height);
 		bounds = JSXGetBounds(board);
+		
+		board.removeObject(polynomial_curve);
+		
+		var f;
+		if(unfactored_polynomial.search('i') == -1) {
+			f = board.jc.snippet(unfactored_polynomial, true, 'x', true);
+		} else {
+			f = function(x) { return NaN; };
+		}
+		
+		polynomial_curve = board.create('functiongraph', [f], curve_param);
 		
 		if(cb_showPolynomial.Value()) {
 			polynomial_txt.setAttribute({ visible: true });
