@@ -85,8 +85,8 @@
 	};
 
 	asymptote_param = { 
-		strokeWidth: 1, 
-		strokeColor: 'darkgray', 
+		strokeWidth: 2, 
+		strokeColor: '#eb8fe8', 
 		dash: 3,
 		fixed: true,
 		highlight: false
@@ -115,7 +115,8 @@
 			setCheckbox(cb_squareroot, false);
 			setCheckbox(cb_cuberoot, false);
 			setCheckbox(cb_absolutevalue, false);
-			setCheckbox(cb_exponential, false);		
+			setCheckbox(cb_exponential, false);	
+			setCheckbox(cb_logarithmic, false);
 			
 			function_type = 'quadratic';
 			update();
@@ -132,6 +133,7 @@
 			setCheckbox(cb_cuberoot, false);
 			setCheckbox(cb_absolutevalue, false);
 			setCheckbox(cb_exponential, false);
+			setCheckbox(cb_logarithmic, false);
 			
 			function_type = 'cubic';
 			update();
@@ -147,6 +149,7 @@
 			setCheckbox(cb_cuberoot, false);
 			setCheckbox(cb_absolutevalue, false);
 			setCheckbox(cb_exponential, false);
+			setCheckbox(cb_logarithmic, false);
 			
 			function_type = 'squareroot';
 			update();
@@ -162,6 +165,7 @@
 			setCheckbox(cb_cuberoot, true);
 			setCheckbox(cb_absolutevalue, false);
 			setCheckbox(cb_exponential, false);
+			setCheckbox(cb_logarithmic, false);
 			
 			function_type = 'cuberoot';
 			update();
@@ -177,6 +181,7 @@
 			setCheckbox(cb_cuberoot, false);
 			setCheckbox(cb_absolutevalue, true);
 			setCheckbox(cb_exponential, false);
+			setCheckbox(cb_logarithmic, false);
 			
 			function_type = 'absolutevalue';
 			update();
@@ -192,6 +197,7 @@
 			setCheckbox(cb_cuberoot, false);
 			setCheckbox(cb_absolutevalue, false);
 			setCheckbox(cb_exponential, true);
+			setCheckbox(cb_logarithmic, false);
 			
 			function_type = 'exponential';
 			update();	
@@ -200,7 +206,19 @@
 		
 	cb_logarithmic = JSXCheckbox(displayboard, 1, 6.5, "Logarithmic", false,
 		function() {
-		}, { fontSize: 18, strokeColor: 'lightgray' });
+		
+			setCheckbox(cb_quadratic, false);
+			setCheckbox(cb_cubic, false);
+			setCheckbox(cb_squareroot, false);
+			setCheckbox(cb_cuberoot, false);
+			setCheckbox(cb_absolutevalue, false);
+			setCheckbox(cb_exponential, false);
+			setCheckbox(cb_logarithmic, true);
+			
+			function_type = 'logarithmic';
+			update();
+		
+		}, { fontSize: 18 });
 		
 	cb_inverse = JSXCheckbox(displayboard, 1, 6, "Inverse", false,
 		function() {
@@ -280,6 +298,11 @@
 				}
 				
 				if(function_type == 'exponential') {
+				
+					if((a.Value() != 1) && (a.Value() != -1)) {
+						mult += '\\cdot';
+					}
+				
 					if(b.Value() > 0) {
 						f = b.Value() + '^{' + horiz + '}';
 					} else {
@@ -290,6 +313,15 @@
 					} else {
 						return '$' + 'y=' + mult + f + vert + '$';
 					} 
+				}
+				
+				if(function_type == 'logarithmic') {
+					if(b.Value() > 1) {
+						f = '\\log_{' + b.Value() + '}\\left(' + horiz + '\\right)';
+						return '$' + 'y=' + mult + f + vert + '$';
+					} else {
+						return '$ b > 1 $';
+					}
 				}
 				
 			}
@@ -423,8 +455,37 @@
 			trans_asymp = board.create('functiongraph', [
 				function(x) {
 					return k.Value();
+				}], asymptote_param);			
+			
+		} else if(function_type == 'logarithmic') {
+			
+			base_curve = board.create('functiongraph', [
+				function(x) {
+					return Math.log(x) / Math.log(2);
+				}], basecurve_param);
+			base_asymp = board.create('curve', [
+				function(t) {
+					return 0;
+				},
+				function(t) {
+					return t;
 				}], asymptote_param);
 				
+			trans_curve = board.create('functiongraph', [
+				function(x) {
+					if(b.Value() > 1) {
+						return a.Value() * Math.log(x - h.Value()) / Math.log(b.Value()) + k.Value();
+					} else {
+						return Number.NaN;
+					} 
+				}], transcurve_param);
+			trans_asymp = board.create('curve', [
+				function(t) {
+					return h.Value();
+				},
+				function(t) {
+					return t;
+				}], asymptote_param);			
 			
 		}
 		
