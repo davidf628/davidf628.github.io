@@ -71,7 +71,7 @@
 
 	basecurve_param = { 
 		strokeWidth: 2, 
-		strokeColor: 'blue', 
+		strokeColor: '#37d0db', 
 		dash: 2,
 		fixed: true,
 		highlight: false
@@ -79,18 +79,26 @@
 	
 	transcurve_param = { 
 		strokeWidth: 3, 
-		strokeColor: 'violet',
+		strokeColor: '#183dcc',
 		fixed: true,
 		highlight: false
-	 };
+	};
 
-	base_curve1 = board.create('curve', [[Number.NaN], [Number.NaN]], basecurve_param);
-	base_curve2 = board.create('curve', [[Number.NaN], [Number.NaN]], basecurve_param);
-	trans_curve1 = board.create('curve', [[Number.NaN], [Number.NaN]], transcurve_param);
-	trans_curve2 = board.create('curve', [[Number.NaN], [Number.NaN]], transcurve_param);	
+	asymptote_param = { 
+		strokeWidth: 1, 
+		strokeColor: 'darkgray', 
+		dash: 3,
+		fixed: true,
+		highlight: false
+	};
+	
+	base_curve = board.create('curve', [[Number.NaN], [Number.NaN]], basecurve_param);
+	base_asymp = board.create('curve', [[Number.NaN], [Number.NaN]], asymptote_param);
+	trans_curve = board.create('curve', [[Number.NaN], [Number.NaN]], transcurve_param);
+	trans_asymp = board.create('curve', [[Number.NaN], [Number.NaN]], asymptote_param);	
 
 	var a = displayboard.create('slider', [[1, 3.75], [6, 3.75], [-4, 1, 4]], { name: 'a', fontSize: 18, snapWidth: 0.1, precision: 1 });
-	var b = displayboard.create('slider', [[1, 3.25], [6, 3.25], [-4, 1, 4]], { name: 'b', fontSize: 18, snapWidth: 0.1, precision: 1 });
+	var b = displayboard.create('slider', [[1, 3.25], [6, 3.25], [-10, 2, 10]], { name: 'b', fontSize: 18, snapWidth: 1, precision: 1 });
 	var h = displayboard.create('slider', [[1, 2.75], [6, 2.75], [-4, 0, 4]], { name: 'h', fontSize: 18, snapWidth: 1, precision: 0 });
 	var k = displayboard.create('slider', [[1, 2.25], [6, 2.25], [-4, 0, 4]], { name: 'k', fontSize: 18, snapWidth: 1, precision: 0 });
 
@@ -106,7 +114,8 @@
 			setCheckbox(cb_cubic, false),
 			setCheckbox(cb_squareroot, false);
 			setCheckbox(cb_cuberoot, false);
-			setCheckbox(cb_absolutevalue, false);	
+			setCheckbox(cb_absolutevalue, false);
+			setCheckbox(cb_exponential, false);		
 			
 			function_type = 'quadratic';
 			update();
@@ -122,6 +131,7 @@
 			setCheckbox(cb_squareroot, false);
 			setCheckbox(cb_cuberoot, false);
 			setCheckbox(cb_absolutevalue, false);
+			setCheckbox(cb_exponential, false);
 			
 			function_type = 'cubic';
 			update();
@@ -136,6 +146,7 @@
 			setCheckbox(cb_squareroot, true);
 			setCheckbox(cb_cuberoot, false);
 			setCheckbox(cb_absolutevalue, false);
+			setCheckbox(cb_exponential, false);
 			
 			function_type = 'squareroot';
 			update();
@@ -150,6 +161,7 @@
 			setCheckbox(cb_squareroot, false);
 			setCheckbox(cb_cuberoot, true);
 			setCheckbox(cb_absolutevalue, false);
+			setCheckbox(cb_exponential, false);
 			
 			function_type = 'cuberoot';
 			update();
@@ -164,6 +176,7 @@
 			setCheckbox(cb_squareroot, false);
 			setCheckbox(cb_cuberoot, false);
 			setCheckbox(cb_absolutevalue, true);
+			setCheckbox(cb_exponential, false);
 			
 			function_type = 'absolutevalue';
 			update();
@@ -172,7 +185,18 @@
 	
 	cb_exponential = JSXCheckbox(displayboard, 1, 7, "Exponential", false,
 		function() {
-		}, { fontSize: 18, strokeColor: 'lightgray' });
+		
+			setCheckbox(cb_quadratic, false);
+			setCheckbox(cb_cubic, false);
+			setCheckbox(cb_squareroot, false);
+			setCheckbox(cb_cuberoot, false);
+			setCheckbox(cb_absolutevalue, false);
+			setCheckbox(cb_exponential, true);
+			
+			function_type = 'exponential';
+			update();	
+	
+		}, { fontSize: 18 });
 		
 	cb_logarithmic = JSXCheckbox(displayboard, 1, 6.5, "Logarithmic", false,
 		function() {
@@ -255,6 +279,19 @@
 					return '$' + 'y=' + mult + f + vert + '$';
 				}
 				
+				if(function_type == 'exponential') {
+					if(b.Value() > 0) {
+						f = b.Value() + '^{' + horiz + '}';
+					} else {
+						f = '\\left(' + b.Value() + '\\right)' + '^{' + horiz + '}';
+					}
+					if(b.Value() == 0) {
+						return '$ b \\neq 0 $';
+					} else {
+						return '$' + 'y=' + mult + f + vert + '$';
+					} 
+				}
+				
 			}
 			
 		}], { fontSize: 18, fixed: true });
@@ -294,56 +331,56 @@
 		board.resizeContainer(width, height);
 		bounds = JSXGetBounds(board);
 		
-		board.removeObject(trans_curve1);
-		board.removeObject(trans_curve2);
+		board.removeObject(trans_curve);
+		board.removeObject(trans_asymp);
 		
-		board.removeObject(base_curve1);
-		board.removeObject(base_curve2);
+		board.removeObject(base_curve);
+		board.removeObject(base_asymp);
 		
 		if(function_type == 'quadratic') {
 		
-			base_curve1 = board.create('functiongraph', [ 
+			base_curve = board.create('functiongraph', [ 
 				function(x) { 
 					return Math.pow(x, 2); 
 				}], basecurve_param);
 			
-			trans_curve1 = board.create('functiongraph', [
+			trans_curve = board.create('functiongraph', [
 				function(x) {
 					return a.Value() * Math.pow(x - h.Value(), 2) + k.Value();
 				}], transcurve_param);
 				
 		} else if(function_type == 'cubic') {
 		
-			base_curve1 = board.create('functiongraph', [ 
+			base_curve = board.create('functiongraph', [ 
 				function(x) { 
 					return Math.pow(x, 3); 
 				}], basecurve_param);
 			
-			trans_curve1 = board.create('functiongraph', [
+			trans_curve = board.create('functiongraph', [
 				function(x) {
 					return a.Value() * Math.pow(x - h.Value(), 3) + k.Value();
 				}], transcurve_param);
 				
 		} else if(function_type == 'squareroot') {
 		
-			base_curve1 = board.create('functiongraph', [ 
+			base_curve = board.create('functiongraph', [ 
 				function(x) { 
 					return Math.sqrt(x); 
 				}], basecurve_param);
 
-			trans_curve1 = board.create('functiongraph', [
+			trans_curve = board.create('functiongraph', [
 				function(x) {
 					return a.Value() * Math.sqrt(x - h.Value()) + k.Value();
 				}], transcurve_param);
 
 		} else if(function_type == 'cuberoot') {
 		
-			base_curve1 = board.create('functiongraph', [ 
+			base_curve = board.create('functiongraph', [ 
 				function(x) { 
 					return Math.cbrt(x); 
 				}], basecurve_param);
 
-			trans_curve1 = board.create('functiongraph', [
+			trans_curve = board.create('functiongraph', [
 				function(x) {
 					return a.Value() * Math.cbrt(x - h.Value()) + k.Value();
 				}], transcurve_param);
@@ -352,32 +389,60 @@
 			
 		} else if(function_type == 'absolutevalue') {
 		
-			base_curve1 = board.create('functiongraph', [ 
+			base_curve = board.create('functiongraph', [ 
 				function(x) { 
 					return Math.abs(x); 
 				}], basecurve_param);
 
-			trans_curve1 = board.create('functiongraph', [
+			trans_curve = board.create('functiongraph', [
 				function(x) {
 					return a.Value() * Math.abs(x - h.Value()) + k.Value();
 				}], transcurve_param);
 				
+		} else if(function_type == 'exponential') {
+			
+			base_curve = board.create('functiongraph', [
+				function(x) {
+					return Math.pow(2, x);
+				}], basecurve_param);
+			base_asymp = board.create('functiongraph', [
+				function(x) {
+					return 0;
+				}], asymptote_param);
+				
+			trans_curve = board.create('functiongraph', [
+				function(x) {
+					if(b.Value() == 0) {
+						return Number.NaN;
+					} else if(b.Value() > 0) {
+						return a.Value() * Math.pow(b.Value(), x - h.Value()) + k.Value();
+					} else {
+						return a.Value() * Math.pow(-b.Value(), h.Value() - x) + k.Value();
+					} 
+				}], transcurve_param);
+			trans_asymp = board.create('functiongraph', [
+				function(x) {
+					return k.Value();
+				}], asymptote_param);
+				
+			
 		}
 		
+		
 		if(cb_showOriginalGraph.Value()) {
-			base_curve1.setAttribute({ visible: true });
-			base_curve2.setAttribute({ visible: true });
+			base_curve.setAttribute({ visible: true });
+			base_asymp.setAttribute({ visible: true });
 		} else {
-			base_curve1.setAttribute({ visible: false });
-			base_curve2.setAttribute({ visible: false });
+			base_curve.setAttribute({ visible: false });
+			base_asymp.setAttribute({ visible: false });
 		}
 		
 		if(cb_showTransformation.Value()) {
-			trans_curve1.setAttribute({ visible: true });
-			trans_curve2.setAttribute({ visible: true });
+			trans_curve.setAttribute({ visible: true });
+			trans_asymp.setAttribute({ visible: true });
 		} else {
-			trans_curve1.setAttribute({ visible: false });
-			trans_curve2.setAttribute({ visible: false });
+			trans_curve.setAttribute({ visible: false });
+			trans_asymp.setAttribute({ visible: false });
 		}
 		
 		if(cb_showFunction.Value()) {
