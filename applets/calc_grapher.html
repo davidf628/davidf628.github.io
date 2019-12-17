@@ -71,6 +71,10 @@ function update() {
 	var intervals = [parameters.int1, parameters.int2, parameters.int3, 
 			      	 parameters.int4, parameters.int5, parameters.int6, 
 			      	 parameters.int7, parameters.int8, parameters.int9];
+					 
+	var dashed = [parameters.dash1, parameters.dash2, parameters.dash3,
+				  parameters.dash4, parameters.dash5, parameters.dash6,
+				  parameters.dash7, parameters.dash8, parameters.dash9];
 			  
 	var density = math.eval(parameters.density);
 
@@ -100,7 +104,8 @@ function update() {
 				hole: endpoints[3*i+2],
 				yMin: window.ymin,
 				yMax: window.ymax,
-				yScl: parameters.yscl
+				yScl: parameters.yscl,
+				dashed: dashed[i]
 			});
 			
 		}
@@ -138,15 +143,15 @@ function init() {
 	}
 
 	parameters = {
-		f1: '', color1: '#0000FF', int1: '',
-		f2: '', color2: '#0000FF', int2: '',
-		f3: '', color3: '#0000FF', int3: '',
-		f4: '', color4: '#FF0000', int4: '',
-		f5: '', color5: '#FF0000', int5: '',
-		f6: '', color6: '#00FF00', int6: '',
-		f7: '', color7: '#00FF00', int7: '',
-		f8: '', color8: '#00FFFF', int8: '',
-		f9: '', color9: '#00FFFF', int9: '',
+		f1: '', color1: '#0000FF', int1: '', dash1: false,
+		f2: '', color2: '#0000FF', int2: '', dash2: false,
+		f3: '', color3: '#0000FF', int3: '', dash3: false,
+		f4: '', color4: '#FF0000', int4: '', dash4: false,
+		f5: '', color5: '#FF0000', int5: '', dash5: false,
+		f6: '', color6: '#00FF00', int6: '', dash6: false,
+		f7: '', color7: '#00FF00', int7: '', dash7: false,
+		f8: '', color8: '#00FFFF', int8: '', dash8: false,
+		f9: '', color9: '#00FFFF', int9: '', dash9: false,
 		xmin: '-10',
 		xmax: '10',
 		xscl: '1',
@@ -170,46 +175,55 @@ function init() {
 	relation1.add(parameters, 'f1').name('Equation: ');
 	relation1.add(parameters, 'int1').name('Domain:');
 	relation1.addColor(parameters, 'color1').name('Color:');
+	relation1.add(parameters, 'dash1').name('Dashed: ');
 		
 	var relation2 = relations.addFolder('2:');
 	relation2.add(parameters, 'f2').name('Equation: ');
 	relation2.add(parameters, 'int2').name('Domain:');
 	relation2.addColor(parameters, 'color2').name('Color:');
+	relation2.add(parameters, 'dash2').name('Dashed: ');
 	
 	var relation3 = relations.addFolder('3:');
 	relation3.add(parameters, 'f3').name('Equation: ');
 	relation3.add(parameters, 'int3').name('Domain:');
 	relation3.addColor(parameters, 'color3').name('Color:');
+	relation3.add(parameters, 'dash3').name('Dashed: ');
 	
 	var relation4 = relations.addFolder('4:');
 	relation4.add(parameters, 'f4').name('Equation: ');
 	relation4.add(parameters, 'int4').name('Domain:');
 	relation4.addColor(parameters, 'color4').name('Color:');
+	relation4.add(parameters, 'dash4').name('Dashed: ');
 	
 	var relation5 = relations.addFolder('5:');
 	relation5.add(parameters, 'f5').name('Equation: ');
 	relation5.add(parameters, 'int5').name('Domain:');
 	relation5.addColor(parameters, 'color5').name('Color:');
+	relation5.add(parameters, 'dash5').name('Dashed: ');
 	
 	var relation6 = relations.addFolder('6:');
 	relation6.add(parameters, 'f6').name('Equation: ');
 	relation6.add(parameters, 'int6').name('Domain:');
 	relation6.addColor(parameters, 'color6').name('Color:');
+	relation6.add(parameters, 'dash6').name('Dashed: ');
 	
 	var relation7 = relations.addFolder('7:');
 	relation7.add(parameters, 'f7').name('Equation: ');
 	relation7.add(parameters, 'int7').name('Domain:');
 	relation7.addColor(parameters, 'color7').name('Color:');
+	relation7.add(parameters, 'dash7').name('Dashed: ');
 	
 	var relation8 = relations.addFolder('8:');
 	relation8.add(parameters, 'f8').name('Equation: ');
 	relation8.add(parameters, 'int8').name('Domain:');
 	relation8.addColor(parameters, 'color8').name('Color:');
+	relation8.add(parameters, 'dash8').name('Dashed: ');
 	
 	var relation9 = relations.addFolder('9:');
 	relation9.add(parameters, 'f9').name('Equation: ');
 	relation9.add(parameters, 'int9').name('Domain:');
 	relation9.addColor(parameters, 'color9').name('Color:');	
+	relation9.add(parameters, 'dash9').name('Dashed: ');
 	
 	var windowSettings = gui.addFolder('Window Settings');
 		

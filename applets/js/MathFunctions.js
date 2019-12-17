@@ -1919,10 +1919,16 @@ function plot_function(curve, relation, start_x, end_x, args) {
 	var yMin = args.yMin ? args.yMin : -10;
 	var yScl = args.yScl ? args.yScl : 1;
 	var variable = args.variable ? args.variable : 'x';
+	var dashed = (args.dashed !== undefined) ? args.dashed : false;
 		
 	var restricted_interval = false;
 	
 	curve.setAttribute({ strokeWidth: width, strokeColor: color });
+	if(dashed) {
+		curve.setAttribute({ dash: 2 });
+	} else {
+		curve.setAttribute({ dash: 0 });
+	}
 
 	if(hole != -1) {
 		hole.setAttribute({ visible: false });
@@ -2028,6 +2034,13 @@ function plot_polar(curve, expression, tmin, tmax, args) {
 	var color = args.color ? args.color : 'blue';
 	var density = args.density ? args.density : 0.01;
 	var width = args.width ? args.width : 2;
+	var dashed = (args.dashed !== undefined) ? args.dashed : false;
+		
+	if(dashed) {
+		curve.setAttribute({ dash: 2 });
+	} else {
+		curve.setAttribute({ dash: 0 });
+	}	
 		
 	// This is an explicit polar function of the form: r(t)
 	if(expression != '') {
@@ -2077,8 +2090,14 @@ function plot_parametric(curve, x_t, y_t, tmin, tmax, args) {
 	var lowerendpoint = args.lowerendpoint ? args.lowerendpoint : -1;
 	var upperendpoint = args.upperendpoint ? args.upperendpoint : -1;
 	var hole = args.hole ? args.hole : -1;
+	var dashed = (args.dashed !== undefined) ? args.dashed : false;
 	
 	curve.setAttribute({ strokeColor: color, strokeWidth: width });
+	if(dashed) {
+		curve.setAttribute({ dash: 2 });
+	} else {
+		curve.setAttribute({ dash: 0 });
+	}
 	
 	if(hole != -1) {
 		hole.setAttribute({ visible: false });
