@@ -1,0 +1,255 @@
+<meta charset="utf-8"></meta>
+
+<html>
+	<head>
+		<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
+	    <script src='./js/jsxgraphcore.js' type='text/javascript'></script>
+	    <script src='./js/MathFunctions.js' type='text/javascript'></script>
+	    <script src='./js/math.min.js' type='text/javascript'></script>
+	    <script src='./js/helpers.js' type='text/javascript'></script>
+	</head>
+
+<!--
+	
+-->
+ 
+<body>
+
+<h1>Domain and Range</h1>
+
+f(x) = <input type="text" id="input_function" value="-3 (-4,-1]; 1 (-1,2]">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<input type="button" value="Update" onClick="do_plot()">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<input type="button" value="Animate Domain" onClick="animate_domain()">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<input type="button" value="Animate Range" onClick="animate_range()">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+</br></br>
+
+<div id="jxgbox" class="jxgbox" style="width:1000px; height:720px; float:left; resize: both"></div>
+
+<script type='text/javascript'>
+      
+	board = JXG.JSXGraph.initBoard('jxgbox', {
+		axis: true, 
+		boundingbox: [-5,5,5,-5],
+		showCopyright: false, 
+      	showNavigation: true,
+		keepaspectratio: false,
+      	zoom: {
+            factorX: 1.25,
+            factorY: 1.25,
+            wheel: true,
+            needshift: false,
+            eps: 0.1
+        }	
+	});
+	
+	steps = 200;
+	nCurves = 0;
+	totalCurves = 4;
+	
+	graph = board.create('curve', [[ Number.NaN ], [ Number.NaN ]]);
+	graph2 = board.create('curve', [[ Number.NaN ], [ Number. NaN ]]);
+
+	img_n = board.create('image', ['../img/crusher_north.png', [-2, 4], [4, -1]], { visible: false });
+	img_s = board.create('image', ['../img/crusher_south.png', [-2, -5], [4, 1]], { visible: false });
+	img_w = board.create('image', ['../img/crusher_west.png', [-5, -2], [1, 4]], { visible: false });
+	img_e = board.create('image', ['../img/crusher_east.png', [4, -2], [-1, 4]], { visible: false });
+
+	// Initialize curve so that we have something we can update
+	curves = [];
+	for(var i = 0; i < totalCurves; i++) {
+		curves[i] = board.create('curve', [0, 0], 0, 0, { visible: false });
+	}
+
+	orgX = [];
+	orgY = [];
+	
+	decX = [];
+	decY = [];
+	
+	lep_decX = [];
+	lep_decY = [];
+	uep_decX = [];
+	uep_decY = [];
+
+	for(var i = 0; i < totalCurves; i++) {
+		orgX.push([]);
+		orgY.push([]);
+		decX.push([]);
+		decY.push([]);
+		lep_decX.push([]);
+		lep_decY.push([]);
+		uep_decX.push([]);
+		uep_decY.push([]);
+	}
+
+	// Initialize endpoints so we have values we can update
+	endpoints = [];
+	for(var i = 0; i < totalCurves*3; i++) {
+		endpoints[i] = board.create('point', [0, 0], { size: 3, withLabel: false, visible: false, fixed: true });
+	}
+
+
+	function do_plot() {
+		
+		for (var i = 0; i < curves.length; i++) {
+			curves[i].setAttribute({ visible: false });
+		}
+			
+		for(var i = 0; i < endpoints.length; i++) {
+			endpoints[i].setAttribute({ visible: false });
+		}
+		
+		img_n.setAttribute({ visible: false });
+		img_s.setAttribute({ visible: false });
+		img_w.setAttribute({ visible: false });
+		img_e.setAttribute({ visible: false });	
+		
+		img_n.moveTo([-2, 4]);
+		img_s.moveTo([-2, -5]);	
+		img_w.moveTo([-5, -2]);	
+		img_e.moveTo([4, -2]);		
+		
+		var f = document.getElementById('input_function').value;	
+		var fs = f.split(";");
+		
+		start_x = board.getBoundingBox()[0];
+		end_x = board.getBoundingBox()[2];	
+	
+	
+		var tmpendpoints = [];
+		nCurves = fs.length;
+		for(var i = 0; i < fs.length; i++) {
+			var interval = getInterval(fs[i]);
+			if(interval != '') {
+				fs[i] = removeInterval(fs[i]);
+			}
+			
+			plot(curves[i], fs[i], start_x, end_x, { 
+					lowerendpoint: endpoints[2*i],
+					upperendpoint: endpoints[2*i+1],
+					interval: interval,
+					width: 4
+				});			
+        
+			curves[i].setAttribute({ visible: true });
+		
+        	orgX[i] = curves[i].dataX;
+        	orgY[i] = curves[i].dataY;
+        
+        	decX[i] = orgX[i].map( function(x) { return x / steps; });
+        	decY[i] = orgY[i].map( function(x) { return x / steps; });
+        
+        	lep_decX[i] = endpoints[2*i].X() / steps;
+        	lep_decY[i] = endpoints[2*i].Y() / steps;
+        
+        	uep_decX[i] = endpoints[2*i+1].X() / steps;
+        	uep_decY[i] = endpoints[2*i+1].Y() / steps;
+        }
+  		board.update();
+	} 
+
+	function do_domain() { 
+		
+		if(count == steps * nCurves) {   // I don't know why I need steps * nCurves here?
+			clearInterval(id);
+		} else {
+		
+			for(var j = 0; j < nCurves; j++) {
+			
+				newY = []; 
+				
+				for(var i = 0; i < orgY[j].length; i++) {
+					newY.push(orgY[j][i] - decY[j][i]);
+				}				
+	
+				endpoints[2*j].moveTo([endpoints[2*j].X(), endpoints[2*j].Y() - lep_decY[j]]);
+				endpoints[2*j+1].moveTo([endpoints[2*j+1].X(), endpoints[2*j+1].Y() - uep_decY[j]]);
+			
+				img_n.moveTo([img_n.X(), img_n.Y() - dec_n]);
+				img_s.moveTo([img_s.X(), img_s.Y() - dec_s]);
+			
+				curves[j].dataX = orgX[j];
+				curves[j].dataY = newY;
+				orgY[j] = newY;
+		
+				curves[j].updateParametricCurve();
+				board.update();
+				count++;
+			}
+		}
+		
+	}
+	
+	function animate_domain() {
+		id = setInterval(do_domain, 10);
+		img_n.setAttribute({ visible: true });
+		img_s.setAttribute({ visible: true });	
+		dec_n = (4 - 0.25) / (steps * nCurves);
+		dec_s = (-4 + 0.25) / (steps * nCurves);
+		count = 0;
+	}
+	
+	function do_range() { 
+		
+		if(count == steps * nCurves) {
+			clearInterval(id);
+		} else {
+		
+			for(var j = 0; j < nCurves; j++) {
+			
+				newX = []; 
+				
+				for(var i = 0; i < orgX[j].length; i++) {
+					newX.push(orgX[j][i] - decX[j][i]);
+				}				
+	
+				endpoints[2*j].moveTo([endpoints[2*j].X() - lep_decX[j], endpoints[2*j].Y()]);
+				endpoints[2*j+1].moveTo([endpoints[2*j+1].X() - uep_decX[j], endpoints[2*j+1].Y()]);
+			
+				img_e.moveTo([img_e.X() - dec_e, img_e.Y()]);
+				img_w.moveTo([img_w.X() - dec_w, img_w.Y()]);
+			
+				curves[j].dataX = newX;
+				orgX[j] = newX;
+				curves[j].dataY = orgY[j];
+		
+				curves[j].updateParametricCurve();
+				board.update();
+				count++;
+			}
+		}
+		
+	}
+	
+	function animate_range() {
+		id = setInterval(do_range, 10);
+		img_e.setAttribute({ visible: true });
+		img_w.setAttribute({ visible: true });	
+		dec_e = (4 - 0.25) / (steps * nCurves);
+		dec_w = (-4 + 0.25) / (steps * nCurves);
+		count = 0;
+	}
+
+	do_plot();
+      
+</script>
+
+</body>
+   
+</html>
+
+
+
+
+       
+
+
+
+
+
+

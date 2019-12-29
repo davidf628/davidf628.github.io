@@ -27,6 +27,8 @@ MININT    = Number.MIN_SAFE_INTEGER;
 MAXLOG    = Math.log(MAXDOUBLE);
 MINLOG    = Math.log(MINDOUBLE);
 
+dashsetting = 3;
+
 // Convenience functions
 function sqr(x) { return Math.pow(x, 2); }
 function sqrt(x) { return Math.sqrt(x); }
@@ -1925,7 +1927,7 @@ function plot_function(curve, relation, start_x, end_x, args) {
 	
 	curve.setAttribute({ strokeWidth: width, strokeColor: color });
 	if(dashed) {
-		curve.setAttribute({ dash: 2 });
+		curve.setAttribute({ dash: dashsetting });
 	} else {
 		curve.setAttribute({ dash: 0 });
 	}
@@ -2037,7 +2039,7 @@ function plot_polar(curve, expression, tmin, tmax, args) {
 	var dashed = (args.dashed !== undefined) ? args.dashed : false;
 		
 	if(dashed) {
-		curve.setAttribute({ dash: 2 });
+		curve.setAttribute({ dash: dashsetting });
 	} else {
 		curve.setAttribute({ dash: 0 });
 	}	
@@ -2094,7 +2096,7 @@ function plot_parametric(curve, x_t, y_t, tmin, tmax, args) {
 	
 	curve.setAttribute({ strokeColor: color, strokeWidth: width });
 	if(dashed) {
-		curve.setAttribute({ dash: 2 });
+		curve.setAttribute({ dash: dashsetting });
 	} else {
 		curve.setAttribute({ dash: 0 });
 	}
@@ -2941,112 +2943,163 @@ function plot(curve, relation, start_x, end_x, args) {
 		relation = convertImplicitEquation(relation);	
 	}
 
-	var vars = getVariables(relation);
-	var fname = getFunctionName(relation);
+	if(relation == '' && args.interval != '') {
 	
-	// if there is no function name given, and we can assume it is a function
-	// of x, then just append a y = 
-	if(fname == '' && ((vars[0] == 'x' && vars.length == 1) || (vars.length == 0))) {
-		fname = 'y';
-	}
-	relation = removeFunctionName(relation);
+		// This is just a point, just determine if it's open or closed and plot
 	
-	if(fname != '') {
-		
-		if(vars.length == 0) {
-		
-			// Plot: horizontal line
-			if(fname == 'y') {
-				args.density = 1;
-				plot_function(curve, relation, start_x, end_x, args);
-			}
+		var interval = args.interval.trim();
+		var closed = false;
 			
-			// Plot vertical line
-			if(fname == 'x') {
-				args.variable = 't';
-				args.density = 1;
-				var bounds = JSXGetBounds(board);
-				var tmin = bounds.ymin;
-				var tmax = bounds.ymax;
-				plot_parametric(curve, relation, 't', tmin, tmax, args);
-			}
-			
-			// Plot is a circle
-			if(fname == 'r') {
-				args.variable = 't';
-				var interval = args.interval ? args.interval : '';
-				var tmin = 0;
-				var tmax = 2 * PI;
-				if (interval != '') {
-				    var lval = getLowerEndpoint(interval);
-					tmin = lval == NEGATIVE_INFINITY ? -12 * PI : lval;
-					var uval = getUpperEndpoint(interval);
-					tmax = uval == POSITIVE_INFINITY ? 12 * PI : uval;
-				}
-			
-				plot_polar(curve, relation, tmin, tmax, args);	
-			}
-		} 
-		
-		if(vars.length == 1) {
-	
-			if(vars[0] == 'x' || fname == 'f' || fname == 'y') {
-				
-				// rectangular plot y = f(x)
-				plot_function(curve, relation, start_x, end_x, args);
-		
-			} else if(vars[0] == 'y' || fname == 'g' || fname == 'x') {
-				
-				// rectangular x = g(y)			
-				args.variable = vars[0];
-				var bounds = JSXGetBounds(board);
-				var tmin = bounds.ymin;
-				var tmax = bounds.ymax;
-				plot_parametric(curve, relation, args.variable, tmin, tmax, args);
-			
-			} else if(fname == 'r' && vars[0] == 't') {
-				
-				// Polar Graph			
-				var interval = args.interval ? args.interval : '';
-				var tmin = 0;
-				var tmax = 2 * PI;
-				if (interval != '') {
-				    var lval = getLowerEndpoint(interval);
-					tmin = lval == NEGATIVE_INFINITY ? -12 * PI : lval;
-					var uval = getUpperEndpoint(interval);
-					tmax = uval == POSITIVE_INFINITY ? 12 * PI : uval;
-				}
-			
-				plot_polar(curve, relation, tmin, tmax, args);		
-			
-			} 
-			
-		} // if(vars.length == 1) 
-				
-	} else if(vars[0] == 't' && vars.length == 1) {
-		// Parametrically defined functions
-			
-		var interval = args.interval ? args.interval : '';
-		var bounds = JSXGetBounds(board);
-		var tmin = bounds.xmin < bounds.ymin ? bounds.xmin : bounds.ymin;
-		var tmax = bounds.xmax > bounds.ymax ? bounds.xmax : bounds.ymax;
-		if (interval != '') {
-		    var lval = getLowerEndpoint(interval);
-			tmin = lval == NEGATIVE_INFINITY ? tmin : lval;
-            var uval = getUpperEndpoint(interval);
-			tmax = uval == POSITIVE_INFINITY ? tmax : uval;
+		if(interval.startsWith('[') || interval.endsWith(']')) {
+			closed = true;	
 		}
-		relation = removeSpaces(relation);
-		var cloc = relation.search(',');
+		
+		interval = interval.replace('(', ''); interval = interval.replace(')','');
+		interval = interval.replace('[', ''); interval = interval.replace(']','');
+		
+		var vals = interval.split(',');
+		
+		var lowerendpoint = args.lowerendpoint ? args.lowerendpoint : -1;
+		var upperendpoint = args.upperendpoint ? args.upperendpoint : -1;
+		var hole = args.hole ? args.hole : -1;
+		var color = args.color ? args.color : 'blue';
+		
+		if(hole != -1) {
+			hole.setAttribute({ visible: false });
+		}
+	
+		if(lowerendpoint != -1) {
+			lowerendpoint.setAttribute({ visible: false });
+		}
+	
+		if(upperendpoint != -1) {
+			upperendpoint.setAttribute({ visible: false });
+		}
+
+		
+		var x = vals[0];
+		var y = vals[1];
+		
+		lowerendpoint.moveTo([x, y]);
+		
+		lowerendpoint.setAttribute({ strokeColor: color, visible: true });
+		if(closed) {
+			lowerendpoint.setAttribute({ fillColor: color });
+		} else {
+			lowerendpoint.setAttribute({ fillColor: 'white' });		
+		}
+	
+	
+	} else { 
+
+		var vars = getVariables(relation);
+		var fname = getFunctionName(relation);
+	
+		// if there is no function name given, and we can assume it is a function
+		// of x, then just append a y = 
+		if(fname == '' && ((vars[0] == 'x' && vars.length == 1) || (vars.length == 0))) {
+			fname = 'y';
+		}
+		relation = removeFunctionName(relation);
+	
+		if(fname != '') {
+		
+			if(vars.length == 0) {
+		
+				// Plot: horizontal line
+				if(fname == 'y') {
+					args.density = 1;
+					plot_function(curve, relation, start_x, end_x, args);
+				}
 			
-		var x_t = removeSpaces(relation.substring(1, cloc));
-		var y_t = removeSpaces(relation.substring(cloc + 1, relation.length - 1));
+				// Plot vertical line
+				if(fname == 'x') {
+					args.variable = 't';
+					args.density = 1;
+					var bounds = JSXGetBounds(board);
+					var tmin = bounds.ymin;
+					var tmax = bounds.ymax;
+					plot_parametric(curve, relation, 't', tmin, tmax, args);
+				}
 			
-		plot_parametric(curve, x_t, y_t, tmin, tmax, args);
+				// Plot is a circle
+				if(fname == 'r') {
+					args.variable = 't';
+					var interval = args.interval ? args.interval : '';
+					var tmin = 0;
+					var tmax = 2 * PI;
+					if (interval != '') {
+						var lval = getLowerEndpoint(interval);
+						tmin = lval == NEGATIVE_INFINITY ? -12 * PI : lval;
+						var uval = getUpperEndpoint(interval);
+						tmax = uval == POSITIVE_INFINITY ? 12 * PI : uval;
+					}
 			
-	} else if(vars.length == 2) {
-		implicit_plot(relation, args);
-	} 
+					plot_polar(curve, relation, tmin, tmax, args);	
+				}
+			} 
+		
+			if(vars.length == 1) {
+	
+				if(vars[0] == 'x' || fname == 'f' || fname == 'y') {
+				
+					// rectangular plot y = f(x)
+					plot_function(curve, relation, start_x, end_x, args);
+		
+				} else if(vars[0] == 'y' || fname == 'g' || fname == 'x') {
+				
+					// rectangular x = g(y)			
+					args.variable = vars[0];
+					var bounds = JSXGetBounds(board);
+					var tmin = bounds.ymin;
+					var tmax = bounds.ymax;
+					plot_parametric(curve, relation, args.variable, tmin, tmax, args);
+			
+				} else if(fname == 'r' && vars[0] == 't') {
+				
+					// Polar Graph			
+					var interval = args.interval ? args.interval : '';
+					var tmin = 0;
+					var tmax = 2 * PI;
+					if (interval != '') {
+						var lval = getLowerEndpoint(interval);
+						tmin = lval == NEGATIVE_INFINITY ? -12 * PI : lval;
+						var uval = getUpperEndpoint(interval);
+						tmax = uval == POSITIVE_INFINITY ? 12 * PI : uval;
+					}
+			
+					plot_polar(curve, relation, tmin, tmax, args);		
+			
+				} 
+			
+			} // if(vars.length == 1) 
+				
+		} else if(vars[0] == 't' && vars.length == 1) {
+			// Parametrically defined functions
+			
+			var interval = args.interval ? args.interval : '';
+			var bounds = JSXGetBounds(board);
+			var tmin = bounds.xmin < bounds.ymin ? bounds.xmin : bounds.ymin;
+			var tmax = bounds.xmax > bounds.ymax ? bounds.xmax : bounds.ymax;
+			if (interval != '') {
+				var lval = getLowerEndpoint(interval);
+				tmin = lval == NEGATIVE_INFINITY ? tmin : lval;
+				var uval = getUpperEndpoint(interval);
+				tmax = uval == POSITIVE_INFINITY ? tmax : uval;
+			}
+			relation = removeSpaces(relation);
+			var cloc = relation.search(',');
+			
+			var x_t = removeSpaces(relation.substring(1, cloc));
+			var y_t = removeSpaces(relation.substring(cloc + 1, relation.length - 1));
+			
+			plot_parametric(curve, x_t, y_t, tmin, tmax, args);
+			
+		} else if(vars.length == 2) {
+			implicit_plot(relation, args);
+		} 
+
+	}
 
 }
 
@@ -3062,7 +3115,10 @@ function plot(curve, relation, start_x, end_x, args) {
 ////////////////////////////////////////////////////////////////////
 
 function displayNumber(val) {
-	if(val < 0.00001) {
+	if(Math.abs(val) < 0.00000000000001) {
+		return "0";
+	}
+	if(Math.abs(val) < 0.00001) {
 		return val.toExponential(3);
 	} else {
 		s = val.toFixed(4);
@@ -3079,6 +3135,49 @@ function displayNumber(val) {
 		}
 		return s;
 	}
+}
+
+///////////////////////////////////////////////////////////////////
+//
+// double-values often have junk at the end, this function attempts
+// to remove that junk so that calculations are a little more 
+// accurate.
+//
+////////////////////////////////////////////////////////////////////
+
+function trimNumber(val) {
+	
+	// Make each number accurate to 12 decimal places - this also
+	// has the effect of rounding numbers like 1.99999999999 to 2
+	
+	var s = val.toFixed(12);
+	
+	if(s.includes('.')) {
+		
+		// Remove any trailing zeros
+		
+		while(s.slice(-1) == '0') {
+			s = s.substring(0, s.length - 1);
+		}
+		
+		// If so many trailing zeros are removed that you 
+		// end up at a decimal, then this is an integer and
+		// remove the decimal to make it so
+		
+		if(s.slice(-1) == '.') {
+			s = s.substring(0, s.length - 1);
+		}
+	}
+	
+	return s;
+}
+
+function convertToExplicitMultiplication(s) {
+	return math.parse(s).toString({ implicit: 'show' })
+}
+
+function makeJSFunction(board, s, variable) {
+	return board.jc.snippet(s, true, variable, false);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

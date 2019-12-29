@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<meta charset="utf-8"></meta>
+<!--
+
+
+-->
+
+<html>
+	<head>
+		<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
+		<script src='./js/jsxgraphcore.js' type='text/javascript'></script>
+		<script src='./js/MathFunctions.js' type='text/javascript'></script>
+		<script src='./js/dat.gui.min.js' type='text/javascript'></script>
+		<script src='./js/helpers.js' type='text/javascript'></script>
+	    <script src='./js/math.min.js' type='text/javascript'></script>
+
+		<style>
+			#table-wrapper { 
+			}
+			#table-scroll {
+				height:500px;
+				overflow:auto; 
+				width:380px;
+			}
+			#table-wrapper table {
+				width:360px;
+				background:white;
+				color:black;
+				border: 2px solid black;  
+			}
+			#table-wrapper tr {
+				text-align: center;
+				font-size: xx-large;
+				nth-child(even){background-color: #f2f2f2}
+			}
+		</style>
+	</head>
+
+<script type="text/javascript">
+	
+	function populate_table(table, xmin, xmax, deltax, y, showDeltaY2) {
+	
+		if(y != "") {
+			var text = "";
+
+			for(var i = xmin; i <= xmax; i += deltax) {
+				
+				var val = trimNumber(i);
+				
+				text += "<tr>";
+				text += "<td>" + val + "</td>";
+				text += "<td>" + displayNumber(evaluate(y, val)) + "</td>";
+				
+				if(showDeltaY2) {
+					text += "<td>" + displayNumber(evaluate(y, trimNumber(i + deltax)) - evaluate(y, val)) + "</td>";
+				}
+				
+				text += "</tr>";
+
+			}
+			document.getElementById(table).innerHTML = text;
+		}
+	}
+	
+	function update_page () {
+
+		var y1 = convertToExplicitMultiplication(parameters.y1);
+		var y2 = convertToExplicitMultiplication(parameters.y2);
+	
+		var y1_func = makeJSFunction(board, y1, 'x');
+		var y2_func = makeJSFunction(board, y2, 'x');
+		
+		var xmin1 = Number(parameters.xmin1);
+		var xmax1 = Number(parameters.xmax1);
+		var deltax1 = Number(parameters.deltax1);
+		
+		var xmin2 = Number(parameters.xmin2);
+		var xmax2 = Number(parameters.xmax2);
+		var deltax2 = Number(parameters.deltax2);
+
+		var xmin = Math.min(xmin1, xmin2);
+		var xmax = Math.max(xmax1, xmax2);
+		
+		JSXSetBounds(board, { xmin: xmin, xmax: xmax });
+
+		if(parameters.y1 != '') {
+			populate_table('table1', xmin1, xmax1, deltax1, y1, parameters.showdeltay1);
+		}
+		if(parameters.y2 != '') {
+			populate_table('table2', xmin2, xmax2, deltax2, y2, parameters.showdeltay2);
+		}
+		
+		board.suspendUpdate();
+		
+		board.removeObject(curve1);
+		board.removeObject(curve2);
+		
+		if(parameters.showgraph1) {
+			curve1 = board.create('functiongraph', [ 
+				function(x) { 
+					if((x > xmin) && (x < xmax)) {
+						return y1_func(x); 
+					} else {
+						return NaN;
+					}
+				}], curve1_param);
+		}
+			
+		if(parameters.showgraph2) {
+			curve2 = board.create('functiongraph', [
+				function(x) {
+					if((x > xmin) && (x < xmax)) {
+						return y2_func(x); 
+					} else {
+						return NaN;
+					}				
+				}], curve2_param);
+		}
+
+		for(var i = 0; i < points1.length; i++) {
+			board.removeObject(points1[i]);
+		}
+		points1 = [];
+		
+		for(var i = 0; i < points2.length; i++) {
+			board.removeObject(poitns2[i]);
+		}
+		points2 = [];
+		
+		if(parameters.showdots1) {
+			for(var i = xmin1; i < xmax1; i += deltax1) {
+				points1.push(board.create('point', [i, y1_func(i)], { size: 0.5, color: 'blue', withLabel: false, fixed: true, infobox: { fontSize: 15, strokeColor: 'red' } }));
+			}
+		}
+		
+		if(parameters.showdots2) {
+			for(var i = xmin2; i < xmax2; i += deltax2) {
+				points2.push(board.create('point', [i, y2_func(i)], { size: 0.5, color: 'red', withLabel: false, fixed: true }));
+			}
+		}
+		
+		board.unsuspendUpdate();
+
+	}
+	
+</script>
+
+<style type="text/css">
+
+.highlight {
+	background-color:#ccffcc;
+}
+
+</style>
+</head>
+
+
+<body>
+	<h1>Bubble Charts</h1>
+
+	<div id="table-wrapper" style="float:left">
+		<div id="table-scroll">
+			<table>
+				<thead>
+					<tr>
+						<th><span class="text">x</span></th>
+						<th><span class="text">y1</span></th>
+						<th><span class="text">delta y1</span></th>
+					</tr>
+				</thead>
+				<tbody id="table1"></tbody>
+			</table>
+		</div>
+
+	</div>
+
+	<div id="table-wrapper" style="float:left">
+		<div id="table-scroll">
+			<table>
+				<thead>
+					<tr>
+						<th><span class="text">x</span></th>
+						<th><span class="text">y2</span></th>
+						<th><span class="text">delta y2</span></th>
+					</tr>
+				</thead>
+				<tbody id="table2"></tbody>
+			</table>
+		</div>
+
+	</div>
+
+	<div id="jxgbox" class="jxgbox" style="width:500px; height:500px; float:right"></div>
+	
+	<script>
+	
+		parameters = {
+			y1: '0.5*x', xmin1: '-5', xmax1: '5', deltax1: '0.1', showdeltay1: false,
+			showgraph1: true, showdots1: false,
+			
+			y2: '', xmin2: '-5', xmax2: '5', deltax2: '0.1', showdeltay2: false,
+			showgraph2: true, showdots2: false,
+
+			fullscreen: function() { fullscreen() },
+			updater: function() { update_page() }
+		};	
+	
+		var xmin1 = Number(parameters.xmin1);
+		var xmax1 = Number(parameters.xmax1);
+		
+		var xmin2 = Number(parameters.xmin1);
+		var xmax2 = Number(parameters.xmax1);
+		
+		var xmin = Math.min(xmin1, xmin2);
+		var xmax = Math.max(xmax1, xmax2);
+
+		board = JXG.JSXGraph.initBoard('jxgbox', {
+			// -x, +y, +x, -y
+			boundingbox: [xmin, xmax, xmax, xmin], 
+			axis: true, 
+			showNavigation: true, 
+			showCopyright: false,
+			keepaspectratio: false,
+			showClearTraces: false,
+			zoom: {
+				factorX: 1.25,
+				factorY: 1.25,
+				wheel: true,
+				needshift: false,
+				eps: 0.1
+			}				 
+		}); 
+	
+		curve1_param = { 
+			strokeWidth: 2, 
+			strokeColor: '#37d0db', 
+			fixed: true,
+			highlight: false
+		};
+		
+		curve2_param = { 
+			strokeWidth: 2, 
+			strokeColor: '#37d0db', 
+			fixed: true,
+			highlight: false
+		};
+		
+		curve1 = board.create('curve', [[Number.NaN], [Number.NaN]], curve1_param);
+		curve2 = board.create('curve', [[Number.NaN], [Number.NaN]], curve2_param);
+		
+		points1 = [];
+		points2 = [];
+
+		var gui = new dat.GUI();
+		
+		var function1 = gui.addFolder('Y1');
+		function1.add(parameters, 'y1').name('y1:');
+		function1.add(parameters, 'xmin1').name('x min:');
+		function1.add(parameters, 'xmax1').name('x max:');
+		function1.add(parameters, 'deltax1').name('delta x');
+		function1.add(parameters, 'showdeltay1').name('Show Delta Y1');
+		function1.add(parameters, 'showgraph1').name('Show Y1 Graph');
+		function1.add(parameters, 'showdots1').name('Show Y1 Points');
+		
+		var function2 = gui.addFolder('Y2');
+		function2.add(parameters, 'y2').name('y2:');
+		function2.add(parameters, 'xmin2').name('x min:');
+		function2.add(parameters, 'xmax2').name('x max:');
+		function2.add(parameters, 'deltax2').name('delta x');
+		function2.add(parameters, 'showdeltay2').name('Show Delta Y2');
+		function2.add(parameters, 'showgraph2').name('Show Y2 Graph');
+		function2.add(parameters, 'showdots2').name('Show Y2 Points');
+
+		gui.add(parameters, 'fullscreen').name('Fullscreen');
+		gui.add(parameters, 'updater').name('Update Graph');
+	
+		// Initialize table and chart with initial values
+
+		update_page();
+	
+	</script>
+
+</body>
+</html>
