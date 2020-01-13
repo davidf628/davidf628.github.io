@@ -1,0 +1,157 @@
+<!doctype html>
+<meta charset="utf-8">
+
+<html lang="en">
+<head>
+	<title>Horizontal and Vertical Planes</title>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+</head>
+<body>
+
+<script src="js/three.min.js"></script>
+<script src="js/SceneUtils.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/OrbitControls.js"></script>
+<script src="js/DragControls.js"></script>
+<script src="js/parser.js"></script>
+<script src="js/THREEx.KeyboardState.js"></script>
+<script src="js/THREEx.FullScreen.js"></script>
+<script src="js/THREEx.WindowResize.js"></script>
+<script src="js/3dmath.js"></script>
+
+<script type='text/javascript' src='js/dat.gui.min.js'></script>
+<script src='./js/math.min.js' type='text/javascript'></script>
+
+<div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
+
+<script>
+
+var xzplane, yzplane, xzplane;
+
+var window_param = {
+	xmin : -5,
+	xmax : 5,
+	xscl : 1,
+	ymin : -5,
+	ymax : 5,
+	yscl : 1,
+	zmin : -5,
+	zmax : 5,
+	zscl : 1,
+	xygrid: true,
+	yzgrid: false,
+	xzgrid: false,
+	polargrid: false,
+	labels: false,
+	activecamera: 'Perspective',
+	updateWindow: function() { redrawScene(); },
+};
+
+var parameters = {
+
+	xzpos: 0,
+	yzpos: 0,
+	xypos: 0,
+	xzvisible: false,
+	yzvisible: false,
+	xyvisible: false,
+	update: function() { updateGraph(); }
+	
+};
+
+// GUI
+gui = new dat.GUI();
+gui.add(parameters, 'xzvisible').name("View xz-plane").onChange( 
+	function() {
+		xzplane.toggleVisible();
+	});
+gui.add(parameters, 'xzvisible').name("View yz-plane").onChange( 
+	function() {
+		yzplane.toggleVisible();
+	});
+gui.add(parameters, 'xyvisible').name("View xy-plane").onChange( 
+	function() {
+		xyplane.toggleVisible();
+	});
+
+
+gui.add(parameters, 'yzpos').min(window_param.xmin).max(window_param.xmax).step(0.01).name('x = ').onChange(
+    function() {
+		yzplane.setLocation(parameters.yzpos);
+    }
+);
+gui.add(parameters, 'xzpos').min(window_param.ymin).max(window_param.ymax).step(0.01).name('y = ').onChange(
+    function() {
+		xzplane.setLocation(parameters.xzpos);	
+    }
+);
+gui.add(parameters, 'xypos').min(window_param.zmin).max(window_param.zmax).step(0.01).name('z = ').onChange(
+	function() {
+		xyplane.setLocation(parameters.xypos);
+	}
+);
+
+init();
+animate();	
+				
+function createScene() {
+	
+	xzplane = new PlaneSurface('xz', parameters.xzpos, { color: 'red', visible: parameters.xzvisible });
+	addToScene(scene, xzplane);
+	
+	yzplane = new PlaneSurface('yz', parameters.yzpos, { color: 'green', visible: parameters.yzvisible });
+	addToScene(scene, yzplane);
+	
+	xyplane = new PlaneSurface('xy', parameters.xypos, { color: 'blue', visible: parameters.xyvisible });
+	addToScene(scene, xyplane);
+
+}
+
+function updateGraph() {
+
+}
+
+
+function animate() {
+    requestAnimationFrame( animate );
+
+	if(window_param.activecamera == 'Perspective') {
+		renderer.render( scene, perspectivecamera );
+	} else {
+		renderer.render( scene, orthographiccamera );
+	}
+
+	perspectivecontrols.update();
+	orthographiccontrols.update();
+	stats.update();
+
+}
+
+function redrawScene() {
+
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+							window_param.ymin, window_param.ymax, window_param.yscl,
+							window_param.zmin, window_param.zmax, window_param.zscl);
+	
+	axes.setParameters({
+	   labels: window_param.labels, 
+	   xygrid: window_param.xygrid, 
+	   xzgrid: window_param.xzgrid, 
+	   yzgrid: window_param.yzgrid, 
+	   polargrid: window_param.polargrid 
+    });
+	
+	scene.remove(axes.getObject());
+	axes.redraw();
+	scene.add(axes.getObject());
+	
+	//for(var i = 0; i < objectlist.length; i++) {
+	//	objectlist[i].redraw();
+	//}
+	
+}
+
+</script>
+
+</body>
+</html>

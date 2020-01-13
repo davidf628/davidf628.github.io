@@ -183,7 +183,14 @@ function init() {
 							window_param.ymin, window_param.ymax, window_param.yscl,
 							window_param.zmin, window_param.zmax, window_param.zscl);
 	
-	axes = new Axes( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid} );
+	axes = new Axes({ 
+	   labels: window_param.labels, 
+	   xygrid: window_param.xygrid, 
+	   xzgrid: window_param.xzgrid, 
+	   yzgrid: window_param.yzgrid, 
+	   polargrid: window_param.polargrid 
+	});
+	
 	scene.add(axes.getObject());
 	
 	createScene();
@@ -1877,7 +1884,7 @@ class PlaneSurface {
 		this.name = 'planesurface';
 		
 		this.color = args.color ? initColor(args.color) : new THREE.Color('purple');
-		this.visible = (args.visible !== undefined)? args.visible : true;
+		this.visible = (args.visible !== undefined) ? args.visible : true;
 		this.type = type;
 		this.location = location;
 		
