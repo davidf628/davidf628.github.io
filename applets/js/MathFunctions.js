@@ -2954,10 +2954,9 @@ function plot(curve, relation, start_x, end_x, args) {
 			closed = true;	
 		}
 		
-		interval = interval.replace('(', ''); interval = interval.replace(')','');
-		interval = interval.replace('[', ''); interval = interval.replace(']','');
-		
 		var vals = interval.split(',');
+		vals[0] = vals[0].substring(1, vals[0].length);
+		vals[1] = vals[1].substring(0, vals[1].length-1);
 		
 		var lowerendpoint = args.lowerendpoint ? args.lowerendpoint : -1;
 		var upperendpoint = args.upperendpoint ? args.upperendpoint : -1;
@@ -2977,8 +2976,8 @@ function plot(curve, relation, start_x, end_x, args) {
 		}
 
 		
-		var x = vals[0];
-		var y = vals[1];
+		var x = math.eval(vals[0]);
+		var y = math.eval(vals[1]);
 		
 		lowerendpoint.moveTo([x, y]);
 		

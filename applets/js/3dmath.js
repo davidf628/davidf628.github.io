@@ -184,7 +184,7 @@ function init() {
 							window_param.zmin, window_param.zmax, window_param.zscl);
 	
 	axes = new Axes( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid} );
-	addToScene(scene, axes);
+	scene.add(axes.getObject());
 	
 	createScene();
 }
@@ -323,11 +323,11 @@ class Axes {
 	
 	redraw() {
 		
-		for(var i = 0; i < this.axes.children.length; i++) {
-			this.axes.children[i].geometry.dispose();
+		while(this.axes.children.length > 0) {
+			this.axes.remove(this.axes.children[0]);
 		}
 		
-		this.draw();
+		this.draw(); 
 		
 	}
 	
@@ -826,6 +826,33 @@ class Sphere {
 	toggleVisible() {
 		this.visible = !this.visible;
 		this.sphere.visible = this.visible;
+	}
+	
+	setCenter(p) {
+		this.coords[0] = p[0];
+		this.coords[1] = p[1];
+		this.coords[2] = p[2];
+		this.sphere.position.x = xCoord(p[0]);
+		this.sphere.position.y = yCoord(p[1]);
+		this.sphere.position.z = zCoord(p[2]);
+	}
+	
+	setRadius(scene, r) {
+		this.radius = r;
+		scene.remove(this.sphere);
+        var geometry = new THREE.SphereGeometry(this.radius);
+        var material = new THREE.MeshBasicMaterial( { color: this.color } );
+        this.sphere = new THREE.Mesh(geometry, material);
+		
+		this.sphere.position.x = xCoord(this.coords[0]);
+		this.sphere.position.y = yCoord(this.coords[1]);
+		this.sphere.position.z = zCoord(this.coords[2]);
+		
+        scene.add(this.sphere);
+	}
+	
+	redraw() {
+		this.setCenter(this.coords);
 	}
 	
 }

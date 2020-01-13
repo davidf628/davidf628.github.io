@@ -43,19 +43,25 @@ var window_param = {
 	updateWindow: function() { redrawScene(); },
 };
 
-var c, sphere, x, y, z, nx, ny, nz;
+var sphere;
 
 var parameters = {
 
-	togglesphere: function() { sphere.toggleVisible(); },
-	togglepoints: function() { x.toggleVisible(); y.toggleVisible(); z.toggleVisible(); nx.toggleVisible(); ny.toggleVisible(); nz.toggleVisible(); }
+	cx: '0',
+	cy: '0',
+	cz: '0',
+	radius: '1',
+	makesphere: function() { makesphere(); }
 	
 };
 
 // GUI
 var gui = new dat.GUI();
-gui.add(parameters, 'togglesphere').name('Toggle Sphere');
-gui.add(parameters, 'togglepoints').name('Toggle Points');
+gui.add(parameters, 'cx').name('x');
+gui.add(parameters, 'cy').name('y');
+gui.add(parameters, 'cz').name('z');
+gui.add(parameters, 'radius').name('radius');
+gui.add(parameters, 'makesphere').name('Draw');
 
 
 init();
@@ -64,27 +70,11 @@ animate();
 					
 function createScene() {
 
-	sphere = new Sphere({ coords: [-2, 1, -5], radius: 13, color: 'blue' });
-	c = new Point([-2, 1, -5]);
-	
-	x = new Point([11, 1, -5], { visible: false, color: 'red' });
-	y = new Point([-2, 14, -5], { visible: false, color: 'green' });
-	z = new Point([-2, 1, 8], { visible: false, color: 'blue' });
-	nx = new Point([-15, 1, -5], { visible: false, color: 'red' });
-	ny = new Point([-2, -12, -5], { visible: false, color: 'green' });
-	nz = new Point([-2, 1, -18], { visible: false, color: 'blue' });
-	
-	addToScene(scene, sphere);
-	addToScene(scene, c);
-	
-	addToScene(scene, x);
-	addToScene(scene, y);
-	addToScene(scene, z);
-	addToScene(scene, nx);
-	addToScene(scene, ny);
-	addToScene(scene, nz);
-	
+}
 
+function makesphere() {
+	sphere = new Sphere({ coords: [parameters.cx, parameters.cy, parameters.cz], radius: parameters.radius });
+	addToScene(scene, sphere);
 }
 
 function animate() {

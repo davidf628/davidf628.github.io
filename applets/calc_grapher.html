@@ -93,7 +93,7 @@ function update() {
 	var window = JSXGetBounds(board);
 	
 	for(var i = 0; i < nFunctions; i++) {
-		if (fs[i].length != 0) {
+		if (fs[i].length != 0 || intervals[i].length != 0) {
 		
 			plot(curves[i], fs[i], parameters.xmin, parameters.xmax, { 
 				color: colors[i], 
