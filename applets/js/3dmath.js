@@ -135,7 +135,7 @@ function init() {
 	renderer = new THREE.WebGLRenderer( { antialias:true, alpha: true } );
 	
 	// Set background color as white
-	renderer.setClearColor( 0xffffff ); 
+	renderer.setClearColor( window_param.bgcolor ); 
 	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 	renderer.sortObjects = false;
 	renderer.localClippingEnabled = true;
@@ -176,6 +176,7 @@ function init() {
 	window_menu.add(window_param, 'yzgrid').name('Show YZ Plane');
 	window_menu.add(window_param, 'polargrid').name('Show Polar Plane');
 	window_menu.add(window_param, 'labels').name('Show Labels');
+	window_menu.addColor(window_param, 'bgcolor').name('Background').onChange(function() { renderer.setClearColor(window_param.bgcolor); });
 	window_menu.add(window_param, 'activecamera', ['Perspective', 'Orthographic']).name('Camera Type');
 	window_menu.add(window_param, 'updateWindow').name('Update Window');
 	
@@ -1209,12 +1210,20 @@ class Line {
 		this.end = coords;
 		this.line.geometry.vertices[1].set(xCoord(coords[0]), yCoord(coords[1]), zCoord(coords[2]));
 		this.line.geometry.verticesNeedUpdate = true;
+		if(this.dashed) {
+			this.line.computeLineDistances();
+			this.line.geometry.lineDistancesNeedUpdate = true;
+		}
 	}
 
 	updateStartPoint(coords) {
 		this.start = coords;
-		this.line.geometry.vertices[1].set(xCoord(coords[0]), yCoord(coords[1]), zCoord(coords[2]));
+		this.line.geometry.vertices[0].set(xCoord(coords[0]), yCoord(coords[1]), zCoord(coords[2]));
 		this.line.geometry.verticesNeedUpdate = true;
+		if(this.dashed) {
+			this.line.computeLineDistances();
+			this.line.geometry.lineDistancesNeedUpdate = true;
+		}
 	}
 
 }

@@ -42,6 +42,7 @@ var window_param = {
 	xzgrid: false,
 	polargrid: false,
 	labels: false,
+	bgcolor: 0x484848,
 	activecamera: 'Perspective',
 	updateWindow: function() { redrawScene(); },
 };
@@ -85,21 +86,25 @@ function animate() {
 }
 
 function redrawScene() {
-
+	
 	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
 							window_param.ymin, window_param.ymax, window_param.yscl,
 							window_param.zmin, window_param.zmax, window_param.zscl);
 	
-	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
+	axes.setParameters({
+	   labels: window_param.labels, 
+	   xygrid: window_param.xygrid, 
+	   xzgrid: window_param.xzgrid, 
+	   yzgrid: window_param.yzgrid, 
+	   polargrid: window_param.polargrid 
+    });
+	
+	scene.remove(axes.getObject());
+	axes.redraw();
+	scene.add(axes.getObject());
 	
 	for(var i = 0; i < objectlist.length; i++) {
-		if((objectlist[i].name == 'wireframe') || (objectlist[i] == 'axes')) {
-			scene.remove(objectlist[i].getObject());
-			objectlist[i].redraw();
-			scene.add(objectlist[i].getObject());
-		} else {
-			objectlist[i].redraw();
-		}
+		objectlist[i].redraw();
 	}
 	
 }

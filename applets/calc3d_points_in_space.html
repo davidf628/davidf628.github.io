@@ -1,0 +1,174 @@
+<!doctype html>
+<meta charset="utf-8">
+
+<html lang="en">
+<head>
+	<title>Horizontal and Vertical Planes</title>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+</head>
+<body>
+
+<script src="js/three.min.js"></script>
+<script src="js/SceneUtils.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/OrbitControls.js"></script>
+<script src="js/DragControls.js"></script>
+<script src="js/parser.js"></script>
+<script src="js/THREEx.KeyboardState.js"></script>
+<script src="js/THREEx.FullScreen.js"></script>
+<script src="js/THREEx.WindowResize.js"></script>
+<script src="js/3dmath.js"></script>
+
+<script type='text/javascript' src='js/dat.gui.min.js'></script>
+<script src='./js/math.min.js' type='text/javascript'></script>
+
+<div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
+
+<script>
+
+var p, xline, yline, zline;
+
+var window_param = {
+	xmin : -8,
+	xmax : 8,
+	xscl : 1,
+	ymin : -8,
+	ymax : 8,
+	yscl : 1,
+	zmin : -8,
+	zmax : 8,
+	zscl : 1,
+	xygrid: true,
+	yzgrid: false,
+	xzgrid: false,
+	polargrid: false,
+	labels: false,
+	bgcolor: 0xffffff,
+	activecamera: 'Perspective',
+	updateWindow: function() { redrawScene(); },
+};
+
+var parameters = {
+
+	xpos: 0,
+	ypos: 0,
+	zpos: 0,
+	pointvisible: true,
+	linesvisible: true
+	
+};
+
+// GUI
+gui = new dat.GUI();
+gui.add(parameters, 'pointvisible').name("Show Point").onChange( 
+	function() {
+		p.toggleVisible();
+	});
+gui.add(parameters, 'linesvisible').name("Show Lines").onChange( 
+	function() {
+		xLine.toggleVisible();
+		yLine.toggleVisible();
+		zLine.toggleVisible();
+	});
+
+gui.add(parameters, 'xpos').min(window_param.xmin).max(window_param.xmax).step(0.01).name('x = ').onChange(
+    function() {
+		p.moveTo([parameters.xpos, parameters.ypos, parameters.zpos]);
+		xLine.updateStartPoint([parameters.xpos, 0, 0]);
+		xLine.updateEndPoint([parameters.xpos, parameters.ypos, 0]);
+		yLine.updateStartPoint([0, parameters.ypos, 0]);
+		yLine.updateEndPoint([parameters.xpos, parameters.ypos, 0]);
+		zLine.updateStartPoint([parameters.xpos, parameters.ypos, 0]);
+		zLine.updateEndPoint([parameters.xpos, parameters.ypos, parameters.zpos]);
+    }
+);
+gui.add(parameters, 'ypos').min(window_param.ymin).max(window_param.ymax).step(0.01).name('y = ').onChange(
+    function() {
+		p.moveTo([parameters.xpos, parameters.ypos, parameters.zpos]);	
+		xLine.updateStartPoint([parameters.xpos, 0, 0]);
+		xLine.updateEndPoint([parameters.xpos, parameters.ypos, 0]);
+		yLine.updateStartPoint([0, parameters.ypos, 0]);
+		yLine.updateEndPoint([parameters.xpos, parameters.ypos, 0]);
+		zLine.updateStartPoint([parameters.xpos, parameters.ypos, 0]);
+		zLine.updateEndPoint([parameters.xpos, parameters.ypos, parameters.zpos]);
+    }
+);
+gui.add(parameters, 'zpos').min(window_param.zmin).max(window_param.zmax).step(0.01).name('z = ').onChange(
+	function() {
+		p.moveTo([parameters.xpos, parameters.ypos, parameters.zpos]);
+		xLine.updateStartPoint([parameters.xpos, 0, 0]);
+		xLine.updateEndPoint([parameters.xpos, parameters.ypos, 0]);
+		yLine.updateStartPoint([0, parameters.ypos, 0]);
+		yLine.updateEndPoint([parameters.xpos, parameters.ypos, 0]);
+		zLine.updateStartPoint([parameters.xpos, parameters.ypos, 0]);
+		zLine.updateEndPoint([parameters.xpos, parameters.ypos, parameters.zpos]);
+	}
+);
+
+init();
+animate();	
+				
+function createScene() {
+	
+	p = new Point([parameters.xpos, parameters.ypos, parameters.zpos], { visible: parameters.pointvisible });
+	addToScene(scene, p);
+	
+	xLine = new Line({ start: [parameters.xpos, 0, 0], end: [parameters.xpos, parameters.ypos, 0], dashed: true, visible: parameters.linesvisible });
+	addToScene(scene, xLine);
+	
+	yLine = new Line({ start: [0, parameters.ypos, 0], end: [parameters.xpos, parameters.ypos, 0], dashed: true, visible: parameters.linesvisible });
+	addToScene(scene, yLine);
+	
+	zLine = new Line({ start: [parameters.xpos, parameters.ypos, 0], end: [parameters.xpos, parameters.ypos, parameters.zpos], dashed: true, visible: parameters.linesvisible });
+	addToScene(scene, zLine);
+
+}
+
+function updateGraph() {
+
+}
+
+
+function animate() {
+    requestAnimationFrame( animate );
+
+	if(window_param.activecamera == 'Perspective') {
+		renderer.render( scene, perspectivecamera );
+	} else {
+		renderer.render( scene, orthographiccamera );
+	}
+
+	perspectivecontrols.update();
+	orthographiccontrols.update();
+	stats.update();
+
+}
+
+function redrawScene() {
+
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+							window_param.ymin, window_param.ymax, window_param.yscl,
+							window_param.zmin, window_param.zmax, window_param.zscl);
+	
+	axes.setParameters({
+	   labels: window_param.labels, 
+	   xygrid: window_param.xygrid, 
+	   xzgrid: window_param.xzgrid, 
+	   yzgrid: window_param.yzgrid, 
+	   polargrid: window_param.polargrid 
+    });
+	
+	scene.remove(axes.getObject());
+	axes.redraw();
+	scene.add(axes.getObject());
+	
+	for(var i = 0; i < objectlist.length; i++) {
+		objectlist[i].redraw();
+	}
+	
+}
+
+</script>
+
+</body>
+</html>
