@@ -28,11 +28,16 @@
 <h1>Numerical Limits</h1>
 f(x) = <input type="text" id="input_function" value="">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-x approaches = <input type="text" id="limit_value" value="">
+x approaches:  <input type="text" id="limit_value" value="">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <input type="button" value="Update" onClick="update()">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+<input type="button" value="Toggle Fullscreen" onClick="fullscreen()"></br></br>
+Set Left Limit: x = <input type="text" id="left_value" value="">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Set Right Limit: x = <input type="text" id="right_value" value="">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<input type="button" value="Set Limit Values" onClick="setlimitvalues()">
 </br></br>
 <div>
 <div id="jxgbox" class="jxgbox" style="width:720px; height:720px; float:left; resize: both"></div>
@@ -82,6 +87,12 @@ for(var i = 0; i < 10; i++) {
 endpoints = [];
 for(var i = 0; i < 30; i++) {
 	endpoints[i] = board.create('point', [0, 0], { size: 3, withLabel: false, visible: false, fixed: true });
+}
+
+// Initialize holes so we have points to use
+holes = [];
+for(var i = 0; i < 10; i++) {
+	holes[i] = board.create('point', [0, 0], { size: 3, withLabel: false, visible: false, fixed: true });
 }
 
 // These are used when we want to look at a limit sequence
@@ -172,20 +183,11 @@ slider_vert_zoom.on('drag',
 		board.setBoundingBox(orgbounds, false);
 		vert_zoom_level = newfactor;
 	});	
-	
-cb_function = JSXCheckbox(displayboard, 6, 1, 'Show Function', true, 
-	function() { 
-		update(); 
-	}
-);
-
-cb_sequence = JSXCheckbox(displayboard, 1, 1, 'Show Sequence', false, function() { update(); });
-cb_series = JSXCheckbox(displayboard, 1, 0.5, 'Show Series', false, function() { update(); });
 
 function setLLimitVisible(value) {
-	lpoint_xaxis.setAttribute({ visible: value });
-	lpoint_f.setAttribute({ visible: value });
-	lpoint_yaxis.setAttribute({ visible: value });
+	lpoint_xaxis.setAttribute( { visible: value } );
+	lpoint_f.setAttribute( { visible: value } );
+	lpoint_yaxis.setAttribute( { visible: value } );
 	lline1.setAttribute({ visible: value });
 	lline2.setAttribute({ visible: value });
 	lx_label.setAttribute({ visible: value });
@@ -219,6 +221,9 @@ lpoint_f = board.create('point', [
 		if(f == '') { 
 			return 0;
 		} else {
+			
+
+			
 			return evaluate(f, lpoint_xaxis.X()); 
 		}
 	}], { name: '(x, f(x))', withLabel: false, showInfobox: false });
@@ -272,7 +277,7 @@ ry_label = board.create('text', [0, 0, function() { return 'y = ' + displayNumbe
 setLLimitVisible(false);
 setRLimitVisible(false);	
 	
-function evaluate_list(f, xlist) {
+function evaluatelist(f, xlist) {
 	if(f == '') {
 		return '';
 	} else {
@@ -320,22 +325,10 @@ function update() {
 			window.xmin, window.xmax, { 
 				lowerendpoint: endpoints[2*i],
 				upperendpoint: endpoints[2*i+1],
+				hole: holes[i],
 				interval: interval	
 			});
-		if(cb_function.Value()) {
-			curves[i].setAttribute( { visible: true } );
-		} else {
-			curves[i].setAttribute( { visible: false });
-		}
-	}
-
-	
-	for(var i = 0; i < sequencepoints.length; i++) {
-		board.removeObject(sequencepoints[i]);
-	}
-	
-	for(var i = 0; i < seriespoints.length; i++) {
-		board.removeObject(seriespoints[i]);
+		curves[i].setAttribute( { visible: true } );
 	}
 	
 	var limit_value = document.getElementById('limit_value').value;
@@ -347,8 +340,8 @@ function update() {
 		left_xvals[2] = 1000;
 		left_xvals[3] = 10000;
 		
-		left_yvals = evaluate_list(f, left_xvals);
-		right_yvals = evaluate_list('', null);
+		left_yvals = evaluatelist(f, left_xvals);
+		right_yvals = evaluatelist('', null);
 		
 		updateChart(texts[LEFT][X], left_xvals);
 		updateChart(texts[LEFT][Y], left_yvals);
@@ -362,8 +355,8 @@ function update() {
 		right_xvals[2] = -1000;
 		right_xvals[3] = -10000;
 		
-		right_yvals = evaluate_list(f, right_xvals);
-		left_yvals = evaluate_list('', null);
+		right_yvals = evaluatelist(f, right_xvals);
+		left_yvals = evaluatelist('', null);
 		
 		updateChart(texts[LEFT][X], '');
 		updateChart(texts[LEFT][Y], '');
@@ -383,8 +376,8 @@ function update() {
 		right_xvals[2] = a + 0.001;
 		right_xvals[3] = a + 0.0001;
 		
-		left_yvals = evaluate_list(f, left_xvals);
-		right_yvals = evaluate_list(f, right_xvals);
+		left_yvals = evaluatelist(f, left_xvals);
+		right_yvals = evaluatelist(f, right_xvals);
 		
 		updateChart(texts[LEFT][X], left_xvals);
 		updateChart(texts[LEFT][Y], left_yvals);
@@ -394,28 +387,20 @@ function update() {
 
 	}
 	
-	if(cb_sequence.Value()) {
-		var maxX = Math.floor(window.xmax);
-		for(var n = 1; n <= maxX; n++) {
-			sequencepoints[n] = board.create('point', [n, evaluate(f, n)], { withLabel: false, color: 'orange' });
-		}
-	}
-	
-	if(cb_series.Value()) {
-		var maxX = Math.floor(window.xmax);
-		var sum = 0;
-		for(var n = 1; n <= maxX; n++) {
-			var val = evaluate(f, n);
-			sum += val;
-			seriespoints[n] = board.create('point', [n, sum], { withLabel: false, color: 'purple' });
-		}
-	}
-	
 	board.update();	
 		
 }
 
-
+function setlimitvalues() {
+	var lx = document.getElementById('left_value').value;
+	var rx = document.getElementById('right_value').value;
+	if(lx != '') {
+		lpoint_xaxis.moveTo([lx, 0]);
+	}
+	if(rx != '') {
+		rpoint_xaxis.moveTo([rx, 0]);
+	}
+}
 
 </script>
 </body>

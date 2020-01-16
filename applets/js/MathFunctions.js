@@ -74,7 +74,7 @@ function formatNumber(val, dec) {
 ///////////////////////////////////////////////////////////////////////////////
 
 function randomInteger(a, b) {
-   return Math.floor((b-a+1) * Math.random()) + a;
+	 return Math.floor((b-a+1) * Math.random()) + a;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -101,52 +101,52 @@ function randomFloat(a, b) {
 
 function round(num, dec)
 {
-  var factor = Math.pow(10,dec);
-  return Math.round(num * factor) / factor;
+	var factor = Math.pow(10,dec);
+	return Math.round(num * factor) / factor;
 }
 
 /* 
-    Returns the factorial of n if 0 <= n <= 170 and n is an integer, 
-    or else 0 is returned.
-   
-    You will get creepy results if n is not an integer.
+		Returns the factorial of n if 0 <= n <= 170 and n is an integer, 
+		or else 0 is returned.
+	 
+		You will get creepy results if n is not an integer.
 */
 function factorial (n) {
 
-    var i, fact = 1;
-    
-    if((n <= MAXFACT) && (n >= 0)) {
-        for(i = n; i >= 1; i--) {
-            fact *= i;
-        }
-    }
-    else fact = 0;
-        
-    return fact;
+		var i, fact = 1;
+		
+		if((n <= MAXFACT) && (n >= 0)) {
+				for(i = n; i >= 1; i--) {
+						fact *= i;
+				}
+		}
+		else fact = 0;
+				
+		return fact;
 }
 
 /*
-    Returns the number of permutations of n objects taken r at a time.
-    
-    Beware the use of non-integer values for n and r!
+		Returns the number of permutations of n objects taken r at a time.
+		
+		Beware the use of non-integer values for n and r!
 */
 function permutation (n, r) {
-    return (factorial(n) / factorial(n - r));
+		return (factorial(n) / factorial(n - r));
 }
 
 /*
-    Returns the number of combinations of n objects taken r at a time.
-    
-    Beware the use of non-integer values for n and r!
+		Returns the number of combinations of n objects taken r at a time.
+		
+		Beware the use of non-integer values for n and r!
 */
 function combination (n, r) {
-    return (factorial(n) / (factorial(r) * factorial(n - r)));
+		return (factorial(n) / (factorial(r) * factorial(n - r)));
 }
 
 /*
-    Returns the binomial probability of x successes for n trials and
-    probability of success p. 
-    
+		Returns the binomial probability of x successes for n trials and
+		probability of success p. 
+		
 */
 
 function binompdf(n, p, x) {
@@ -175,94 +175,94 @@ function normalpdf(x, mean, stdev) {
 }
 
 /*
-    Calculates probabilites based on a normal distribution. Approximations
-    found using Taylor Polynomials.
-    
+		Calculates probabilites based on a normal distribution. Approximations
+		found using Taylor Polynomials.
+		
 */
 
 function normalcdf(z) {
-    
-    var coeff;
-    var n = 0;
-    var sum = 0;
-    var a = 0;
-    var b = 0.1;
-    var precision = 1E-16;
-    
-    if (z > 3.9) {
-        return 1.0;
-    } else if (z < -3.9) {
-        return 0.0;
-    } else while (Math.abs(b - a) > precision) {
-            a = b;
-            coeff = Math.pow(-1, n) / (factorial(n) * Math.pow(2, n) * (2 * n + 1));
-            b = coeff * Math.pow(z, 2 * n + 1);
-            sum += b;
-            n++;
-        }
-    
-    return 0.5 + (1 / Math.sqrt(2 * Math.PI)) * sum;
-    
+		
+		var coeff;
+		var n = 0;
+		var sum = 0;
+		var a = 0;
+		var b = 0.1;
+		var precision = 1E-16;
+		
+		if (z > 3.9) {
+				return 1.0;
+		} else if (z < -3.9) {
+				return 0.0;
+		} else while (Math.abs(b - a) > precision) {
+						a = b;
+						coeff = Math.pow(-1, n) / (factorial(n) * Math.pow(2, n) * (2 * n + 1));
+						b = coeff * Math.pow(z, 2 * n + 1);
+						sum += b;
+						n++;
+				}
+		
+		return 0.5 + (1 / Math.sqrt(2 * Math.PI)) * sum;
+		
 }
 
 function invnorm(p)
 {
-  //
-  // Lower tail quantile for standard normal distribution function.
-  //
-  // This function returns an approximation of the inverse cumulative
-  // standard normal distribution function.  I.e., given P, it returns
-  // an approximation to the X satisfying P = Pr{Z <= X} where Z is a
-  // random variable from the standard normal distribution.
-  //
-  // The algorithm uses a minimax approximation by rational functions
-  // and the result has a relative error whose absolute value is less
-  // than 1.15e-9.
-  //
-  // Author:      Peter J. Acklam
-  // (Javascript version by Alankar Misra @ Digital Sutras (alankar@digitalsutras.com))
-  // Time-stamp:  2005-11-29 10:01:53 +01:00
-  // E-mail:      pjacklam@online.no
-  // WWW URL:     http://home.online.no/~pjacklam
+	//
+	// Lower tail quantile for standard normal distribution function.
+	//
+	// This function returns an approximation of the inverse cumulative
+	// standard normal distribution function.  I.e., given P, it returns
+	// an approximation to the X satisfying P = Pr{Z <= X} where Z is a
+	// random variable from the standard normal distribution.
+	//
+	// The algorithm uses a minimax approximation by rational functions
+	// and the result has a relative error whose absolute value is less
+	// than 1.15e-9.
+	//
+	// Author:      Peter J. Acklam
+	// (Javascript version by Alankar Misra @ Digital Sutras (alankar@digitalsutras.com))
+	// Time-stamp:  2005-11-29 10:01:53 +01:00
+	// E-mail:      pjacklam@online.no
+	// WWW URL:     http://home.online.no/~pjacklam
 
-  // An algorithm with a relative error less than 1.15�10-9 in the entire region.
+	// An algorithm with a relative error less than 1.15�10-9 in the entire region.
 
-  // Coefficients in rational approximations
-  var a = new Array(-3.969683028665376e+01,  2.209460984245205e+02,
-                    -2.759285104469687e+02,  1.383577518672690e+02,
-                    -3.066479806614716e+01,  2.506628277459239e+00);
-  var b = new Array(-5.447609879822406e+01,  1.615858368580409e+02,
-                    -1.556989798598866e+02,  6.680131188771972e+01,
-                    -1.328068155288572e+01 );
-  var c = new Array(-7.784894002430293e-03, -3.223964580411365e-01,
-                    -2.400758277161838e+00, -2.549732539343734e+00,
-                     4.374664141464968e+00,  2.938163982698783e+00);
-  var d = new Array (7.784695709041462e-03,  3.224671290700398e-01,
-                     2.445134137142996e+00,  3.754408661907416e+00);
+	// Coefficients in rational approximations
+	var a = new Array(-3.969683028665376e+01,  2.209460984245205e+02,
+										-2.759285104469687e+02,  1.383577518672690e+02,
+										-3.066479806614716e+01,  2.506628277459239e+00);
+	var b = new Array(-5.447609879822406e+01,  1.615858368580409e+02,
+										-1.556989798598866e+02,  6.680131188771972e+01,
+										-1.328068155288572e+01 );
+	var c = new Array(-7.784894002430293e-03, -3.223964580411365e-01,
+										-2.400758277161838e+00, -2.549732539343734e+00,
+										 4.374664141464968e+00,  2.938163982698783e+00);
+	var d = new Array (7.784695709041462e-03,  3.224671290700398e-01,
+										 2.445134137142996e+00,  3.754408661907416e+00);
 
-  // Define break-points.
-  var plow  = 0.02425;
-  var phigh = 1 - plow;
+	// Define break-points.
+	var plow  = 0.02425;
+	var phigh = 1 - plow;
 
-  // Rational approximation for lower region:
-  if ( p < plow ) {
-           var q  = Math.sqrt(-2*Math.log(p));
-           return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) /
-                                           ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
-  }
+	// Rational approximation for lower region:
+	if ( p < plow ) {
+					 var q  = Math.sqrt(-2*Math.log(p));
+					 return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) /
+																					 ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+	}
 
-  // Rational approximation for upper region:
-  if ( phigh < p ) {
-           var q  = Math.sqrt(-2*Math.log(1-p));
-           return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) /
-                                                  ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
-  }
+	// Rational approximation for upper region:
+	if ( phigh < p ) {
+					 var q  = Math.sqrt(-2*Math.log(1-p));
+					 return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) /
+																									((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+	}
 
-  // Rational approximation for central region:
-  var q = p - 0.5;
-  var r = q*q;
-  return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q /
-                           (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+	// Rational approximation for central region:
+	var q = p - 0.5;
+	var r = q*q;
+	return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q /
+													 (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -278,19 +278,19 @@ function invnorm(p)
 //   		freedom at a given t-score.
 //
 ///////////////////////////////////////////////////////////////////////////////
-    
+		
 function tpdf(t, df) {
-    var p, q;
+		var p, q;
 
-    if(df < 1) {
-    	return NaN;
-    } else {
-        p = 0.5 * (df + 1);
-        q = 0.5 * df;
-        var s1 = gamma(p) / (Math.sqrt(df * PI) * gamma(q));
-        var s2 = Math.pow(1 + sqr(t) / df, -p);
-        return s1 * s2;
-    }
+		if(df < 1) {
+			return NaN;
+		} else {
+				p = 0.5 * (df + 1);
+				q = 0.5 * df;
+				var s1 = gamma(p) / (Math.sqrt(df * PI) * gamma(q));
+				var s2 = Math.pow(1 + sqr(t) / df, -p);
+				return s1 * s2;
+		}
 }
 
  //////////////////////////////////////////////////////////////////////////////
@@ -309,14 +309,14 @@ function tpdf(t, df) {
  
 function tcdf(t, df) {
 	if(df < 1) {
-        return NaN;
-    } else {
-        if(t >= 0.0) {
-            return 1.0 - iBeta(df / 2.0, 0.5, df / (df + sqr(t))) / 2;
-        } else {
-            return iBeta(df / 2.0, 0.5, df / (df + sqr(t))) / 2;
-        }
-    }
+				return NaN;
+		} else {
+				if(t >= 0.0) {
+						return 1.0 - iBeta(df / 2.0, 0.5, df / (df + sqr(t))) / 2;
+				} else {
+						return iBeta(df / 2.0, 0.5, df / (df + sqr(t))) / 2;
+				}
+		}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -333,21 +333,21 @@ function tcdf(t, df) {
  
 function tinv (p, df) {
 
-    if(p == 0.0) return -Infinity;
-    if(p == 1.0) return Infinity;
-    if(p == 0.5) return 0.0;
+		if(p == 0.0) return -Infinity;
+		if(p == 1.0) return Infinity;
+		if(p == 0.5) return 0.0;
 
-    var aux = 0.0;
-    var sgn = 0;
+		var aux = 0.0;
+		var sgn = 0;
 
-    if(p < 0.5) {
-        aux = 2 * p;
-        sgn = -1;
-    } else {
-        aux = 2 * (1 - p);
-        sgn = 1;
-    }
-    return sgn * Math.sqrt(df * (1 / iiBeta(aux, df / 2.0, 0.5) - 1));
+		if(p < 0.5) {
+				aux = 2 * p;
+				sgn = -1;
+		} else {
+				aux = 2 * (1 - p);
+				sgn = 1;
+		}
+		return sgn * Math.sqrt(df * (1 / iiBeta(aux, df / 2.0, 0.5) - 1));
 
 }
 
@@ -493,89 +493,89 @@ function correlation(x_data, y_data) {
 //      this is adapted from J. Debord's FMATH.PAS.
 //
 ///////////////////////////////////////////////////////////////////////////////     
-      
+			
 function gamma(x) {
-        
-    var p = [
-            4.212760487471622013093E-5,
-            4.542931960608009155600E-4,
-            4.092666828394035500949E-3,
-            2.385363243461108252554E-2,
-            1.113062816019361559013E-1,
-            3.629515436640239168939E-1,
-            8.378004301573126728826E-1,
-            1.000000000000000000009E0,
-            0.0, 0.0 ];
+				
+		var p = [
+						4.212760487471622013093E-5,
+						4.542931960608009155600E-4,
+						4.092666828394035500949E-3,
+						2.385363243461108252554E-2,
+						1.113062816019361559013E-1,
+						3.629515436640239168939E-1,
+						8.378004301573126728826E-1,
+						1.000000000000000000009E0,
+						0.0, 0.0 ];
 
-    var q = [
-            -1.397148517476170440917E-5,
-            2.346584059160635244282E-4,
-            -1.237799246653152231188E-3,
-            -7.955933682494738320586E-4,
-            2.773706565840072979165E-2,
-            -4.633887671244534213831E-2,
-            -2.243510905670329164562E-1,
-            4.150160950588455434583E-1,
-            9.999999999999999999908E-1,
-            0.0 ];
+		var q = [
+						-1.397148517476170440917E-5,
+						2.346584059160635244282E-4,
+						-1.237799246653152231188E-3,
+						-7.955933682494738320586E-4,
+						2.773706565840072979165E-2,
+						-4.633887671244534213831E-2,
+						-2.243510905670329164562E-1,
+						4.150160950588455434583E-1,
+						9.999999999999999999908E-1,
+						0.0 ];
 
-    var sgnGam, n;
-    var a, x1, z;
-    
-    sgnGam = sgnGamma(x);
+		var sgnGam, n;
+		var a, x1, z;
+		
+		sgnGam = sgnGamma(x);
 
-    if((x == 0.0) || ((x < 0.0) && (frac(x) == 0.0))) {
-        return NaN;
-    }
+		if((x == 0.0) || ((x < 0.0) && (frac(x) == 0.0))) {
+				return NaN;
+		}
 
-    if(x > MAXGAM) {
-        return Infinity;
-    }
+		if(x > MAXGAM) {
+				return Infinity;
+		}
 
-    a = Math.abs(x);
-    if(a > 13.0) {
-        if(x < 0.0) {
-            n = Math.trunc(a);
-            z = a - n;
-            if(z > 0.5) {
-                n = n + 1;
-                z = a - n;
-            }
-            z = Math.abs(a * Math.sin(Math.PI * z)) * stirf(a);
-                if(z <= PI / MAXDOUBLE) {
-                    return Infinity;
-                }
-                z = PI / z;
-        } else {
-            z = stirf(x);
-        }
-        return sgnGam * z;
-    } else {
-        z = 1.0;
-        x1 = x;
-        while(x1 >= 3.0) {
-            x1 = x1 - 1.0;
-            z = z * x1;
-        }
-        while(x1 < -0.03125) {
-            z = z / x1;
-            x1 = x1 + 1.0;
-        }
-        if(x1 <= 0.03125) {
-            return gamSmall(x1, z);
-        } else {
-            while(x1 < 2.0) {
-                z = z / x1;
-                x1 = x1 + 1.0;
-            }
-            if((x1 == 2.0) || (x1 == 3.0)) {
-                return z;
-            } else {
-                x1 = x1 - 2.0;
-                return z * PolEvl(x1, p, 7) / PolEvl(x1, q, 8);
-            }
-        }
-    }
+		a = Math.abs(x);
+		if(a > 13.0) {
+				if(x < 0.0) {
+						n = Math.trunc(a);
+						z = a - n;
+						if(z > 0.5) {
+								n = n + 1;
+								z = a - n;
+						}
+						z = Math.abs(a * Math.sin(Math.PI * z)) * stirf(a);
+								if(z <= PI / MAXDOUBLE) {
+										return Infinity;
+								}
+								z = PI / z;
+				} else {
+						z = stirf(x);
+				}
+				return sgnGam * z;
+		} else {
+				z = 1.0;
+				x1 = x;
+				while(x1 >= 3.0) {
+						x1 = x1 - 1.0;
+						z = z * x1;
+				}
+				while(x1 < -0.03125) {
+						z = z / x1;
+						x1 = x1 + 1.0;
+				}
+				if(x1 <= 0.03125) {
+						return gamSmall(x1, z);
+				} else {
+						while(x1 < 2.0) {
+								z = z / x1;
+								x1 = x1 + 1.0;
+						}
+						if((x1 == 2.0) || (x1 == 3.0)) {
+								return z;
+						} else {
+								x1 = x1 - 2.0;
+								return z * PolEvl(x1, p, 7) / PolEvl(x1, q, 8);
+						}
+				}
+		}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -588,11 +588,11 @@ function gamma(x) {
 ///////////////////////////////////////////////////////////////////////////////////
 
 function sgnGamma(x) {
-    if(x > 0.0) {
-        return 1;
-    } else if(odd(Math.trunc(Math.abs(x)))) {
-        return 1;
-    } else return -1;
+		if(x > 0.0) {
+				return 1;
+		} else if(odd(Math.trunc(Math.abs(x)))) {
+				return 1;
+		} else return -1;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -613,16 +613,16 @@ function sgnGamma(x) {
 //  otherwise the same as PolEvl().
 //
 ///////////////////////////////////////////////////////////////////////////////
-  
+	
 function PolEvl(x, coef, n) {
 
-    var ans;
-    
-    ans = coef[0];
-    for(var i = 1; i <= n; i++) {
-        ans = ans * x + coef[i];
-    }
-    return ans;
+		var ans;
+		
+		ans = coef[0];
+		for(var i = 1; i <= n; i++) {
+				ans = ans * x + coef[i];
+		}
+		return ans;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -637,80 +637,80 @@ function PolEvl(x, coef, n) {
 //      @return
 //
 ///////////////////////////////////////////////////////////////////////////////
-     
+		 
 function iBeta (a, b, x) {
-        
-    var a1, b1, x1, t, w, xc, y;
-    var flag = false;
+				
+		var a1, b1, x1, t, w, xc, y;
+		var flag = false;
 
-    if((a <= 0.0) || (b <= 0.0) || (x < 0.0) || (x > 1.0)) {
-        return NaN;
-    }
+		if((a <= 0.0) || (b <= 0.0) || (x < 0.0) || (x > 1.0)) {
+				return NaN;
+		}
 
-    if((x == 0.0) || (x == 1.0)) {
-        return x;
-    }
+		if((x == 0.0) || (x == 1.0)) {
+				return x;
+		}
 
-    if((b * x <= 1.0) && (x <= 0.95)) {
-        t = pSeries(a, b, x);
-    } else {
-        w = 1.0 - x;
+		if((b * x <= 1.0) && (x <= 0.95)) {
+				t = pSeries(a, b, x);
+		} else {
+				w = 1.0 - x;
 
-        // Reverse a and b if x is greater than the mean. 
-        if(x > (a / (a + b))) {
-            flag = true;
-            a1 = b;
-            b1 = a;
-            xc = x;
-            x1 = w;
-        } else {
-            a1 = a;
-            b1 = b;
-            xc = w;
-            x1 = x;
-        }
+				// Reverse a and b if x is greater than the mean. 
+				if(x > (a / (a + b))) {
+						flag = true;
+						a1 = b;
+						b1 = a;
+						xc = x;
+						x1 = w;
+				} else {
+						a1 = a;
+						b1 = b;
+						xc = w;
+						x1 = x;
+				}
 
-        if(flag && (b1 * x1 <= 1.0) && (x1 <= 0.95)) {
-            t = pSeries(a1, b1, x1);
-        } else {
-            // Choose expansion for optimal convergence 
-            y = x1 * (a1 + b1 - 2.0) - (a1 - 1.0);
-            if(y < 0.0) {
-        		w = cFrac1(a1, b1, x1);
-            } else {
-                w = cFrac2(a1, b1, x1) / xc;
-            }
+				if(flag && (b1 * x1 <= 1.0) && (x1 <= 0.95)) {
+						t = pSeries(a1, b1, x1);
+				} else {
+						// Choose expansion for optimal convergence 
+						y = x1 * (a1 + b1 - 2.0) - (a1 - 1.0);
+						if(y < 0.0) {
+						w = cFrac1(a1, b1, x1);
+						} else {
+								w = cFrac2(a1, b1, x1) / xc;
+						}
 
-            // Multiply w by the factor x^a * (1-x)^b ....?
-            y = a1 * ln(x1);
-            t = b1 * ln(xc);
-            if((a1 + b1 < MAXGAM) && (Math.abs(y) < MAXLOG) && (Math.abs(t) < MAXLOG)) {
-                t = Math.pow(xc, b1) ;
-                t = t * Math.pow(x1, a1);
-                t = t / a1;
-                t = t * w;
-                t = t * gamma(a1 + b1) / (gamma(a1) * gamma(b1));
-            } else {
+						// Multiply w by the factor x^a * (1-x)^b ....?
+						y = a1 * ln(x1);
+						t = b1 * ln(xc);
+						if((a1 + b1 < MAXGAM) && (Math.abs(y) < MAXLOG) && (Math.abs(t) < MAXLOG)) {
+								t = Math.pow(xc, b1) ;
+								t = t * Math.pow(x1, a1);
+								t = t / a1;
+								t = t * w;
+								t = t * gamma(a1 + b1) / (gamma(a1) * gamma(b1));
+						} else {
 
-                // Resort to logarithms
-                y = y + t + lnGamma(a1 + b1) - lnGamma(a1) - lnGamma(b1) + ln(w / a1);
-                if(y < MINLOG) {
-                    t = 0.0;
-                } else {
-                    t = Math.exp(y);
-                }
-            }
-        }
-    }
+								// Resort to logarithms
+								y = y + t + lnGamma(a1 + b1) - lnGamma(a1) - lnGamma(b1) + ln(w / a1);
+								if(y < MINLOG) {
+										t = 0.0;
+								} else {
+										t = Math.exp(y);
+								}
+						}
+				}
+		}
 
-    if(flag) {
-        if(t <= MACHEP) {
-            t = 1.0 - MACHEP;
-        } else {
-            t = 1.0 - t;
-        }
-    }
-    return t;
+		if(flag) {
+				if(t <= MACHEP) {
+						t = 1.0 - MACHEP;
+				} else {
+						t = 1.0 - t;
+				}
+		}
+		return t;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -726,41 +726,41 @@ function iBeta (a, b, x) {
 ///////////////////////////////////////////////////////////////////////////////
 
 function pSeries(a, b, x) {
-        
-    var s, t, u, v, t1, z, ai;
-    var n;
-        
-    ai = 1.0 / a;
-    u = (1.0 - b) * x;
-    v = u / (a + 1.0);
-    t1 = v;
-    t = u;
-    n = 2;
-    s = 0.0;
-    z = MACHEP * ai;
-    while(Math.abs(v) > z) {
-        u = (n - b) * x / n;
-        t = t * u;
-        v = t / (a + n);
-        s = s + v;
-        n = n + 1;
-    }
-    s = s + t1;
-    s = s + ai;
-        
-    u = a * ln(x);
-    if((a + b < MAXGAM) && (Math.abs(u) < MAXLOG)) {
-        t = gamma(a + b) / (gamma(a) * gamma(b));
-        s = s * t * Math.pow(x, a);
-    } else {
-        t = lnGamma(a + b) - lnGamma(a) - lnGamma(b) + u + ln(s);
-        if(t < MINLOG) {
-            s = 0.0;
-        } else {
-            s = Math.exp(t);
-        }
-    }
-    return s;
+				
+		var s, t, u, v, t1, z, ai;
+		var n;
+				
+		ai = 1.0 / a;
+		u = (1.0 - b) * x;
+		v = u / (a + 1.0);
+		t1 = v;
+		t = u;
+		n = 2;
+		s = 0.0;
+		z = MACHEP * ai;
+		while(Math.abs(v) > z) {
+				u = (n - b) * x / n;
+				t = t * u;
+				v = t / (a + n);
+				s = s + v;
+				n = n + 1;
+		}
+		s = s + t1;
+		s = s + ai;
+				
+		u = a * ln(x);
+		if((a + b < MAXGAM) && (Math.abs(u) < MAXLOG)) {
+				t = gamma(a + b) / (gamma(a) * gamma(b));
+				s = s * t * Math.pow(x, a);
+		} else {
+				t = lnGamma(a + b) - lnGamma(a) - lnGamma(b) + u + ln(s);
+				if(t < MINLOG) {
+						s = 0.0;
+				} else {
+						s = Math.exp(t);
+				}
+		}
+		return s;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -776,24 +776,24 @@ function pSeries(a, b, x) {
 //      @return
 //
 ///////////////////////////////////////////////////////////////////////////////
-     
+		 
 function iiBeta(p, alpha, beta) {
 
-    var x = 0;
-    var a = 0;
-    var b = 1;
-    var prec = 1e-15; // converge until there is 15 decimal places precision
+		var x = 0;
+		var a = 0;
+		var b = 1;
+		var prec = 1e-15; // converge until there is 15 decimal places precision
 
-    while((b - a) > prec) {
-        x = (a + b) / 2;
-        if(iBeta(alpha, beta, x) > p) {
-            b = x;
-        } else {
-            a = x;
-        }
-    }
+		while((b - a) > prec) {
+				x = (a + b) / 2;
+				if(iBeta(alpha, beta, x) > p) {
+						b = x;
+				} else {
+						a = x;
+				}
+		}
 
-    return x;
+		return x;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -805,34 +805,34 @@ function iiBeta(p, alpha, beta) {
 //		polynomial
 //
 ///////////////////////////////////////////////////////////////////////////////
-    
+		
 function stirf(x) {
-        
+				
 	var STIR = [  7.147391378143610789273E-4,
-                 -2.363848809501759061727E-5,
-                 -5.950237554056330156018E-4,
-                  6.989332260623193171870E-5,
-                  7.840334842744753003862E-4,
-                 -2.294719747873185405699E-4,
-        	     -2.681327161876304418288E-3,
-                  3.472222222230075327854E-3,
-                  8.333333333333331800504E-2,
-                  0.0 ];
-    var w, p;
-        
-    w = 1.0 / x;
-    
-    if(x > 1024.0) {
-        p = 6.97281375836585777429E-5 * w + 7.84039221720066627474E-4;
-        p = p * w - 2.29472093621399176955E-4;
-        p = p * w - 2.68132716049382716049E-3;
-        p = p * w + 3.47222222222222222222E-3;
-        p = p * w + 8.33333333333333333333E-2;
-    } else {
-        p = PolEvl(w, STIR, 8);
-    }
-        
-    return SQRT2PI * Math.exp((x - 0.5) * ln(x) - x) * (1.0 + w * p);
+								 -2.363848809501759061727E-5,
+								 -5.950237554056330156018E-4,
+									6.989332260623193171870E-5,
+									7.840334842744753003862E-4,
+								 -2.294719747873185405699E-4,
+					     -2.681327161876304418288E-3,
+									3.472222222230075327854E-3,
+									8.333333333333331800504E-2,
+									0.0 ];
+		var w, p;
+				
+		w = 1.0 / x;
+		
+		if(x > 1024.0) {
+				p = 6.97281375836585777429E-5 * w + 7.84039221720066627474E-4;
+				p = p * w - 2.29472093621399176955E-4;
+				p = p * w - 2.68132716049382716049E-3;
+				p = p * w + 3.47222222222222222222E-3;
+				p = p * w + 8.33333333333333333333E-2;
+		} else {
+				p = PolEvl(w, STIR, 8);
+		}
+				
+		return SQRT2PI * Math.exp((x - 0.5) * ln(x) - x) * (1.0 + w * p);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -846,86 +846,86 @@ function stirf(x) {
 //      @return
 //
 ///////////////////////////////////////////////////////////////////////////////     
-    
+		
 function cFrac2(a, b, x) {
 
-    var xk, pk, pkm1, pkm2, qk, qkm1, qkm2;
-    var k1, k2, k3, k4, k5, k6, k7, k8;
-    var r, t, z, ans, thresh;
-    var n;
-        
-    k1 = a;
-    k2 = b - 1.0;
-    k3 = a;
-    k4 = a + 1.0;
-    k5 = 1.0;
-    k6 = a + b;
-    k7 = a + 1.0;
-    k8 = a + 2.0;
-        
-    pkm2 = 0.0;
-    qkm2 = 1.0;
-    pkm1 = 1.0;
-    qkm1 = 1.0;
-    z = x / (1.0 - x);
-    ans = 1.0;
-    r = 1.0;
-    n = 0;
-    thresh = 3.0 * MACHEP;
-        
-    do {
-        xk = -(z * k1 * k2) / (k3 * k4);
-        pk = pkm1 + pkm2 * xk;
-        qk = qkm1 + qkm2 * xk;
-        pkm2 = pkm1;
-        pkm1 = pk;
-        qkm2 = qkm1;
-        qkm1 = qk;
-            
-        xk = (z * k5 * k6) / (k7 * k8);
-        pk = pkm1 + pkm2 * xk;
-        qk = qkm1 + qkm2 * xk;
-        pkm2 = pkm1;
-        pkm1 = pk;
-        qkm2 = qkm1;
-        qkm1 = qk;
-            
-        if(qk != 0.0) { r = pk / qk; }
-            
-        if(r != 0.0) {
-            t = Math.abs((ans - r) / r);
-            ans = r;
-        } else t = 1.0;
-            
-        if(t < thresh) { break; }
-            
-        k1 += 1.0;
-        k2 -= 1.0;
-        k3 += 2.0;
-        k4 += 2.0;
-        k5 += 1.0;
-        k6 += 1.0;
-        k7 += 2.0;
-        k8 += 2.0;
-            
-        if((Math.abs(qk) + Math.abs(pk)) > BIG) {
-            pkm2 *= BIGINV;
-            pkm1 *= BIGINV;
-            qkm2 *= BIGINV;
-            qkm1 *= BIGINV;
-        }
-            
-        if((Math.abs(qk) < BIGINV) || (Math.abs(pk) < BIGINV)) {
-            pkm2 *= BIG;
-            pkm1 *= BIG;
-            qkm2 *= BIG;
-            qkm1 *= BIG;
-        }
-        n++;            
-    } while (n <= 400);
-    // Math_Err = FN_PLOSS
-    // Label CDone:
-    return ans;
+		var xk, pk, pkm1, pkm2, qk, qkm1, qkm2;
+		var k1, k2, k3, k4, k5, k6, k7, k8;
+		var r, t, z, ans, thresh;
+		var n;
+				
+		k1 = a;
+		k2 = b - 1.0;
+		k3 = a;
+		k4 = a + 1.0;
+		k5 = 1.0;
+		k6 = a + b;
+		k7 = a + 1.0;
+		k8 = a + 2.0;
+				
+		pkm2 = 0.0;
+		qkm2 = 1.0;
+		pkm1 = 1.0;
+		qkm1 = 1.0;
+		z = x / (1.0 - x);
+		ans = 1.0;
+		r = 1.0;
+		n = 0;
+		thresh = 3.0 * MACHEP;
+				
+		do {
+				xk = -(z * k1 * k2) / (k3 * k4);
+				pk = pkm1 + pkm2 * xk;
+				qk = qkm1 + qkm2 * xk;
+				pkm2 = pkm1;
+				pkm1 = pk;
+				qkm2 = qkm1;
+				qkm1 = qk;
+						
+				xk = (z * k5 * k6) / (k7 * k8);
+				pk = pkm1 + pkm2 * xk;
+				qk = qkm1 + qkm2 * xk;
+				pkm2 = pkm1;
+				pkm1 = pk;
+				qkm2 = qkm1;
+				qkm1 = qk;
+						
+				if(qk != 0.0) { r = pk / qk; }
+						
+				if(r != 0.0) {
+						t = Math.abs((ans - r) / r);
+						ans = r;
+				} else t = 1.0;
+						
+				if(t < thresh) { break; }
+						
+				k1 += 1.0;
+				k2 -= 1.0;
+				k3 += 2.0;
+				k4 += 2.0;
+				k5 += 1.0;
+				k6 += 1.0;
+				k7 += 2.0;
+				k8 += 2.0;
+						
+				if((Math.abs(qk) + Math.abs(pk)) > BIG) {
+						pkm2 *= BIGINV;
+						pkm1 *= BIGINV;
+						qkm2 *= BIGINV;
+						qkm1 *= BIGINV;
+				}
+						
+				if((Math.abs(qk) < BIGINV) || (Math.abs(pk) < BIGINV)) {
+						pkm2 *= BIG;
+						pkm1 *= BIG;
+						qkm2 *= BIG;
+						qkm1 *= BIG;
+				}
+				n++;            
+		} while (n <= 400);
+		// Math_Err = FN_PLOSS
+		// Label CDone:
+		return ans;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -939,82 +939,82 @@ function cFrac2(a, b, x) {
 ///////////////////////////////////////////////////////////////////////////////
 
 function lnGamma(x) {
-        
+				
 	var p = [ -2.163690827643812857640E3,
-              -8.723871522843511459790E4,
-              -1.104326814691464261197E6,
-              -6.111225012005214299996E6,
-              -1.625568062543700591014E7,
-              -2.003937418103815175475E7,
-              -8.875666783650703802159E6,
-              0.0, 
-              0.0, 
-              0.0 ];
+							-8.723871522843511459790E4,
+							-1.104326814691464261197E6,
+							-6.111225012005214299996E6,
+							-1.625568062543700591014E7,
+							-2.003937418103815175475E7,
+							-8.875666783650703802159E6,
+							0.0, 
+							0.0, 
+							0.0 ];
 
 	var q = [ -5.139481484435370143617E2,
-              -3.403570840534304670537E4,
-              -6.227441164066219501697E5,
-              -4.814940379411882186630E6,
-              -1.785433287045078156959E7,
-              -3.138646407656182662088E7,
-              -2.099336717757895876142E7,
-               0.0, 
-               0.0, 
-               0.0 ];
+							-3.403570840534304670537E4,
+							-6.227441164066219501697E5,
+							-4.814940379411882186630E6,
+							-1.785433287045078156959E7,
+							-3.138646407656182662088E7,
+							-2.099336717757895876142E7,
+							 0.0, 
+							 0.0, 
+							 0.0 ];
 
 	var n;
 	var a, x1, z;
 
-    if((x == 0.0) || ((x < 0.0) && (frac(x) == 0.0))) {
-        return NaN;
-    }
+		if((x == 0.0) || ((x < 0.0) && (frac(x) == 0.0))) {
+				return NaN;
+		}
 
-    if(x > MAXLGM) {
-        return Infinity;
-    }
+		if(x > MAXLGM) {
+				return Infinity;
+		}
 
-    a = Math.abs(x);
-    if(a > 34.0) {
-        if(x < 0.0) {
-            n = Math.trunc(a);
-            z = a - n;
-            if(z > 0.5) {
-                n += 1;
-                z = n - a;
-            }
-            z = a * Math.sin(PI * z);
-            if(z == 0.0) {
-                return Infinity;
-            }
-            z = LNPI - ln(z) - stirfL(a);
-        } else {
-            z = stirfL(x);
-        }
-        return z;
-    } else if(x < 13.0) {
-        z = 1.0;
-        x1 = x;
-        while(x1 >= 3.0) {
-            x1 = x1 - 1.0;
-            z = z * x1;
-        }
-        while(x1 < 2.0) {
-            if(Math.abs(x1) <= 0.03125) {
-                return ln(Math.abs(gamSmall(x1, z)));
-            }
-            z = z / x1;
-            x1 = x1 + 1.0;
-        }
-        if(z < 0.0) {
-            z = -z;
-        }
-        if(x1 == 2.0) {
-            return ln(z);
-        } else {
-            x1 = x1 - 2.0;
-            return x1 * PolEvl(x1, p, 6) / P1Evl(x1, q, 7) + ln(z);
-        }        
-    } else return stirfL(x);
+		a = Math.abs(x);
+		if(a > 34.0) {
+				if(x < 0.0) {
+						n = Math.trunc(a);
+						z = a - n;
+						if(z > 0.5) {
+								n += 1;
+								z = n - a;
+						}
+						z = a * Math.sin(PI * z);
+						if(z == 0.0) {
+								return Infinity;
+						}
+						z = LNPI - ln(z) - stirfL(a);
+				} else {
+						z = stirfL(x);
+				}
+				return z;
+		} else if(x < 13.0) {
+				z = 1.0;
+				x1 = x;
+				while(x1 >= 3.0) {
+						x1 = x1 - 1.0;
+						z = z * x1;
+				}
+				while(x1 < 2.0) {
+						if(Math.abs(x1) <= 0.03125) {
+								return ln(Math.abs(gamSmall(x1, z)));
+						}
+						z = z / x1;
+						x1 = x1 + 1.0;
+				}
+				if(z < 0.0) {
+						z = -z;
+				}
+				if(x1 == 2.0) {
+						return ln(z);
+				} else {
+						x1 = x1 - 2.0;
+						return x1 * PolEvl(x1, p, 6) / P1Evl(x1, q, 7) + ln(z);
+				}        
+		} else return stirfL(x);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1026,30 +1026,30 @@ function lnGamma(x) {
 //      @return
 //  
 ///////////////////////////////////////////////////////////////////////////////
-   
+	 
 function stirfL(x) {
-        
+				
 	var p = [ 4.885026142432270781165E-3,
-             -1.880801938119376907179E-3,
-              8.412723297322498080632E-4,
-             -5.952345851765688514613E-4,
-              7.936507795855070755671E-4,
-             -2.777777777750349603440E-3,
-              8.333333333333331447505E-2,
-              0.0, 
-              0.0, 
-              0.0 ];
+						 -1.880801938119376907179E-3,
+							8.412723297322498080632E-4,
+						 -5.952345851765688514613E-4,
+							7.936507795855070755671E-4,
+						 -2.777777777750349603440E-3,
+							8.333333333333331447505E-2,
+							0.0, 
+							0.0, 
+							0.0 ];
 
 	var q, w;
 
-    q = ln(x) * (x - 0.5) - x;
-    q = q + LNSQRT2PI;
-    if(x > 1.0E+10) {
-        return q;
-    } else {
-        w = 1.0 / sqr(x);
-        return q + PolEvl(w, p, 6) / x;
-    }
+		q = ln(x) * (x - 0.5) - x;
+		q = q + LNSQRT2PI;
+		if(x > 1.0E+10) {
+				return q;
+		} else {
+				w = 1.0 / sqr(x);
+				return q + PolEvl(w, p, 6) / x;
+		}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1061,13 +1061,13 @@ function stirfL(x) {
 
 function P1Evl(x, coef, n) {
  
-    var ans;
-        
-    ans = x + coef[0];
-    for(var i = 1; i < n - 1; i++) {
-        ans = ans * x + coef[i];
-    }
-    return ans; 
+		var ans;
+				
+		ans = x + coef[0];
+		for(var i = 1; i < n - 1; i++) {
+				ans = ans * x + coef[i];
+		}
+		return ans; 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1081,86 +1081,86 @@ function P1Evl(x, coef, n) {
 //      @return
 //
 ///////////////////////////////////////////////////////////////////////////////    
-    
+		
 function cFrac1(a, b, x) {
 
-    var xk, pk, pkm1, pkm2, qk, qkm1, qkm2;
-    var k1, k2, k3, k4, k5, k6, k7, k8;
-    var r, t, ans, thresh;
-    var n;
-        
-    k1 = a;
-    k2 = a + b;
-    k3 = a;
-    k4 = a + 1.0;
-    k5 = 1.0;
-    k6 = b - 1.0;
-    k7 = k4;
-    k8 = a + 2.0;
-        
-    pkm2 = 0.0;
-    qkm2 = 1.0;
-    pkm1 = 1.0;
-    qkm1 = 1.0;
-    ans = 1.0;
-    r = 1.0;
-    n = 0;
-    thresh = 3.0 * MACHEP;
-        
-    do {
-        xk = -(x * k1 * k2) / (k3 * k4);
-        pk = pkm1 + pkm2 * xk;
-        qk = qkm1 + qkm2 * xk;
-        pkm2 = pkm1;
-        pkm1 = pk;
-        qkm2 = qkm1;
-        qkm1 = qk;
-            
-        xk = (x * k5 * k6) / (k7 * k8);
-        pk = pkm1 + pkm2 * xk;
-        qk = qkm1 + qkm2 * xk;
-        pkm2 = pkm1;
-        pkm1 = pk;
-        qkm2 = qkm1;
-        qkm1 = qk;
-            
-        if(qk != 0.0) { r = pk / qk; }
-            
-        if(r != 0.0) {
-            t = Math.abs((ans - r) / r);
-            ans = r;
-        } else t = 1.0;
-            
-        if(t < thresh) break;
-            
-        k1 = k1 + 1.0;
-        k2 = k2 + 1.0;
-        k3 = k3 + 2.0;
-        k4 = k4 + 2.0;
-        k5 = k5 + 1.0;
-        k6 = k6 - 1.0;
-        k7 = k7 + 2.0;
-        k8 = k8 + 2.0;
-            
-        if((Math.abs(qk) + Math.abs(pk)) > BIG) {
-            pkm2 = pkm2 * BIGINV;
-            pkm1 = pkm1 * BIGINV;
-            qkm2 = qkm2 * BIGINV;
-            qkm1 = qkm1 * BIGINV;
-        }
-            
-        if((Math.abs(qk) < BIGINV) || (Math.abs(pk) < BIGINV)) {
-            pkm2 *= BIG;
-            pkm1 *= BIG;
-            qkm2 *= BIG;
-            qkm1 *= BIG;
-        }
-        n++;
-            
-    } while (n <= 400);
-    // MathErr = FN_PLOSS;
-    // Label: CDone
-    return ans;
+		var xk, pk, pkm1, pkm2, qk, qkm1, qkm2;
+		var k1, k2, k3, k4, k5, k6, k7, k8;
+		var r, t, ans, thresh;
+		var n;
+				
+		k1 = a;
+		k2 = a + b;
+		k3 = a;
+		k4 = a + 1.0;
+		k5 = 1.0;
+		k6 = b - 1.0;
+		k7 = k4;
+		k8 = a + 2.0;
+				
+		pkm2 = 0.0;
+		qkm2 = 1.0;
+		pkm1 = 1.0;
+		qkm1 = 1.0;
+		ans = 1.0;
+		r = 1.0;
+		n = 0;
+		thresh = 3.0 * MACHEP;
+				
+		do {
+				xk = -(x * k1 * k2) / (k3 * k4);
+				pk = pkm1 + pkm2 * xk;
+				qk = qkm1 + qkm2 * xk;
+				pkm2 = pkm1;
+				pkm1 = pk;
+				qkm2 = qkm1;
+				qkm1 = qk;
+						
+				xk = (x * k5 * k6) / (k7 * k8);
+				pk = pkm1 + pkm2 * xk;
+				qk = qkm1 + qkm2 * xk;
+				pkm2 = pkm1;
+				pkm1 = pk;
+				qkm2 = qkm1;
+				qkm1 = qk;
+						
+				if(qk != 0.0) { r = pk / qk; }
+						
+				if(r != 0.0) {
+						t = Math.abs((ans - r) / r);
+						ans = r;
+				} else t = 1.0;
+						
+				if(t < thresh) break;
+						
+				k1 = k1 + 1.0;
+				k2 = k2 + 1.0;
+				k3 = k3 + 2.0;
+				k4 = k4 + 2.0;
+				k5 = k5 + 1.0;
+				k6 = k6 - 1.0;
+				k7 = k7 + 2.0;
+				k8 = k8 + 2.0;
+						
+				if((Math.abs(qk) + Math.abs(pk)) > BIG) {
+						pkm2 = pkm2 * BIGINV;
+						pkm1 = pkm1 * BIGINV;
+						qkm2 = qkm2 * BIGINV;
+						qkm1 = qkm1 * BIGINV;
+				}
+						
+				if((Math.abs(qk) < BIGINV) || (Math.abs(pk) < BIGINV)) {
+						pkm2 *= BIG;
+						pkm1 *= BIG;
+						qkm2 *= BIG;
+						qkm1 *= BIG;
+				}
+				n++;
+						
+		} while (n <= 400);
+		// MathErr = FN_PLOSS;
+		// Label: CDone
+		return ans;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1173,39 +1173,39 @@ function cFrac1(a, b, x) {
 function gamSmall(x1, z) {
 
 	var s = [ -1.193945051381510095614E-3,
-               7.220599478036909672331E-3,
-              -9.622023360406271645744E-3,
-              -4.219773360705915470089E-2,
-               1.665386113720805206758E-1,
-              -4.200263503403344054473E-2,
-              -6.558780715202540684668E-1,
-               5.772156649015328608253E-1,
-               1.000000000000000000000E0,
-               0.0 ];    
-           
+							 7.220599478036909672331E-3,
+							-9.622023360406271645744E-3,
+							-4.219773360705915470089E-2,
+							 1.665386113720805206758E-1,
+							-4.200263503403344054473E-2,
+							-6.558780715202540684668E-1,
+							 5.772156649015328608253E-1,
+							 1.000000000000000000000E0,
+							 0.0 ];    
+					 
 	var sn = [ 1.133374167243894382010E-3,
-               7.220837261893170325704E-3,
-               9.621911155035976733706E-3,
-              -4.219773343731191721664E-2,
-              -1.665386113944413519335E-1,
-              -4.200263503402112910504E-2,
-               6.558780715202536547116E-1,
-               5.772156649015328608727E-1,
-              -1.000000000000000000000E0,
-               0.0 ];
-               
-    var p;
-        
-    if(x1 == 0.0) {
-        return NaN;
-    }
-    if(x1 < 0.0) {
-        x1 = -x1;
-        p = PolEvl(x1, sn, 8);
-    } else {
-        p = PolEvl(x1, s, 8);
-    }
-    return z / (x1 * p);
+							 7.220837261893170325704E-3,
+							 9.621911155035976733706E-3,
+							-4.219773343731191721664E-2,
+							-1.665386113944413519335E-1,
+							-4.200263503402112910504E-2,
+							 6.558780715202536547116E-1,
+							 5.772156649015328608727E-1,
+							-1.000000000000000000000E0,
+							 0.0 ];
+							 
+		var p;
+				
+		if(x1 == 0.0) {
+				return NaN;
+		}
+		if(x1 < 0.0) {
+				x1 = -x1;
+				p = PolEvl(x1, sn, 8);
+		} else {
+				p = PolEvl(x1, s, 8);
+		}
+		return z / (x1 * p);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1218,13 +1218,13 @@ function gamSmall(x1, z) {
 //      @return
 //
 /////////////////////////////////////////////////////////////////////////////// 
-    
+		
 function risingFactorial(a, n) {
-    var r = 1;
-    for(var i = 0; i < n; i++) {
-    	r = r * (a + i);
-    }
-    return r;
+		var r = 1;
+		for(var i = 0; i < n; i++) {
+			r = r * (a + i);
+		}
+		return r;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1241,20 +1241,20 @@ function risingFactorial(a, n) {
 /////////////////////////////////////////////////////////////////////////////// 
 
 function hGeom(a, b, c, z) {
-    var n = 0;
-    var x1 = 1;
-    var x0 = 0;
-    while((x1 - x0) > PREC) {
-        x0 = x1;
-        var a1 = risingFactorial(a, n);
-        var b1 = risingFactorial(b, n);
-        var c1 = risingFactorial(c, n);
-        var r1 = a1 * b1 / c1;
-        var r2 = Math.pow(z, n) / factorial(n);
+		var n = 0;
+		var x1 = 1;
+		var x0 = 0;
+		while((x1 - x0) > PREC) {
+				x0 = x1;
+				var a1 = risingFactorial(a, n);
+				var b1 = risingFactorial(b, n);
+				var c1 = risingFactorial(c, n);
+				var r1 = a1 * b1 / c1;
+				var r2 = Math.pow(z, n) / factorial(n);
 		x1 = x1 + r1 * r2;
-        n++;
-    }
-    return x1;
+				n++;
+		}
+		return x1;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1659,36 +1659,6 @@ function getFunctionName(expression) {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Determines the name of all variables within an expression using the math.js
-//   parser. The constants, pi, e and i are all left out.
-//
-///////////////////////////////////////////////////////////////////////////////
-
-function getVariables(expression) {
-	
-	var variables = [];	
-	var func = getFunctionName(expression);
-	
-	var node = math.parse(expression);
-	
-	node.traverse(	
-		function(node, path, parent) {
-			if(node.type == 'SymbolNode' && node.name != func) {
-				if(node.name != 'e' && node.name != 'pi' && node.name != 'i') {
-					if(variables.indexOf(node.name) == -1) {
-						variables.push(node.name);
-					}
-				}
-			}
-		}
-	);
-
-	return variables;
-
-}
-
-///////////////////////////////////////////////////////////////////////////////
-//
 // Changes all the instances of the variable 'x' and replaces it with 
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -1751,32 +1721,36 @@ function removeSpaces(s) {
 function getInterval(relation) {
 
 	var interval = '';
+	var intervalstart = 0;
 	
-	if(relation.search(regex_interval) != -1) {
-		var intervalstart = 0;
-		for(var i = 0; i < relation.length; i++) {
-			if(relation[i] == '(' || relation[i] == '[') {
-				intervalstart = i;
-			}
-		}
-		interval = relation.substring(intervalstart, relation.length);
-	} 
+	intervalstart = relation.search(regex_interval);
+	if (intervalstart != -1) {
+		interval = relation.substring(intervalstart, relation.length).trim();
+	}
+	
+	intervalstart = relation.search(regex_hole);
+	if (intervalstart != -1) {
+		interval = relation.substring(intervalstart, relation.length).trim();
+	}
+	
 	return interval;
 }
 	
 function removeInterval(relation) {
 
 	var interval = '';
-	
-	if(relation.search(regex_interval) != -1) {
-		var intervalstart = 0;
-		for(var i = 0; i < relation.length; i++) {
-			if(relation[i] == '(' || relation[i] == '[') {
-				intervalstart = i;
-			}
-		}
-		relation = relation.substring(0, intervalstart);
-	} 
+	var intervalstart = 0;
+		
+	intervalstart = relation.search(regex_interval);
+	if (intervalstart != -1) {
+		relation = relation.substring(0, intervalstart).trim();
+	}
+		
+	intervalstart = relation.search(regex_hole);
+	if (intervalstart != -1) {
+		relation = relation.substring(0, intervalstart).trim();
+	}
+
 	return relation;
 }	
 				 
@@ -1809,6 +1783,10 @@ function getUpperEndpoint(interval) {
 	}
 }
 
+function getHoleValue(interval) {
+	return math.eval(interval.split('=')[1]);
+}
+
 /////////////////////////////////////////////////////////////////
 //
 // Determines whether an interval is open or closed on the 
@@ -1822,6 +1800,43 @@ function lowerBoundOpen(interval) {
 
 function upperBoundOpen(interval) {
 	return interval.includes(')');
+}
+
+function lowerBoundClosed(interval) {
+	return interval.includes('[');
+}
+
+function upperBoundClosed(interval) {
+	return interval.includes(']');
+}
+
+///////////////////////////////////////////////////////////////
+//
+//
+/////////////////////////////////////////////////////////////////
+
+function isPoint(relation) {
+
+	intervalstart = relation.search(regex_interval);
+	if (intervalstart != -1) {
+		interval = relation.substring(intervalstart, relation.length).trim();
+		relation = relation.substring(0, intervalstart).trim();
+	}
+	
+	return relation == '';
+	
+}
+
+function isAsymptote(relation) {
+
+	intervalstart = relation.search(regex_hole);
+	if (intervalstart != -1) {
+		interval = relation.substring(intervalstart, relation.length).trim();
+		relation = relation.substring(0, intervalstart).trim();
+	}
+	
+	return relation == '';
+	
 }
 
 ///////////////////////////////////////////////////////////////
@@ -1849,7 +1864,19 @@ function evaluate(f, x, args) {
 	var variable = args.variable ? args.variable : 'x';
 	
 	f = f.toLowerCase();
-	f = removeFunctionName(f);
+	//f = removeFunctionName(f);
+	
+	// Make sure to ignore points and asymptotes
+	if (f.includes(';')) {
+		var newf = '';
+		f_list = f.split(';');
+		for(var i = 0; i < f_list.length; i++) {
+			if (!isPoint(f_list[i]) && !isAsymptote(f_list[i])) {
+				newf += f_list[i] + ';'
+			}
+		}
+		f = newf.substring(0, newf.length - 1);
+	}
 	
 	// if f includes a restricted interval, handle that
 	if(f.search(regex_interval) != -1) {
@@ -1861,20 +1888,30 @@ function evaluate(f, x, args) {
 		} else {
 			f_list = [f];
 		}
-		for(var i = 0; i < f_list.length; i++) {
+		for (var i = 0; i < f_list.length; i++) {
 			var loc = f_list[i].search(regex_interval);
 			if(loc != -1) {
 				interval = f_list[i].substring(loc, f_list[i].length);
 				lowerbound = getLowerEndpoint(interval);
 				upperbound = getUpperEndpoint(interval);
-				if((x >= lowerbound) && (x <= upperbound)) {
+				var upperboundclosed = !upperBoundOpen(interval);
+				var lowerboundclosed = !lowerBoundOpen(interval);
+				if((x > lowerbound) && (x < upperbound)) {
+					f = f_list[i].substring(0, loc);
+					x_on_interval = true;
+				}
+				if((x == lowerbound) && lowerboundclosed) {
+					f = f_list[i].substring(0, loc);
+					x_on_interval = true;
+				}
+				if((x == upperbound) && upperboundclosed) {
 					f = f_list[i].substring(0, loc);
 					x_on_interval = true;
 				}
 			}
 		}
 		if(!x_on_interval) {
-			f = NaN;//'0';//f.substring(0, f.search(regex_interval));
+			f = NaN;
 		}
 	}
 	
@@ -1932,94 +1969,138 @@ function plot_function(curve, relation, start_x, end_x, args) {
 		curve.setAttribute({ dash: 0 });
 	}
 
-	if(hole != -1) {
-		hole.setAttribute({ visible: false });
-	}
+	// If the relation is blank but not the interval then we just
+	// need to plot a single point or an asymptote
 	
-	if(lowerendpoint != -1) {
-		lowerendpoint.setAttribute({ visible: false });
-	}
-	
-	if(upperendpoint != -1) {
-		upperendpoint.setAttribute({ visible: false });
-	}
+	if (relation.trim() == '' && interval != '') {
 		
-	var expr = math.compile(relation);
-	
-	if(interval != '') {
-	
-		// See if there is a hole in the graph	
-		if(interval.search(regex_hole) != -1) {
-			hole_val = parseFloat(interval.split('=')[1]);
-			var parameter = {};
-			parameter[variable] = hole_val;
-			var y_val = expr.eval(parameter);
-			hole.moveTo([hole_val, y_val]);
-			hole.setAttribute( { visible: true, strokeColor: color, fillColor: 'white' });
-		}		
-		
-		// See if a restricted interval was defined
-		if(interval.search(regex_interval) != -1) {	
-		
-			restricted_interval = true;
-				
-			var lowerval = getLowerEndpoint(interval);
-			var upperval = getUpperEndpoint(interval);
-			
-			if(lowerval != NEGATIVE_INFINITY) {
-				start_x = lowerval;
-				var parameter = {};
-				parameter[variable] = lowerval;
-				var y_val = expr.eval(parameter);
-				lowerendpoint.moveTo([lowerval, y_val]);
-				lowerendpoint.setAttribute({ strokeColor: color, visible: true });
-				if(lowerBoundOpen(interval)) {
-					lowerendpoint.setAttribute({ fillColor: 'white' });
-				} else {
-					lowerendpoint.setAttribute({ fillColor: color });		
-				}
-			} 
-			
-			if(upperval != POSITIVE_INFINITY) {
-				end_x = upperval;
-				var parameter = {};
-				parameter[variable] = upperval;
-				var y_val = expr.eval(parameter);	
-				upperendpoint.moveTo([upperval, y_val]);
-				upperendpoint.setAttribute({ strokeColor: color, visible: true });	
-				if(upperBoundOpen(interval)) {
-					upperendpoint.setAttribute({ fillColor: 'white' });
-				} else {
-					upperendpoint.setAttribute({ fillColor: color });
-				}
-			} 	
-			
-		}
-	} // if(interval != '')
-	
-	// This is an explicit function of the form: f(x)
-	curve.dataX = math.range(start_x, end_x + density, density).toArray();
-	curve.dataY = curve.dataX.map(
-		function(x) { 
-			var parameter = {};
-			parameter[variable] = x;
-			return expr.eval(parameter);
-		}
-	);
-		
-	// If the curve shoots off to infinity, this will prevent the curve from
-	// drawing an "asymptote" at that value
-	
-	for(var i = 0; i < curve.dataY.length; i++) {
-		if(curve.dataY[i] > yMax + 2*(yScl)) {
-			curve.dataY[i] = NaN;
-		} else if(curve.dataY[i] < yMin - 2*(yScl)) {
-			curve.dataY[i] = NaN;
-		}
-	}	
-	
-	curve.updateParametricCurve();
+		// Draw a point, but find out if it is open or closed
+		if (interval.search(regex_interval) != -1) {
 
+			var x = math.eval(getLowerEndpoint(interval));
+			var y = math.eval(getUpperEndpoint(interval));
+			var closed = upperBoundClosed(interval) || upperBoundClosed(interval);
+		
+			lowerendpoint.moveTo([x, y]);
+		
+			lowerendpoint.setAttribute({ strokeColor: color, visible: true });
+			if (closed) {
+				lowerendpoint.setAttribute({ fillColor: color });
+			} else {
+				lowerendpoint.setAttribute({ fillColor: 'white' });		
+			}
+			
+		}
+		
+		// Draw an asymptote
+		if (interval.search(regex_hole) != -1) {
+			
+			var xloc = getHoleValue(interval);
+			
+			curve.dataX = [xloc, xloc];
+			
+			// TODO:
+			// This -2000 and +2000 just need to be the lower and upper portion
+			// of the viewing window, but I don't know how to access it without
+			// referencing the board variable
+			
+			curve.dataY = [-2000, 2000];
+			
+			curve.setAttribute( { dash: dashsetting } );
+			
+			curve.updateParametricCurve();
+			
+		}
+
+	} else {
+		if(hole != -1) {
+			hole.setAttribute({ visible: false });
+		}
+		
+		if(lowerendpoint != -1) {
+			lowerendpoint.setAttribute({ visible: false });
+		}
+		
+		if(upperendpoint != -1) {
+			upperendpoint.setAttribute({ visible: false });
+		}
+			
+		var expr = math.compile(relation);
+		
+		if(interval != '') {
+		
+			// See if there is a hole in the graph	
+			if(interval.search(regex_hole) != -1) {
+				hole_val = getHoleValue(interval);
+				var parameter = {};
+				parameter[variable] = hole_val;
+				var y_val = expr.eval(parameter);
+				hole.moveTo([hole_val, y_val]);
+				hole.setAttribute( { visible: true, strokeColor: color, fillColor: 'white' });
+			}		
+			
+			// See if a restricted interval was defined
+			if(interval.search(regex_interval) != -1) {	
+			
+				restricted_interval = true;
+					
+				var lowerval = getLowerEndpoint(interval);
+				var upperval = getUpperEndpoint(interval);
+				
+				if(lowerval != NEGATIVE_INFINITY) {
+					start_x = lowerval;
+					var parameter = {};
+					parameter[variable] = lowerval;
+					var y_val = expr.eval(parameter);
+					lowerendpoint.moveTo([lowerval, y_val]);
+					lowerendpoint.setAttribute({ strokeColor: color, visible: true });
+					if(lowerBoundOpen(interval)) {
+						lowerendpoint.setAttribute({ fillColor: 'white' });
+					} else {
+						lowerendpoint.setAttribute({ fillColor: color });		
+					}
+				} 
+				
+				if(upperval != POSITIVE_INFINITY) {
+					end_x = upperval;
+					var parameter = {};
+					parameter[variable] = upperval;
+					var y_val = expr.eval(parameter);	
+					upperendpoint.moveTo([upperval, y_val]);
+					upperendpoint.setAttribute({ strokeColor: color, visible: true });	
+					if(upperBoundOpen(interval)) {
+						upperendpoint.setAttribute({ fillColor: 'white' });
+					} else {
+						upperendpoint.setAttribute({ fillColor: color });
+					}
+				} 	
+				
+			}
+		} // if(interval != '')
+		
+		// This is an explicit function of the form: f(x)
+		curve.dataX = math.range(start_x, end_x + density, density).toArray();
+		curve.dataY = curve.dataX.map(
+			function(x) { 
+				var parameter = {};
+				parameter[variable] = x;
+				return expr.eval(parameter);
+			}
+		);
+			
+		// If the curve shoots off to infinity, this will prevent the curve from
+		// drawing an "asymptote" at that value
+		
+		for(var i = 0; i < curve.dataY.length; i++) {
+			if(curve.dataY[i] > (yMax + 2 * yScl)) {
+				curve.dataY[i] = NaN;
+			} else if(curve.dataY[i] < (yMin - 2 * yScl)) {
+				curve.dataY[i] = NaN;
+			}
+		}	
+		
+		curve.updateParametricCurve();
+	}
 }
 
 
@@ -2400,452 +2481,452 @@ function implicit_plot(relation, args) {
 ////////////////////////////////////////////////////////////////////////////////
 
 var LinkedList = function() {
-  var Node = function(elem, next, prev) {
-    this.elem = elem, this.next = next, this.prev = prev;
-  };
-  var me = this;
-  me.head = new Node(null, null, null);
-  me.head.next = me.head.prev = me.head;
-  me.shift = function() {
-    detach(me.head.next);
-  };
+	var Node = function(elem, next, prev) {
+		this.elem = elem, this.next = next, this.prev = prev;
+	};
+	var me = this;
+	me.head = new Node(null, null, null);
+	me.head.next = me.head.prev = me.head;
+	me.shift = function() {
+		detach(me.head.next);
+	};
 
-  me.pop = function() {
-    detach(me.head.prev);
-  };
+	me.pop = function() {
+		detach(me.head.prev);
+	};
 
-  me.push = function(e) {
-    var node = new Node(e, me.head, me.head.prev);
-    me.head.prev.next = node;
-    me.head.prev = node;
-  };
+	me.push = function(e) {
+		var node = new Node(e, me.head, me.head.prev);
+		me.head.prev.next = node;
+		me.head.prev = node;
+	};
 
-  me.unshift = function(e) {
-    var node = new Node(e, me.head.next, me.head);
-    me.head.next.prev = node;
-    me.head.next = node;
-  };
+	me.unshift = function(e) {
+		var node = new Node(e, me.head.next, me.head);
+		me.head.next.prev = node;
+		me.head.next = node;
+	};
 
-  me.merge = function(list) {
-    if(list.isEmpty()) return;
-    me.head.prev.next = list.head.next;
-    list.head.next.prev = me.head.prev;
-    list.head.prev.next = me.head;
-    me.head.prev = list.head.prev;
-    list.destroy();
-  }
+	me.merge = function(list) {
+		if(list.isEmpty()) return;
+		me.head.prev.next = list.head.next;
+		list.head.next.prev = me.head.prev;
+		list.head.prev.next = me.head;
+		me.head.prev = list.head.prev;
+		list.destroy();
+	}
 
-  me.isEmpty = function() {
-    return me.head === me.head.next;
-  };
+	me.isEmpty = function() {
+		return me.head === me.head.next;
+	};
 
-  me.destroy = function() {
-    me.head = new Node(null, null, null);
-  }
+	me.destroy = function() {
+		me.head = new Node(null, null, null);
+	}
 
-  me.toArray = function() {
-    var node = me.head.next;
-    var array = [];
-    while(node != me.head) {
-      array.push(node.elem);
-      node = node.next;
-    }
-    return array;
-  }
+	me.toArray = function() {
+		var node = me.head.next;
+		var array = [];
+		while(node != me.head) {
+			array.push(node.elem);
+			node = node.next;
+		}
+		return array;
+	}
 
-  me.remove = function(current) {
-    if(current instanceof Node) detach(current);
-  }
+	me.remove = function(current) {
+		if(current instanceof Node) detach(current);
+	}
 
-  me.forEach = function(callback) {
-    var current = me.head.next, next;
-    while(current !== me.head) {
-      next = current.next;
-      callback(current.elem, current);
-      current = next;
-    }
-  }
+	me.forEach = function(callback) {
+		var current = me.head.next, next;
+		while(current !== me.head) {
+			next = current.next;
+			callback(current.elem, current);
+			current = next;
+		}
+	}
 
-  function detach(node) {
-    node.next.prev = node.prev;
-    node.prev.next = node.next;
-    node.next = node.prev = null;
-    node.elem = null;
-  }
+	function detach(node) {
+		node.next.prev = node.prev;
+		node.prev.next = node.next;
+		node.next = node.prev = null;
+		node.elem = null;
+	}
 
 };
 
 var Point = function(x, y, lineTo) {
-  var me = this;
-  me.x = x, me.y = y, me.lineTo = lineTo;
+	var me = this;
+	me.x = x, me.y = y, me.lineTo = lineTo;
 
-  me.equals = function(p) {
-    return equals(me.x, p.x, 1e-6) && equals(me.y, p.y, 1e-6);
-  };
+	me.equals = function(p) {
+		return equals(me.x, p.x, 1e-6) && equals(me.y, p.y, 1e-6);
+	};
 
-  function equals(x, y, eps) {
-    if(x === y) return true;
-    return ((x - eps) < y) && (y < (x + eps));
-  };
+	function equals(x, y, eps) {
+		if(x === y) return true;
+		return ((x - eps) < y) && (y < (x + eps));
+	};
 };
 
 var PointList = function(start, end) {
-  var me = this;
-  me.start = start, me.end = end;
-  me.start.lineTo = false, me.end.lineTo = true;
-  me.points = new LinkedList();
+	var me = this;
+	me.start = start, me.end = end;
+	me.start.lineTo = false, me.end.lineTo = true;
+	me.points = new LinkedList();
 
-  me.merge = function(list) {
-    me.points.push(me.end);
-    list.start.lineTo = true;
-    me.points.push(list.start);
-    me.end = list.end;
-    if(list.points.length == 0) return;
-    me.points.merge(list.points);
-  }
+	me.merge = function(list) {
+		me.points.push(me.end);
+		list.start.lineTo = true;
+		me.points.push(list.start);
+		me.end = list.end;
+		if(list.points.length == 0) return;
+		me.points.merge(list.points);
+	}
 
-  me.push = function(point) {
-    point.lineTo = true;
-    me.points.push(me.end);
-    me.end = point;
-  };
+	me.push = function(point) {
+		point.lineTo = true;
+		me.points.push(me.end);
+		me.end = point;
+	};
 
-  me.unshift = function(point) {
-    point.lineTo = false;
-    me.start.lineTo = true;
-    me.points.unshift(me.start);
-    me.start = point;
-  };
+	me.unshift = function(point) {
+		point.lineTo = false;
+		me.start.lineTo = true;
+		me.points.unshift(me.start);
+		me.start = point;
+	};
 };
 
 var Rectangle = function(func) {
-  var me = this;
-  me.eval = [0, 0, 0, 0], me.rect = [0, 0, 0, 0];
-  me.x = 0, me.y = 0, me.children = null, me.status = null;
-  me.singular = false, me.func = func;
+	var me = this;
+	me.eval = [0, 0, 0, 0], me.rect = [0, 0, 0, 0];
+	me.x = 0, me.y = 0, me.children = null, me.status = null;
+	me.singular = false, me.func = func;
 
-  me.copy = function(r) {
-    for(var i = 0; i < 4; i++) {
-      me.eval[i] = r.eval[i];
-      me.rect[i] = r.rect[i];
-    }
-    me.x = r.x, me.y = r.y;
-    me.singular = r.singular;
-  };
+	me.copy = function(r) {
+		for(var i = 0; i < 4; i++) {
+			me.eval[i] = r.eval[i];
+			me.rect[i] = r.rect[i];
+		}
+		me.x = r.x, me.y = r.y;
+		me.singular = r.singular;
+	};
 
-  me.set = function(x, y, fx, fy, singular) {
-    me.x = x, me.y = y, me.rect[2] = fx, me.rect[3] = fy;
-    me.singular = singular;
-  };
+	me.set = function(x, y, fx, fy, singular) {
+		me.x = x, me.y = y, me.rect[2] = fx, me.rect[3] = fy;
+		me.singular = singular;
+	};
 
-  me.split = function() {
-    if(me.children === null) {
-      me.children = [];
-      for(var i = 0; i < 4; i++) {
-        me.children.push(new Rectangle(me.func));
-      }
-    }
-    var r = me.children;
-    var w2 = me.rect[2] * 0.5;
-    var h2 = me.rect[3] * 0.5;
-    for(var i = 0; i < 4; i++) {
-      r[i].copy(me);
-      r[i].rect[2] = w2;
-      r[i].rect[3] = h2;
-    }
-    r[1].rect[0] += w2;
-    r[2].rect[0] += w2;
-    r[2].rect[1] += h2;
-    r[3].rect[1] += h2;
-    r[0].eval[1] = me.func(r[1].rect[0], r[1].rect[1]);
-    r[0].eval[2] = me.func(r[2].rect[0], r[2].rect[1]);
-    r[0].eval[3] = me.func(r[3].rect[0], r[3].rect[1]);
-    r[1].eval[2] = me.func(r[2].rect[0] + w2, r[2].rect[1]);
-    r[2].eval[3] = me.func(r[2].rect[0], r[2].rect[1] + h2);
-    r[1].eval[0] = r[0].eval[1];
-    r[1].eval[3] = r[0].eval[2];
-    r[2].eval[0] = r[0].eval[2];
-    r[2].eval[1] = r[1].eval[2];
-    r[3].eval[0] = r[0].eval[3];
-    r[3].eval[1] = r[0].eval[2];
-    r[3].eval[2] = r[2].eval[3];
-    return r;
-  };
+	me.split = function() {
+		if(me.children === null) {
+			me.children = [];
+			for(var i = 0; i < 4; i++) {
+				me.children.push(new Rectangle(me.func));
+			}
+		}
+		var r = me.children;
+		var w2 = me.rect[2] * 0.5;
+		var h2 = me.rect[3] * 0.5;
+		for(var i = 0; i < 4; i++) {
+			r[i].copy(me);
+			r[i].rect[2] = w2;
+			r[i].rect[3] = h2;
+		}
+		r[1].rect[0] += w2;
+		r[2].rect[0] += w2;
+		r[2].rect[1] += h2;
+		r[3].rect[1] += h2;
+		r[0].eval[1] = me.func(r[1].rect[0], r[1].rect[1]);
+		r[0].eval[2] = me.func(r[2].rect[0], r[2].rect[1]);
+		r[0].eval[3] = me.func(r[3].rect[0], r[3].rect[1]);
+		r[1].eval[2] = me.func(r[2].rect[0] + w2, r[2].rect[1]);
+		r[2].eval[3] = me.func(r[2].rect[0], r[2].rect[1] + h2);
+		r[1].eval[0] = r[0].eval[1];
+		r[1].eval[3] = r[0].eval[2];
+		r[2].eval[0] = r[0].eval[2];
+		r[2].eval[1] = r[1].eval[2];
+		r[3].eval[0] = r[0].eval[3];
+		r[3].eval[1] = r[0].eval[2];
+		r[3].eval[2] = r[2].eval[3];
+		return r;
+	};
 
-  me.x1 = function() {return me.rect[0]; };
-  me.y1 = function() {return me.rect[1]; };
-  me.x2 = function() {return me.rect[0] + me.rect[2]; };
-  me.y2 = function() {return me.rect[1] + me.rect[3]; };
+	me.x1 = function() {return me.rect[0]; };
+	me.y1 = function() {return me.rect[1]; };
+	me.x2 = function() {return me.rect[0] + me.rect[2]; };
+	me.y2 = function() {return me.rect[1] + me.rect[3]; };
 };
 
 var Implicit = function(func, finish) {
-  var me = this;
-  var EMPTY = 0, FINISHED = -1, T_INV = -1, VALID = 1;
-  var LIST_THRESHOLD = 16, MAX_SPLIT = 32, RES_COARSE = 8;
-  var MAX_DEPTH = 4, T0101 = 5;
+	var me = this;
+	var EMPTY = 0, FINISHED = -1, T_INV = -1, VALID = 1;
+	var LIST_THRESHOLD = 16, MAX_SPLIT = 32, RES_COARSE = 8;
+	var MAX_DEPTH = 4, T0101 = 5;
 
-  me.func = func, me.finish = finish, me.grid = null;
-  me.temp = null, me.plotDepth = 0, me.segmentCheckDepth = 0;
-  me.openList = [], me.segments = [];
-  me.sw = 0, me.sh = 0, me.pts = [null, null];
+	me.func = func, me.finish = finish, me.grid = null;
+	me.temp = null, me.plotDepth = 0, me.segmentCheckDepth = 0;
+	me.openList = [], me.segments = [];
+	me.sw = 0, me.sh = 0, me.pts = [null, null];
 
-  function buildStatus(r) {
-    var z = 0, p = 0, n = 0, k = true;
-    for(var i = 0; i < 4; i++) {
-      if(!isFinite(r.eval[i]) || isNaN(r.eval[i])) {
-        k = false;
-        break;
-      }
-      if(r.eval[i] < 0.0) n++;
-      else if(r.eval[i] > 0.0) p++;
-      else z++;
-    }
-    r.status = {pos: p, neg: n, zero: z, valid: k, empty: !k || ((z + 1) | p | n) >= 4};
-  }
+	function buildStatus(r) {
+		var z = 0, p = 0, n = 0, k = true;
+		for(var i = 0; i < 4; i++) {
+			if(!isFinite(r.eval[i]) || isNaN(r.eval[i])) {
+				k = false;
+				break;
+			}
+			if(r.eval[i] < 0.0) n++;
+			else if(r.eval[i] > 0.0) p++;
+			else z++;
+		}
+		r.status = {pos: p, neg: n, zero: z, valid: k, empty: !k || ((z + 1) | p | n) >= 4};
+	}
 
-  function interpolate(p1, p2, fa, fb) {
-    var r = -fb / (fa - fb);
-    if (r >= 0 && r <= 1) { return r * (p1 - p2) + p2; }
-    return (p1 + p2) * 0.5;
-  };
+	function interpolate(p1, p2, fa, fb) {
+		var r = -fb / (fa - fb);
+		if (r >= 0 && r <= 1) { return r * (p1 - p2) + p2; }
+		return (p1 + p2) * 0.5;
+	};
 
-  function createLine(x1, y1, x2, y2) {
-    me.pts[0] = new Point(x1, y1, false);
-    me.pts[1] = new Point(x2, y2, true);
-    return VALID;
-  }
+	function createLine(x1, y1, x2, y2) {
+		me.pts[0] = new Point(x1, y1, false);
+		me.pts[1] = new Point(x2, y2, true);
+		return VALID;
+	}
 
-  function oppSign(x, y) {
-    return x * y < 0.0;
-  }
+	function oppSign(x, y) {
+		return x * y < 0.0;
+	}
 
-  me.abortList = function() {
-    for(var i = 0; i < me.openList.length; i++) {
-      me.segments.push(me.openList[i].start);
-      me.segments = me.segments.concat(me.openList[i].points.toArray());
-      me.segments.push(me.openList[i].end);
-    }
-    me.openList = [];
-  };
+	me.abortList = function() {
+		for(var i = 0; i < me.openList.length; i++) {
+			me.segments.push(me.openList[i].start);
+			me.segments = me.segments.concat(me.openList[i].points.toArray());
+			me.segments.push(me.openList[i].end);
+		}
+		me.openList = [];
+	};
 
-  me.create = function(r) {
-    if(r.status.empty) return EMPTY;
-    var zer = r.status.zero;
-    var neg = r.status.neg;
-    var pos = r.status.pos;
-    if(((zer + 1) | neg | pos) >= 4) { return EMPTY; }
-    var x1 = r.x1(), x2 = r.x2(), y1 = r.y1(), y2 = r.y2();
-    var tl = r.eval[0], tr = r.eval[1], br = r.eval[2], bl = r.eval[3];
-    switch(zer) {
-      case 0:
-        var k = 0;
-        if(neg === pos && !oppSign(tl, br)) return T0101;
-        if(oppSign(tl, tr)) me.pts[k++] = new Point(interpolate(x1, x2, tl, tr), y1, k !== 0);
-        if(oppSign(tr, br)) me.pts[k++] = new Point(x2, interpolate(y1, y2, tr, br), k !== 0);
-        if(oppSign(br, bl)) me.pts[k++] = new Point(interpolate(x1, x2, bl, br), y2, k !== 0);
-        if(oppSign(bl, tl)) me.pts[k++] = new Point(x1, interpolate(y1, y2, tl, bl), k !== 0);
-        return VALID;
-      case 1:
-        if(neg === 3 || pos === 3) {
-          if(tl === 0.0) return createLine(x1, y1, x1, y1);
-          if(tr === 0.0) return createLine(x2, y1, x2, y1);
-          if(bl === 0.0) return createLine(x1, y2, x2, y2);
-          if(br === 0.0) return createLine(x2, y2, x2, y2);
-        }
-        if(tl === 0.0) {
-          if(oppSign(bl, br)) return createLine(x1, y1, interpolate(x1, x2, bl, br), y2);
-          if(oppSign(tr, br)) return createLine(x1, y1, x2, interpolate(y1, y1, tr, br));
-          return EMPTY;
-        }
-        if(tr === 0.0) {
-          if(oppSign(bl, br)) return createLine(interpolate(x1, x2, bl, br), y2, x2, y1);
-          if(oppSign(bl, tl)) return createLine(x1, interpolate(y1, y2, tl, bl), x2, y1);
-          return EMPTY;
-        }
-        if(br === 0.0) {
-          if(oppSign(tl, tr)) return createLine(interpolate(x1, x2, tl, tr), y1, x2, y2);
-          if(oppSign(tl, bl)) return createLine(x1, interpolate(y1, y2, tl, bl), x2, y2);
-          return EMPTY;
-        }
-        if(bl === 0.0) {
-          if(oppSign(tl, tr)) return createLine(x1, y2, interpolate(x1, x2, tl, tr), y1);
-          if(oppSign(tr, br)) return createLine(x1, y2, x2, interpolate(y1, y2, tr, br));
-          return EMPTY;
-        }
-        return EMPTY;
-      case 2:
-        if(pos === 2 || neg === 2) {
-          if(tl === 0.0) {
-            if(tr === 0.0) return createLine(x1, y1, x2, y1);
-            if(bl === 0.0) return createLine(x1, y1, x1, y2);
-          } else if(br === 0.0) {
-            if(tr === 0.0) return createLine(x2, y1, x2, y2);
-            if(bl === 0.0) return createLine(x1, y2, x2, y2);
-          }
-        } else {
-          if(tr === 0.0 && bl === 0.0) return createLine(x1, y2, x2, y1);
-          if(tl === 0.0 && br === 0.0) return createLine(x1, y1, x2, y2);
-        }
-        return EMPTY;
-    }
-  };
+	me.create = function(r) {
+		if(r.status.empty) return EMPTY;
+		var zer = r.status.zero;
+		var neg = r.status.neg;
+		var pos = r.status.pos;
+		if(((zer + 1) | neg | pos) >= 4) { return EMPTY; }
+		var x1 = r.x1(), x2 = r.x2(), y1 = r.y1(), y2 = r.y2();
+		var tl = r.eval[0], tr = r.eval[1], br = r.eval[2], bl = r.eval[3];
+		switch(zer) {
+			case 0:
+				var k = 0;
+				if(neg === pos && !oppSign(tl, br)) return T0101;
+				if(oppSign(tl, tr)) me.pts[k++] = new Point(interpolate(x1, x2, tl, tr), y1, k !== 0);
+				if(oppSign(tr, br)) me.pts[k++] = new Point(x2, interpolate(y1, y2, tr, br), k !== 0);
+				if(oppSign(br, bl)) me.pts[k++] = new Point(interpolate(x1, x2, bl, br), y2, k !== 0);
+				if(oppSign(bl, tl)) me.pts[k++] = new Point(x1, interpolate(y1, y2, tl, bl), k !== 0);
+				return VALID;
+			case 1:
+				if(neg === 3 || pos === 3) {
+					if(tl === 0.0) return createLine(x1, y1, x1, y1);
+					if(tr === 0.0) return createLine(x2, y1, x2, y1);
+					if(bl === 0.0) return createLine(x1, y2, x2, y2);
+					if(br === 0.0) return createLine(x2, y2, x2, y2);
+				}
+				if(tl === 0.0) {
+					if(oppSign(bl, br)) return createLine(x1, y1, interpolate(x1, x2, bl, br), y2);
+					if(oppSign(tr, br)) return createLine(x1, y1, x2, interpolate(y1, y1, tr, br));
+					return EMPTY;
+				}
+				if(tr === 0.0) {
+					if(oppSign(bl, br)) return createLine(interpolate(x1, x2, bl, br), y2, x2, y1);
+					if(oppSign(bl, tl)) return createLine(x1, interpolate(y1, y2, tl, bl), x2, y1);
+					return EMPTY;
+				}
+				if(br === 0.0) {
+					if(oppSign(tl, tr)) return createLine(interpolate(x1, x2, tl, tr), y1, x2, y2);
+					if(oppSign(tl, bl)) return createLine(x1, interpolate(y1, y2, tl, bl), x2, y2);
+					return EMPTY;
+				}
+				if(bl === 0.0) {
+					if(oppSign(tl, tr)) return createLine(x1, y2, interpolate(x1, x2, tl, tr), y1);
+					if(oppSign(tr, br)) return createLine(x1, y2, x2, interpolate(y1, y2, tr, br));
+					return EMPTY;
+				}
+				return EMPTY;
+			case 2:
+				if(pos === 2 || neg === 2) {
+					if(tl === 0.0) {
+						if(tr === 0.0) return createLine(x1, y1, x2, y1);
+						if(bl === 0.0) return createLine(x1, y1, x1, y2);
+					} else if(br === 0.0) {
+						if(tr === 0.0) return createLine(x2, y1, x2, y2);
+						if(bl === 0.0) return createLine(x1, y2, x2, y2);
+					}
+				} else {
+					if(tr === 0.0 && bl === 0.0) return createLine(x1, y2, x2, y1);
+					if(tl === 0.0 && br === 0.0) return createLine(x1, y1, x2, y2);
+				}
+				return EMPTY;
+		}
+	};
 
-  me.append = function(r) {
-    var cfg = me.create(r);
-    if(cfg === VALID) {
-      if(me.pts[0].x > me.pts[1].x) {
-        var temp = me.pts[0]; me.pts[0] = me.pts[1]; me.pts[1] = temp;
-      }
-      var inx1 = -1, inx2 = -1;
+	me.append = function(r) {
+		var cfg = me.create(r);
+		if(cfg === VALID) {
+			if(me.pts[0].x > me.pts[1].x) {
+				var temp = me.pts[0]; me.pts[0] = me.pts[1]; me.pts[1] = temp;
+			}
+			var inx1 = -1, inx2 = -1;
 
-      for(var i = 0; i < me.openList.length; i++) {
-        if(me.pts[1].equals(me.openList[i].start)) {
-          inx1 = i;
-          break;
-        }
-      }
+			for(var i = 0; i < me.openList.length; i++) {
+				if(me.pts[1].equals(me.openList[i].start)) {
+					inx1 = i;
+					break;
+				}
+			}
 
-      for(var i = 0; i < me.openList.length; i++) {
-        if(me.pts[0].equals(me.openList[i].end)) {
-          inx2 = i;
-          break;
-        }
-      }
+			for(var i = 0; i < me.openList.length; i++) {
+				if(me.pts[0].equals(me.openList[i].end)) {
+					inx2 = i;
+					break;
+				}
+			}
 
-      if(inx1 !== -1 && inx2 !== -1) {
-        me.openList[inx2].merge(me.openList[inx1]);
-        me.openList.splice(inx1, 1);
-      } else if(inx1 !== -1) {
-        me.openList[inx1].unshift(me.pts[0]);
-      } else if(inx2 !== -1) {
-        me.openList[inx2].push(me.pts[1]);
-      } else {
-        me.openList.push(new PointList(me.pts[0], me.pts[1]));
-      }
-      if(me.openList.length > LIST_THRESHOLD) {
-        me.abortList();
-      }
-    }
-    return cfg;
-  };
+			if(inx1 !== -1 && inx2 !== -1) {
+				me.openList[inx2].merge(me.openList[inx1]);
+				me.openList.splice(inx1, 1);
+			} else if(inx1 !== -1) {
+				me.openList[inx1].unshift(me.pts[0]);
+			} else if(inx2 !== -1) {
+				me.openList[inx2].push(me.pts[1]);
+			} else {
+				me.openList.push(new PointList(me.pts[0], me.pts[1]));
+			}
+			if(me.openList.length > LIST_THRESHOLD) {
+				me.abortList();
+			}
+		}
+		return cfg;
+	};
 
-  me.update = function(x1, y1, x2, y2, px, py, fast) {
-    x1 -= 0.25 * Math.PI / px;
-    if(fast) {
-      me.sw = 8;
-      me.sh = 8;
-    } else {
-      me.sw = Math.min(MAX_SPLIT, Math.floor(px / RES_COARSE));
-      me.sh = Math.min(MAX_SPLIT, Math.floor(py / RES_COARSE));
-    }
-    if (me.sw == 0 || me.sh == 0) { return; }
-    if (me.grid === null || me.grid.length !== me.sh || me.grid[0].length !== me.sw) {
-      me.grid = [];
-      for (var i = 0; i < me.sh; i++) {
-        var col = [];
-        for (var j = 0; j < me.sw; j++) {
-          col.push(new Rectangle(me.func));
-        }
-        me.grid.push(col);
-      }
-    }
+	me.update = function(x1, y1, x2, y2, px, py, fast) {
+		x1 -= 0.25 * Math.PI / px;
+		if(fast) {
+			me.sw = 8;
+			me.sh = 8;
+		} else {
+			me.sw = Math.min(MAX_SPLIT, Math.floor(px / RES_COARSE));
+			me.sh = Math.min(MAX_SPLIT, Math.floor(py / RES_COARSE));
+		}
+		if (me.sw == 0 || me.sh == 0) { return; }
+		if (me.grid === null || me.grid.length !== me.sh || me.grid[0].length !== me.sw) {
+			me.grid = [];
+			for (var i = 0; i < me.sh; i++) {
+				var col = [];
+				for (var j = 0; j < me.sw; j++) {
+					col.push(new Rectangle(me.func));
+				}
+				me.grid.push(col);
+			}
+		}
 
-    if(me.temp === null) {
-      me.temp = new Rectangle(me.func);
-    }
+		if(me.temp === null) {
+			me.temp = new Rectangle(me.func);
+		}
 
-    var w = x2 - x1, h = y2 - y1, cur, prev;
-    var frx = w / me.sw, fry = h / me.sh;
+		var w = x2 - x1, h = y2 - y1, cur, prev;
+		var frx = w / me.sw, fry = h / me.sh;
 
-    var vertices = [], xcoords = [], ycoords = [];
+		var vertices = [], xcoords = [], ycoords = [];
 
-    for (var i = 0; i <= me.sw; i++) {
-      xcoords.push(x1 + i * frx);
-    }
+		for (var i = 0; i <= me.sw; i++) {
+			xcoords.push(x1 + i * frx);
+		}
 
-    for (var i = 0; i <= me.sh; i++) {
-      ycoords.push(y1 + i * fry)
-    }
+		for (var i = 0; i <= me.sh; i++) {
+			ycoords.push(y1 + i * fry)
+		}
 
-    for (var i = 0; i <= me.sw; i++) {
-      vertices.push(me.func(xcoords[i], ycoords[0]));
-    }
-    var i, j, dx, dy, fx, fy;
+		for (var i = 0; i <= me.sw; i++) {
+			vertices.push(me.func(xcoords[i], ycoords[0]));
+		}
+		var i, j, dx, dy, fx, fy;
 
-    for (i = 1; i <= me.sh; i++) {
-      prev = me.func(xcoords[0], ycoords[i]);
-      fy = ycoords[i] - 0.5 * fry;
-      for (j = 1; j <= me.sw; j++) {
-        cur = me.func(xcoords[j], ycoords[i]);
-        var rect = me.grid[i - 1][j - 1];
-        rect.set(j - 1, i - 1, frx, fry, false);
-        rect.rect[0] = xcoords[j - 1];
-        rect.rect[1] = ycoords[i - 1];
-        rect.eval[0] = vertices[j - 1];
-        rect.eval[1] = vertices[j];
-        rect.eval[2] = cur;
-        rect.eval[3] = prev;
-        rect.status = buildStatus(rect);
-        vertices[j - 1] = prev;
-        prev = cur;
-      }
-      vertices[me.sw] = prev;
-    }
+		for (i = 1; i <= me.sh; i++) {
+			prev = me.func(xcoords[0], ycoords[i]);
+			fy = ycoords[i] - 0.5 * fry;
+			for (j = 1; j <= me.sw; j++) {
+				cur = me.func(xcoords[j], ycoords[i]);
+				var rect = me.grid[i - 1][j - 1];
+				rect.set(j - 1, i - 1, frx, fry, false);
+				rect.rect[0] = xcoords[j - 1];
+				rect.rect[1] = ycoords[i - 1];
+				rect.eval[0] = vertices[j - 1];
+				rect.eval[1] = vertices[j];
+				rect.eval[2] = cur;
+				rect.eval[3] = prev;
+				rect.status = buildStatus(rect);
+				vertices[j - 1] = prev;
+				prev = cur;
+			}
+			vertices[me.sw] = prev;
+		}
 
-    me.plotDepth = 2;
-    me.segmentCheckDepth = 1;
-    LIST_THRESHOLD = 48;
+		me.plotDepth = 2;
+		me.segmentCheckDepth = 1;
+		LIST_THRESHOLD = 48;
 
-    for (i = 0; i < me.sh; i++) {
-      for (j = 0; j < me.sw; j++) {
-        if (!me.grid[i][j].singular && me.grid[i][j].status != EMPTY) {
-          me.temp.copy(me.grid[i][j]);
-          me.plot(me.temp, 0);
-          me.grid[i][j].status = FINISHED;
-        }
-      }
-    }
+		for (i = 0; i < me.sh; i++) {
+			for (j = 0; j < me.sw; j++) {
+				if (!me.grid[i][j].singular && me.grid[i][j].status != EMPTY) {
+					me.temp.copy(me.grid[i][j]);
+					me.plot(me.temp, 0);
+					me.grid[i][j].status = FINISHED;
+				}
+			}
+		}
 
-    for (var k = 0; k < 4; k++) {
-      for (i = 0; i < me.sh; i++) {
-        for (j = 0; j < me.sw; j++) {
-          if (me.grid[i][j].singular
-              && me.grid[i][j].status != FINISHED) {
-            me.temp.copy(grid[i][j]);
-            me.plot(temp, 0);
-            me.grid[i][j].status = FINISHED;
-          }
-        }
-      }
-    }
-    me.abortList();
-    me.finish(me.segments);
-  };
+		for (var k = 0; k < 4; k++) {
+			for (i = 0; i < me.sh; i++) {
+				for (j = 0; j < me.sw; j++) {
+					if (me.grid[i][j].singular
+							&& me.grid[i][j].status != FINISHED) {
+						me.temp.copy(grid[i][j]);
+						me.plot(temp, 0);
+						me.grid[i][j].status = FINISHED;
+					}
+				}
+			}
+		}
+		me.abortList();
+		me.finish(me.segments);
+	};
 
-  me.makeTree = function(r, d) {
-    var children = r.split();
-    me.plot(children[0], d);
-    me.plot(children[1], d);
-    me.plot(children[2], d);
-    me.plot(children[3], d);
-  };
+	me.makeTree = function(r, d) {
+		var children = r.split();
+		me.plot(children[0], d);
+		me.plot(children[1], d);
+		me.plot(children[2], d);
+		me.plot(children[3], d);
+	};
 
-  me.plot = function(r, d) {
-    if(d < me.segmentCheckDepth) {
-      me.makeTree(r, d + 1);
-      return;
-    }
-    buildStatus(r);
-    if(!r.status.empty) {
-      if(d >= me.plotDepth) {
-        if(me.append(r, d === MAX_DEPTH) === T0101 && d < MAX_DEPTH) {
-          me.makeTree(r, d + 1);
-        }
-      } else {
-        me.makeTree(r, d + 1);
-      }
-    }
-  };
+	me.plot = function(r, d) {
+		if(d < me.segmentCheckDepth) {
+			me.makeTree(r, d + 1);
+			return;
+		}
+		buildStatus(r);
+		if(!r.status.empty) {
+			if(d >= me.plotDepth) {
+				if(me.append(r, d === MAX_DEPTH) === T0101 && d < MAX_DEPTH) {
+					me.makeTree(r, d + 1);
+				}
+			} else {
+				me.makeTree(r, d + 1);
+			}
+		}
+	};
  };
  
 // plotter code using jsxgraph
@@ -2858,19 +2939,19 @@ me.x1 = -10; me.x2 = 10;
 me.y1 = -10; me.y2 = 10;
 me.color = "green";
 me.px = 300; me.py = 300;
-  me.tx = 0; me.ty = 0;
-  me.working = false;
+	me.tx = 0; me.ty = 0;
+	me.working = false;
 
-  me.finish = function(segments)
-  {
-    board.create('transform', [-me.x1 * me.tx, me.y2 * me.ty], {type: 'translate'});
-    board.create('transform', [me.tx, -me.ty], {type: 'scale'});
+	me.finish = function(segments)
+	{
+		board.create('transform', [-me.x1 * me.tx, me.y2 * me.ty], {type: 'translate'});
+		board.create('transform', [me.tx, -me.ty], {type: 'scale'});
 
 	var xs = [];
 	var ys = [];
 
-    for (var i = 0; i < segments.length; i++)
-    {
+		for (var i = 0; i < segments.length; i++)
+		{
 		var s = segments[i];
 		if (!s.lineTo && xs.length)
 		{
@@ -2881,24 +2962,24 @@ me.px = 300; me.py = 300;
 
 		xs.push(segments[i].x);
 		ys.push(segments[i].y);
-    }
+		}
 	if (xs.length)
 	{
 		board.create('curve', [xs, ys], {strokeWidth:2});
 	}
-  }
+	}
 
-  me.update = function(fast = false)
-  {
-    me.px = board.canvasWidth;//canvas.scrollWidth;
-    me.py = board.canvasHeight;//canvas.scrollHeight;
-    me.tx = me.px / (me.x2 - me.x1);
-    me.ty = me.py / (me.y2 - me.y1);
-    me.plot = new Implicit(me.func, me.finish);
-    me.plot.update(me.x1, me.y1, me.x2, me.y2, me.px, me.py, fast);
-  }
+	me.update = function(fast = false)
+	{
+		me.px = board.canvasWidth;//canvas.scrollWidth;
+		me.py = board.canvasHeight;//canvas.scrollHeight;
+		me.tx = me.px / (me.x2 - me.x1);
+		me.ty = me.py / (me.y2 - me.y1);
+		me.plot = new Implicit(me.func, me.finish);
+		me.plot.update(me.x1, me.y1, me.x2, me.y2, me.px, me.py, fast);
+	}
 
-  return me;
+	return me;
 };
 
 //var cv = new CanvasPlotter(board, function(x, y) {return -1;});
@@ -2939,18 +3020,18 @@ function plot(curve, relation, start_x, end_x, args) {
 	
 	relation = relation.toLowerCase();
 	
-	if(isImplicitEquation(relation)) {
+	if (isImplicitEquation(relation)) {
 		relation = convertImplicitEquation(relation);	
 	}
 
-	if(relation == '' && args.interval != '') {
+	if (relation == '' && args.interval != '') {
 	
 		// This is just a point, just determine if it's open or closed and plot
 	
 		var interval = args.interval.trim();
 		var closed = false;
 			
-		if(interval.startsWith('[') || interval.endsWith(']')) {
+		if (interval.startsWith('[') || interval.endsWith(']')) {
 			closed = true;	
 		}
 		
@@ -2982,7 +3063,7 @@ function plot(curve, relation, start_x, end_x, args) {
 		lowerendpoint.moveTo([x, y]);
 		
 		lowerendpoint.setAttribute({ strokeColor: color, visible: true });
-		if(closed) {
+		if (closed) {
 			lowerendpoint.setAttribute({ fillColor: color });
 		} else {
 			lowerendpoint.setAttribute({ fillColor: 'white' });		
@@ -3120,20 +3201,23 @@ function displayNumber(val) {
 	if(Math.abs(val) < 0.00001) {
 		return val.toExponential(3);
 	} else {
-		s = val.toFixed(4);
-		if(s.includes('.')) {
-			while(s.slice(-1) == '0') {
-				s = s.substring(0, s.length - 1);
+		if(typeof(val) !== 'undefined') {
+			s = val.toFixed(4);
+			if(s.includes('.')) {
+				while(s.slice(-1) == '0') {
+					s = s.substring(0, s.length - 1);
+				}
+				if(s.slice(-1) == '.') {
+					s = s.substring(0, s.length - 1);
+				}
 			}
-			if(s.slice(-1) == '.') {
-				s = s.substring(0, s.length - 1);
+			if(s.includes('e')) {
+				s = s.substring(0, 4) + s.substring(s.indexOf('e'),s.length);
 			}
+			return s;
 		}
-		if(s.includes('e')) {
-			s = s.substring(0, 4) + s.substring(s.indexOf('e'),s.length);
-		}
-		return s;
 	}
+	return '';
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -3281,24 +3365,24 @@ function JSXVectorField(board, mtext, ntext, args) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-     // function Point(arg) {
-        // var loc = arg.loc ? arg.loc : [0, 0];
-        // var visible = arg.visible ? arg.visible : false;
-        // var snapToGrid = arg.snapToGrid ? arg.snapToGrid : false;
-        // var snapSize = arg.snapSize ? arg.snapSize : 1;
-        // var name = arg.name ? arg.name : 'p';
-        // var showInfoBox =  arg.showInfoBox ? arg.showInfoBox : false;
+		 // function Point(arg) {
+				// var loc = arg.loc ? arg.loc : [0, 0];
+				// var visible = arg.visible ? arg.visible : false;
+				// var snapToGrid = arg.snapToGrid ? arg.snapToGrid : false;
+				// var snapSize = arg.snapSize ? arg.snapSize : 1;
+				// var name = arg.name ? arg.name : 'p';
+				// var showInfoBox =  arg.showInfoBox ? arg.showInfoBox : false;
 
-        // var p = board.create('point', loc, {
-            // visible: visible,
-            // snapToGrid: snapToGrid,
-            // snapSizeX: snapSize,
-            // snapSizeY: snapSize,
-            // name: name,
-            // showInfoBox: false
-        // });
+				// var p = board.create('point', loc, {
+						// visible: visible,
+						// snapToGrid: snapToGrid,
+						// snapSizeX: snapSize,
+						// snapSizeY: snapSize,
+						// name: name,
+						// showInfoBox: false
+				// });
 
-        // return p;
+				// return p;
 
-    // } 
+		// } 
 
