@@ -588,11 +588,11 @@ function gamma(x) {
 ///////////////////////////////////////////////////////////////////////////////////
 
 function sgnGamma(x) {
-		if(x > 0.0) {
-				return 1;
-		} else if(odd(Math.trunc(Math.abs(x)))) {
-				return 1;
-		} else return -1;
+	if(x > 0.0) {
+		return 1;
+	} else if(odd(Math.trunc(Math.abs(x)))) {
+		return 1;
+	} else return -1;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -616,13 +616,13 @@ function sgnGamma(x) {
 	
 function PolEvl(x, coef, n) {
 
-		var ans;
+	var ans;
 		
-		ans = coef[0];
-		for(var i = 1; i <= n; i++) {
-				ans = ans * x + coef[i];
-		}
-		return ans;
+	ans = coef[0];
+	for(var i = 1; i <= n; i++) {
+		ans = ans * x + coef[i];
+	}
+	return ans;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
