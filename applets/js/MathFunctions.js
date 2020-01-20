@@ -175,33 +175,32 @@ function normalpdf(x, mean, stdev) {
 }
 
 /*
-		Calculates probabilites based on a normal distribution. Approximations
-		found using Taylor Polynomials.
-		
+	Calculates probabilites based on a normal distribution. Approximations
+	found using Taylor Polynomials.	
 */
 
 function normalcdf(z) {
 		
-		var coeff;
-		var n = 0;
-		var sum = 0;
-		var a = 0;
-		var b = 0.1;
-		var precision = 1E-16;
+	var coeff;
+	var n = 0;
+	var sum = 0;
+	var a = 0;
+	var b = 0.1;
+	var precision = 1E-16;
 		
-		if (z > 3.9) {
-				return 1.0;
-		} else if (z < -3.9) {
-				return 0.0;
-		} else while (Math.abs(b - a) > precision) {
-						a = b;
-						coeff = Math.pow(-1, n) / (factorial(n) * Math.pow(2, n) * (2 * n + 1));
-						b = coeff * Math.pow(z, 2 * n + 1);
-						sum += b;
-						n++;
-				}
+	if (z > 3.9) {
+		return 1.0;
+	} else if (z < -3.9) {
+		return 0.0;
+	} else while (Math.abs(b - a) > precision) {
+		a = b;
+		coeff = Math.pow(-1, n) / (factorial(n) * Math.pow(2, n) * (2 * n + 1));
+		b = coeff * Math.pow(z, 2 * n + 1);
+		sum += b;
+		n++;
+	}
 		
-		return 0.5 + (1 / Math.sqrt(2 * Math.PI)) * sum;
+	return 0.5 + (1 / Math.sqrt(2 * Math.PI)) * sum;
 		
 }
 
@@ -228,17 +227,20 @@ function invnorm(p)
 	// An algorithm with a relative error less than 1.15�10-9 in the entire region.
 
 	// Coefficients in rational approximations
-	var a = new Array(-3.969683028665376e+01,  2.209460984245205e+02,
-										-2.759285104469687e+02,  1.383577518672690e+02,
-										-3.066479806614716e+01,  2.506628277459239e+00);
-	var b = new Array(-5.447609879822406e+01,  1.615858368580409e+02,
-										-1.556989798598866e+02,  6.680131188771972e+01,
-										-1.328068155288572e+01 );
-	var c = new Array(-7.784894002430293e-03, -3.223964580411365e-01,
-										-2.400758277161838e+00, -2.549732539343734e+00,
-										 4.374664141464968e+00,  2.938163982698783e+00);
+	var a = new Array (-3.969683028665376e+01,  2.209460984245205e+02,
+					   -2.759285104469687e+02,  1.383577518672690e+02,
+					   -3.066479806614716e+01,  2.506628277459239e+00);
+					
+	var b = new Array (-5.447609879822406e+01,  1.615858368580409e+02,
+					   -1.556989798598866e+02,  6.680131188771972e+01,
+					   -1.328068155288572e+01 );
+
+	var c = new Array (-7.784894002430293e-03, -3.223964580411365e-01,
+					   -2.400758277161838e+00, -2.549732539343734e+00,
+					    4.374664141464968e+00,  2.938163982698783e+00);
+					
 	var d = new Array (7.784695709041462e-03,  3.224671290700398e-01,
-										 2.445134137142996e+00,  3.754408661907416e+00);
+					   2.445134137142996e+00,  3.754408661907416e+00);
 
 	// Define break-points.
 	var plow  = 0.02425;
@@ -246,23 +248,20 @@ function invnorm(p)
 
 	// Rational approximation for lower region:
 	if ( p < plow ) {
-					 var q  = Math.sqrt(-2*Math.log(p));
-					 return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) /
-																					 ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+		var q  = Math.sqrt(-2 * Math.log(p));
+		return (((((c[0]*q + c[1])*q + c[2])*q + c[3])*q + c[4])*q + c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
 	}
 
 	// Rational approximation for upper region:
 	if ( phigh < p ) {
-					 var q  = Math.sqrt(-2*Math.log(1-p));
-					 return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) /
-																									((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+		var q  = Math.sqrt(-2*Math.log(1-p));
+		return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
 	}
 
 	// Rational approximation for central region:
 	var q = p - 0.5;
-	var r = q*q;
-	return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q /
-													 (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+	var r = q * q;
+	return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q / (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -280,17 +279,17 @@ function invnorm(p)
 ///////////////////////////////////////////////////////////////////////////////
 		
 function tpdf(t, df) {
-		var p, q;
+	var p, q;
 
-		if(df < 1) {
-			return NaN;
-		} else {
-				p = 0.5 * (df + 1);
-				q = 0.5 * df;
-				var s1 = gamma(p) / (Math.sqrt(df * PI) * gamma(q));
-				var s2 = Math.pow(1 + sqr(t) / df, -p);
-				return s1 * s2;
-		}
+	if (df < 1) {
+		return NaN;
+	} else {
+		p = 0.5 * (df + 1);
+		q = 0.5 * df;
+		var s1 = gamma(p) / (Math.sqrt(df * PI) * gamma(q));
+		var s2 = Math.pow(1 + sqr(t) / df, -p);
+		return s1 * s2;
+	}
 }
 
  //////////////////////////////////////////////////////////////////////////////
@@ -309,14 +308,14 @@ function tpdf(t, df) {
  
 function tcdf(t, df) {
 	if(df < 1) {
-				return NaN;
+		return NaN;
+	} else {
+		if(t >= 0.0) {
+			return 1.0 - iBeta(df / 2.0, 0.5, df / (df + sqr(t))) / 2;
 		} else {
-				if(t >= 0.0) {
-						return 1.0 - iBeta(df / 2.0, 0.5, df / (df + sqr(t))) / 2;
-				} else {
-						return iBeta(df / 2.0, 0.5, df / (df + sqr(t))) / 2;
-				}
+			return iBeta(df / 2.0, 0.5, df / (df + sqr(t))) / 2;
 		}
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -333,21 +332,21 @@ function tcdf(t, df) {
  
 function tinv (p, df) {
 
-		if(p == 0.0) return -Infinity;
-		if(p == 1.0) return Infinity;
-		if(p == 0.5) return 0.0;
+	if(p == 0.0) return -Infinity;
+	if(p == 1.0) return Infinity;
+	if(p == 0.5) return 0.0;
 
-		var aux = 0.0;
-		var sgn = 0;
+	var aux = 0.0;
+	var sgn = 0;
 
-		if(p < 0.5) {
-				aux = 2 * p;
-				sgn = -1;
-		} else {
-				aux = 2 * (1 - p);
-				sgn = 1;
-		}
-		return sgn * Math.sqrt(df * (1 / iiBeta(aux, df / 2.0, 0.5) - 1));
+	if(p < 0.5) {
+		aux = 2 * p;
+		sgn = -1;
+	} else {
+		aux = 2 * (1 - p);
+		sgn = 1;
+	}
+	return sgn * Math.sqrt(df * (1 / iiBeta(aux, df / 2.0, 0.5) - 1));
 
 }
 
