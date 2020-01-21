@@ -9,8 +9,8 @@ LNPI      = 1.14472988584940017414;
 LNSQRT2PI = 0.91893853320467274178;
 SQRT2PI   = 2.50662827463100050242;
 
-NEGATIVE_INFINITY = Number.MIN_VALUE;
-POSITIVE_INFINITY = Number.MAX_VALUE;
+NEGATIVE_INFINITY = Number.NEGATIVE_INFINITY;
+POSITIVE_INFINITY = Number.POSITIVE_INFINITY;
 
 MAXGAM  = 34.648;
 MAXFACT = 170;  
@@ -1690,10 +1690,10 @@ function getVariables(expression) {
 
 regex_math = '|[\\w\\+\\-\\*\\/^()]*';
 
-regex_interval = '(\\(|\\[)' +                       // ( or [
-				 '(-?\\d*\\.?\\d*|-inf(inity)?)' +   // -2, 1.8, -inf
+regex_interval = '(\\(|\\[)\\s*' +                       // ( or [
+				 '(-?\\d*\\.?\\d*|-inf(inity)?|-oo)' +   // -2, 1.8, -inf, -oo
 				 ',\\s*' +                               // ,
-				 '(-?\\d*\\.?\\d*|\\+?inf(inity)?)' + // -2, 1.8, +inf
+				 '(-?\\d*\\.?\\d*|\\+?inf(inity)?|\\+?oo)\\s*' + // -2, 1.8, +inf, +oo
 				 '(\\)|\\])';                            // ] or )
 
 // Pattern for a hole in the graph:
@@ -1764,7 +1764,7 @@ function getLowerEndpoint(interval) {
 	interval = removeSpaces(interval);
 	l = interval.split(',');
 	l[0] = l[0].substring(1, l[0].length);
-	if(l[0].includes('inf')) {
+	if(l[0].includes('inf') || l[0].includes('-oo')) {
 		return NEGATIVE_INFINITY;
 	} else {
 		return math.eval(l[0]);
@@ -1775,7 +1775,7 @@ function getUpperEndpoint(interval) {
 	interval = removeSpaces(interval);
 	l = interval.split(',');
 	l[1] = l[1].substring(0, l[1].length - 1);
-	if(l[1].includes('inf')) {
+	if(l[1].includes('inf') || l[1].includes('oo')) {
 		return POSITIVE_INFINITY;
 	} else {
 		return math.eval(l[1]);

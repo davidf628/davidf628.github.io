@@ -1,3 +1,6 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
 <!--
 
 	- Draw x and f(x) using mathematical typesetting
@@ -12,36 +15,41 @@
 	
 -->
 
-<html>
 <head>
+	
+	<title>Numerical Limits</title>
 	<meta charset="utf-8">  
-		<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
-		<script src='./js/jsxgraphcore.js' type='text/javascript'></script>
-		<script src='./js/MathFunctions.js' type='text/javascript'></script>
-		<script src='./js/math.min.js' type='text/javascript'></script>
-		<script src='./js/helpers.js' type='text/javascript'></script>
-	</meta>
+		
+	<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
+	<script src='./js/jsxgraphcore.js' type='text/javascript'></script>
+	<script src='./js/MathFunctions.js' type='text/javascript'></script>
+	<script src='./js/math.min.js' type='text/javascript'></script>
+	<script src='./js/helpers.js' type='text/javascript'></script>
+
 </head>
 
 <body>
 
 <h1>Numerical Limits</h1>
-f(x) = <input type="text" id="input_function" value="">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-x approaches:  <input type="text" id="limit_value" value="">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="button" value="Update" onClick="update()">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="button" value="Toggle Fullscreen" onClick="fullscreen()"></br></br>
-Set Left Limit: x = <input type="text" id="left_value" value="">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Set Right Limit: x = <input type="text" id="right_value" value="">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="button" value="Set Limit Values" onClick="setlimitvalues()">
-</br></br>
+	
+	f(x) = <input type="text" id="input_function" value="">
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	x approaches:  <input type="text" id="limit_value" value="">
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<input type="button" value="Update" onClick="update()">
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+	<br><br>
+	Set Left Limit: x = <input type="text" id="left_value" value="">
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	Set Right Limit: x = <input type="text" id="right_value" value="">
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<input type="button" value="Set Limit Values" onClick="setlimitvalues()">
+	<br><br>
+
 <div>
-<div id="jxgbox" class="jxgbox" style="width:720px; height:720px; float:left; resize: both"></div>
-<div id="display" class="jxgbox" style="width:320px; height:720px; float:left"></div>
+	<div id="jxgbox" class="jxgbox" style="width:720px; height:720px; float:left; resize: both"></div>
+	<div id="display" class="jxgbox" style="width:320px; height:720px; float:left"></div>
 </div>
 
 <script type='text/javascript'>
@@ -79,19 +87,19 @@ var displayboard = JXG.JSXGraph.initBoard('display', {
 		
 // Initialize curve so that we have something we can update
 curves = [];
-for(var i = 0; i < 10; i++) {
+for (var i = 0; i < 10; i++) {
 	curves[i] = board.create('curve', [0, 0], 0, 0, { visible: false });
 }
 
 // Initialize endpoints so we have values we can update
 endpoints = [];
-for(var i = 0; i < 30; i++) {
+for (var i = 0; i < 30; i++) {
 	endpoints[i] = board.create('point', [0, 0], { size: 3, withLabel: false, visible: false, fixed: true });
 }
 
 // Initialize holes so we have points to use
 holes = [];
-for(var i = 0; i < 10; i++) {
+for (var i = 0; i < 10; i++) {
 	holes[i] = board.create('point', [0, 0], { size: 3, withLabel: false, visible: false, fixed: true });
 }
 
@@ -148,41 +156,22 @@ texts[RIGHT][Y][1] = displayboard.create('text', [6, 4.25, ''], textoptions);
 texts[RIGHT][Y][2] = displayboard.create('text', [6, 3.75, ''], textoptions);
 texts[RIGHT][Y][3] = displayboard.create('text', [6, 3.25, ''], textoptions);
 
-slider_horiz_zoom = displayboard.create('slider', [[1, 2.5], [7, 2.5], [-10, 1, 10]]);
+changeScale = function(e) {
+	bounds = JSXGetBounds(board);
+	var midx = (bounds.xmax + bounds.xmin) / 2;
+	var midy = (bounds.ymax + bounds.ymin) / 2;
+	xExp = 100 * Math.pow(slider_horiz_zoom.Value(), -1.5);
+	yExp = 100 * Math.pow(slider_vert_zoom.Value(), -1.5);
+	board.setBoundingBox([ midx - xExp, midy + yExp, midx + xExp, midy - yExp], false);
+}	
+	
+slider_horiz_zoom = displayboard.create('slider', [[1, 2.5], [7, 2.5], [0.1, 9, 100]]);
 horiz_zoom_label = displayboard.create('text', [9, 2.5, 'x zoom'], { fixed: true });
-horiz_zoom_level = 1;
-slider_horiz_zoom.on('drag', 
-	function() {
-		var orgbounds = board.getBoundingBox();
-		var newfactor = slider_horiz_zoom.Value();
-		if(horiz_zoom_level > newfactor) {
-			orgbounds[0] = orgbounds[0] * 1.1;
-			orgbounds[2] = orgbounds[2] * 1.1;
-		} else {
-			orgbounds[0] = orgbounds[0] / 1.1;
-			orgbounds[2] = orgbounds[2] / 1.1;
-		}
-		board.setBoundingBox(orgbounds, false);
-		horiz_zoom_level = newfactor;
-	});
+slider_horiz_zoom.on('drag', changeScale);
 
-slider_vert_zoom = displayboard.create('slider', [[1, 2], [7, 2], [-10, 1, 10]]);
+slider_vert_zoom = displayboard.create('slider', [[1, 2], [7, 2], [0.1, 9, 100]]);
 vert_zoom_label = displayboard.create('text', [9, 2, 'y zoom'], { fixed: true });
-vert_zoom_level = 1;
-slider_vert_zoom.on('drag', 
-	function() {
-		var orgbounds = board.getBoundingBox();
-		var newfactor = slider_vert_zoom.Value();
-		if(vert_zoom_level > newfactor) {
-			orgbounds[1] = orgbounds[1] * 1.1;
-			orgbounds[3] = orgbounds[3] * 1.1;
-		} else {
-			orgbounds[1] = orgbounds[1] / 1.1;
-			orgbounds[3] = orgbounds[3] / 1.1;
-		}
-		board.setBoundingBox(orgbounds, false);
-		vert_zoom_level = newfactor;
-	});	
+slider_vert_zoom.on('drag', changeScale);
 
 function setLLimitVisible(value) {
 	lpoint_xaxis.setAttribute( { visible: value } );
@@ -221,9 +210,6 @@ lpoint_f = board.create('point', [
 		if(f == '') { 
 			return 0;
 		} else {
-			
-
-			
 			return evaluate(f, lpoint_xaxis.X()); 
 		}
 	}], { name: '(x, f(x))', withLabel: false, showInfobox: false });
@@ -394,10 +380,10 @@ function update() {
 function setlimitvalues() {
 	var lx = document.getElementById('left_value').value;
 	var rx = document.getElementById('right_value').value;
-	if(lx != '') {
+	if (lx != '') {
 		lpoint_xaxis.moveTo([lx, 0]);
 	}
-	if(rx != '') {
+	if (rx != '') {
 		rpoint_xaxis.moveTo([rx, 0]);
 	}
 }
