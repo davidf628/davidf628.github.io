@@ -46,23 +46,119 @@ var window_param = {
 
 var parameters = {
 
-	togglep: function() { p.toggleVisible(); }
+	togglep: function() { p.toggleVisible(); p1.toggleVisible(); },
+	togglez: function() { z1.toggleVisible(); },
+	togglelimit: function() { z.toggleVisible(); },
+	togglep2: function() { p2.toggleVisible(); },
+	togglez2: function() { z2.toggleVisible(); },
+	togglep3: function() { p3.toggleVisible(); },
+	togglez3: function() { z3.toggleVisible(); },
+	togglep4: function() { p4.toggleVisible(); },
+	togglez4: function() { z4.toggleVisible(); },
+	togglep5: function() { p5.toggleVisible(); },
+	togglez5: function() { z5.toggleVisible(); },
+	togglep6: function() { p6.toggleVisible(); },
+	togglez6: function() { z6.toggleVisible(); },
+	togglep7: function() { p7.toggleVisible(); },
+	togglez7: function() { z7.toggleVisible(); }
 	
 };
 
+var f, surface, p, z, p1, z1, p2, z2, p3, z3, p4, z4, p5, z5, p6, z6, p7, z7;
+
 // GUI
 gui = new dat.GUI();	
-gui.add(parameters, 'togglep').name('Toggle Limit');
+gui.add(parameters, 'togglep').name('Show xy Limit');
+gui.add(parameters, 'togglez').name('Show projection');
+gui.add(parameters, 'togglelimit').name('Show z Limit');
+gui.add(parameters, 'togglep2').name('Show y=0 ');
+gui.add(parameters, 'togglez2').name('Show y=0 proj');
+gui.add(parameters, 'togglep3').name('Show x=0');
+gui.add(parameters, 'togglez3').name('Show x=0 proj');
+gui.add(parameters, 'togglep4').name('Show y=x');
+gui.add(parameters, 'togglez4').name('Show y=x proj');
+gui.add(parameters, 'togglep5').name('Show y=x^2');
+gui.add(parameters, 'togglez5').name('Show y=x^2 proj');
+gui.add(parameters, 'togglep6').name('Show y=abs(x)');
+gui.add(parameters, 'togglez6').name('Show y=abs(x) proj');
+gui.add(parameters, 'togglep7').name('Show y=sin(x)');
+gui.add(parameters, 'togglez7').name('Show y=sin(x) proj');
+
 
 init();
 animate();
 					
 function createScene() {
 
-	addToScene(scene, new Surface('(3*x^2-y^2+5)/(x^2+y^2+2)', { color: 'red', wireframe: true, dx: 0.5 }));
-	p = new Point([0, 0, 2.5], { color: 'blue', radius: 0.35, visible: false });
+	f = '(3*x^2-y^2+5)/(x^2+y^2+2)';
+	var visible = false;
+
+	// var surface = addToScene(scene, new Surface('(3*x^2-y^2+5)/(x^2+y^2+2)', { color: 'red', wireframe: true, dx: 0.5 }));
 	
+	surface = new Surface(f, { color: 'green', wireframe: true, dx: 0.5 });
+	addToScene(scene, surface);
+	
+	p = new Point([0, 0, 0], { color: 'black', radius: 0.15, visible: visible });
 	addToScene(scene, p);
+	
+	z = new Point([0, 0, 2.5], { color: 'blue', radius: 0.25, visible: visible });
+	addToScene(scene, z);
+	
+	// Circle
+	
+	p1 = new ParametricGraph('sin(t)', 'cos(t)', '0', 0, 6.28, { visible: visible });
+	addToScene(scene, p1);
+	
+	z1 = new ParametricProjection('sin(t)', 'cos(t)', f, 0, 6.28, { visible: visible });
+	addToScene(scene, z1);
+	
+	// x-axis
+	
+	p2 = new ParametricGraph('t', '0', '0', -10, 10, { visible: visible });
+	addToScene(scene, p2);
+	
+	z2 = new ParametricProjection('t', '0', f, -10, 10, { visible: visible });
+	addToScene(scene, z2);
+	
+	// y-axis
+	
+	p3 = new ParametricGraph('0', 't', '0', -10, 10, { visible: visible });
+	addToScene(scene, p3);
+	
+	z3 = new ParametricProjection('0', 't', f, -10, 10, { visible: visible });
+	addToScene(scene, z3);
+	
+	// y = x
+	
+	p4 = new ParametricGraph('t', 't', '0', -10, 10, { visible: visible });
+	addToScene(scene, p4);
+	
+	z4 = new ParametricProjection('t', 't', f, -10, 10, { visible: visible });
+	addToScene(scene, z4);
+	
+	// y = x^2
+	
+	p5 = new ParametricGraph('t', 't^2', '0', -10, 10, { visible: visible });
+	addToScene(scene, p5);
+		
+	z5 = new ParametricProjection('t', 't^2', f, -5, 5, { visible: visible });
+	addToScene(scene, z5);
+	
+	// y = abs(x)
+	
+	p6 = new ParametricGraph('t', 'abs(t)', '0', -10, 10, { visible: visible });
+	addToScene(scene, p6);
+	
+	z6 = new ParametricProjection('t', 'abs(t)', f , -10, 10, { visible: visible });
+	addToScene(scene, z6); 
+	
+	// y = sin(x)
+	
+	p7 = new ParametricGraph('t', 'sin(t)', '0', -10, 10, { visible: visible });
+	addToScene(scene, p7);
+		
+	z7 = new ParametricProjection('t', 'sin(t)', f, -10, 10, { visible: visible });
+	addToScene(scene, z7);
 
 }
 
