@@ -1530,6 +1530,7 @@ class Wireframe {
 		this.type = args.type ? args.type : 'basic';		
 		this.dx = args.dx ? args.dx : 1;
 		this.dy = args.dy ? args.dy : this.dx;
+		this.visible = (args.visible !== undefined) ? args.visible : true;
 		
 		this.wireframe = this.createWireframe();
 

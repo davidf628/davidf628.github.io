@@ -29,7 +29,7 @@ var surface, xzplane, yzplane, xzplane, p, fx, fy, fxsurface, fysurface;
 var xztrace, yztrace;
 var zxvectors = [], zyvectors = [];
 var dirderiv, dirderivtextbox;
-var gradient = [], levelgradient = [];
+var gradient = [];
 var tangentplane;
 
 var window_param = {
@@ -39,9 +39,9 @@ var window_param = {
 	ymin : -5,
 	ymax : 5,
 	yscl : 1,
-	zmin : -1,
-	zmax : 1,
-	zscl : 1,
+	zmin : -20,
+	zmax : 20,
+	zscl : 5,
 	xygrid: true,
 	yzgrid: false,
 	xzgrid: false,
@@ -54,7 +54,7 @@ var window_param = {
 
 var parameters = {
 
-	zText: '0.5*sin(0.2*(x^2 + y^2))',
+	zText: 'x^2+y^2', //'0.5*sin(0.2*(x^2 + y^2))',
 	xzpos: 0,
 	yzpos: 0,
 	xypos: 0,
@@ -74,7 +74,7 @@ var parameters = {
 	direction: 0,
 	tangentplanevisible: false,
 	gradientvisible: false,
-	wireframevisible: true,
+	wireframevisible: false,
 	update: function() { updateGraph(); }
 	
 };
@@ -89,48 +89,49 @@ var zyFunc = Parser.parse(zy).toJSFunction(['x', 'y']);
 
 // GUI
 gui = new dat.GUI();
-gui.add(parameters, 'zText').name('z = ');	
-gui.add(parameters, 'xzvisible').name("View xz-plane").onChange( 
+function_menu = gui.addFolder('Function Menu');
+function_menu.add(parameters, 'zText').name('z = ');	
+function_menu.add(parameters, 'xzvisible').name("View xz-plane").onChange( 
 	function() {
 		xzplane.toggleVisible();
 	});
-gui.add(parameters, 'xzvisible').name("View yz-plane").onChange( 
+function_menu.add(parameters, 'xzvisible').name("View yz-plane").onChange( 
 	function() {
 		yzplane.toggleVisible();
 	});
-gui.add(parameters, 'xyvisible').name("View xy-plane").onChange( 
+function_menu.add(parameters, 'xyvisible').name("View xy-plane").onChange( 
 	function() {
 		xyplane.toggleVisible();
 	});
-gui.add(parameters, 'pvisible').name("View point-P").onChange( 
+function_menu.add(parameters, 'pvisible').name("View point-P").onChange( 
 	function() {
 		p.toggleVisible();
 	});
-gui.add(parameters, 'fxvisible').name("View dz/dx").onChange( 
+function_menu.add(parameters, 'fxvisible').name("View dz/dx").onChange( 
 	function() {
 		fx.toggleVisible();
 	});
-gui.add(parameters, 'fyvisible').name("View dz/dy").onChange( 
+function_menu.add(parameters, 'fyvisible').name("View dz/dy").onChange( 
 	function() {
 		fy.toggleVisible();
 	});
-gui.add(parameters, 'fxsurfacevisible').name("View Zx-Surface").onChange( 
+function_menu.add(parameters, 'fxsurfacevisible').name("View Zx-Surface").onChange( 
 	function() {
 		fxsurface.toggleVisible();
 	});
-gui.add(parameters, 'fysurfacevisible').name("View Zy-Surface").onChange( 
+function_menu.add(parameters, 'fysurfacevisible').name("View Zy-Surface").onChange( 
 	function() {
 		fysurface.toggleVisible();
 	});
-gui.add(parameters, 'xztracevisible').name("View xz-trace").onChange( 
+function_menu.add(parameters, 'xztracevisible').name("View xz-trace").onChange( 
 	function() {
 		xztrace.toggleVisible();
 	});
-gui.add(parameters, 'yztracevisible').name("View yz-trace").onChange( 
+function_menu.add(parameters, 'yztracevisible').name("View yz-trace").onChange( 
 	function() {
 		yztrace.toggleVisible();
 	});
-gui.add(parameters, 'zxvectorsvisible').name("View zx-vectors").onChange( 
+function_menu.add(parameters, 'zxvectorsvisible').name("View zx-vectors").onChange( 
 	function() {
 		for(var i = 0; i < zxvectors.length; i++) {
 			if(zxvectors[i].start[2] <= viewingWindow.zMax && zxvectors[i].start[2] >= viewingWindow.zMin) {
@@ -138,7 +139,7 @@ gui.add(parameters, 'zxvectorsvisible').name("View zx-vectors").onChange(
 			}
 		}
 	});
-gui.add(parameters, 'zyvectorsvisible').name("View zy-vectors").onChange( 
+function_menu.add(parameters, 'zyvectorsvisible').name("View zy-vectors").onChange( 
 	function() {
 		for(var i = 0; i < zyvectors.length; i++) {
 			if(zyvectors[i].start[2] <= viewingWindow.zMax && zyvectors[i].start[2] >= viewingWindow.zMin) {
@@ -146,22 +147,22 @@ gui.add(parameters, 'zyvectorsvisible').name("View zy-vectors").onChange(
 			}
 		}
 	});
-gui.add(parameters, 'dirderivvisible').name("Directional Deriv").onChange( 
+function_menu.add(parameters, 'dirderivvisible').name("Directional Deriv").onChange( 
 	function() {
 		dirderiv.toggleVisible();
 		dirderivtextbox.toggleVisible();
 	});
 
-gui.add(parameters, 'direction').min(0).max(360).step(1).name('direction = ').onChange(
+function_menu.add(parameters, 'direction').min(0).max(360).step(1).name('direction = ').onChange(
     function() {
 		updateDirectionalDerivative();	    
     }
 );
-gui.add(parameters, 'tangentplanevisible').name("Tangent Plane").onChange( 
+function_menu.add(parameters, 'tangentplanevisible').name("Tangent Plane").onChange( 
 	function() {
 		tangentplane.toggleVisible();
 	});
-gui.add(parameters, 'gradientvisible').name("View Gradient").onChange( 
+function_menu.add(parameters, 'gradientvisible').name("View Gradient").onChange( 
 	function() {
 		for(var i = 0; i < gradient.length; i++) {
 			if(gradient[i].start[2] <= viewingWindow.zMax && gradient[i].start[2] >= viewingWindow.zMin) {
@@ -170,11 +171,11 @@ gui.add(parameters, 'gradientvisible').name("View Gradient").onChange(
 		}
 	});
 
-gui.add(parameters, 'wireframevisible').name("View wireframe").onChange( 
+function_menu.add(parameters, 'wireframevisible').name("View wireframe").onChange( 
 	function() {
-		surface.toggleWireframe();
+		wireframe.toggleVisible();
 	});
-gui.add(parameters, 'xzpos').min(-5).max(5).step(0.01).name('xz-position = ').onChange(
+function_menu.add(parameters, 'xzpos').min(window_param.ymin).max(window_param.ymax).step(0.01).name('xz-position = ').onChange(
     function() {
 		xzplane.setLocation(parameters.xzpos);
 		p.moveTo([parameters.yzpos, parameters.xzpos, zFunc(parameters.yzpos, parameters.xzpos)]);
@@ -199,7 +200,7 @@ gui.add(parameters, 'xzpos').min(-5).max(5).step(0.01).name('xz-position = ').on
 		
     }
 );
-gui.add(parameters, 'yzpos').min(-5).max(5).step(0.01).name('yz-position = ').onChange(
+function_menu.add(parameters, 'yzpos').min(window_param.xmin).max(window_param.xmax).step(0.01).name('yz-position = ').onChange(
     function() {
 		yzplane.setLocation(parameters.yzpos);
 		p.moveTo([parameters.yzpos, parameters.xzpos, zFunc(parameters.yzpos, parameters.xzpos)]);
@@ -224,20 +225,20 @@ gui.add(parameters, 'yzpos').min(-5).max(5).step(0.01).name('yz-position = ').on
 	
     }
 );
-gui.add(parameters, 'xypos').min(-1).max(1).step(0.01).name('z-position = ').onChange(
+function_menu.add(parameters, 'xypos').min(window_param.zmin).max(window_param.zmax).step(0.01).name('z-position = ').onChange(
 	function() {
 		xyplane.setLocation(parameters.xypos);
 	}
 );
-gui.add(parameters, 'update').name('Update Graph');
+function_menu.add(parameters, 'update').name('Update Graph');
 
 init();
 animate();	
 				
 function createScene() {
 
-	surface = new Surface(parameters.zText, { skin: 'depth', wireframevisible: parameters.wireframevisible, dx: 0.25, color: 'teal' });
-	wireframe = new ThreeJSWireframe(surface.getGeometry());
+	surface = new Surface(parameters.zText, { dx: 0.25, color: 'teal' });
+	wireframe = new Wireframe(parameters.zText, { visible: parameters.wireframevisible, type: 'advanced' });
 	addToScene(scene, surface);
 	addToScene(scene, wireframe);
 	
@@ -379,6 +380,10 @@ function updateGraph() {
 	surface = new Surface(parameters.zText, { wireframevisible: parameters.wireframevisible, dx: 0.25, color: 'teal' });
 	addToScene(scene, surface);
 	
+	scene.remove(wireframe.getObject());
+	wireframe = new Wireframe(parameters.zText, { visible: parameters.wireframevisible, type: 'advanced' });
+	addToScene(scene, wireframe);
+	
 	p.moveTo([parameters.yzpos, parameters.xzpos, zFunc(parameters.yzpos, parameters.xzpos)]);
 			
 	scene.remove(fx.getObject());
@@ -417,7 +422,6 @@ function updateGraph() {
 	
 	for(var i = 0; i < gradient.length; i++) {
 		scene.remove(gradient[i].getObject());
-		scene.remove(levelgradient[i].getObject());
 	}
 	
 	for(var i = viewingWindow.xMin; i < viewingWindow.xMax; i++) {
@@ -567,7 +571,7 @@ function redrawScene() {
 		objectlist[i].redraw();
 	}
 	
-	wireframe.setGeometry(surface.getGeometry());
+	//wireframe.setGeometry(surface.getGeometry());
 	
 }
 
