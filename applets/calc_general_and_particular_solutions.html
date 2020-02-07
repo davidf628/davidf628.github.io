@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+
+    <title>General Solutions and Particular Solutions</title>
+    <meta charset="utf-8">
+
+    <link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
+    <script src='./js/jsxgraphcore.js' type='text/javascript'></script>
+    <script src='./js/math.min.js' type='text/javascript'></script>
+    <script src='./js/MathFunctions.js' type='text/javascript'></script>
+    <script src='./js/helpers.js' type='text/javascript'></script>
+   	<script src="./js/algebrite.bundle-for-browser.js"></script>
+	
+	<!-- Needed to initialize Mathjax -->
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({ tex2jax: { inlineMath: [["$","$"],["\\(","\\)"]] }, });
+    </script>
+    <script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+
+</head>
+
+<body>
+
+<h1>General Solutions and Particular Solutions</h1>
+
+	f(x) = <input type="text" id="input_function" value="">
+	
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<input type="button" value="Update" onClick="update()">
+	
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	initial point: <input type="text" id="initial_point" value="">
+
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<input type="button" value="Solve Initial Value" onClick="solveinitial()">	
+
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+
+	<br /><br />
+	
+	c min = <input type="text" id="input_cmin" value="-10">
+		
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	c max = <input type="text" id="input_cmax" value="10">
+		
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	c density = <input type="text" id="input_cdensity" value="1">
+	
+	<br /><br />
+
+<div>
+	<div id="jxgbox" class="jxgbox" style="width:720px; height:720px; float:left; resize: both"></div>
+	<div id="display" class="jxgbox" style="width:320px; height:720px; float:left"></div>
+</div>
+
+<script type='text/javascript'>
+			
+JXG.Options.text.useMathJax = true;
+			
+var board = JXG.JSXGraph.initBoard('jxgbox', {
+		boundingbox: [-10,10,10,-10], 
+      	showCopyright: false, 
+      	showNavigation: true,
+		keepaspectratio: false,
+		axis: true,
+      	zoom: {
+            factorX: 1.25,
+            factorY: 1.25,
+            wheel: true,
+            needshift: false,
+            eps: 0.1
+        }		
+    });
+		
+var displayboard = JXG.JSXGraph.initBoard('display', {
+		boundingbox: [0,10,12,0], 
+      	showCopyright: false, 
+      	showNavigation: false,
+		keepaspectratio: false,
+		axis: false	
+    });
+		
+// Set up x-zoom and y-zoom sliders
+		
+changeScale = function(e) {
+    bounds = JSXGetBounds(board);
+    var midx = (bounds.xmax + bounds.xmin) / 2;
+    var midy = (bounds.ymax + bounds.ymin) / 2;
+    xExp = 100 * Math.pow(slider_horiz_zoom.Value(), -1.5);
+    yExp = 100 * Math.pow(slider_vert_zoom.Value(), -1.5);
+    board.setBoundingBox([ midx - xExp, midy + yExp, midx + xExp, midy - yExp], false);
+}	
+    
+slider_horiz_zoom = displayboard.create('slider', [[1, 1], [7, 1], [0.1, 9, 100]]);
+horiz_zoom_label = displayboard.create('text', [9, 1, 'x zoom'], { fixed: true });
+slider_horiz_zoom.on('drag', changeScale);
+
+slider_vert_zoom = displayboard.create('slider', [[1, 0.5], [7, 0.5], [0.1, 9, 100]]);
+vert_zoom_label = displayboard.create('text', [9, 0.5, 'y zoom'], { fixed: true });
+slider_vert_zoom.on('drag', changeScale);		
+		
+// Initialize curve so that we have something we can update
+var general_solutions = [];
+
+var particular_solution = null;
+var point = null;
+
+function update() {
+
+	orgbounds = board.getBoundingBox();
+	width = document.getElementById('jxgbox').clientWidth;
+	height = document.getElementById('jxgbox').clientHeight;
+
+	board.resizeContainer(width, height);
+	board.setBoundingBox(orgbounds, false);
+
+	var f = document.getElementById('input_function').value;
+	var f_int = Algebrite.run('integral(' + f + ', x)');
+
+	while (general_solutions.length != 0) {
+		board.removeObject(general_solutions.pop());
+	}
+
+	if (point !== null) {
+		board.removeObject(point);
+		point = null;
+	}
+
+	if (particular_solution !== null) {
+		board.removeObject(particular_solution);
+		particular_solution = null;
+	}
+
+	var cmin = Number.parseFloat(document.getElementById('input_cmin').value);
+	var cmax = Number.parseFloat(document.getElementById('input_cmax').value);
+	var cdensity = Number.parseFloat(document.getElementById('input_cdensity').value);	
+	
+	var nFunctions = (cmax - cmin) / cdensity;
+	
+	k = cmin;
+	
+	for (var i = 0; i < nFunctions; i++) {
+		
+		kstr = k >= 0 ? '+' + k.toFixed(6) : k.toFixed(6);
+
+		var int_f = board.jc.snippet(f_int + kstr, true, 'x', true);
+		general_solutions.push(board.create('functiongraph', int_f));
+
+		k += cdensity;
+
+	}
+	
+	board.update();	
+	displayboard.update();	
+}
+
+function solveinitial() {
+	
+	// Plot the initial point
+	
+	var p_str = document.getElementById('initial_point').value;
+	
+	// remove left and right parenthesis
+	p_str = p_str.replace('(', '');
+	p_str = p_str.replace(')', '');
+	
+	// split the string about the comma to get the numbers
+	var l = p_str.split(',');
+	
+	var x = math.eval(l[0].trim());
+	var y = math.eval(l[1].trim());
+	
+	point = board.create('point', [x, y], { withLabel :false, fixed: true });
+	
+	// Solve for the curve that passes through that point and plot
+	
+	var f = document.getElementById('input_function').value;
+	var f_int = Algebrite.run('integral(' + f + ', x)');
+	
+	var a = evaluate(f_int, x);
+	var c = y - a;
+	
+	var cstr = k >= 0 ? '+' + c : c;
+	
+	var int_f = board.jc.snippet(f_int + cstr, true, 'x', true);
+	particular_solution = board.create('functiongraph', int_f, { strokeColor: 'red' });
+	
+}
+
+</script>
+</body>
+</html>
