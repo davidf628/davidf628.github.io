@@ -3259,6 +3259,15 @@ function convertToExplicitMultiplication(s) {
 }
 
 function makeJSFunction(board, s, variable) {
+	
+	variable = variable === undefined ? 'x' : variable;
+	
+	// convert any instances of implicit multiplication to explicit form
+	s = math.parse(s).toString({ implicit: 'show' });
+	
+	// convert any constants 'e' or 'pi' to numbers
+	s = Parser.parse(s).simplify({ e: E, pi: PI }).toString();
+	
 	return board.jc.snippet(s, true, variable, false);
 }
 
