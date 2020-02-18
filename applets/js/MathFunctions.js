@@ -3254,19 +3254,30 @@ function trimNumber(val) {
 	return s;
 }
 
-function convertToExplicitMultiplication(s) {
-	return math.parse(s).toString({ implicit: 'show' })
-}
 
-function makeJSFunction(board, s, variable) {
-	
-	variable = variable === undefined ? 'x' : variable;
+///////////////////////////////////////////////////////////////////////////////
+//
+// Exchanges constansts pi and e to numbers and eliminates instances of
+//   implicit multiplication
+//
+///////////////////////////////////////////////////////////////////////////////
+
+function preprocessFunction (s) {
 	
 	// convert any instances of implicit multiplication to explicit form
 	s = math.parse(s).toString({ implicit: 'show' });
 	
 	// convert any constants 'e' or 'pi' to numbers
 	s = Parser.parse(s).simplify({ e: E, pi: PI }).toString();
+	
+	return s;
+}
+
+function makeJSFunction(board, s, variable) {
+	
+	variable = variable === undefined ? 'x' : variable;
+	
+	s = preprocessFunction(s);
 	
 	return board.jc.snippet(s, true, variable, false);
 }

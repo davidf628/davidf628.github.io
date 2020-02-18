@@ -1,23 +1,24 @@
-<!--
+<!DOCTYPE html>
+<html lang="en-US">
 
--->
-
-<html>
 <head>
+
+	<title>Derivatives of Inverse Functions</title>
+	<meta charset="utf-8">
 
 	<!-- Needed to initialize Mathjax -->
 	<script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-      tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]},
-      });
-    </script>
-    <script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
-	
-	<!-- Needed to initialize JXSGraph -->
-	<meta charset="utf-8">  
-		<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
-		<script src='./js/jsxgraphcore.js' type='text/javascript'></script>
-	</meta>
+			MathJax.Hub.Config( { tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}, });
+	</script>
+	<script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+
+	<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
+	<script src='./js/jsxgraphcore.js' type='text/javascript'></script>
+	<script src='./js/math.min.js' type='text/javascript'></script>
+	<script src='./js/MathFunctions.js' type='text/javascript'></script>
+	<script src='./js/helpers.js' type='text/javascript'></script>
+	<script src='./js/parser.js' type='text/javascript'></script>
+
 </head>
 
 <body>
@@ -86,7 +87,7 @@ function update() {
 	displayboard.removeObject(text_inverseOfQ);
 	
 	var f = document.getElementById('input_function').value;
-	var relation = board.jc.snippet(f, true, 'x', true);
+	var relation = makeJSFunction(board, f);
 	
 	graph = plot_function(f);
 	reflection = board.create('reflection', [graph, reflectionLine], { strokeWidth: 2, strokeColor: 'green', visible: cb_showInverseGraph.Value() });
@@ -272,7 +273,7 @@ function plot_function(ogtxt) {
 	}
 		
 	// This is an explicit function of the form: f(x)
-	relation = board.jc.snippet(ogtxt, true, 'x', true);
+	relation = makeJSFunction(board, ogtxt);
 	if(restricted_interval) {
 		curve = board.create('functiongraph', [relation, lowerval, upperval], { strokeWidth: 2 });
 	} else {

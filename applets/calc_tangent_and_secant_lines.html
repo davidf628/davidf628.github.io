@@ -1,24 +1,24 @@
-<!--
+<!DOCTYPE html>
+<html lang="en-US">
 
--->
-
-<html>
 <head>
+
+	<title>Tangent Lines, Secant Lines, and Slope</title>
+	<meta charset="utf-8">
 
 	<!-- Needed to initialize Mathjax -->
 	<script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-      tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]},
-      });
-    </script>
-    <script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
-	
-	<!-- Needed to initialize JXSGraph -->
-	<meta charset="utf-8">  
-		<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
-		<script src='./js/jsxgraphcore.js' type='text/javascript'></script>
-		<script src='./js/jsxTools.js' type='text/javascript'></script>
-	</meta>
+			MathJax.Hub.Config( { tex2jax: { inlineMath: [["$","$"],["\\(","\\)"]] }, });
+	</script>
+	<script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+
+	<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
+	<script src='./js/jsxgraphcore.js' type='text/javascript'></script>
+	<script src='./js/math.min.js' type='text/javascript'></script>
+	<script src='./js/MathFunctions.js' type='text/javascript'></script>
+	<script src='./js/helpers.js' type='text/javascript'></script>
+	<script src='./js/parser.js' type='text/javascript'></script>
+
 </head>
 
 <body>
@@ -76,8 +76,6 @@ secant = board.create('point', [0, 0], { visible: false, withLabel: false });
 delta_x_l1 = board.create('point', [0, 0], { visible: false, withLabel: false });
 delta_x_l2 = board.create('point', [0, 0], { visible: false, withLabel: false });
 delta_x_label = board.create('point', [0, 0], { visible: false, withLabel: false });
-
-
 
 function toggleTangent() {
 	if(tangent.getAttribute('visible')) {
@@ -149,28 +147,6 @@ slider_vert_zoom.on('drag',
 		vert_zoom_level = newfactor;
 	});	
 	
-function evaluate(f, x) {
-	
-	relation = board.jc.snippet(f, true, 'x', true);
-	return relation(x);
-}
-
-function displayNumber(val) {
-	s = val.toFixed(4);
-	if(s.includes('.')) {
-		while(s.slice(-1) == '0') {
-			s = s.substring(0, s.length - 1);
-		}
-		if(s.slice(-1) == '.') {
-			s = s.substring(0, s.length - 1);
-		}
-	}
-	if(s.includes('e')) {
-		s = s.substring(0, 4) + s.substring(s.indexOf('e'),s.length);
-	}
-	return s;
-}
-
 function update() {
 
 	orgbounds = board.getBoundingBox();
@@ -181,12 +157,11 @@ function update() {
 	board.setBoundingBox(orgbounds, true);
 
 	var f = document.getElementById('input_function').value;
-	var relation = board.jc.snippet(f, true, 'x', true);
+	var relation = makeJSFunction(board, f);
 	var d = JXG.Math.Numerics.D(relation);
 	
 	board.removeObject(curve);	
-	curve = plot_function(f);
-	
+	curve = board.create('functiongraph', [relation], { strokeWidth: 2 });;
 	
 	p = board.create('glider', [0, 0, curve], { name: 'P' });
 	q = board.create('glider', [1, 0, curve], { name: 'Q' });
@@ -260,15 +235,6 @@ function update() {
 	
 	board.update();	
 	displayboard.update();	
-}
-
-function plot_function(ogtxt) {
-		
-	// This is an explicit function of the form: f(x)
-	relation = board.jc.snippet(ogtxt, true, 'x', true);
-	curve = board.create('functiongraph', [relation], { strokeWidth: 2 });
-
-	return curve;
 }
 
 </script>

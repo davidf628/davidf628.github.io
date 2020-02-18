@@ -224,8 +224,8 @@ function update() {
 		}
 	}
 	
-	mtext = document.getElementById('mtext').value;
-	ntext = document.getElementById('ntext').value;
+	mtext = preprocessFunction(document.getElementById('mtext').value);
+	ntext = preprocessFunction(document.getElementById('ntext').value);
 	
 	mfunc = Parser.parse(mtext).toJSFunction(['x', 'y']);
 	nfunc = Parser.parse(ntext).toJSFunction(['x', 'y']);

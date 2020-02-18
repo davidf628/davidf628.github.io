@@ -6,6 +6,7 @@
 	    <script src='./js/MathFunctions.js' type='text/javascript'></script>
 	    <script src='./js/math.min.js' type='text/javascript'></script>
 	    <script src='./js/helpers.js' type='text/javascript'></script>
+		<script src='./js/parser.js' type='text/javascript'></script>
 	</meta>
 </head>
 
@@ -76,7 +77,7 @@ function update() {
 
 	f = document.getElementById('input_function').value;
 	
-	relation = board.jc.snippet(f, true, 'x', true);
+	relation = makeJSFunction(board, f);
 	d = JXG.Math.Numerics.D(relation);
 	d2 = JXG.Math.Numerics.D(d);
 	

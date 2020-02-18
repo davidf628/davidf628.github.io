@@ -11,6 +11,7 @@
     <script src='./js/math.min.js' type='text/javascript'></script>
     <script src='./js/MathFunctions.js' type='text/javascript'></script>
     <script src='./js/helpers.js' type='text/javascript'></script>
+    <script src='./js/parser.js' type='text/javascript'></script>
 
 </head>
 
@@ -116,12 +117,10 @@ function update() {
         // if no function definition is given, then just hide everything
         curve = board.create('curve', [0, 0], 0, 0, { visible: false });
         derivative = board.create('curve', [0, 0], 0, 0, { visible: false });
-        p = board.create('point' [0, 0], 0, 0, { visible: false, withLabel: false });
+        p = board.create('point', [0, 0], 0, 0, { visible: false, withLabel: false });
         glider = board.create('glider', [0, 0, curve], { visible: false, name: 'P' });
     } else {
-        
-        f = convertToExplicitMultiplication(f);
-        
+               
         var f_func = makeJSFunction(board, f, 'x');
         var d_func = JXG.Math.Numerics.D(f_func);
         
