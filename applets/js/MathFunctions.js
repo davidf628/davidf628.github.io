@@ -1914,11 +1914,19 @@ function evaluate(f, x, args) {
 		}
 	}
 	
+	// math.js doesn't support ln
+	f = f.replace(/ln/g, "log");
+	
 	var expr = math.compile(f);
 	var parameter = {};
 	parameter[variable] = x;
 	
-	return expr.eval(parameter);
+	// math.js returns complex numbers for negative values of logs, etc. This
+	// code below makes sure to only return real numbers
+	var val = expr.eval(parameter);
+	if (typeof(val) == 'object') {
+		return NaN;
+	} else return val;
 		
 }
 
@@ -1967,6 +1975,9 @@ function plot_function(curve, relation, start_x, end_x, args) {
 	} else {
 		curve.setAttribute({ dash: 0 });
 	}
+
+	// math.js does not support ln notation
+	relation = relation.replace(/ln/g, "log");
 
 	// If the relation is blank but not the interval then we just
 	// need to plot a single point or an asymptote
@@ -3022,6 +3033,9 @@ function plot(curve, relation, start_x, end_x, args) {
 	if (isImplicitEquation(relation)) {
 		relation = convertImplicitEquation(relation);	
 	}
+
+	// math.js does not support ln notation for natural logarithm
+	relation = relation.replace(/ln/g, "log");
 
 	if (relation == '' && args.interval != '') {
 	
