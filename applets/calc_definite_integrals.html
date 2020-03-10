@@ -121,17 +121,35 @@ var b1 = board.create('glider', [1, 0, xaxis], { withLabel: false, infoboxDigits
 b1.on('drag', updatepoints);
 
 // point A is the start of our interval 
-var a2 = board.create('glider', [2, 0, xaxis], { withLabel: false, infoboxDigits: 2, color: 'green' });
+var a2 = board.create('glider', [2, 0, xaxis], { withLabel: false, infoboxDigits: 2, color: 'green', visible: false });
 a2.on('drag', updatepoints);
 
 // point B is the end of our interval 
-var b2 = board.create('glider', [3, 0, xaxis], { withLabel: false, infoboxDigits: 2, color: 'green' });
+var b2 = board.create('glider', [3, 0, xaxis], { withLabel: false, infoboxDigits: 2, color: 'green', visible: false });
 b2.on('drag', updatepoints);
 
 var text_integral1 = displayboard.create('text', [1, 9, 'Integral 1:'], { fontSize: 18 });
 
 var text_integral2 = displayboard.create('text', [1, 8.5, 'Integral 2:'], { fontSize: 18 });
 
+var show_integral1 = JSXCheckbox(displayboard, 1, 7.5, 'Show Integral 1', true,
+	function() {
+		integral1.setAttribute( { visible: !integral1.getAttribute('visible') } );
+		a1.setAttribute( { visible: integral1.getAttribute('visible') });
+		b1.setAttribute( { visible: integral1.getAttribute('visible') });
+		
+	},
+	{ fontSize: 18 });
+
+var show_integral2 = JSXCheckbox(displayboard, 1, 7, 'Show Integral 2', false,
+	function() {
+		integral2.setAttribute( { visible: !integral2.getAttribute('visible') } );
+		a2.setAttribute( { visible: integral2.getAttribute('visible') });
+		b2.setAttribute( { visible: integral2.getAttribute('visible') });
+		
+	},
+	{ fontSize: 18 });
+	
 update();
 
 function update() {
@@ -186,7 +204,8 @@ function update() {
         var f2_func = makeJSFunction(board, f2);
         
         curve2 = board.create('functiongraph', [f2_func], { strokeWidth: 2, highlight: false, strokeColor: 'green' });
-		integral2 = board.create('integral', [[function() { return a2.X(); }, function() { return b2.X(); }], curve2], { withLabel: false, color: 'green', highlight: false });      
+		integral2 = board.create('integral', [[function() { return a2.X(); }, function() { return b2.X(); }], curve2], 
+			{ withLabel: false, color: 'green', highlight: false, visible: show_integral2.Value() });      
 
     }  
 
