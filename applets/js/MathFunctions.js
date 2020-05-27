@@ -1863,10 +1863,9 @@ function evaluate(f, x, args) {
 	var variable = args.variable ? args.variable : 'x';
 	
 	f = f.toLowerCase();
-	//f = removeFunctionName(f);
 	
 	// Make sure to ignore points and asymptotes
-	if (f.includes(';')) {
+	if (f.includes(';') || isPoint(f) || isAsymptote(f)) {
 		var newf = '';
 		f_list = f.split(';');
 		for(var i = 0; i < f_list.length; i++) {
@@ -1875,6 +1874,15 @@ function evaluate(f, x, args) {
 			}
 		}
 		f = newf.substring(0, newf.length - 1);
+	}
+	
+	if(f.search(regex_hole) != -1) {
+		var interval = getInterval(f);
+		var xloc = getHoleValue(interval);
+		if(x == xloc) {
+			return NaN;
+		}
+		f = removeInterval(f);
 	}
 	
 	// if f includes a restricted interval, handle that
@@ -1910,7 +1918,8 @@ function evaluate(f, x, args) {
 			}
 		}
 		if(!x_on_interval) {
-			f = NaN;
+			//f = NaN;
+			return NaN;
 		}
 	}
 	
@@ -3081,7 +3090,6 @@ function plot(curve, relation, start_x, end_x, args) {
 		} else {
 			lowerendpoint.setAttribute({ fillColor: 'white' });		
 		}
-	
 	
 	} else { 
 

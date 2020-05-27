@@ -46,6 +46,7 @@
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	<input type="button" value="Set Limit Values" onClick="setlimitvalues()">
 	<br><br>
+	Insert Asymptote: x = <input type="text" id="asymptote" value="">
 
 <div>
 	<div id="jxgbox" class="jxgbox" style="width:720px; height:720px; float:left; resize: both"></div>
@@ -101,6 +102,11 @@ for (var i = 0; i < 30; i++) {
 holes = [];
 for (var i = 0; i < 10; i++) {
 	holes[i] = board.create('point', [0, 0], { size: 3, withLabel: false, visible: false, fixed: true });
+}
+
+asymptotes = [];
+for (var i = 0; i < 10; i++) {
+	asymptotes[i] = board.create('line', [[0, 0],[1,1]], { size: 3, withLabel: false, visible: false, fixed: true, dash: 3 });
 }
 
 // These are used when we want to look at a limit sequence
@@ -298,6 +304,18 @@ function update() {
 	board.resizeContainer(width, height);
 	board.setBoundingBox(orgbounds, false);
 
+	var asymploc = document.getElementById('asymptote').value;
+	if (asymploc == '') {
+		asymptotes[0].setAttribute( { visible :false });
+	} else {
+		asymptotes[0].setAttribute( { visible :true });
+		//board.removeObject(asymptote[0]);
+		var xLoc = parseInt(asymploc);
+		asymptotes[0].point1.moveTo([xLoc, 0]);
+		asymptotes[0].point2.moveTo([xLoc, 1]);
+		//asymptotes[0] = board.create('line', [[xLoc, 0],[xLoc, 1]], { dash: 3 });
+	}
+
 	var f = document.getElementById('input_function').value;
 	var fs = f.split(";");
 	
@@ -307,7 +325,7 @@ function update() {
 		if(interval != '') {
 			fs[i] = removeInterval(fs[i]);
 		}
-		plot_function(curves[i], fs[i], 
+		plot(curves[i], fs[i], 
 			window.xmin, window.xmax, { 
 				lowerendpoint: endpoints[2*i],
 				upperendpoint: endpoints[2*i+1],
@@ -319,7 +337,7 @@ function update() {
 	
 	var limit_value = document.getElementById('limit_value').value;
 	
-	if(limit_value == 'infinity' || limit_value == 'inf') {
+	if(limit_value == 'infinity' || limit_value == 'inf' || limit_value == 'oo') {
 	
 		left_xvals[0] = 10;
 		left_xvals[1] = 100;
@@ -334,7 +352,7 @@ function update() {
 		updateChart(texts[RIGHT][X], '');
 		updateChart(texts[RIGHT][Y], '');
 				
-	} else if(limit_value == '-infinity' || limit_value == '-inf') {
+	} else if(limit_value == '-infinity' || limit_value == '-inf' || limit_value == '-oo') {
 	
 		right_xvals[0] = -10;
 		right_xvals[1] = -100;
