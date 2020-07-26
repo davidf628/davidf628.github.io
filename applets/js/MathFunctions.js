@@ -1568,6 +1568,10 @@ function setCheckbox(cbox, value) {
 	return cbox;
 }
 
+function isChecked(cbox) {
+	return cbox._value;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Checks to see if a function is implicitly defined by seeing if the math.js

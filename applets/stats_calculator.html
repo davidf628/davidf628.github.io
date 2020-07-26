@@ -177,47 +177,48 @@ for (var i = -3; i <= 3; i++) {
 
 // input variables
 
-mean = board_normal.create('input', [1.2, 0.36, '0', '&mu; = '], { fontSize: 18, cssStyle: 'width: 100px', frozen: true });
-stdev = board_normal.create('input', [1.2, 0.28, '1', '&sigma; = '], { fontSize: 18, cssStyle: 'width: 100px', frozen: true });
+mean = board_normal.create('input', [1.3, 0.38, '0', '&mu; = '], { fontSize: 18, cssStyle: 'width: 100px', frozen: true });
+stdev = board_normal.create('input', [1.3, 0.3, '1', '&sigma; = '], { fontSize: 18, cssStyle: 'width: 100px', frozen: true });
 
-x1 = board_normal.create('input', [0.7, -0.15, '-2', '<i> X<sub>1</sub> = </i>'], { fontSize: 18, cssStyle: 'width: 100px ', frozen: true });
-x2 = board_normal.create('input', [0.7, -0.24, '2', '<i> X<sub>2</sub> = </i>'], { fontSize: 18, cssStyle: 'width: 100px ', frozen: true });
-prob = board_normal.create('input', [0.4, -0.34, '0.9500', 'Probability: '], { fontSize: 18, cssStyle: 'width: 100px ', frozen: true, disabled: PTYPE == 'between' || PTYPE == 'twotail' ? true : false });
+x1 = board_normal.create('input', [-3.5, -0.32, '-2', 'P( '], { fontSize: 18, cssStyle: 'width: 100px ', frozen: true });
+x2 = board_normal.create('input', 
+		[-1.3, -0.32, '2', ' < <i>X</i> < '], 
+		{ fontSize: 18, cssStyle: 'width: 100px ', frozen: true });
+		
+prob = board_normal.create('input', [1.3, -0.32, '0.9500', ') = '], 
+		{ fontSize: 18, cssStyle: 'width: 100px ', frozen: true, disabled: true });
 
-calc_normal = board_normal.create('button', [-0.3, -0.42, 'Calculate Probability', 
-	function() {
-		
-		if(!isNaN(x1.Value())) {
-			z1.moveTo([x1.Value(), 0]);
-		}
-		
-		if(!isNaN(x2.Value())) {
-			z2.moveTo([x2.Value(), 0]);
-		}
-		
-		prob.rendNodeInput.value = currentProbability(zScore(x1.Value()), zScore(x2.Value()));
-	}		
-], { frozen: true });
-
-calc_invnormal = board_normal.create('button', [1.7, -0.42, 'Calculate Inverse', 
-	function() {
-		
-		if(!isNaN(prob.Value())) {
-			
-			if(PTYPE == 'left') {
-				var z = xValue(invnorm(prob.Value()));
-				z2.moveTo([z, 0]);
-				x2.rendNodeInput.value = z;
-			} else if(PTYPE == 'right') {
-				var z = xValue(invnorm(1 - prob.Value()));
-				z1.moveTo([z, 0]);
-				x1.rendNodeInput.value = z;
+calc_normal = board_normal.create('button', [1.5, -0.42, 'Calculate',
+	function () {
+	
+		if(isChecked(cb_area)) {
+			if(!isNaN(x1.Value())) {
+				z1.moveTo([x1.Value(), 0]);
 			}
+	
+			if(!isNaN(x2.Value())) {
+				z2.moveTo([x2.Value(), 0]);
+			}
+	
+			prob.rendNodeInput.value = currentProbability(zScore(x1.Value()), zScore(x2.Value()));
+		
+		} else {
+			if(!isNaN(prob.Value())) {
 			
+				if(PTYPE == 'left') {
+					var z = xValue(invnorm(prob.Value()));
+					z2.moveTo([z, 0]);
+					x2.rendNodeInput.value = z;
+				} else if(PTYPE == 'right') {
+					var z = xValue(invnorm(1 - prob.Value()));
+					z1.moveTo([z, 0]);
+					x1.rendNodeInput.value = z;
+				}
+			
+			}
 		}
+}], { frozen: true });
 
-	}		
-], { frozen: true });
 
 function updateAxisLabels() {
 	
@@ -276,11 +277,57 @@ shadedregionbetween.setAttribute({ visible: PTYPE == 'between' ? true : false })
 shadedregionbetween.curveLeft.setAttribute( { visible: false } );
 shadedregionbetween.curveRight.setAttribute( { visible: false } );
 
-cb_between = JSXCheckbox(board_normal, -3.6, -0.14, 'Between', true, 
+cb_area = JSXCheckbox(board_normal, 1, -0.1, 'Calculate Area', true,
 	function() {
+		setCheckbox(cb_area, true);
+		setCheckbox(cb_xvalue, false);
+		
+		cb_between.setAttribute( { disabled: false, strokeColor: 'black', highlight: true  });
+		cb_left.setAttribute( { disabled: false });
+		cb_right.setAttribute( { disabled: false, strokeColor: 'black', highlight: true  });
+		
+		prob.setAttribute( { disabled: true });
+		
+				
+	}, { fontSize: 18, frozen: true });
+
+cb_xvalue = JSXCheckbox(board_normal, 1, -0.16, 'Calculate x-Value', false,
+	function() {
+		setCheckbox(cb_xvalue, true);
+		setCheckbox(cb_area, false);
+		
+		cb_between.setAttribute( { disabled: true, strokeColor: 'lightgray', highlight: false });
+		cb_left.setAttribute( { disabled: false });
+		cb_right.setAttribute( { disabled: true, strokeColor: 'lightgray', highlight: false });
+		setCheckbox(cb_left, true);
+		setCheckbox(cb_between, false);
+		setCheckbox(cb_right, false);
+		
+		z1.setAttribute({ visible: false });
+		z2.setAttribute({ visible: true });
+		
+		shadedregionleft.setAttribute({ visible: true });
+		shadedregionright.setAttribute({ visible: false });
+		shadedregionbetween.setAttribute({ visible: false });
+		
+		x1.rendNodeInput.value = '-Infinity';
+		x1.setAttribute({ disabled: true });
+	
+		x2.rendNodeInput.value = z2.X().toFixed(2);
+		x2.setAttribute({ disabled: false });
+		
+		prob.setAttribute({ disabled: false });
+		
+		PTYPE = 'left';
+		
+		
+	}, { fontSize: 18, frozen: true });
+
+cb_between = JSXCheckbox(board_normal, -3.6, -0.1, 'P(a < x < b)', true, 
+	function() {
+		setCheckbox(cb_between, true);
 		setCheckbox(cb_left, false);
 		setCheckbox(cb_right, false);
-		setCheckbox(cb_twotail, false);
 
 		shadedregionleft.setAttribute({ visible: false });
 		shadedregionright.setAttribute({ visible: false });
@@ -301,11 +348,11 @@ cb_between = JSXCheckbox(board_normal, -3.6, -0.14, 'Between', true,
 			
 	}, { fontSize: 18, frozen: true });
 
-cb_left = JSXCheckbox(board_normal, -3.6, -0.2, 'Left-Tailed', false,
+cb_left = JSXCheckbox(board_normal, -3.6, -0.16, 'P(x < b)', false,
 	function() {
+		setCheckbox(cb_left, true);
 		setCheckbox(cb_between, false);
 		setCheckbox(cb_right, false);
-		setCheckbox(cb_twotail, false);
 		
 		z1.setAttribute({ visible: false });
 		z2.setAttribute({ visible: true });
@@ -320,17 +367,17 @@ cb_left = JSXCheckbox(board_normal, -3.6, -0.2, 'Left-Tailed', false,
 		x2.rendNodeInput.value = z2.X().toFixed(2);
 		x2.setAttribute({ disabled: false });
 		
-		prob.setAttribute({ disabled: false });
+		prob.setAttribute({ disabled: true });
 		
 		PTYPE = 'left';
 		
 	}, { fontSize: 18, frozen: true });
 
-cb_right = JSXCheckbox(board_normal, -3.6, -0.26, 'Right-Tailed', false,
+cb_right = JSXCheckbox(board_normal, -3.6, -0.22, 'P(x > a)', false,
 	function() {
+		setCheckbox(cb_right, true);
 		setCheckbox(cb_between, false);
 		setCheckbox(cb_left, false);
-		setCheckbox(cb_twotail, false);
 		
 		z1.setAttribute({ visible: true });
 		z2.setAttribute({ visible: false });
@@ -345,36 +392,12 @@ cb_right = JSXCheckbox(board_normal, -3.6, -0.26, 'Right-Tailed', false,
 		x2.rendNodeInput.value = '-Infinity';
 		x2.setAttribute({ disabled: true });
 		
-		prob.setAttribute({ disabled: false });
+		prob.setAttribute({ disabled: true });
 		
 		PTYPE = 'right';
 	
 	}, { fontSize: 18, frozen: true });
 
-cb_twotail = JSXCheckbox(board_normal, -3.6, -0.32, 'Two-Tailed', false,
-	function() {
-		setCheckbox(cb_between, false);
-		setCheckbox(cb_left, false);
-		setCheckbox(cb_right, false);
-		
-		z1.setAttribute({ visible: true });
-		z2.setAttribute({ visible: true });
-		
-		shadedregionleft.setAttribute({ visible: true });
-		shadedregionright.setAttribute({ visible: true });
-		shadedregionbetween.setAttribute({ visible: false });
-		
-		x1.rendNodeInput.value = z1.X().toFixed(2);
-		x1.setAttribute({ disabled: false });
-		
-		x2.rendNodeInput.value = z2.X().toFixed(2);
-		x2.setAttribute({ disabled: false });
-
-		prob.setAttribute({ disabled: true });
-		
-		PTYPE = 'twotail';
-		
-	}, { fontSize: 18, frozen: true });
 
 function currentProbability(x1, x2) { 
 	
@@ -391,9 +414,8 @@ function currentProbability(x1, x2) {
 		return normalcdf(x2).toFixed(4);
 	} else if(cb_right.Value()) {
 		return (1 - normalcdf(x1)).toFixed(4);
-	} else if(cb_twotail.Value()) {
-	return (normalcdf(x2) + (1 - normalcdf(x1))).toFixed(4);
-	}
+	} 
+
 }
 
 function changebounds() {
@@ -410,6 +432,7 @@ function changebounds() {
 }
 
 board_normal.on('up', function() { changebounds() });
+
 
 
 </script>
