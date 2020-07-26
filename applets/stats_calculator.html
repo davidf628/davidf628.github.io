@@ -155,16 +155,19 @@ x_axis = board_normal.create('axis', [[0, 0], [1, 0]],
 z1 = board_normal.create('glider', [-2, 0, x_axis], { withLabel: false, color: 'black', snapToGrid: true, snapSizeX: 0.01 });
 z1.on('drag', 
 	function() { 
-		x1.rendNodeInput.value = z1.X().toFixed(2);
-		prob.rendNodeInput.value = currentProbability(zScore(z1.X()), zScore(z2.X()));
+		x1_input.rendNodeInput.value = z1.X().toFixed(2);
+		prob_input.rendNodeInput.value = currentProbability(zScore(z1.X()), zScore(z2.X()));
+		prob_disp.setText(') = ' + currentProbability(zScore(z1.X()), zScore(z2.X())));
 	}
 );
 
 z2 = board_normal.create('glider', [2, 0, x_axis], { withLabel: false, color: 'black', snapToGrid: true, snapSizeX: 0.01 });
 z2.on('drag', 
 	function() { 
-		x2.rendNodeInput.value = z2.X().toFixed(2);
-		prob.rendNodeInput.value = currentProbability(zScore(z1.X()), zScore(z2.X()));
+		x2_input.rendNodeInput.value = z2.X().toFixed(2);
+		x2_disp.setText('< <i>X</i> < ' + z2.X().toFixed(2));
+		prob_input.rendNodeInput.value = currentProbability(zScore(z1.X()), zScore(z2.X()));
+		prob_disp.setText(') = ' + currentProbability(zScore(z1.X()), zScore(z2.X())));
 	}
 );
 
@@ -180,41 +183,44 @@ for (var i = -3; i <= 3; i++) {
 mean = board_normal.create('input', [1.3, 0.38, '0', '&mu; = '], { fontSize: 18, cssStyle: 'width: 100px', frozen: true });
 stdev = board_normal.create('input', [1.3, 0.3, '1', '&sigma; = '], { fontSize: 18, cssStyle: 'width: 100px', frozen: true });
 
-x1 = board_normal.create('input', [-3.5, -0.32, '-2', 'P( '], { fontSize: 18, cssStyle: 'width: 100px ', frozen: true });
-x2 = board_normal.create('input', 
+x1_input = board_normal.create('input', [-3.5, -0.32, '-2', 'P( '], { fontSize: 18, cssStyle: 'width: 100px ', frozen: true });
+x2_input = board_normal.create('input', 
 		[-1.3, -0.32, '2', ' < <i>X</i> < '], 
 		{ fontSize: 18, cssStyle: 'width: 100px ', frozen: true });
+x2_disp = board_normal.create('text', [-1.3, -0.32, '< <i>X</i> < 2'],
+		{ fontSize: 18, frozen: true, visible: false });		
 		
-prob = board_normal.create('input', [1.3, -0.32, '0.9500', ') = '], 
-		{ fontSize: 18, cssStyle: 'width: 100px ', frozen: true, disabled: true });
+prob_input = board_normal.create('input', [1.3, -0.32, '0.9500', ') = '], 
+		{ fontSize: 18, cssStyle: 'width: 100px ', frozen: true });
+prob_input.setAttribute( { visible: false } );
+
+prob_disp = board_normal.create('text', [1.3, -0.32, ') = 0.9500'],
+		{ fontSize: 18, frozen: true });
+
 
 calc_normal = board_normal.create('button', [1.5, -0.42, 'Calculate',
 	function () {
 	
 		if(isChecked(cb_area)) {
-			if(!isNaN(x1.Value())) {
-				z1.moveTo([x1.Value(), 0]);
+			if(!isNaN(x1_input.Value())) {
+				z1.moveTo([x1_input.Value(), 0]);
 			}
 	
-			if(!isNaN(x2.Value())) {
-				z2.moveTo([x2.Value(), 0]);
+			if(!isNaN(x2_input.Value())) {
+				z2.moveTo([x2_input.Value(), 0]);
 			}
 	
-			prob.rendNodeInput.value = currentProbability(zScore(x1.Value()), zScore(x2.Value()));
+			prob_input.rendNodeInput.value = currentProbability(zScore(x1_input.Value()), zScore(x2_input.Value()));
+			prob_disp.setText(') = ' + currentProbability(zScore(x1_input.Value()), zScore(x2_input.Value())));
 		
 		} else {
-			if(!isNaN(prob.Value())) {
+			if(!isNaN(prob_input.Value())) {
 			
-				if(PTYPE == 'left') {
-					var z = xValue(invnorm(prob.Value()));
-					z2.moveTo([z, 0]);
-					x2.rendNodeInput.value = z;
-				} else if(PTYPE == 'right') {
-					var z = xValue(invnorm(1 - prob.Value()));
-					z1.moveTo([z, 0]);
-					x1.rendNodeInput.value = z;
-				}
-			
+				var z = xValue(invnorm(prob_input.Value()));
+				z2.moveTo([z, 0]);
+				x2_input.rendNodeInput.value = z;
+				x2_disp.setText('< <i>X</i> < ' + z.toFixed(8));
+		
 			}
 		}
 }], { frozen: true });
@@ -242,16 +248,17 @@ update_normal = board_normal.create('button', [2.5, 0.22, 'Update',
 		var cur_z1 = zScore(z1.X());
 		var cur_z2 = zScore(z2.X());
 		mean_n = Number(mean.Value());
-		stdev_n = Number(stdev.Value());
+		stdev_n = Number(eval(stdev.Value()));
 		var x_min = xValue(-4);
 		var x_max = xValue(4);
 		//JSXSetBounds(board_normal, { xmin: x_min, xmax: x_max }, false);
 		board_normal.setBoundingBox([x_min, 0.5, x_max, -0.5]);
 		z1.moveTo([xValue(cur_z1), 0]);
 		z2.moveTo([xValue(cur_z2), 0]);
-		x1.rendNodeInput.value = xValue(cur_z1);
-		x2.rendNodeInput.value = xValue(cur_z2);
-		prob.rendNodeInput.value = currentProbability(cur_z1, cur_z2);
+		x1_input.rendNodeInput.value = xValue(cur_z1);
+		x2_input.rendNodeInput.value = xValue(cur_z2);
+		x2_disp.setText('< <i>X</i> < ' + xValue(cur_z2).toFixed(8));
+		prob_input.rendNodeInput.value = currentProbability(cur_z1, cur_z2);
 		updateAxisLabels();
 		
 	}
@@ -286,7 +293,10 @@ cb_area = JSXCheckbox(board_normal, 1, -0.1, 'Calculate Area', true,
 		cb_left.setAttribute( { disabled: false });
 		cb_right.setAttribute( { disabled: false, strokeColor: 'black', highlight: true  });
 		
-		prob.setAttribute( { disabled: true });
+		prob_input.setAttribute( { visible: false });
+		prob_disp.setAttribute( { visible: true });
+		x2_input.setAttribute( { visible: true });
+		x2_disp.setAttribute({ visible: false });
 		
 				
 	}, { fontSize: 18, frozen: true });
@@ -310,13 +320,16 @@ cb_xvalue = JSXCheckbox(board_normal, 1, -0.16, 'Calculate x-Value', false,
 		shadedregionright.setAttribute({ visible: false });
 		shadedregionbetween.setAttribute({ visible: false });
 		
-		x1.rendNodeInput.value = '-Infinity';
-		x1.setAttribute({ disabled: true });
+		x1_input.rendNodeInput.value = '-Infinity';
+		x1_input.setAttribute({ disabled: true });
 	
-		x2.rendNodeInput.value = z2.X().toFixed(2);
-		x2.setAttribute({ disabled: false });
+		x2_input.rendNodeInput.value = z2.X().toFixed(2);
+		x2_input.setAttribute({ visible: false });
+		x2_disp.setAttribute({ visible: true });
+
 		
-		prob.setAttribute({ disabled: false });
+		prob_input.setAttribute({ visible: true });
+		prob_disp.setAttribute({ visible: false });
 		
 		PTYPE = 'left';
 		
@@ -336,13 +349,15 @@ cb_between = JSXCheckbox(board_normal, -3.6, -0.1, 'P(a < x < b)', true,
 		z1.setAttribute({ visible: true });
 		z2.setAttribute({ visible: true });
 		
-		x1.rendNodeInput.value = z1.X().toFixed(2);
-		x1.setAttribute({ disabled: false });
+		x1_input.rendNodeInput.value = z1.X().toFixed(2);
+		x1_input.setAttribute({ disabled: false });
 		
-		x2.rendNodeInput.value = z2.X().toFixed(2);
-		x2.setAttribute({ disabled: false });
+		x2_input.rendNodeInput.value = z2.X().toFixed(2);
+		x2_input.setAttribute({ visible: true });
+		x2_disp.setAttribute({ visible: false });
 		
-		prob.setAttribute({ disabled: true });
+		prob_input.setAttribute({ visible: false });
+		prob_disp.setAttribute({ visible: true });
 		
 		PTYPE = 'between';
 			
@@ -361,13 +376,16 @@ cb_left = JSXCheckbox(board_normal, -3.6, -0.16, 'P(x < b)', false,
 		shadedregionright.setAttribute({ visible: false });
 		shadedregionbetween.setAttribute({ visible: false });
 		
-		x1.rendNodeInput.value = '-Infinity';
-		x1.setAttribute({ disabled: true });
+		x1_input.rendNodeInput.value = '-Infinity';
+		x1_input.setAttribute({ disabled: true });
 	
-		x2.rendNodeInput.value = z2.X().toFixed(2);
-		x2.setAttribute({ disabled: false });
+		x2_input.rendNodeInput.value = z2.X().toFixed(2);
+		x2_input.setAttribute({ visible: true });
+		x2_disp.setAttribute({ visible: false });
+
 		
-		prob.setAttribute({ disabled: true });
+		prob_input.setAttribute({ visible: false });
+		prob_disp.setAttribute({ visible: true });
 		
 		PTYPE = 'left';
 		
@@ -386,13 +404,16 @@ cb_right = JSXCheckbox(board_normal, -3.6, -0.22, 'P(x > a)', false,
 		shadedregionright.setAttribute({ visible: true });
 		shadedregionbetween.setAttribute({ visible: false });
 		
-		x1.rendNodeInput.value = z1.X().toFixed(2);
-		x1.setAttribute({ disabled: false });
+		x1_input.rendNodeInput.value = z1.X().toFixed(2);
+		x1_input.setAttribute({ disabled: false });
 		
-		x2.rendNodeInput.value = '-Infinity';
-		x2.setAttribute({ disabled: true });
+		x2_input.rendNodeInput.value = '-Infinity';
+		x2_input.setAttribute({ visible: true });
+		x2_input.setAttribute({ disabled: true });
+		x2_disp.setAttribute({ visible: false });
 		
-		prob.setAttribute({ disabled: true });
+		prob_input.setAttribute({ visible: false });
+		prob_disp.setAttribute({ visible: true });
 		
 		PTYPE = 'right';
 	
