@@ -64,7 +64,7 @@
 <!-- Tab links -->
 <div class="tab">
 	<button class="tablinks" id="defaultOpen" onclick="openTool(event, 'standard_normal')">Normal</button>
-	<button class="tablinks" onclick="openTool(event, 't-distribution')">Student's T</button>
+	<button class="tablinks" onclick="openTool(event, 't-distribution')">T-Dist</button>
 </div>
 
 <!-- Tab content -->
@@ -104,10 +104,16 @@ document.getElementById("defaultOpen").click();
 		fillOpacity: 0.4, 
 		withLabel: false,
 		fixed: true,
-		highlight: false
+		highlight: false,
+		curveLeft: { visible: false },
+		curveRight: { visible: false },
 	};
 	
 	var PTYPE = 'between';
+	
+	var BETWEEN = 0;
+	var LEFT = 1;
+	var RIGHT = 2;
 	
 </script>
 
@@ -133,16 +139,17 @@ var board_normal = JXG.JSXGraph.initBoard('standard_normal', {
 		}
     });
 
-mean_n = 0;
-stdev_n = 1;
-
+/*mean_n = 0;
+stdev_n = 1;		
+			
+	
 function zScore(x) {
 	return (x - mean_n) / stdev_n;
 }
 			
 function xValue(z) {
 	return mean_n + z * stdev_n;
-}			
+}				
 			
 normal_curve = board_normal.create('functiongraph', [function(x) { return normalpdf(zScore(x)); }], 
 	{ strokeWidth: 3, fixed: true, 	highlight: false });
@@ -180,22 +187,22 @@ for (var i = -3; i <= 3; i++) {
 
 // input variables
 
-mean = board_normal.create('input', [1.3, 0.38, '0', '&mu; = '], { fontSize: 18, cssStyle: 'width: 100px', frozen: true });
-stdev = board_normal.create('input', [1.3, 0.3, '1', '&sigma; = '], { fontSize: 18, cssStyle: 'width: 100px', frozen: true });
+mean = board_normal.create('input', [1.3, 0.38, '0', '&mu; = '], { fontSize: 18, cssStyle: 'width: 100px', frozen: true, fixed: true });
+stdev = board_normal.create('input', [1.3, 0.3, '1', '&sigma; = '], { fontSize: 18, cssStyle: 'width: 100px', frozen: true, fixed: true });
 
-x1_input = board_normal.create('input', [-3.5, -0.32, '-2', 'P( '], { fontSize: 18, cssStyle: 'width: 100px ', frozen: true });
+x1_input = board_normal.create('input', [-3.5, -0.32, '-2', 'P( '], { fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
 x2_input = board_normal.create('input', 
 		[-1.3, -0.32, '2', ' < <i>X</i> < '], 
-		{ fontSize: 18, cssStyle: 'width: 100px ', frozen: true });
+		{ fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
 x2_disp = board_normal.create('text', [-1.3, -0.32, '< <i>X</i> < 2'],
 		{ fontSize: 18, frozen: true, visible: false });		
 		
 prob_input = board_normal.create('input', [1.3, -0.32, '0.9500', ') = '], 
-		{ fontSize: 18, cssStyle: 'width: 100px ', frozen: true });
+		{ fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
 prob_input.setAttribute( { visible: false } );
 
 prob_disp = board_normal.create('text', [1.3, -0.32, ') = 0.9500'],
-		{ fontSize: 18, frozen: true });
+		{ fontSize: 18, frozen: true, fixed: true });
 
 
 calc_normal = board_normal.create('button', [1.5, -0.42, 'Calculate',
@@ -268,21 +275,15 @@ update_normal = board_normal.create('button', [2.5, 0.22, 'Update',
 
 shadedregionleft = board_normal.create('integral', 
 	[[ function() { return xValue(-10000); }, function() { return z2.X(); }], normal_curve], shadeParam);
-shadedregionleft.setAttribute({ visible: PTYPE == 'left' ? true : false });
-shadedregionleft.curveLeft.setAttribute( { visible: false } );
-shadedregionleft.curveRight.setAttribute( { visible: false } );
+shadedregionleft.setAttribute({ visible: false });
 
 shadedregionright = board_normal.create('integral', 
 	[[ function() { return z1.X(); }, function() { return xValue(10000); }], normal_curve], shadeParam);
-shadedregionright.setAttribute({ visible: PTYPE == 'right' ? true : false });
-shadedregionright.curveLeft.setAttribute( { visible: false } );
-shadedregionright.curveRight.setAttribute( { visible: false } );
+shadedregionright.setAttribute({ visible: false });
 
 shadedregionbetween = board_normal.create('integral', 
 	[[ function() { return z1.X(); }, function() { return z2.X(); }], normal_curve], shadeParam);
-shadedregionbetween.setAttribute({ visible: PTYPE == 'between' ? true : false });
-shadedregionbetween.curveLeft.setAttribute( { visible: false } );
-shadedregionbetween.curveRight.setAttribute( { visible: false } );
+
 
 cb_area = JSXCheckbox(board_normal, 1, -0.1, 'Calculate Area', true,
 	function() {
@@ -407,7 +408,7 @@ cb_right = JSXCheckbox(board_normal, -3.6, -0.22, 'P(x > a)', false,
 		x1_input.rendNodeInput.value = z1.X().toFixed(2);
 		x1_input.setAttribute({ disabled: false });
 		
-		x2_input.rendNodeInput.value = '-Infinity';
+		x2_input.rendNodeInput.value = 'Infinity';
 		x2_input.setAttribute({ visible: true });
 		x2_input.setAttribute({ disabled: true });
 		x2_disp.setAttribute({ visible: false });
@@ -437,23 +438,7 @@ function currentProbability(x1, x2) {
 		return (1 - normalcdf(x1)).toFixed(4);
 	} 
 
-}
-
-function changebounds() {
-
-	var orgbounds = board_normal.getBoundingBox();
-	var width = document.getElementById('standard_normal').clientWidth;
-	var height = document.getElementById('standard_normal').clientHeight;
-
-	board_normal.resizeContainer(width, height);
-	board_normal.setBoundingBox(orgbounds, false);
-
-	board_normal.update();	
-		
-}
-
-board_normal.on('up', function() { changebounds() });
-
+}*/
 
 
 </script>
@@ -461,320 +446,328 @@ board_normal.on('up', function() { changebounds() });
 
 <script type='text/javascript'>
 		
-var board = JXG.JSXGraph.initBoard('t-distribution', {
-		boundingbox: [-4,0.6,4,-0.2], 
+var t_board = JXG.JSXGraph.initBoard('t-distribution', {
+		boundingbox: [-4,0.5,4,-0.5],
       	showCopyright: false, 
-      	showNavigation: true,
+      	showNavigation: false,
 		keepaspectratio: false,
 		axis: false,
       	zoom: {
             factorX: 1.25,
             factorY: 1.25,
-            wheel: true,
+            wheel: false,
             needshift: false,
-            eps: 0.1
-        }		
+            eps: 0.1,
+			enabled: false
+        },
+		pan: {
+			enabled: false
+		}
     });
 		
-/*var displayboard = JXG.JSXGraph.initBoard('display', {
-		boundingbox: [0,10,12,0], 
-      	showCopyright: false, 
-      	showNavigation: false,
-		keepaspectratio: false,
-		axis: false	
-    });		
-		
-JXG.Options.board.minimizeReflow = 'all';		
-
-BETWEEN = 0;  LEFT = 1;  RIGHT = 2;   TWOTAIL = 3;
-
-df_txt = displayboard.create('text', [1, 3, 'Degrees of Freedom:']);	
-df = displayboard.create('slider', [[1, 2.5], [7, 2.5], [1, 10, 68]], 
-	{ snapwidth: 1,
-	  precision: 0 });
-df.on('drag', 
-	function() {
-		// automatically update the t_dist curve
-		board.update();
-	});
-		
-		
-normal_curve = board.create('functiongraph', [ 
-	function(x) { 
-		return normalpdf(x); 
-	} ], 
-	{ 
-		strokeWidth: 3, 
-		fixed: true, 
-		highlight: false 
-	});
+var t_mean = 0;
+var t_stdev = 1;
+var t_df = 10;	
+			
 	
-t_curve = board.create('functiongraph', [
-	function(x) { 
-		return tpdf(x, df.Value());
-	}],
-	{
-		strokeWidth: 3,
-		fixed: true,
-		strokeColor: '#00bb00'
-	});
+function tScore(x) {
+	return (x - t_mean) / t_stdev;
+}
+			
+function t_xval(t) {
+	return t_mean + t * t_stdev;
+}		
+			
+var t_curve = t_board.create('functiongraph', [function(x) { return tpdf(tScore(x), t_df); }], 
+	{ strokeWidth: 3, fixed: true, 	highlight: false });
 	
-hidden_axis = board.create('line', [[0, 0], [1, 0]], { visible: false });
-x_axis = board.create('axis', [[0, 0], [1, 0]], 
-	{ ticks: { majorHeight: 10, drawZero: true }});
+var t_axis = t_board.create('line', [[0, 0], [1, 0]], { strokeColor: 'black', strokeWidth: 1, highlight: false, fixed: true, frozen: true });
+	
+var t1 = t_board.create('glider', [-2, 0, t_axis], { withLabel: false, color: 'black', snapToGrid: true, snapSizeX: 0.01 });
+t1.on('drag', 
+	function() { 
+		t_x1_input.rendNodeInput.value = t1.X().toFixed(2);
+		t_df = Number(t_df_input.rendNodeInput.value);
+		t_prob_input.rendNodeInput.value = currentTProbability(tScore(t1.X()), tScore(t2.X()), t_df);
+		t_prob_disp.setText(') = ' + currentTProbability(tScore(t1.X()), tScore(t2.X()), t_df));
+	}
+);
 
-cb = [];
-
-cb[BETWEEN] = displayboard.create('checkbox', [1, 6, 'Between']);
-cb[LEFT] = displayboard.create('checkbox', [1, 5.5, 'Left tailed']);
-cb[RIGHT] = displayboard.create('checkbox', [1, 5, 'Right tailed']);
-cb[TWOTAIL] = displayboard.create('checkbox', [1, 4.5, 'Two tailed']);
-
-// Set the calculation to find the area between two z-scores by default
-cb[BETWEEN].rendNodeCheckbox.checked = true;
-cb[BETWEEN]._value = true;
-
-// Just default stuff
-probability = board.create('point', [0, 0], { visible: false });
-z_area = board.create('point', [0, 0], { visible: false });
-t_area = board.create('point', [0, 0], { visible: false });
-z1_txt = board.create('point', [0, 0], { visible: false });
-z2_txt = board.create('point', [0, 0], { visible: false });
-
-function setupstuff() {
-
-	board.removeObject(probability);
-	displayboard.removeObject(z_area);
-	displayboard.removeObject(t_area);
-	displayboard.removeObject(z1_txt);
-	displayboard.removeObject(z2_txt);
-
-
-	probability = board.create('integral', [[
-		function() { return z1.X(); }, 
-		function() { return z2.X(); }], 
-		t_curve], 
-		{ 
-			color: '#00ff00', 
-			fillOpacity: 0.3, 
-			withLabel: false,
-			fixed: true,
-			highlight: false 
-		});
-	probability.curveLeft.setAttribute( { visible: false } );
-	probability.curveRight.setAttribute( { visible: false } );
-
-	z_area = displayboard.create('text', [1, 8, 
-		function() { 
-			return 'Area = ' + currentZProbability(z1.X(), z2.X()); 
-		}], { fontSize: 18 });
+var t2 = t_board.create('glider', [2, 0, t_axis], { withLabel: false, color: 'black', snapToGrid: true, snapSizeX: 0.01 });
+t2.on('drag', 
+	function() { 
+		t_x2_input.rendNodeInput.value = t2.X().toFixed(2);
+		t_x2_disp.setText('< <i>X</i> < ' + t2.X().toFixed(2));
+		t_df = Number(t_df_input.rendNodeInput.value);
+		t_prob_input.rendNodeInput.value = currentTProbability(tScore(t1.X()), tScore(t2.X()), t_df);
+		t_prob_disp.setText(') = ' + currentTProbability(tScore(t1.X()), tScore(t2.X()), t_df));
+	}
+);
 		
-	t_area = displayboard.create('text', [1, 7.5, 
-		function() { 
-			return 'Area = ' + currentTProbability(z1.X(), z2.X(), df.Value()); 
-		}], { fontSize: 18 });	
-		
-	z1_txt = displayboard.create('text', [2, 7, 
-		function() { 
-			if(z1.X() < -9.9) {
-				return 'z1 = -&#x221e;';
-			} else if(z1.X() > 9.9) {
-				return 'z1 = +&#x221e;';
-			} else return 'z1 = ' + z1.X().toFixed(2); 
-		}], { fontSize: 18 });
-
-	z2_txt = displayboard.create('text', [2, 6.5, 
-		function() { 
-			if(z2.X() < -9.9) {
-				return 'z2 = -&#x221e;';
-			} else if(z2.X() > 9.9) {
-				return 'z2 = +&#x221e;';
-			} else
-			return 'z2 = ' + z2.X().toFixed(2); 
-		}], { fontSize: 18 });
-
+var t_ticks = [];
+var t_labels = [];
+for (var i = -3; i <= 3; i++) {
+	t_ticks[i + 3] = t_board.create('segment', [[i,.01], [i,-0.01]], { color: 'grey', strokeWidth: 1, fixed: true, highlight: false });
+	t_labels[i + 3] = t_board.create('text', [i-.05, -0.02, i], { fixed: true, highlight: false });
 }
 
-z1 = board.create('glider', [-2, 0, hidden_axis], { name: 'z1' });
-z1.on('drag', 
-	function() { 
-		displayboard.update(); 
-	});
+// input variables
 
-z2 = board.create('glider', [2, 0, hidden_axis], { name: 'z2' });
-z2.on('drag', 
-	function() { 
-		displayboard.update(); 
-	}); 
+var t_df_input = t_board.create('input', [1.3, 0.45, t_df, 'df = '], { fontSize: 18, cssStyle: 'width: 100px', frozen: true, fixed: true });	
+var t_mean_input = t_board.create('input', [1.3, 0.38, '0', '&mu; = '], { fontSize: 18, cssStyle: 'width: 100px', frozen: true, fixed: true });
+var t_stdev_input = t_board.create('input', [1.3, 0.3, '1', '&sigma; = '], { fontSize: 18, cssStyle: 'width: 100px', frozen: true, fixed: true });
+		
+var t_shadeleft = t_board.create('integral', 
+	[[ function() { return t_xval(-10000); }, function() { return t2.X(); }], t_curve], shadeParam);
+t_shadeleft.setAttribute({ visible: false });
+
+var t_shaderight = t_board.create('integral', 
+	[[ function() { return t1.X(); }, function() { return t_xval(10000); }], t_curve], shadeParam);
+t_shaderight.setAttribute({ visible: false });
+
+var t_shadebetween = t_board.create('integral', 
+	[[ function() { return t1.X(); }, function() { return t2.X(); }], t_curve], shadeParam);
+		
+var t_x1_input = t_board.create('input', [-3.5, -0.32, '-2', 'P( '], { fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
+
+var t_x2_input = t_board.create('input', [-1.3, -0.32, '2', ' < <i>X</i> < '], 
+		{ fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
+		
+var t_x2_disp = t_board.create('text', [-1.3, -0.32, '< <i>X</i> < 2'],
+		{ fontSize: 18, frozen: true, visible: false, fixed: true });		
+		
+var t_prob_input = t_board.create('input', [1.3, -0.32, '0.9500', ') = '], 
+		{ fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
+t_prob_input.setAttribute({ visible: false });
+
+var t_prob_disp = t_board.create('text', [1.3, -0.32, ') = 0.9500'],
+		{ fontSize: 18, frozen: true, fixed: true });		
+		
+t_board.update();
+		
+// Buttons
+
+var t_calc_button = t_board.create('button', [1.5, -0.42, 'Calculate',
+	function () {
 	
-setupstuff();
-
-function currentZProbability(x1, x2) { 
-	if(cb[BETWEEN].Value()) { 
-		return Math.abs(normalcdf(x2) - normalcdf(x1)).toFixed(4);
-	} else if(cb[LEFT].Value()) {
-		return normalcdf(x2).toFixed(4);
-	} else if(cb[RIGHT].Value()) {
-		return (1 - normalcdf(x1)).toFixed(4);
-	} else if(cb[TWOTAIL].Value()) {
-	return (1 - Math.abs(normalcdf(x2) - normalcdf(x1))).toFixed(4);
+		if(isChecked(t_cb_area)) {
+			if(!isNaN(t_x1_input.Value())) {
+				t1.moveTo([t_x1_input.Value(), 0]);
+			}
+	
+			if(!isNaN(t_x2_input.Value())) {
+				t2.moveTo([t_x2_input.Value(), 0]);
+			}
+			t_df = Number(t_df_input.rendNodeInput.value);
+			t_prob_input.rendNodeInput.value = currentTProbability(tScore(t_x1_input.Value()), tScore(t_x2_input.Value()), t_df);
+			t_prob_disp.setText(') = ' + currentTProbability(tScore(t_x1_input.Value()), tScore(t_x2_input.Value()), t_df));
+		
+		} else {
+			if(!isNaN(t_prob_input.Value())) {
+			
+				t_df = Number(t_df_input.rendNodeInput.value);
+				var t = t_xval(tinv(t_prob_input.Value(), t_df));
+				t2.moveTo([t, 0]);
+				t_x2_input.rendNodeInput.value = t;
+				t_x2_disp.setText('< <i>X</i> < ' + t.toFixed(8));
+		
+			}
+		}
+}], { frozen: true });		
+		
+var t_update = t_board.create('button', [2.5, 0.22, 'Update', 
+		
+	function() {
+		var cur_z1 = tScore(t1.X());
+		var cur_z2 = tScore(t2.X());
+		t_mean = Number(t_mean_input.Value());
+		t_stdev = Number(eval(t_stdev_input.Value()));
+		var x_min = t_xval(-4);
+		var x_max = t_xval(4);
+		t_board.setBoundingBox([x_min, 0.5, x_max, -0.5]);
+		t1.moveTo([t_xval(cur_z1), 0]);
+		t2.moveTo([t_xval(cur_z2), 0]);
+		t_x1_input.rendNodeInput.value = t_xval(cur_z1);
+		t_x2_input.rendNodeInput.value = t_xval(cur_z2);
+		t_x2_disp.setText('< <i>X</i> < ' + t_xval(cur_z2).toFixed(8));
+		t_df = Number(t_df_input.rendNodeInput.value);
+		t_prob_input.rendNodeInput.value = currentTProbability(cur_z1, cur_z2, t_df);
+		updateTAxisLabels();
+		
 	}
+	
+], { frozen: true });		
+		
+// Checkboxes
+
+var t_cb_area = JSXCheckbox(t_board, 1, -0.1, 'Calculate Area', true,
+	function() {
+		setCheckbox(t_cb_area, true);
+		setCheckbox(t_cb_xvalue, false);
+		
+		t_cb[BETWEEN].setAttribute( { disabled: false, strokeColor: 'black', highlight: true  });
+		t_cb[LEFT].setAttribute( { disabled: false });
+		t_cb[RIGHT].setAttribute( { disabled: false, strokeColor: 'black', highlight: true  });
+		
+		t_prob_input.setAttribute( { visible: false });
+		t_prob_disp.setAttribute( { visible: true });
+		
+		t_x2_input.setAttribute( { disabled: false });
+		t_x2_input.setAttribute( { visible: true });
+		t_x2_disp.setAttribute({ visible: false });
+		
+				
+	}, { fontSize: 18, frozen: true });
+
+var t_cb_xvalue = JSXCheckbox(t_board, 1, -0.16, 'Calculate x-Value', false,
+	function() {
+		setCheckbox(t_cb_xvalue, true);
+		setCheckbox(t_cb_area, false);
+		
+		t_cb[BETWEEN].setAttribute( { disabled: true, strokeColor: 'lightgray', highlight: false });
+		t_cb[LEFT].setAttribute( { disabled: false });
+		t_cb[RIGHT].setAttribute( { disabled: true, strokeColor: 'lightgray', highlight: false });
+		set_t_cbtrue(LEFT);
+		
+		t1.setAttribute({ visible: false });
+		t2.setAttribute({ visible: true });
+		
+		t_shadeleft.setAttribute({ visible: true });
+		t_shaderight.setAttribute({ visible: false });
+		t_shadebetween.setAttribute({ visible: false });
+		
+		t_x1_input.rendNodeInput.value = '-Infinity';
+		t_x1_input.setAttribute({ disabled: true });
+	
+		t_x2_input.rendNodeInput.value = t2.X().toFixed(2);
+		t_x2_input.setAttribute({ visible: false });
+		t_x2_disp.setAttribute({ visible: true });
+		
+		t_prob_input.setAttribute({ visible: true });
+		t_prob_disp.setAttribute({ visible: false });
+		
+		t2.moveTo([t_x2_input.rendNodeInput.value, 0]);
+		
+	}, { fontSize: 18, frozen: true });
+
+var t_cb = [];
+
+t_cb[BETWEEN] = JSXCheckbox(t_board, -3.6, -0.1, 'P(a < x < b)', true, 
+	function() {
+		set_t_cbtrue(BETWEEN);
+
+		t_shadeleft.setAttribute({ visible: false });
+		t_shaderight.setAttribute({ visible: false });
+		t_shadebetween.setAttribute({ visible: true });
+			
+		t1.setAttribute({ visible: true });
+		t2.setAttribute({ visible: true });
+		
+		t_x1_input.rendNodeInput.value = t1.X().toFixed(2);
+		t_x1_input.setAttribute({ disabled: false });
+		
+		t_x2_input.rendNodeInput.value = t2.X().toFixed(2);
+		t_x2_input.setAttribute({ visible: true });
+		t_x2_input.setAttribute({ disabled: false });
+		t_x2_disp.setAttribute({ visible: false });
+		
+		t_prob_input.setAttribute({ visible: false });
+		t_prob_disp.setAttribute({ visible: true });
+			
+	}, { fontSize: 18, frozen: true });
+
+t_cb[LEFT] = JSXCheckbox(t_board, -3.6, -0.16, 'P(x < b)', false,
+	function() {
+		set_t_cbtrue(LEFT);
+		
+		t1.setAttribute({ visible: false });
+		t2.setAttribute({ visible: true });
+		
+		t_shadeleft.setAttribute({ visible: true });
+		t_shaderight.setAttribute({ visible: false });
+		t_shadebetween.setAttribute({ visible: false });
+		
+		t_x1_input.rendNodeInput.value = '-Infinity';
+		t_x1_input.setAttribute({ disabled: true });
+	
+		t_x2_input.rendNodeInput.value = t2.X().toFixed(2);
+		t_x2_input.setAttribute({ visible: true });
+		t_x2_input.setAttribute({ disabled: false });
+		t_x2_disp.setAttribute({ visible: false });
+		
+		t_prob_input.setAttribute({ visible: false });
+		t_prob_disp.setAttribute({ visible: true });
+		
+	}, { fontSize: 18, frozen: true });
+
+t_cb[RIGHT] = JSXCheckbox(t_board, -3.6, -0.22, 'P(x > a)', false,
+	function() {
+		set_t_cbtrue(RIGHT);
+		
+		t1.setAttribute({ visible: true });
+		t2.setAttribute({ visible: false });
+		
+		t_shadeleft.setAttribute({ visible: false });
+		t_shaderight.setAttribute({ visible: true });
+		t_shadebetween.setAttribute({ visible: false });
+		
+		t_x1_input.rendNodeInput.value = t1.X().toFixed(2);
+		t_x1_input.setAttribute({ disabled: false });
+		
+		t_x2_input.rendNodeInput.value = 'Infinity';
+		t_x2_input.setAttribute({ visible: true });
+		t_x2_input.setAttribute({ disabled: true });
+		t_x2_disp.setAttribute({ visible: false });
+		
+		t_prob_input.setAttribute({ visible: false });
+		t_prob_disp.setAttribute({ visible: true });
+	
+	}, { fontSize: 18, frozen: true });
+
+function updateTAxisLabels() {
+	
+	for(var i = -3; i <= 3; i++) {
+		t_ticks[i + 3].point1.moveTo([t_xval(i), 0.01]);
+		t_ticks[i + 3].point2.moveTo([t_xval(i), -0.01]);
+		t_labels[i + 3].setText(t_xval(i));
+		t_labels[i + 3].setCoords([t_xval(i), -0.02]);
+	}
+	
 }
 
 function currentTProbability(x1, x2, df) { 
-	if(cb[BETWEEN].Value()) { 
-		return Math.abs(tcdf(x2, df) - tcdf(x1, df)).toFixed(4);
-	} else if(cb[LEFT].Value()) {
-		return tcdf(x2, df).toFixed(4);
-	} else if(cb[RIGHT].Value()) {
-		return (1 - tcdf(x1, df)).toFixed(4);
-	} else if(cb[TWOTAIL].Value()) {
-	return (1 - Math.abs(tcdf(x2, df) - tcdf(x1, df))).toFixed(4);
-	}
-}
-
-function update() {
-
-	var orgbounds = board.getBoundingBox();
-	var width = document.getElementById('jxgbox').clientWidth;
-	var height = document.getElementById('jxgbox').clientHeight;
-
-	board.resizeContainer(width, height);
-	board.setBoundingBox(orgbounds, false);
-
-	board.update();	
-		
-}
-
-cb_ZoomSquare = displayboard.create('checkbox', [1, 9, 'Zoom Square']);
-
-slider_horiz_zoom = displayboard.create('slider', [[1, 2], [7, 2], [-10, 1, 10]]);
-horiz_zoom_label = displayboard.create('text', [9, 2, 'x zoom']);
-horiz_zoom_level = 1;
-slider_horiz_zoom.on('drag', 
-	function() {
-		var orgbounds = board.getBoundingBox();
-		var newfactor = slider_horiz_zoom.Value();
-		if(horiz_zoom_level > newfactor) {
-			orgbounds[0] = orgbounds[0] * 1.1;
-			orgbounds[2] = orgbounds[2] * 1.1;
-		} else {
-			orgbounds[0] = orgbounds[0] / 1.1;
-			orgbounds[2] = orgbounds[2] / 1.1;
-		}
-		board.setBoundingBox(orgbounds, false);
-		horiz_zoom_level = newfactor;
-	});
-
-slider_vert_zoom = displayboard.create('slider', [[1, 1.5], [7, 1.5], [-10, 1, 10]]);
-vert_zoom_label = displayboard.create('text', [9, 1.5, 'y zoom']);
-vert_zoom_level = 1;
-slider_vert_zoom.on('drag', 
-	function() {
-		var orgbounds = board.getBoundingBox();
-		var newfactor = slider_vert_zoom.Value();
-		if(vert_zoom_level > newfactor) {
-			orgbounds[1] = orgbounds[1] * 1.1;
-			orgbounds[3] = orgbounds[3] * 1.1;
-		} else {
-			orgbounds[1] = orgbounds[1] / 1.1;
-			orgbounds[3] = orgbounds[3] / 1.1;
-		}
-		board.setBoundingBox(orgbounds, false);
-		vert_zoom_level = newfactor;
-	});	
-
-// All the things that have to do with checkboxes
-
-function setcbtrue(box) {
-	cb[BETWEEN].rendNodeCheckbox.checked = false;
-	cb[LEFT].rendNodeCheckbox.checked = false;
-	cb[RIGHT].rendNodeCheckbox.checked = false;
-	cb[TWOTAIL].rendNodeCheckbox.checked = false;
-	cb[BETWEEN]._value = false;
-	cb[LEFT]._value = false;
-	cb[RIGHT]._value = false;
-	cb[TWOTAIL]._value = false;
-	cb[box].rendNodeCheckbox.checked = true;
-	cb[box]._value = true;
-}
-
-JXG.addEvent(cb[BETWEEN].rendNodeCheckbox, 'change', 
-	function() {
-		setcbtrue(BETWEEN);
-		
-		board.removeObject(z1);
-		board.removeObject(z2);
-		
-		z1 = board.create('glider', [-2, 0, hidden_axis], { name: 'z1' });
-		z1.on('drag', function() { displayboard.update(); });
-
-		z2 = board.create('glider', [2, 0, hidden_axis], { name: 'z2' });
-		z2.on('drag', function() { displayboard.update(); }); 
-		
-		setupstuff();
-		
-		board.update();
-		displayboard.update();
-		
-    }, cb[BETWEEN]);
 	
-JXG.addEvent(cb[LEFT].rendNodeCheckbox, 'change', 
-	function() {
-		setcbtrue(LEFT);
+	if(typeof(x1) !== 'number') {
+		x1 = Number(x1);
+	}
+	if(typeof(x2) !== 'number') {
+		x2 = Number(x2);
+	}
+	if(typeof(df) !== 'number') {
+		df = Number(df);
+	}
+	
+	if(t_cb[BETWEEN].Value()) { 
+		return Math.abs(tcdf(x2, df) - tcdf(x1, df)).toFixed(4);
+	} else if(t_cb[LEFT].Value()) {
+		return tcdf(x2, df).toFixed(4);
+	} else if(t_cb[RIGHT].Value()) {
+		return (1 - tcdf(x1, df)).toFixed(4);
+	} 
 
-		board.removeObject(z1);
-		board.removeObject(z2);
+}
 
-		z1 = board.create('glider', [-10, 0, hidden_axis], { name: 'z1', visible: false });
-		z1.on('drag', function() { displayboard.update(); });
+function set_t_cbtrue(box) {
+	t_cb[BETWEEN].rendNodeCheckbox.checked = false;
+	t_cb[LEFT].rendNodeCheckbox.checked = false;
+	t_cb[RIGHT].rendNodeCheckbox.checked = false;
+	t_cb[BETWEEN]._value = false;
+	t_cb[LEFT]._value = false;
+	t_cb[RIGHT]._value = false;
+	t_cb[box].rendNodeCheckbox.checked = true;
+	t_cb[box]._value = true;
+}
 
-		z2 = board.create('glider', [2, 0, hidden_axis], { name: 'z2' });
-		z2.on('drag', function() { displayboard.update(); }); 
-		
-		setupstuff();
-
-		board.update();
-		displayboard.update();
-    }, cb[LEFT]);	
-
-JXG.addEvent(cb[RIGHT].rendNodeCheckbox, 'change', 
-	function() {
-		setcbtrue(RIGHT);
-
-		board.removeObject(z1);
-		board.removeObject(z2);
-
-		z1 = board.create('glider', [-2, 0, hidden_axis], { name: 'z1' });
-		z1.on('drag', function() { displayboard.update(); });
-
-		z2 = board.create('glider', [10, 0, hidden_axis], { name: 'z2', visible: false });
-		z2.on('drag', function() { displayboard.update(); }); 
-		
-		setupstuff();
-
-		board.update();
-		displayboard.update();
-    }, cb[RIGHT]);	
-
-JXG.addEvent(cb[TWOTAIL].rendNodeCheckbox, 'change', 
-	function() {
-		setcbtrue(TWOTAIL);
-
-		board.removeObject(z1);
-		board.removeObject(z2);
-
-		z1 = board.create('glider', [-2, 0, hidden_axis], { name: 'z1' });
-		z1.on('drag', function() { displayboard.update(); });
-
-		z2 = board.create('glider', [2, 0, hidden_axis], { name: 'z2' });
-		z2.on('drag', function() { displayboard.update(); }); 
-		
-		setupstuff();
-
-		board.update();
-		displayboard.update();
-    }, cb[TWOTAIL]);		*/
 	
 </script>
 
