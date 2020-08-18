@@ -1,8 +1,8 @@
 // Useful constants
 
-PI        = 3.14159265358979323846;  
+PI        = 3.14159265358979323846;
 E         = 2.71828182845904523536;
-LN2       = 0.69314718055994530942;  
+LN2       = 0.69314718055994530942;
 LN10      = 2.30258509299404568402;
 PHI       = 1.61803398874989484821;
 LNPI      = 1.14472988584940017414;
@@ -13,7 +13,7 @@ NEGATIVE_INFINITY = Number.NEGATIVE_INFINITY;
 POSITIVE_INFINITY = Number.POSITIVE_INFINITY;
 
 MAXGAM  = 34.648;
-MAXFACT = 170;  
+MAXFACT = 170;
 MAXGAM  = 34.648;
 MAXLGM  = 1.0383E+36;
 MACHEP  = 1.08420217248550444E-19;
@@ -105,29 +105,29 @@ function round(num, dec)
 	return Math.round(num * factor) / factor;
 }
 
-/* 
-		Returns the factorial of n if 0 <= n <= 170 and n is an integer, 
+/*
+		Returns the factorial of n if 0 <= n <= 170 and n is an integer,
 		or else 0 is returned.
-	 
+
 		You will get creepy results if n is not an integer.
 */
 function factorial (n) {
 
 		var i, fact = 1;
-		
+
 		if((n <= MAXFACT) && (n >= 0)) {
 				for(i = n; i >= 1; i--) {
 						fact *= i;
 				}
 		}
 		else fact = 0;
-				
+
 		return fact;
 }
 
 /*
 		Returns the number of permutations of n objects taken r at a time.
-		
+
 		Beware the use of non-integer values for n and r!
 */
 function permutation (n, r) {
@@ -136,7 +136,7 @@ function permutation (n, r) {
 
 /*
 		Returns the number of combinations of n objects taken r at a time.
-		
+
 		Beware the use of non-integer values for n and r!
 */
 function combination (n, r) {
@@ -145,8 +145,8 @@ function combination (n, r) {
 
 /*
 		Returns the binomial probability of x successes for n trials and
-		probability of success p. 
-		
+		probability of success p.
+
 */
 
 function binompdf(n, p, x) {
@@ -176,18 +176,18 @@ function normalpdf(x, mean, stdev) {
 
 /*
 	Calculates probabilites based on a normal distribution. Approximations
-	found using Taylor Polynomials.	
+	found using Taylor Polynomials.
 */
 
 function normalcdf(z) {
-		
+
 	var coeff;
 	var n = 0;
 	var sum = 0;
 	var a = 0;
 	var b = 0.1;
 	var precision = 1E-16;
-		
+
 	if (z > 3.9) {
 		return 1.0;
 	} else if (z < -3.9) {
@@ -199,9 +199,9 @@ function normalcdf(z) {
 		sum += b;
 		n++;
 	}
-		
+
 	return 0.5 + (1 / Math.sqrt(2 * Math.PI)) * sum;
-		
+
 }
 
 function invnorm(p)
@@ -230,7 +230,7 @@ function invnorm(p)
 	var a = new Array (-3.969683028665376e+01,  2.209460984245205e+02,
 					   -2.759285104469687e+02,  1.383577518672690e+02,
 					   -3.066479806614716e+01,  2.506628277459239e+00);
-					
+
 	var b = new Array (-5.447609879822406e+01,  1.615858368580409e+02,
 					   -1.556989798598866e+02,  6.680131188771972e+01,
 					   -1.328068155288572e+01 );
@@ -238,7 +238,7 @@ function invnorm(p)
 	var c = new Array (-7.784894002430293e-03, -3.223964580411365e-01,
 					   -2.400758277161838e+00, -2.549732539343734e+00,
 					    4.374664141464968e+00,  2.938163982698783e+00);
-					
+
 	var d = new Array (7.784695709041462e-03,  3.224671290700398e-01,
 					   2.445134137142996e+00,  3.754408661907416e+00);
 
@@ -267,17 +267,17 @@ function invnorm(p)
 ///////////////////////////////////////////////////////////////////////////////
 //
 //  Calculates the t-distribution pdf for a given value of tc and degrees of
-//  freedom. Formula for the pdf found at wikipedia.org. 
+//  freedom. Formula for the pdf found at wikipedia.org.
 //
-// 		@param t - The t-score with which to find the point on the 
+// 		@param t - The t-score with which to find the point on the
 //			t-distribution curve
 // 		@param df - Number of degrees of freedom
-// 	
+//
 //  	@return The point on the t-distribution curve with df degrees of
 //   		freedom at a given t-score.
 //
 ///////////////////////////////////////////////////////////////////////////////
-		
+
 function tpdf(t, df) {
 	var p, q;
 
@@ -293,19 +293,19 @@ function tpdf(t, df) {
 }
 
  //////////////////////////////////////////////////////////////////////////////
- //   
+ //
  //  Calculates the t-distribution cdf for a given value of tc and degrees of
  //  	freedom. Formula for the cdf derived from distrib.mac from Maxima.
- //  	
+ //
  //		@param t - The t-score with which to calculate the cumulative area
  //     		   under the t-dist curve to the left of
  //
  //     @param df - The number of degrees of freedom
  //
  //     @return Cumulative t probability from -inf up to the given value of t
- //    
+ //
  //////////////////////////////////////////////////////////////////////////////
- 
+
 function tcdf(t, df) {
 	if(df < 1) {
 		return NaN;
@@ -319,7 +319,7 @@ function tcdf(t, df) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-//   
+//
 //  Converts a probability into a t-score. Algorithm from Maxima.
 //
 //     @param p - Probability
@@ -327,9 +327,9 @@ function tcdf(t, df) {
 //
 //     @return The t-score that corresponds to a probability given, based on
 //       		a number of degrees of freedom within the distribution.
-//   
+//
 ///////////////////////////////////////////////////////////////////////////////
- 
+
 function tinv (p, df) {
 
 	if(p == 0.0) return -Infinity;
@@ -350,151 +350,573 @@ function tinv (p, df) {
 
 }
 
+var stats = {
+
+	///////////////////////////////////////////////////////////////////////////////
+	//  Finds the minimum value in an array of numbers.
+	///////////////////////////////////////////////////////////////////////////////
+
+	min: function(list) {
+		var min = MAXDOUBLE
+		for(var i = 0; i < list.length; i++) {
+			if(list[i] < min) {
+				min = list[i];
+			}
+		}
+		return min;
+	},
+
+	///////////////////////////////////////////////////////////////////////////////
+	//  Finds the maximum value in an array of numbers.
+	///////////////////////////////////////////////////////////////////////////////
+
+	max: function(list) {
+		var max = MINDOUBLE;
+		for(var i = 0; i < list.length; i++) {
+			if(list[i] > max) {
+				max = list[i];
+			}
+		}
+		return max;
+	},
+
+	///////////////////////////////////////////////////////////////////////////////
+	//  Calculates the value of the median in an array
+	///////////////////////////////////////////////////////////////////////////////
+
+	median: function(list) {
+		var a = list.sort();
+		var mid = a.length / 2;
+		var med = MINDOUBLE;
+		if (a.length % 2 == 0) {
+			med = a[mid];
+		} else {
+			med = (list[Math.floor(mid)] + list[Math.ceil(mid)]) / 2;
+		}
+		return med;
+	},
+
+	///////////////////////////////////////////////////////////////////////////////
+	//  Calculates q1 for the values of the items in an array
+	///////////////////////////////////////////////////////////////////////////////
+
+	q1: function(list) {
+		var a = list.sort();
+		var mid = a.length / 2;
+		if (a.length % 2 == 0) {
+			return stats.median(a.slice(0, mid));
+		} else {
+			return stats.median(a.slice(0, Math.floor(mid)));
+		}
+	},
+
+	//////////////////////////////////////////////////////////////////////////////
+	//  Calculates q1 for the values of the items in an array
+	//////////////////////////////////////////////////////////////////////////////
+
+	q3: function(list) {
+		var a = list.sort();
+		var mid = a.length / 2;
+		if (a.length % 2 == 0) {
+			return stats.median(a.slice(mid + 1, a.length));
+		} else {
+			return stats.median(a.slice(Math.ceil(mid) + 1, a.length));
+		}
+	},
+
+	///////////////////////////////////////////////////////////////////////////
+	//  Computes the sum of an array of numbers.
+	///////////////////////////////////////////////////////////////////////////
+
+	sum: function(list) {
+		var s = 0;
+		for(var i = 0; i < list.length; i++) {
+			s += list[i];
+		}
+		return s;
+	},
+
+	//////////////////////////////////////////////////////////////////////////////
+	//  Computes the sum of the squares of an array of numbers.
+	//////////////////////////////////////////////////////////////////////////////
+
+	sumofsqr: function(list) {
+		var s = 0;
+		for(var i = 0; i < list.length; i++) {
+			s += sqr(list[i]);
+		}
+		return s;
+	},
+
+	///////////////////////////////////////////////////////////////////////////
+	//  Calculates the arithmetic mean of a set of values.
+	///////////////////////////////////////////////////////////////////////////
+
+	mean: function(list) {
+		return stats.sum(list) / list.length;
+	},
+
+	///////////////////////////////////////////////////////////////////////////
+	//  Calculates the arithmetic mean of a set of values,
+	//   subject to an array of frequencies.
+	///////////////////////////////////////////////////////////////////////////
+
+	wmean: function(list, freq) {
+
+		if (list.length != freq.length) {
+			return NaN;
+		}
+
+		for (var i = 0; i < freq.length; i++) {
+			if (freq[i] < 0) {
+				return NaN;
+			}
+		}
+
+		var s = 0;
+		for(var i = 0; i < list.length; i++) {
+			s += list[i] * freq[i];
+		}
+		return s / stats.sum(freq);
+
+	},
+
+	//////////////////////////////////////////////////////////////////////////////
+	//  Calculates the sample standard deviation of a set of values.
+	//////////////////////////////////////////////////////////////////////////////
+
+	stdev: function(list) {
+		var mu = stats.mean(list);
+		var ssd = 0; // sum of squared deviations
+		for(var i = 0; i < list.length; i++) {
+			ssd += sqr(list[i] - mu);
+		}
+		return sqrt(ssd / (list.length - 1));
+	},
+
+	///////////////////////////////////////////////////////////////////////////////
+	//  Calculates the population standard deviation of a set of values.
+	///////////////////////////////////////////////////////////////////////////////
+
+	stdevp: function(list) {
+		var mu = stats.mean(list);
+		var ssd = 0; // sum of squared deviations
+		for(var i = 0; i < list.length; i++) {
+			ssd += sqr(list[i] - mu);
+		}
+		return sqrt(ssd / list.length);
+	},
+
+	///////////////////////////////////////////////////////////////////////////////
+	//  Calculates the number of items in a frequency table. Allows for
+	//.   non-integer frequencies.
+	///////////////////////////////////////////////////////////////////////////////
+
+	wn: function(list, freq) {
+		if (list.length != freq.length) {
+			return NaN;
+		}
+
+		for (var i = 0; i < freq.length; i++) {
+			if (freq[i] < 0) {
+				return NaN;
+			}
+		}
+		return stats.sum(freq);
+	},
+
+	///////////////////////////////////////////////////////////////////////////////
+	//  Finds the weighted minimum value in an array of numbers.
+	///////////////////////////////////////////////////////////////////////////////
+
+	wmin: function(list, freq) {
+		if (list.length != freq.length) {
+			return NaN;
+		}
+
+		for (var i = 0; i < freq.length; i++) {
+			if (freq[i] < 0) {
+				return NaN;
+			}
+		}
+		return stats.min(list);
+	},
+
+	///////////////////////////////////////////////////////////////////////////////
+	//  Finds the maximum value in an array of numbers.
+	///////////////////////////////////////////////////////////////////////////////
+
+	wmax: function(list, freq) {
+
+		if (list.length != freq.length) {
+			return NaN;
+		}
+
+		for (var i = 0; i < freq.length; i++) {
+			if (freq[i] < 0) {
+				return NaN;
+			}
+		}
+		return stats.max(list);
+	},
+
+	///////////////////////////////////////////////////////////////////////////
+	//  Computes the weighted sum of an array of numbers.
+	///////////////////////////////////////////////////////////////////////////
+
+	wsum: function(list, freq) {
+
+		if (list.length != freq.length) {
+			return NaN;
+		}
+
+		for (var i = 0; i < freq.length; i++) {
+			if (freq[i] < 0) {
+				return NaN;
+			}
+		}
+
+		var s = 0;
+		for(var i = 0; i < list.length; i++) {
+			s += list[i] * freq[i];
+		}
+		return s;
+	},
+
+	///////////////////////////////////////////////////////////////////////////////
+	//  Calculates the weighted median in an array
+	///////////////////////////////////////////////////////////////////////////////
+
+	wmedian: function(list, freq) {
+
+		if (list.length != freq.length) {
+			return NaN;
+		}
+
+		for (var i = 0; i < freq.length; i++) {
+			if (freq[i] < 0) {
+				return NaN;
+			}
+		}
+
+		[list, freq] = stats.wsort(list, freq);
+		var s = stats.sum(freq);
+		var mid = s / 2;
+		var csum = 0;
+		var index = 0;
+		while (csum < mid && index < freq.length) {
+			csum += freq[index];
+			index += 1;
+		}
+		return list[index - 1];
+	},
+
+	///////////////////////////////////////////////////////////////////////////////
+	//  Calculates the weighted value of q1 in an array
+	///////////////////////////////////////////////////////////////////////////////
+
+	wq1: function(list, freq) {
+
+		if (list.length != freq.length) {
+			return NaN;
+		}
+
+		for (var i = 0; i < freq.length; i++) {
+			if (freq[i] < 0) {
+				return NaN;
+			}
+		}
+
+		[list, freq] = stats.wsort(list, freq);
+		var s = stats.sum(freq);
+		var mid = s / 2;
+		var csum = 0;
+		var index = 0;
+		while (csum < mid && index < freq.length) {
+			csum += freq[index];
+			index += 1;
+		}
+		return stats.wmedian(list.slice(0, index), freq.slice(0, index));
+	},
+
+
+	///////////////////////////////////////////////////////////////////////////////
+	//  Calculates the weighted value of q1 in an array
+	///////////////////////////////////////////////////////////////////////////////
+
+	wq3: function(list, freq) {
+
+		if (list.length != freq.length) {
+			return NaN;
+		}
+
+		for (var i = 0; i < freq.length; i++) {
+			if (freq[i] < 0) {
+				return NaN;
+			}
+		}
+
+		[list, freq] = stats.wsort(list, freq);
+
+		var s = stats.sum(freq);
+		var mid = s / 2;
+		var csum = 0;
+		var index = 0;
+		while (csum < mid && index < freq.length) {
+			csum += freq[index];
+			index += 1;
+		}
+		return stats.wmedian(list.slice(index, list.length), freq.slice(index, freq.length));
+	},
+
+	///////////////////////////////////////////////////////////////////////////////
+	//  Computes the weighted sum of the squares of an array of numbers.
+	///////////////////////////////////////////////////////////////////////////////
+
+	wsumofsqr: function(list, freq) {
+
+		if (list.length != freq.length) {
+			return NaN;
+		}
+
+		for (var i = 0; i < freq.length; i++) {
+			if (freq[i] < 0) {
+				return NaN;
+			}
+		}
+
+		var s = 0;
+		for(var i = 0; i < list.length; i++) {
+			s += sqr(list[i]) * freq[i];
+		}
+		return s;
+	},
+
+	///////////////////////////////////////////////////////////////////////////////
+	//  Calculates the weighted sample standard deviation of a set of values.
+	///////////////////////////////////////////////////////////////////////////////
+
+	wstdev: function(list, freq) {
+
+		if (list.length != freq.length) {
+			return NaN;
+		}
+
+		for (var i = 0; i < freq.length; i++) {
+			if (freq[i] < 0) {
+				return NaN;
+			}
+		}
+
+		var mu = stats.wmean(list, freq);
+		var ssd = 0; // sum of squared deviations
+		for(var i = 0; i < list.length; i++) {
+			ssd += freq[i] * sqr(list[i] - mu);
+		}
+		return sqrt(ssd / (stats.wn(list, freq) - 1));
+	},
+
+	///////////////////////////////////////////////////////////////////////////////
+	//  Calculates the weighted population standard deviation of a set of values.
+	///////////////////////////////////////////////////////////////////////////////
+
+	wstdevp: function(list, freq) {
+
+		if (list.length != freq.length) {
+			return NaN;
+		}
+
+		for (var i = 0; i < freq.length; i++) {
+			if (freq[i] < 0) {
+				return NaN;
+			}
+		}
+
+		var mu = stats.wmean(list, freq);
+		var ssd = 0; // sum of squared deviations
+		for(var i = 0; i < list.length; i++) {
+			ssd += freq[i] * sqr(list[i] - mu);
+		}
+		return sqrt(ssd / stats.wn(list, freq));
+	},
+
+	///////////////////////////////////////////////////////////////////////////////
+	//  Computes the linear correlation (Pearson) cofficent for paird data.
+	//		@return: NaN - The length of the x and y data sets is different
+	//					   or there is not enough data in the data sets.
+	///////////////////////////////////////////////////////////////////////////////
+
+	correlation: function(x_data, y_data) {
+
+		if(x_data.length != y_data.length) {
+			return NaN;
+		}
+
+		if(x_data.length < 2) {
+			return NaN;
+		}
+
+		var sx = stats.sum(x_data);
+		var sy = stats.sum(y_data);
+		var sxy = 0;
+		var sxx = stats.sumofsqr(x_data);
+		var syy = stats.sumofsqr(y_data);
+		var n = x_data.length;
+
+		for(var i = 0; i < x_data.length; i++) {
+			sxy += x_data[i] * y_data[i];
+		}
+
+		var r = (n * sxy - sx * sy) / sqrt( (n * sxx - sqr(sx)) * (n * syy - sqr(sy)) );
+
+		return r;
+	},
+
+	///////////////////////////////////////////////////////////////////////////////
+	//  Computes the slope and y-intercept of of the line of best fit for a
+	//    set of data.
+	//		@return: NaN - The length of the x and y data sets is different
+	//					   or there is not enough data in the data sets.
+	///////////////////////////////////////////////////////////////////////////////
+
+	linreg: function(x_data, y_data) {
+
+		if(x_data.length != y_data.length) {
+			return NaN;
+		}
+
+		if(x_data.length < 2) {
+			return NaN;
+		}
+
+		var sx = stats.sum(x_data);
+		var sy = stats.sum(y_data);
+		var sxy = stats.wsum(x_data, y_data);
+		var sxx = stats.sumofsqr(x_data);
+		var n = x_data.length;
+
+		var m = (n * sxy - sx * sy) / (n * sxx - sqr(sx));
+		var b = (sy - m * sx) / n;
+
+		return [m, b];
+	},
+
+	///////////////////////////////////////////////////////////////////////////////
+	//  Expands an array based on a set of frequencies
+	//.    @returns NaN if any frequency is negative or the number of frequencies
+	//.        does not match the number data items
+	///////////////////////////////////////////////////////////////////////////////
+
+	expandarray: function(list, freq) {
+
+		if (list.length != freq.length) {
+			return NaN;
+		}
+
+		for (var i = 0; i < freq.length; i++) {
+			if ((freq[i] < 0) || (Math.floor(freq[i]) != freq[i])) {
+				return NaN;
+			}
+		}
+
+		var newlist = [];
+		for (var i = 0; i < list.length; i++) {
+			for (var j = 0; j < freq[i]; j++) {
+				newlist.push(freq[i]);
+			}
+		}
+	},
+
+	///////////////////////////////////////////////////////////////////////////////
+	//  Sorts two arrays simultaneoulsy by the values in the first array.
+	///////////////////////////////////////////////////////////////////////////////
+
+	wsort: function(list, freq) {
+		if (list.length != freq.length) {
+			return NaN;
+		}
+
+		for (var i = 0; i < freq.length; i++) {
+			if (freq[i] < 0) {
+				return NaN;
+			}
+		}
+
+		var newArray = [];
+
+		for (var i = 0; i < list.length; i++) {
+			newArray.push({ 'x' : list[i],  'f' : freq[i] });
+		}
+
+		newArray.sort(function(a, b) {
+			return ((a.x < b.x) ? -1 : ((a.x == b.x) ? 0 : 1));
+		});
+
+		for (var i = 0; i < newArray.length; i++) {
+			list[i] = newArray[i].x;
+			freq[i] = newArray[i].f;
+		}
+
+		return [list, freq];
+
+	},
+
+}
+
 ///////////////////////////////////////////////////////////////////////////////
-//    
-//  Will compute the minimum of an array of numbers.
-//
+//  Deprecated functions
 ///////////////////////////////////////////////////////////////////////////////
 
 function min(list) {
-	var min = MAXDOUBLE 
-	for(var i = 0; i < list.length; i++) {
-		if(list[i] < min) {
-			min = list[i];
-		}
-	}
-	return min;
+	console.warn('min is deprecated, use stats.min instead');
+	return stats.min(list);
 }
-
-///////////////////////////////////////////////////////////////////////////////
-//    
-//  Will compute the maximum of an array of numbers.
-//
-///////////////////////////////////////////////////////////////////////////////
 
 function max(list) {
-	var max = MINDOUBLE;
-	for(var i = 0; i < list.length; i++) {
-		if(list[i] > max) {
-			max = list[i];
-		}
-	}
-	return max;
+	console.warn('max is deprecated, use stats.max instead');
+	return stats.max(list);
 }
-
-///////////////////////////////////////////////////////////////////////////////
-//    
-//  Will compute the sum of an array of numbers.
-//
-///////////////////////////////////////////////////////////////////////////////
 
 function sum(list) {
-	var s = 0;
-	for(var i = 0; i < list.length; i++) {
-		s += list[i];
-	}
-	return s;
+	console.warn('sum is deprecated, use stats.sum instead');
+	return stats.sum(list);
 }
-
-///////////////////////////////////////////////////////////////////////////////
-//    
-//  Will compute the sum of the squares of an array of numbers.
-//
-///////////////////////////////////////////////////////////////////////////////
 
 function sumofsqr(list) {
-	var s = 0;
-	for(var i = 0; i < list.length; i++) {
-		s += sqr(list[i]);
-	}
-	return s;
+	console.warn('sumofsqr is deprecated, use stats.sumofsqr instead');
+	return stats.sumofsqr(list);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//    
-//  Calculates the arithmetic mean of a set of values.
-//
-///////////////////////////////////////////////////////////////////////////////
-
 function mean(list) {
+	console.warn('mean is deprecated, use stats.mean instead');
 	return sum(list) / list.length;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//    
-//  Calculates the population standard deviation of a set of values.
-//
-///////////////////////////////////////////////////////////////////////////////
-
 function stdevp(list) {
-	var mu = mean(list);
-	var ssd = 0; // sum of squared deviations
-	for(var i = 0; i < list.length; i++) {
-		ssd += sqr(list[i] - mu);
-	}
-	return sqrt(ssd / list.length);
+	console.warn('stdevp is deprecated, use stats.stdevp instead');
+	return stats.stdevp(list);
 }
-
-///////////////////////////////////////////////////////////////////////////////
-//    
-//  Calculates the sample standard deviation of a set of values.
-//
-///////////////////////////////////////////////////////////////////////////////
 
 function stdev(list) {
-	var mu = mean(list);
-	var ssd = 0; // sum of squared deviations
-	for(var i = 0; i < list.length; i++) {
-		ssd += sqr(list[i] - mu);
-	}
-	return sqrt(ssd / (list.length - 1));
+	console.warn('stdev is deprecated, use stats.stdev instead');
+	return stats.stdev(list);
 }
-
-///////////////////////////////////////////////////////////////////////////////
-//    
-//  Computes the linear correlation (Pearson) cofficent for paird data.
-//
-//		@return: NaN - The length of the x and y data sets is different
-//					   or there is not enough data in the data sets.
-//
-///////////////////////////////////////////////////////////////////////////////
 
 function correlation(x_data, y_data) {
-
-	if(x_data.length != y_data.length) {
-		return NaN;
-	}
-
-	if(x_data.length < 2) {
-		return NaN;
-	}
-
-	var sx = sum(x_data);
-	var sy = sum(y_data);
-	var sxy = 0;
-	var sxx = sumofsqr(x_data);
-	var syy = sumofsqr(y_data);
-	var n = x_data.length;
-	
-	for(var i = 0; i < x_data.length; i++) {
-		sxy += x_data[i] * y_data[i];
-	}
-	
-	var r = (n * sxy - sx * sy) / sqrt( (n * sxx - sqr(sx)) * (n * syy - sqr(sy)) );
-	
-	return r;
+	console.warn('correlation is deprecated, use stats.correlation instead');
+	return stats.correlation(x_data, y_data);
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////
-//    
+//
 //  This function will calculate the gamma function for any float value,
 //      this is adapted from J. Debord's FMATH.PAS.
 //
-///////////////////////////////////////////////////////////////////////////////     
-			
+///////////////////////////////////////////////////////////////////////////////
+
 function gamma(x) {
-				
+
 		var p = [
 						4.212760487471622013093E-5,
 						4.542931960608009155600E-4,
@@ -520,7 +942,7 @@ function gamma(x) {
 
 		var sgnGam, n;
 		var a, x1, z;
-		
+
 		sgnGam = sgnGamma(x);
 
 		if((x == 0.0) || ((x < 0.0) && (frac(x) == 0.0))) {
@@ -578,7 +1000,7 @@ function gamma(x) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
-// 
+//
 // This function returns whether the gamma function should be positive or
 // negative for a given value of x. Adapted from J. Debord's JMATH.PAS.
 // 		@param x
@@ -612,11 +1034,11 @@ function sgnGamma(x) {
 //  otherwise the same as PolEvl().
 //
 ///////////////////////////////////////////////////////////////////////////////
-	
+
 function PolEvl(x, coef, n) {
 
 	var ans;
-		
+
 	ans = coef[0];
 	for(var i = 1; i <= n; i++) {
 		ans = ans * x + coef[i];
@@ -625,10 +1047,10 @@ function PolEvl(x, coef, n) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-//    
+//
 //	The Incomplete Beta Function. Algorithm adapted from some old math
 //  	Pascal files I had.
-//      
+//
 //		@param a
 //      @param b
 //      @param x
@@ -636,9 +1058,9 @@ function PolEvl(x, coef, n) {
 //      @return
 //
 ///////////////////////////////////////////////////////////////////////////////
-		 
+
 function iBeta (a, b, x) {
-				
+
 		var a1, b1, x1, t, w, xc, y;
 		var flag = false;
 
@@ -655,7 +1077,7 @@ function iBeta (a, b, x) {
 		} else {
 				w = 1.0 - x;
 
-				// Reverse a and b if x is greater than the mean. 
+				// Reverse a and b if x is greater than the mean.
 				if(x > (a / (a + b))) {
 						flag = true;
 						a1 = b;
@@ -672,7 +1094,7 @@ function iBeta (a, b, x) {
 				if(flag && (b1 * x1 <= 1.0) && (x1 <= 0.95)) {
 						t = pSeries(a1, b1, x1);
 				} else {
-						// Choose expansion for optimal convergence 
+						// Choose expansion for optimal convergence
 						y = x1 * (a1 + b1 - 2.0) - (a1 - 1.0);
 						if(y < 0.0) {
 						w = cFrac1(a1, b1, x1);
@@ -713,7 +1135,7 @@ function iBeta (a, b, x) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-//    
+//
 //      Power series for incomplete beta integral. Use when b*x is small.
 //
 //      @param a
@@ -725,10 +1147,10 @@ function iBeta (a, b, x) {
 ///////////////////////////////////////////////////////////////////////////////
 
 function pSeries(a, b, x) {
-				
+
 		var s, t, u, v, t1, z, ai;
 		var n;
-				
+
 		ai = 1.0 / a;
 		u = (1.0 - b) * x;
 		v = u / (a + 1.0);
@@ -746,7 +1168,7 @@ function pSeries(a, b, x) {
 		}
 		s = s + t1;
 		s = s + ai;
-				
+
 		u = a * ln(x);
 		if((a + b < MAXGAM) && (Math.abs(u) < MAXLOG)) {
 				t = gamma(a + b) / (gamma(a) * gamma(b));
@@ -763,7 +1185,7 @@ function pSeries(a, b, x) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-//    
+//
 //  The Inverse Incomplete Beta function, algorithm captured from the site:
 //      http://www.nr.com/forum/showthread.php?t=825, however, it looks as though
 //      it simply uses a binomial approximation to develop the inverse function.
@@ -775,7 +1197,7 @@ function pSeries(a, b, x) {
 //      @return
 //
 ///////////////////////////////////////////////////////////////////////////////
-		 
+
 function iiBeta(p, alpha, beta) {
 
 		var x = 0;
@@ -797,16 +1219,16 @@ function iiBeta(p, alpha, beta) {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-//	Stirling's formula for the gamma function. Adapted from J. Debord's 
-//		JMATH.PAS library. 
+//	Stirling's formula for the gamma function. Adapted from J. Debord's
+//		JMATH.PAS library.
 //
-//	Gamma(x) = Sqrt(2*Pi) x^(x-.5) exp(-x) (1 + 1/x P(1/x)) where P(x) is a 
+//	Gamma(x) = Sqrt(2*Pi) x^(x-.5) exp(-x) (1 + 1/x P(1/x)) where P(x) is a
 //		polynomial
 //
 ///////////////////////////////////////////////////////////////////////////////
-		
+
 function stirf(x) {
-				
+
 	var STIR = [  7.147391378143610789273E-4,
 								 -2.363848809501759061727E-5,
 								 -5.950237554056330156018E-4,
@@ -818,9 +1240,9 @@ function stirf(x) {
 									8.333333333333331800504E-2,
 									0.0 ];
 		var w, p;
-				
+
 		w = 1.0 / x;
-		
+
 		if(x > 1024.0) {
 				p = 6.97281375836585777429E-5 * w + 7.84039221720066627474E-4;
 				p = p * w - 2.29472093621399176955E-4;
@@ -830,12 +1252,12 @@ function stirf(x) {
 		} else {
 				p = PolEvl(w, STIR, 8);
 		}
-				
+
 		return SQRT2PI * Math.exp((x - 0.5) * ln(x) - x) * (1.0 + w * p);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-//    
+//
 //      ???
 //
 //      @param a
@@ -844,15 +1266,15 @@ function stirf(x) {
 //
 //      @return
 //
-///////////////////////////////////////////////////////////////////////////////     
-		
+///////////////////////////////////////////////////////////////////////////////
+
 function cFrac2(a, b, x) {
 
 		var xk, pk, pkm1, pkm2, qk, qkm1, qkm2;
 		var k1, k2, k3, k4, k5, k6, k7, k8;
 		var r, t, z, ans, thresh;
 		var n;
-				
+
 		k1 = a;
 		k2 = b - 1.0;
 		k3 = a;
@@ -861,7 +1283,7 @@ function cFrac2(a, b, x) {
 		k6 = a + b;
 		k7 = a + 1.0;
 		k8 = a + 2.0;
-				
+
 		pkm2 = 0.0;
 		qkm2 = 1.0;
 		pkm1 = 1.0;
@@ -871,7 +1293,7 @@ function cFrac2(a, b, x) {
 		r = 1.0;
 		n = 0;
 		thresh = 3.0 * MACHEP;
-				
+
 		do {
 				xk = -(z * k1 * k2) / (k3 * k4);
 				pk = pkm1 + pkm2 * xk;
@@ -880,7 +1302,7 @@ function cFrac2(a, b, x) {
 				pkm1 = pk;
 				qkm2 = qkm1;
 				qkm1 = qk;
-						
+
 				xk = (z * k5 * k6) / (k7 * k8);
 				pk = pkm1 + pkm2 * xk;
 				qk = qkm1 + qkm2 * xk;
@@ -888,16 +1310,16 @@ function cFrac2(a, b, x) {
 				pkm1 = pk;
 				qkm2 = qkm1;
 				qkm1 = qk;
-						
+
 				if(qk != 0.0) { r = pk / qk; }
-						
+
 				if(r != 0.0) {
 						t = Math.abs((ans - r) / r);
 						ans = r;
 				} else t = 1.0;
-						
+
 				if(t < thresh) { break; }
-						
+
 				k1 += 1.0;
 				k2 -= 1.0;
 				k3 += 2.0;
@@ -906,21 +1328,21 @@ function cFrac2(a, b, x) {
 				k6 += 1.0;
 				k7 += 2.0;
 				k8 += 2.0;
-						
+
 				if((Math.abs(qk) + Math.abs(pk)) > BIG) {
 						pkm2 *= BIGINV;
 						pkm1 *= BIGINV;
 						qkm2 *= BIGINV;
 						qkm1 *= BIGINV;
 				}
-						
+
 				if((Math.abs(qk) < BIGINV) || (Math.abs(pk) < BIGINV)) {
 						pkm2 *= BIG;
 						pkm1 *= BIG;
 						qkm2 *= BIG;
 						qkm1 *= BIG;
 				}
-				n++;            
+				n++;
 		} while (n <= 400);
 		// Math_Err = FN_PLOSS
 		// Label CDone:
@@ -928,7 +1350,7 @@ function cFrac2(a, b, x) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-//    
+//
 //	Natural Logarithm of the Gamma Function
 //
 //      @param x
@@ -938,7 +1360,7 @@ function cFrac2(a, b, x) {
 ///////////////////////////////////////////////////////////////////////////////
 
 function lnGamma(x) {
-				
+
 	var p = [ -2.163690827643812857640E3,
 							-8.723871522843511459790E4,
 							-1.104326814691464261197E6,
@@ -946,8 +1368,8 @@ function lnGamma(x) {
 							-1.625568062543700591014E7,
 							-2.003937418103815175475E7,
 							-8.875666783650703802159E6,
-							0.0, 
-							0.0, 
+							0.0,
+							0.0,
 							0.0 ];
 
 	var q = [ -5.139481484435370143617E2,
@@ -957,8 +1379,8 @@ function lnGamma(x) {
 							-1.785433287045078156959E7,
 							-3.138646407656182662088E7,
 							-2.099336717757895876142E7,
-							 0.0, 
-							 0.0, 
+							 0.0,
+							 0.0,
 							 0.0 ];
 
 	var n;
@@ -1012,22 +1434,22 @@ function lnGamma(x) {
 				} else {
 						x1 = x1 - 2.0;
 						return x1 * PolEvl(x1, p, 6) / P1Evl(x1, q, 7) + ln(z);
-				}        
+				}
 		} else return stirfL(x);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-//    
+//
 //	Approximate Ln(Gamma) by Stirling's formula, for X >= 13
 //
 //      @param x
 //
 //      @return
-//  
+//
 ///////////////////////////////////////////////////////////////////////////////
-	 
+
 function stirfL(x) {
-				
+
 	var p = [ 4.885026142432270781165E-3,
 						 -1.880801938119376907179E-3,
 							8.412723297322498080632E-4,
@@ -1035,8 +1457,8 @@ function stirfL(x) {
 							7.936507795855070755671E-4,
 						 -2.777777777750349603440E-3,
 							8.333333333333331447505E-2,
-							0.0, 
-							0.0, 
+							0.0,
+							0.0,
 							0.0 ];
 
 	var q, w;
@@ -1059,18 +1481,18 @@ function stirfL(x) {
 ///////////////////////////////////////////////////////////////////////////////
 
 function P1Evl(x, coef, n) {
- 
+
 		var ans;
-				
+
 		ans = x + coef[0];
 		for(var i = 1; i < n - 1; i++) {
 				ans = ans * x + coef[i];
 		}
-		return ans; 
+		return ans;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-//    
+//
 //      ???
 //
 //      @param a
@@ -1079,15 +1501,15 @@ function P1Evl(x, coef, n) {
 //
 //      @return
 //
-///////////////////////////////////////////////////////////////////////////////    
-		
+///////////////////////////////////////////////////////////////////////////////
+
 function cFrac1(a, b, x) {
 
 		var xk, pk, pkm1, pkm2, qk, qkm1, qkm2;
 		var k1, k2, k3, k4, k5, k6, k7, k8;
 		var r, t, ans, thresh;
 		var n;
-				
+
 		k1 = a;
 		k2 = a + b;
 		k3 = a;
@@ -1096,7 +1518,7 @@ function cFrac1(a, b, x) {
 		k6 = b - 1.0;
 		k7 = k4;
 		k8 = a + 2.0;
-				
+
 		pkm2 = 0.0;
 		qkm2 = 1.0;
 		pkm1 = 1.0;
@@ -1105,7 +1527,7 @@ function cFrac1(a, b, x) {
 		r = 1.0;
 		n = 0;
 		thresh = 3.0 * MACHEP;
-				
+
 		do {
 				xk = -(x * k1 * k2) / (k3 * k4);
 				pk = pkm1 + pkm2 * xk;
@@ -1114,7 +1536,7 @@ function cFrac1(a, b, x) {
 				pkm1 = pk;
 				qkm2 = qkm1;
 				qkm1 = qk;
-						
+
 				xk = (x * k5 * k6) / (k7 * k8);
 				pk = pkm1 + pkm2 * xk;
 				qk = qkm1 + qkm2 * xk;
@@ -1122,16 +1544,16 @@ function cFrac1(a, b, x) {
 				pkm1 = pk;
 				qkm2 = qkm1;
 				qkm1 = qk;
-						
+
 				if(qk != 0.0) { r = pk / qk; }
-						
+
 				if(r != 0.0) {
 						t = Math.abs((ans - r) / r);
 						ans = r;
 				} else t = 1.0;
-						
+
 				if(t < thresh) break;
-						
+
 				k1 = k1 + 1.0;
 				k2 = k2 + 1.0;
 				k3 = k3 + 2.0;
@@ -1140,14 +1562,14 @@ function cFrac1(a, b, x) {
 				k6 = k6 - 1.0;
 				k7 = k7 + 2.0;
 				k8 = k8 + 2.0;
-						
+
 				if((Math.abs(qk) + Math.abs(pk)) > BIG) {
 						pkm2 = pkm2 * BIGINV;
 						pkm1 = pkm1 * BIGINV;
 						qkm2 = qkm2 * BIGINV;
 						qkm1 = qkm1 * BIGINV;
 				}
-						
+
 				if((Math.abs(qk) < BIGINV) || (Math.abs(pk) < BIGINV)) {
 						pkm2 *= BIG;
 						pkm1 *= BIG;
@@ -1155,7 +1577,7 @@ function cFrac1(a, b, x) {
 						qkm1 *= BIG;
 				}
 				n++;
-						
+
 		} while (n <= 400);
 		// MathErr = FN_PLOSS;
 		// Label: CDone
@@ -1180,8 +1602,8 @@ function gamSmall(x1, z) {
 							-6.558780715202540684668E-1,
 							 5.772156649015328608253E-1,
 							 1.000000000000000000000E0,
-							 0.0 ];    
-					 
+							 0.0 ];
+
 	var sn = [ 1.133374167243894382010E-3,
 							 7.220837261893170325704E-3,
 							 9.621911155035976733706E-3,
@@ -1192,9 +1614,9 @@ function gamSmall(x1, z) {
 							 5.772156649015328608727E-1,
 							-1.000000000000000000000E0,
 							 0.0 ];
-							 
+
 		var p;
-				
+
 		if(x1 == 0.0) {
 				return NaN;
 		}
@@ -1208,7 +1630,7 @@ function gamSmall(x1, z) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-//    
+//
 //	Factorial that increases up to n?
 //
 //      @param a
@@ -1216,8 +1638,8 @@ function gamSmall(x1, z) {
 //
 //      @return
 //
-/////////////////////////////////////////////////////////////////////////////// 
-		
+///////////////////////////////////////////////////////////////////////////////
+
 function risingFactorial(a, n) {
 		var r = 1;
 		for(var i = 0; i < n; i++) {
@@ -1227,7 +1649,7 @@ function risingFactorial(a, n) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-//    
+//
 //	Hypergeometric distribution
 //
 //      @param a
@@ -1237,7 +1659,7 @@ function risingFactorial(a, n) {
 //
 //      @return
 //
-/////////////////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////////////////
 
 function hGeom(a, b, c, z) {
 		var n = 0;
@@ -1286,20 +1708,20 @@ function hGeom(a, b, c, z) {
 ///////////////////////////////////////////////////////////////////////////////
 
 class Point2 {
-	
+
 	constructor(board, x, y, properties) {
 		this.p = board.create('point', [x, y], properties);
 		this.x = x;
 		this.y = y;
 	}
-	
+
 	setCoords(x, y, delay) {
 		delay = delay || 0;
 		this.x = x;
 		this.y = y;
 		this.p.moveTo([x,y], delay);
 	}
-	
+
 }
 
 class Rectangle2 {
@@ -1314,14 +1736,14 @@ class Rectangle2 {
 		this.p2 = new Point(board, x + width, y, { visible: false });
 		this.p3 = new Point(board, x + width, y + height, { visible: false });
 		this.p4 = new Point(board, x, y + height, { visible: false });
-		this.rect = board.create('polygon', [this.p1.p, this.p2.p, this.p3.p, this.p4.p], { 
+		this.rect = board.create('polygon', [this.p1.p, this.p2.p, this.p3.p, this.p4.p], {
 			hasInnerPoints: false,
 			fillColor: color,
 			borders: {
 				fixed: true,
 				highlight: false
 			}
-		});	
+		});
 	}
 
 	setHeight(height, delay) {
@@ -1331,14 +1753,14 @@ class Rectangle2 {
 		this.height = height;
 	}
 
-	
+
 	setWidth(width, delay) {
 		delay = delay || 0;
 		this.p2.setCoords(this.x + width, this.y, delay);
 		this.p3.setCoords(this.x + width, this.y + this.height, delay);
 		this.width = width;
 	}
-	
+
 	setCoords(x, y, delay) {
 		delay = delay || 0;
 		this.p1.setCoords(x, y, delay);
@@ -1348,7 +1770,7 @@ class Rectangle2 {
 		this.x = x;
 		this.y = y;
 	}
-	
+
 	setColor(color) {
 		this.color = color;
 		this.rect.setAttribute( { fillColor: color } );
@@ -1369,17 +1791,17 @@ class Histogram {
 		} else {
 			this.x = 0;
 			this.y = 0;
-		}	
-		
+		}
+
 		this.bars = [];
-		
+
 		var length = barHeights.length;
 		for(var i = 0; i < length; i++) {
 			this.bars[i] = new Rectangle(board, this.x + i * this.delta_x, this.y, this.delta_x, this.barHeights[i], this.colors[i]);
 		}
-		
+
 	}
-	
+
 	setBarHeight(bar, height, delay) {
 		delay = delay || 0;
 		this.bars[bar].setHeight(height, delay);
@@ -1393,7 +1815,7 @@ class Histogram {
 			this.barHeights[i] = barHeights[i];
 		}
 	}
-	
+
 	setBarColor(bar, color) {
 		this.bars.setColor(color);
 	}
@@ -1403,77 +1825,77 @@ class Histogram {
 			this.bars[i].setColor(colors[i]);
 		}
 	}
-	
+
 }
 
 function JSXRectangle(board, coords) {
-	
+
 	// Make four invisible points to define the corners of the rectangle
-	
-	var p1 = board.create('point', 
-		[coords[0], coords[1]], 
+
+	var p1 = board.create('point',
+		[coords[0], coords[1]],
 		{ visible: false });
-		
-	var p2 = board.create('point', 
-		[coords[0] + coords[2], coords[1]], 
+
+	var p2 = board.create('point',
+		[coords[0] + coords[2], coords[1]],
 		{ visible: false });
-		
-	var p3 = board.create('point', 
-		[coords[0] + coords[2], coords[1] + coords[3]], 
+
+	var p3 = board.create('point',
+		[coords[0] + coords[2], coords[1] + coords[3]],
 			{ visible: false });
-			
-	var p4 = board.create('point', 
-		[coords[0], coords[1] + coords[3]], 
+
+	var p4 = board.create('point',
+		[coords[0], coords[1] + coords[3]],
 		{ visible: false });
-	
+
 	// Now draw the rectangle using a polygon
-		
-	var rect = board.create('polygon', [p1, p2, p3, p4], 
-		{ hasInnerPoints: false, 
+
+	var rect = board.create('polygon', [p1, p2, p3, p4],
+		{ hasInnerPoints: false,
 		  fillColor: '#0000ff',
-		  borders: { 
-			fixed: true, 
-			highlight: false 
+		  borders: {
+			fixed: true,
+			highlight: false
 		  }
 		});
-		
-	return rect; 
+
+	return rect;
 }
 
 function JSXHistogram(board, x_labels, y_data) {
-	
+
 	rects = [];
-	
+
 	for(var i = 0; i < y_data.length; i++) {
 		rects.push(JSXRectangle(board, [i, 0, 1, y_data[i]]));
 	}
-		
+
 	return rects;
 }
 
 function JSXFrequencyDistribution (dataset, nClasses, decimals = 0) {
-	
+
 	var xmin = min(dataset);
 	var xmax = max(dataset);
 	var range = xmax - xmin;
-	
+
 	var power = pow(10, decimals);
-	
+
 	var classWidth = ceil((range / nClasses) * power) / power;
-	
+
 	var UCL = []; // upper class limits
 	var LCL = []; // lower class limits
 	var frequencies = [];
-	
+
 	for(var i = 0; i < nClasses; i++) {
 		frequencies[i] = 0;
 		UCL[i] = 0;
 		LCL[i] = 0;
 	}
-	
+
 	UCL[0] = xmin + classWidth - round(1 / power, decimals)
 	LCL[0] = xmin;
-	
+
 	for(var i = 1; i < nClasses; i++) {
 		UCL[i] = round(UCL[i-1] + classWidth, decimals);
 		LCL[i] = round(LCL[i-1] + classWidth, decimals);
@@ -1485,9 +1907,9 @@ function JSXFrequencyDistribution (dataset, nClasses, decimals = 0) {
 		}
 		frequencies[j] += 1;
 	}
-	
+
 	return [LCL, UCL, frequencies];
-	
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1535,7 +1957,7 @@ function JSXSetBounds(board, bounds, keepAspectRatio) {
 //
 // Creates a checkbox at a specified location using a given label.
 //   Allows user to set the box to either: checked or unchecked by default
-// 
+//
 // An optional function can be provided that states what the program should
 //   do once the checkbox is clicked. This must be of the form:
 //     function() { doSomething(); }
@@ -1543,12 +1965,12 @@ function JSXSetBounds(board, bounds, keepAspectRatio) {
 ///////////////////////////////////////////////////////////////////////////////
 
 function JSXCheckbox(board, xLoc, yLoc, label, checked, onChange, args) {
-	
+
 	if(args == undefined) {
 		args = {};
 	}
 	args.fixed = (args.fixed == undefined) ? true : args.fixed;
-	
+
 	var cbox = board.create('checkbox', [xLoc, yLoc, label], args);
 	cbox.rendNodeCheckbox.checked = checked;
 	cbox._value = checked;
@@ -1557,15 +1979,16 @@ function JSXCheckbox(board, xLoc, yLoc, label, checked, onChange, args) {
 }
 
 function toggleCheckbox(cbox) {
-	cbox.rendNodeCheckbox.checked = !cbox.rendNodeCheckbox.checked;
-	cbox._value = !cbox._value;
-	return cbox;
+	if(isChecked(cbox)) {
+		setCheckbox(cbox, true);
+	} else {
+		setCheckbox(cbox, false);
+	}
 }
 
 function setCheckbox(cbox, value) {
 	cbox._value = value;
 	cbox.rendNodeCheckbox.checked = value;
-	return cbox;
 }
 
 function isChecked(cbox) {
@@ -1591,23 +2014,23 @@ function isImplicitEquation(expression) {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Converts an implicit equation to an explcit expression by finding the 
+// Converts an implicit equation to an explcit expression by finding the
 //   equals sign in the equation, and negating all terms on the right-hand
 //   side of the equation. Then the right and left sides are combined.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-function convertImplicitEquation(expression) { 
+function convertImplicitEquation(expression) {
 
 	var equalloc = expression.search('=');
 	var LH = expression.substring(0, equalloc);
 	var RH = expression.substring(equalloc + 1, expression.length);
 	var newRH = '';
-		
+
 	if(RH.charAt(0) != '+') {
 		RH = '+' + RH;
 	}
-		
+
 	for(var i = 0; i < RH.length; i++) {
 		if(RH[i] == '+') {
 			newRH += '-';
@@ -1617,9 +2040,9 @@ function convertImplicitEquation(expression) {
 			newRH += RH[i];
 		}
 	}
-	
+
 	return LH + newRH;
-	
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1648,8 +2071,8 @@ function getFunctionName(expression) {
 
 	var name = '';
 	var node = math.parse(expression);
-	
-	node.traverse(	
+
+	node.traverse(
 		function(node, path, parent) {
 			if(node.type == 'AssignmentNode' || node.type == 'FunctionAssignmentNode') {
 				name = node.name;
@@ -1662,18 +2085,18 @@ function getFunctionName(expression) {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Changes all the instances of the variable 'x' and replaces it with 
+// Changes all the instances of the variable 'x' and replaces it with
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 function getVariables(expression) {
-	
-	var variables = [];	
+
+	var variables = [];
 	var func = getFunctionName(expression);
-	
+
 	var node = math.parse(expression);
-	
-	node.traverse(	
+
+	node.traverse(
 		function(node, path, parent) {
 			if(node.type == 'SymbolNode' && node.name != func) {
 				if(node.name != 'e' && node.name != 'pi' && node.name != 'i') {
@@ -1702,21 +2125,21 @@ regex_interval = '(\\(|\\[)\\s*' +                       // ( or [
 
 // Pattern for a hole in the graph:
 
-	regex_hole = '[Xx]\\s*!=\\s*' +          // x != 
-				 '(-?\\d*\\.?\\d*)';        // -2, 1.8, etc.				 
-				 
+	regex_hole = '[Xx]\\s*!=\\s*' +          // x !=
+				 '(-?\\d*\\.?\\d*)';        // -2, 1.8, etc.
+
 function removeSpaces(s) {
 	while(s.search(' ') != -1) {
 		s = s.replace(' ', '');
 	}
 	return s;
-}	
+}
 
 ///////////////////////////////////////////////////////////
-// 
+//
 // A function can be defined such as: y = 2x-5 (-2,5]
 //   and the interval needs to be removed for graphing
-//   this function determines if an interval exists and 
+//   this function determines if an interval exists and
 //   returns it if so, or a blank string if it does not
 //
 ////////////////////////////////////////////////////////////
@@ -1725,45 +2148,45 @@ function getInterval(relation) {
 
 	var interval = '';
 	var intervalstart = 0;
-	
+
 	intervalstart = relation.search(regex_interval);
 	if (intervalstart != -1) {
 		interval = relation.substring(intervalstart, relation.length).trim();
 	}
-	
+
 	intervalstart = relation.search(regex_hole);
 	if (intervalstart != -1) {
 		interval = relation.substring(intervalstart, relation.length).trim();
 	}
-	
+
 	return interval;
 }
-	
+
 function removeInterval(relation) {
 
 	var interval = '';
 	var intervalstart = 0;
-		
+
 	intervalstart = relation.search(regex_interval);
 	if (intervalstart != -1) {
 		relation = relation.substring(0, intervalstart).trim();
 	}
-		
+
 	intervalstart = relation.search(regex_hole);
 	if (intervalstart != -1) {
 		relation = relation.substring(0, intervalstart).trim();
 	}
 
 	return relation;
-}	
-				 
+}
+
 ///////////////////////////////////////////////////////////
-// 
+//
 // Gets the lower and bound of a interval expressed as:
 //     (-2,5), (1.5, 10], (-inf,2), [2, infinity)
 //
-////////////////////////////////////////////////////////////				 
-				 
+////////////////////////////////////////////////////////////
+
 function getLowerEndpoint(interval) {
 	interval = removeSpaces(interval);
 	l = interval.split(',');
@@ -1774,7 +2197,7 @@ function getLowerEndpoint(interval) {
 		return math.eval(l[0]);
 	}
 }
-				
+
 function getUpperEndpoint(interval) {
 	interval = removeSpaces(interval);
 	l = interval.split(',');
@@ -1792,7 +2215,7 @@ function getHoleValue(interval) {
 
 /////////////////////////////////////////////////////////////////
 //
-// Determines whether an interval is open or closed on the 
+// Determines whether an interval is open or closed on the
 //   upper or lower limit.
 //
 /////////////////////////////////////////////////////////////////
@@ -1825,9 +2248,9 @@ function isPoint(relation) {
 		interval = relation.substring(intervalstart, relation.length).trim();
 		relation = relation.substring(0, intervalstart).trim();
 	}
-	
+
 	return relation == '';
-	
+
 }
 
 function isAsymptote(relation) {
@@ -1837,9 +2260,9 @@ function isAsymptote(relation) {
 		interval = relation.substring(intervalstart, relation.length).trim();
 		relation = relation.substring(0, intervalstart).trim();
 	}
-	
+
 	return relation == '';
-	
+
 }
 
 ///////////////////////////////////////////////////////////////
@@ -1848,26 +2271,26 @@ function isAsymptote(relation) {
 //    2*x - 5, ln(x - 4), etc.
 // Note that there variable is always 'x' and it is assumed that
 //    y = or f(x) = is ommitted from the start.
-// 
+//
 // This function allows intervals to be restricted using an
 //    interval formatted as stated in [regex_interval]
 //
 // This function can also evaluate a piecewise defined function
-//    if multiple functions are provided and separated by 
+//    if multiple functions are provided and separated by
 //    semicolons
 //
 /////////////////////////////////////////////////////////////////
 
 function evaluate(f, x, args) {
-		
+
 	if(args === undefined) {
 		args = {};
 	}
-	
+
 	var variable = args.variable ? args.variable : 'x';
-	
+
 	f = f.toLowerCase();
-	
+
 	// Make sure to ignore points and asymptotes
 	if (f.includes(';') || isPoint(f) || isAsymptote(f)) {
 		var newf = '';
@@ -1879,7 +2302,7 @@ function evaluate(f, x, args) {
 		}
 		f = newf.substring(0, newf.length - 1);
 	}
-	
+
 	if(f.search(regex_hole) != -1) {
 		var interval = getInterval(f);
 		var xloc = getHoleValue(interval);
@@ -1888,12 +2311,12 @@ function evaluate(f, x, args) {
 		}
 		f = removeInterval(f);
 	}
-	
+
 	// if f includes a restricted interval, handle that
 	if(f.search(regex_interval) != -1) {
-		
+
 		x_on_interval = false;
-	
+
 		if(f.includes(';')) {
 			f_list = f.split(';');
 		} else {
@@ -1926,21 +2349,21 @@ function evaluate(f, x, args) {
 			return NaN;
 		}
 	}
-	
+
 	// math.js doesn't support ln
 	f = f.replace(/ln/g, "log");
-	
+
 	var expr = math.compile(f);
 	var parameter = {};
 	parameter[variable] = x;
-	
+
 	// math.js returns complex numbers for negative values of logs, etc. This
 	// code below makes sure to only return real numbers
 	var val = expr.eval(parameter);
 	if (typeof(val) == 'object') {
 		return NaN;
 	} else return val;
-		
+
 }
 
 function evalf(f, parameters) {
@@ -1962,11 +2385,11 @@ function evalf(f, parameters) {
 ///////////////////////////////////////////////////////////////////////////////
 
 function plot_function(curve, relation, start_x, end_x, args) {
-		
+
 	if(args === undefined) {
 		args = {};
-	}		
-		
+	}
+
 	var color = args.color ? args.color : 'blue';
 	var interval = args.interval ? args.interval : '';
 	var density = args.density ? args.density : 0.01;
@@ -1979,9 +2402,9 @@ function plot_function(curve, relation, start_x, end_x, args) {
 	var yScl = args.yScl ? args.yScl : 1;
 	var variable = args.variable ? args.variable : 'x';
 	var dashed = (args.dashed !== undefined) ? args.dashed : false;
-		
+
 	var restricted_interval = false;
-	
+
 	curve.setAttribute({ strokeWidth: width, strokeColor: color });
 	if(dashed) {
 		curve.setAttribute({ dash: dashsetting });
@@ -1994,65 +2417,65 @@ function plot_function(curve, relation, start_x, end_x, args) {
 
 	// If the relation is blank but not the interval then we just
 	// need to plot a single point or an asymptote
-	
+
 	if (relation.trim() == '' && interval != '') {
-		
+
 		// Draw a point, but find out if it is open or closed
 		if (interval.search(regex_interval) != -1) {
 
 			var x = math.eval(getLowerEndpoint(interval));
 			var y = math.eval(getUpperEndpoint(interval));
 			var closed = upperBoundClosed(interval) || upperBoundClosed(interval);
-		
+
 			lowerendpoint.moveTo([x, y]);
-		
+
 			lowerendpoint.setAttribute({ strokeColor: color, visible: true });
 			if (closed) {
 				lowerendpoint.setAttribute({ fillColor: color });
 			} else {
-				lowerendpoint.setAttribute({ fillColor: 'white' });		
+				lowerendpoint.setAttribute({ fillColor: 'white' });
 			}
-			
+
 		}
-		
+
 		// Draw an asymptote
 		if (interval.search(regex_hole) != -1) {
-			
+
 			var xloc = getHoleValue(interval);
-			
+
 			curve.dataX = [xloc, xloc];
-			
+
 			// TODO:
 			// This -2000 and +2000 just need to be the lower and upper portion
 			// of the viewing window, but I don't know how to access it without
 			// referencing the board variable
-			
+
 			curve.dataY = [-2000, 2000];
-			
+
 			curve.setAttribute( { dash: dashsetting } );
-			
+
 			curve.updateParametricCurve();
-			
+
 		}
 
 	} else {
 		if(hole != -1) {
 			hole.setAttribute({ visible: false });
 		}
-		
+
 		if(lowerendpoint != -1) {
 			lowerendpoint.setAttribute({ visible: false });
 		}
-		
+
 		if(upperendpoint != -1) {
 			upperendpoint.setAttribute({ visible: false });
 		}
-			
+
 		var expr = math.compile(relation);
-		
+
 		if(interval != '') {
-		
-			// See if there is a hole in the graph	
+
+			// See if there is a hole in the graph
 			if(interval.search(regex_hole) != -1) {
 				hole_val = getHoleValue(interval);
 				var parameter = {};
@@ -2060,16 +2483,16 @@ function plot_function(curve, relation, start_x, end_x, args) {
 				var y_val = expr.eval(parameter);
 				hole.moveTo([hole_val, y_val]);
 				hole.setAttribute( { visible: true, strokeColor: color, fillColor: 'white' });
-			}		
-			
+			}
+
 			// See if a restricted interval was defined
-			if(interval.search(regex_interval) != -1) {	
-			
+			if(interval.search(regex_interval) != -1) {
+
 				restricted_interval = true;
-					
+
 				var lowerval = getLowerEndpoint(interval);
 				var upperval = getUpperEndpoint(interval);
-				
+
 				if(lowerval != NEGATIVE_INFINITY) {
 					start_x = lowerval;
 					var parameter = {};
@@ -2080,48 +2503,48 @@ function plot_function(curve, relation, start_x, end_x, args) {
 					if(lowerBoundOpen(interval)) {
 						lowerendpoint.setAttribute({ fillColor: 'white' });
 					} else {
-						lowerendpoint.setAttribute({ fillColor: color });		
+						lowerendpoint.setAttribute({ fillColor: color });
 					}
-				} 
-				
+				}
+
 				if(upperval != POSITIVE_INFINITY) {
 					end_x = upperval;
 					var parameter = {};
 					parameter[variable] = upperval;
-					var y_val = expr.eval(parameter);	
+					var y_val = expr.eval(parameter);
 					upperendpoint.moveTo([upperval, y_val]);
-					upperendpoint.setAttribute({ strokeColor: color, visible: true });	
+					upperendpoint.setAttribute({ strokeColor: color, visible: true });
 					if(upperBoundOpen(interval)) {
 						upperendpoint.setAttribute({ fillColor: 'white' });
 					} else {
 						upperendpoint.setAttribute({ fillColor: color });
 					}
-				} 	
-				
+				}
+
 			}
 		} // if(interval != '')
-		
+
 		// This is an explicit function of the form: f(x)
 		curve.dataX = math.range(start_x, end_x + density, density).toArray();
 		curve.dataY = curve.dataX.map(
-			function(x) { 
+			function(x) {
 				var parameter = {};
 				parameter[variable] = x;
 				return expr.eval(parameter);
 			}
 		);
-			
+
 		// If the curve shoots off to infinity, this will prevent the curve from
 		// drawing an "asymptote" at that value
-		
+
 		for(var i = 0; i < curve.dataY.length; i++) {
 			if(curve.dataY[i] > (yMax + 2 * yScl)) {
 				curve.dataY[i] = NaN;
 			} else if(curve.dataY[i] < (yMin - 2 * yScl)) {
 				curve.dataY[i] = NaN;
 			}
-		}	
-		
+		}
+
 		curve.updateParametricCurve();
 	}
 }
@@ -2136,42 +2559,42 @@ function plot_function(curve, relation, start_x, end_x, args) {
 ///////////////////////////////////////////////////////////////////////////////
 
 function plot_polar(curve, expression, tmin, tmax, args) {
-		
+
 	var color = args.color ? args.color : 'blue';
 	var density = args.density ? args.density : 0.01;
 	var width = args.width ? args.width : 2;
 	var dashed = (args.dashed !== undefined) ? args.dashed : false;
-		
+
 	if(dashed) {
 		curve.setAttribute({ dash: dashsetting });
 	} else {
 		curve.setAttribute({ dash: 0 });
-	}	
-		
+	}
+
 	// This is an explicit polar function of the form: r(t)
 	if(expression != '') {
-	
+
 		var expr = math.compile(expression);
-		
+
 		var tValues = math.range(tmin, tmax + density, density).toArray();
 		var rValues = tValues.map(
 				function(x) {
 					return expr.eval({t: x});
 				});
-			
+
 		curve.dataX = [];
 		curve.dataY = [];
-		
+
 		for(var i = 0; i < tValues.length; i++) {
-		
+
 			curve.dataX[i] = rValues[i] * Math.cos(tValues[i]);
 			curve.dataY[i] = rValues[i] * Math.sin(tValues[i]);
-			
+
 		}
-		
+
 		curve.updateParametricCurve();
 	}
-	
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2183,11 +2606,11 @@ function plot_polar(curve, expression, tmin, tmax, args) {
 ///////////////////////////////////////////////////////////////////////////////
 
 function plot_parametric(curve, x_t, y_t, tmin, tmax, args) {
-	
+
 	if(args === undefined) {
 		args = {};
 	}
-	
+
 	var color = args.color ? args.color : 'blue';
 	var density = args.density ? args.density : 0.01;
 	var interval = args.interval ? args.interval : '';
@@ -2197,22 +2620,22 @@ function plot_parametric(curve, x_t, y_t, tmin, tmax, args) {
 	var upperendpoint = args.upperendpoint ? args.upperendpoint : -1;
 	var hole = args.hole ? args.hole : -1;
 	var dashed = (args.dashed !== undefined) ? args.dashed : false;
-	
+
 	curve.setAttribute({ strokeColor: color, strokeWidth: width });
 	if(dashed) {
 		curve.setAttribute({ dash: dashsetting });
 	} else {
 		curve.setAttribute({ dash: 0 });
 	}
-	
+
 	if(hole != -1) {
 		hole.setAttribute({ visible: false });
 	}
-	
+
 	if(lowerendpoint != -1) {
 		lowerendpoint.setAttribute({ visible: false });
 	}
-	
+
 	if(upperendpoint != -1) {
 		upperendpoint.setAttribute({ visible: false });
 	}
@@ -2225,85 +2648,85 @@ function plot_parametric(curve, x_t, y_t, tmin, tmax, args) {
 
 	var xFunc = math.compile(x_t);
 	var yFunc = math.compile(y_t);
-	
+
 	var evalX = function(x) {
 					var parameter = {};
 					parameter[variable] = x;
 					return xFunc.eval(parameter);
 				};
-	
+
 	var evalY = function(x) {
 					var parameter = {};
 					parameter[variable] = x;
 					return yFunc.eval(parameter);
 				};
-	
+
 	if(interval != '') {
-	
-		// See if there is a hole in the graph	
+
+		// See if there is a hole in the graph
 		if(interval.search(regex_hole) != -1) {
 
 			hole_val = parseFloat(interval.split('=')[1]);
 			hole.moveTo([evalX(hole_val), evalY(hole_val)]);
 			hole.setAttribute( { visible: true, strokeColor: color, fillColor: 'white' });
-			
-		}		
-		
+
+		}
+
 		// See if a restricted interval was defined
-		if(interval.search(regex_interval) != -1) {	
-		
+		if(interval.search(regex_interval) != -1) {
+
 			restricted_interval = true;
-				
+
 			var lowerval = getLowerEndpoint(interval);
 			var upperval = getUpperEndpoint(interval);
-			
+
 			if(lowerval != NEGATIVE_INFINITY) {
-			
+
 				tmin = lowerval;
 				lowerendpoint.moveTo([evalX(lowerval), evalY(lowerval)]);
 				lowerendpoint.setAttribute({ strokeColor: color, visible: true });
 				if(lowerBoundOpen(interval)) {
 					lowerendpoint.setAttribute({ fillColor: 'white' });
 				} else {
-					lowerendpoint.setAttribute({ fillColor: color });		
+					lowerendpoint.setAttribute({ fillColor: color });
 				}
-			} 
-			
+			}
+
 			if(upperval != POSITIVE_INFINITY) {
-			
+
 				tmax = upperval;
 				upperendpoint.moveTo([evalX(upperval), evalY(upperval)]);
-				upperendpoint.setAttribute({ strokeColor: color, visible: true });	
+				upperendpoint.setAttribute({ strokeColor: color, visible: true });
 				if(upperBoundOpen(interval)) {
 					upperendpoint.setAttribute({ fillColor: 'white' });
 				} else {
 					upperendpoint.setAttribute({ fillColor: color });
 				}
-			} 	
-			
+			}
+
 		}
 	} // if(interval != '')
-	
+
 	if(!(x_t == '' && y_t == '')) {
-						
+
 		var tValues = math.range(tmin, tmax + density, density).toArray();
-		
+
 		curve.dataX = tValues.map(
 				function(x) {
 					var parameter = {};
 					parameter[variable] = x;
 					return xFunc.eval(parameter);
 				});
-		
+
 		curve.dataY = tValues.map(
 				function(x) {
 					var parameter = {};
 					parameter[variable] = x;
 					return yFunc.eval(parameter);
 				});
-		
+
 		curve.updateParametricCurve();
-		
+
 	}
 
 }
@@ -2327,16 +2750,16 @@ function implicit_plot(relation, args) {
 	var func = board.jc.snippet(relation, true, ['x', 'y'], false);
 	cv.func = func;
 	cv.update();
-	
+
 /*	if(args === undefined) {
 		args = {};
 	}
-	
+
 	board.suspendUpdate();
-	
+
 	var color = args.color ? args.color : 'red';
 	var density = args.density ? args.density : 0.1;
-	
+
 	var bounds = JSXGetBounds(board);
 
 	var nVertPoints = (bounds.ymax - bounds.ymin) / density;
@@ -2355,18 +2778,18 @@ function implicit_plot(relation, args) {
 			var ne = expr.eval({x: x + density, y: y});
 			var se = expr.eval({x: x + density, y: y - density});
 			var sw = expr.eval({x: x, y: y - density});
-			
+
 			var total = 0;
 			if(nw > 0) total += 8;
 			if(ne > 0) total += 4;
 			if(se > 0) total += 2;
 			if(sw > 0) total += 1;
-			
+
 			var bottomInterp = -sw / (se - sw) * density;
 			var topInterp    = -nw / (ne - nw) * density;
 			var leftInterp   = -nw / (sw - nw) * density;
 			var rightInterp	 = -ne / (se - ne) * density;
-			
+
 			switch (total) {
 				case 0:
 					break;
@@ -2417,11 +2840,11 @@ function implicit_plot(relation, args) {
 				case 15:
 					break;
 			}
-		
+
 		}
-	
+
 	}
-	
+
 	board.unsuspendUpdate();*/
 }
 
@@ -2474,7 +2897,7 @@ function implicit_plot(relation, args) {
 //    {
 //        curves.push(board.create('curve', [xs, ys], {strokeWidth:1, strokeColor:me.colour}));
 //    }
-//                
+//
 //    return curves;
 //  }
 //
@@ -2951,7 +3374,7 @@ var Implicit = function(func, finish) {
 		}
 	};
  };
- 
+
 // plotter code using jsxgraph
 
 var CanvasPlotter = function(board, func) {
@@ -3013,7 +3436,7 @@ me.px = 300; me.py = 300;
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Plots a relation in two dimensions. The format of the input is expected to
-//    be one of the following formats: 
+//    be one of the following formats:
 //
 //          y = f(x), or just f(x) - for standard rectangular functions
 //          r = f(t) - for polar equations
@@ -3040,83 +3463,83 @@ function plot(curve, relation, start_x, end_x, args) {
 
 	var holeloc = '';
 	var endpoints = [];
-	
+
 	relation = relation.toLowerCase();
-	
+
 	if (isImplicitEquation(relation)) {
-		relation = convertImplicitEquation(relation);	
+		relation = convertImplicitEquation(relation);
 	}
 
 	// math.js does not support ln notation for natural logarithm
 	relation = relation.replace(/ln/g, "log");
 
 	if (relation == '' && args.interval != '') {
-	
+
 		// This is just a point, just determine if it's open or closed and plot
-	
+
 		var interval = args.interval.trim();
 		var closed = false;
-			
+
 		if (interval.startsWith('[') || interval.endsWith(']')) {
-			closed = true;	
+			closed = true;
 		}
-		
+
 		var vals = interval.split(',');
 		vals[0] = vals[0].substring(1, vals[0].length);
 		vals[1] = vals[1].substring(0, vals[1].length-1);
-		
+
 		var lowerendpoint = args.lowerendpoint ? args.lowerendpoint : -1;
 		var upperendpoint = args.upperendpoint ? args.upperendpoint : -1;
 		var hole = args.hole ? args.hole : -1;
 		var color = args.color ? args.color : 'blue';
-		
+
 		if(hole != -1) {
 			hole.setAttribute({ visible: false });
 		}
-	
+
 		if(lowerendpoint != -1) {
 			lowerendpoint.setAttribute({ visible: false });
 		}
-	
+
 		if(upperendpoint != -1) {
 			upperendpoint.setAttribute({ visible: false });
 		}
 
-		
+
 		var x = math.eval(vals[0]);
 		var y = math.eval(vals[1]);
-		
+
 		lowerendpoint.moveTo([x, y]);
-		
+
 		lowerendpoint.setAttribute({ strokeColor: color, visible: true });
 		if (closed) {
 			lowerendpoint.setAttribute({ fillColor: color });
 		} else {
-			lowerendpoint.setAttribute({ fillColor: 'white' });		
+			lowerendpoint.setAttribute({ fillColor: 'white' });
 		}
-	
-	} else { 
+
+	} else {
 
 		var vars = getVariables(relation);
 		var fname = getFunctionName(relation);
-	
+
 		// if there is no function name given, and we can assume it is a function
-		// of x, then just append a y = 
+		// of x, then just append a y =
 		if(fname == '' && ((vars[0] == 'x' && vars.length == 1) || (vars.length == 0))) {
 			fname = 'y';
 		}
 		relation = removeFunctionName(relation);
-	
+
 		if(fname != '') {
-		
+
 			if(vars.length == 0) {
-		
+
 				// Plot: horizontal line
 				if(fname == 'y') {
 					args.density = 1;
 					plot_function(curve, relation, start_x, end_x, args);
 				}
-			
+
 				// Plot vertical line
 				if(fname == 'x') {
 					args.variable = 't';
@@ -3126,7 +3549,7 @@ function plot(curve, relation, start_x, end_x, args) {
 					var tmax = bounds.ymax;
 					plot_parametric(curve, relation, 't', tmin, tmax, args);
 				}
-			
+
 				// Plot is a circle
 				if(fname == 'r') {
 					args.variable = 't';
@@ -3139,30 +3562,30 @@ function plot(curve, relation, start_x, end_x, args) {
 						var uval = getUpperEndpoint(interval);
 						tmax = uval == POSITIVE_INFINITY ? 12 * PI : uval;
 					}
-			
-					plot_polar(curve, relation, tmin, tmax, args);	
+
+					plot_polar(curve, relation, tmin, tmax, args);
 				}
-			} 
-		
+			}
+
 			if(vars.length == 1) {
-	
+
 				if(vars[0] == 'x' || fname == 'f' || fname == 'y') {
-				
+
 					// rectangular plot y = f(x)
 					plot_function(curve, relation, start_x, end_x, args);
-		
+
 				} else if(vars[0] == 'y' || fname == 'g' || fname == 'x') {
-				
-					// rectangular x = g(y)			
+
+					// rectangular x = g(y)
 					args.variable = vars[0];
 					var bounds = JSXGetBounds(board);
 					var tmin = bounds.ymin;
 					var tmax = bounds.ymax;
 					plot_parametric(curve, relation, args.variable, tmin, tmax, args);
-			
+
 				} else if(fname == 'r' && vars[0] == 't') {
-				
-					// Polar Graph			
+
+					// Polar Graph
 					var interval = args.interval ? args.interval : '';
 					var tmin = 0;
 					var tmax = 2 * PI;
@@ -3172,16 +3595,16 @@ function plot(curve, relation, start_x, end_x, args) {
 						var uval = getUpperEndpoint(interval);
 						tmax = uval == POSITIVE_INFINITY ? 12 * PI : uval;
 					}
-			
-					plot_polar(curve, relation, tmin, tmax, args);		
-			
-				} 
-			
-			} // if(vars.length == 1) 
-				
+
+					plot_polar(curve, relation, tmin, tmax, args);
+
+				}
+
+			} // if(vars.length == 1)
+
 		} else if(vars[0] == 't' && vars.length == 1) {
 			// Parametrically defined functions
-			
+
 			var interval = args.interval ? args.interval : '';
 			var bounds = JSXGetBounds(board);
 			var tmin = bounds.xmin < bounds.ymin ? bounds.xmin : bounds.ymin;
@@ -3194,15 +3617,15 @@ function plot(curve, relation, start_x, end_x, args) {
 			}
 			relation = removeSpaces(relation);
 			var cloc = relation.search(',');
-			
+
 			var x_t = removeSpaces(relation.substring(1, cloc));
 			var y_t = removeSpaces(relation.substring(cloc + 1, relation.length - 1));
-			
+
 			plot_parametric(curve, x_t, y_t, tmin, tmax, args);
-			
+
 		} else if(vars.length == 2) {
 			implicit_plot(relation, args);
-		} 
+		}
 
 	}
 
@@ -3248,35 +3671,35 @@ function displayNumber(val) {
 ///////////////////////////////////////////////////////////////////
 //
 // double-values often have junk at the end, this function attempts
-// to remove that junk so that calculations are a little more 
+// to remove that junk so that calculations are a little more
 // accurate.
 //
 ////////////////////////////////////////////////////////////////////
 
 function trimNumber(val) {
-	
+
 	// Make each number accurate to 12 decimal places - this also
 	// has the effect of rounding numbers like 1.99999999999 to 2
-	
+
 	var s = val.toFixed(12);
-	
+
 	if(s.includes('.')) {
-		
+
 		// Remove any trailing zeros
-		
+
 		while(s.slice(-1) == '0') {
 			s = s.substring(0, s.length - 1);
 		}
-		
-		// If so many trailing zeros are removed that you 
+
+		// If so many trailing zeros are removed that you
 		// end up at a decimal, then this is an integer and
 		// remove the decimal to make it so
-		
+
 		if(s.slice(-1) == '.') {
 			s = s.substring(0, s.length - 1);
 		}
 	}
-	
+
 	return s;
 }
 
@@ -3289,22 +3712,22 @@ function trimNumber(val) {
 ///////////////////////////////////////////////////////////////////////////////
 
 function preprocessFunction (s) {
-	
+
 	// convert any instances of implicit multiplication to explicit form
 	s = math.parse(s).toString({ implicit: 'show' });
-	
+
 	// convert any constants 'e' or 'pi' to numbers
 	s = Parser.parse(s).simplify({ e: E, pi: PI }).toString();
-	
+
 	return s;
 }
 
 function makeJSFunction(board, s, variable) {
-	
+
 	variable = variable === undefined ? 'x' : variable;
-	
+
 	s = preprocessFunction(s);
-	
+
 	return board.jc.snippet(s, true, variable, false);
 }
 
@@ -3331,9 +3754,9 @@ function JSXSlopeField(board, derivative, args) {
 		density = args.density ? args.density : density;
 		color = args.color ? args.color : color;
 	}
-	
+
 	var bounds = JSXGetBounds(board);
-	
+
 	for(var i = bounds.xmin; i <= bounds.xmax; i += density) {
 		for(var j = bounds.ymin; j <= bounds.ymax; j += density) {
 			var slope = math.eval(derivative, { x: i, y: j });
@@ -3344,8 +3767,8 @@ function JSXSlopeField(board, derivative, args) {
 			var y2 = slope * (x2 - i) + j;
 			linesegs.push(board.create('segment', [[x1, y1], [x2, y2]], { color: color, strokeWidth: 1, fixed: true }));
 		}
-	}	
-	
+	}
+
 	return linesegs;
 
 }
@@ -3372,34 +3795,34 @@ function JSXVectorField(board, mtext, ntext, args) {
 	var length = args.length ? args.length : 1;
 	var density = args.density ? args.density : 1;
 	var color = args.color ? args.color : 'red';
-	
+
 	var bounds = JSXGetBounds(board);
-	
+
 	var mfunc = math.compile(mtext);
 	var nfunc = math.compile(ntext);
-	
+
 	for(var i = bounds.xmin; i <= bounds.xmax; i += density) {
 		for(var j = bounds.ymin; j <= bounds.ymax; j += density) {
-			
+
 			var x0 = i;
 			var y0 = j;
-			
+
 			var u = mfunc.eval( { x: i, y: j } );
 			var v = nfunc.eval( { x: i, y: j } );
-						
+
 			var mag = Math.sqrt(u * u + v * v);
-			
+
 			var x1 = x0 + u / mag;
 			var y1 = y0 + v / mag;
-			
+
 			//var x1 = x0 + u * 0.01;
 			//var y1 = y0 + v * 0.01;
-			
+
 			vectors.push(board.create('arrow', [[x0, y0], [x1, y1]], { color: color, strokeWidth: 2, fixed: true }));
-						
+
 		}
-	}	
-	
+	}
+
 	return vectors;
 
 }
@@ -3429,5 +3852,4 @@ function JSXVectorField(board, mtext, ntext, args) {
 
 				// return p;
 
-		// } 
-
+		// }

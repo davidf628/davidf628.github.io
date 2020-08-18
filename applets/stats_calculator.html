@@ -1,22 +1,37 @@
 <!DOCTYPE html>
 <html lang = "en-US">
 
+<!--
+
+TODO:
+
+  - impplement binomial distribution
+  - update t-dist and normal to use jstat
+  - change all inputs and text to align correctly
+  - add button to apply a formula to L1 and L2
+  - fix dropdown menus to show up below the menu bar
+  - add extra output to confidence intervals
+
+-->
+
 <head>
 
 	<title>Statistics Calculator</title>
-	<meta charset="utf-8">  
-	
+	<meta charset="utf-8">
+
 	<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
 	<script src='./js/jsxgraphcore.js' type='text/javascript'></script>
 	<script src='./js/MathFunctions.js' type='text/javascript'></script>
+	<script src='./js/math.min.js' type='text/javascript'></script>
 	<script src='./js/helpers.js' type='text/javascript'></script>
 	<script src="./js/jstat.min.js"></script>
-	
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
 	<style>
 		body {
 			font-family: Arial;
 		}
-		
+
 		/* Style the tab */
 		.tab {
 			overflow: hidden;
@@ -24,7 +39,7 @@
 			background-color: #f1f1f1;
 			width: 540px;
 		}
-		
+
 		/* Style the buttons that are used to open the tab content */
 		.tab button {
 			background-color: inherit;
@@ -32,20 +47,21 @@
 			border: none;
 			outline: none;
 			cursor: pointer;
-			padding: 14px 16px;
+			padding: 14px 10px;
 			transition: 0.3s;
+			text-decoration: none;
 		}
-		
+
 		/* Change background color of buttons on hover */
 		.tab button:hover {
 			background-color: #ddd;
 		}
-		
+
 		/* Create an active/current tablink class */
 		.tab button.active {
 			background-color: #ccc;
 		}
-		
+
 		/* Style the tab content */
 		.tabcontent {
 			display: none;
@@ -53,9 +69,80 @@
 			border: 1px solid #ccc;
 			border-top: none;
 		}
-		
+
+		.dropdown {
+			float: left;
+			overflow: hidden;
+		}
+
+		.dropdown .dropbtn {
+			border: none;
+			outline: none;
+			color: black;
+			padding: 14px 16px;
+			background-color: inherit;
+			font-family: inherit;
+			margin: 0;
+		}
+
+		.dropdown-content {
+			display: none;
+			position: absolute;
+			background-color: #f9f9f9;
+			min-width: 160px;
+			box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+			z-index: 10;
+		}
+
+		.dropdown-content button {
+			float: none;
+			color: black;
+			padding: 12px 16px;
+			text-decoration: none;
+			display: block;
+			text-align: left;
+		}
+
+		.dropdown-content button:hover {
+			background-color: #ddd;
+		}
+
+		.dropdown:hover .dropdown-content {
+			display: block;
+		}
+
+		.btn-group input {
+			background-color: #e1e1e1; /* Green background */
+			border: 1px solid black; /* Green border */
+			color: black; /* White text */
+			padding: 10px 6px; /* Some padding */
+			cursor: pointer; /* Pointer/hand icon */
+			width: 50%; /* Set a width if needed */
+			display: block; /* Make the buttons appear below each other */
+			text-align:center
+		}
+
+		.btn-group button {
+			background-color: #4CAF50; /* Green background */
+			border: 1px solid green; /* Green border */
+			color: white; /* White text */
+			padding: 10px 24px; /* Some padding */
+			cursor: pointer; /* Pointer/hand icon */
+			width: 50%; /* Set a width if needed */
+			display: block; /* Make the buttons appear below each other */
+		}
+
+		.btn-group button:not(:last-child) {
+			border-bottom: none; /* Prevent double borders */
+		}
+
+		/* Add a background color on hover */
+		.btn-group button:hover {
+			background-color: #3e8e41;
+		}
+
 	</style>
-	
+
 </head>
 
 <body>
@@ -65,10 +152,40 @@
 
 <!-- Tab links -->
 <div class="tab">
-	<button class="tablinks" id="defaultOpen" onclick="openTool(event, 'standard_normal')">Normal</button>
-	<button class="tablinks" onclick="openTool(event, 't-distribution')">T-Dist</button>
-	<button class="tablinks" onclick="openTool(event, 'chi-distribution')">&Chi;<sup>2</sup></button>
-	<button class="tablinks" onclick="openTool(event, 'f-distribution')">F</button>
+	<button class="tablinks" id="defaultOpen" onclick="openTool(event, 'calculation')">Calc</button>
+	<button class="tablinks" onclick="openTool(event, 'list-editor')">List Editor</button>
+	<div class="dropdown">
+			<button class="dropbtn">Distributions<i class="fa fa-caret-down"></i></button>
+			<div class="dropdown-content">
+				<button class="tablinks" onclick="openTool(event, 'standard_normal')">Normal</button>
+				<button class="tablinks" onclick="openTool(event, 't-distribution')">Student's T</button>
+				<button class="tablinks" onclick="openTool(event, 'chi-distribution')">&Chi;<sup>2</sup></button>
+				<button class="tablinks" onclick="openTool(event, 'f-distribution')">F</button>
+				<button class="tablinks" onclick="openTool(event, 'binomial-distribution')">Binomial</button>
+			</div>
+		</div>
+	<div class="dropdown">
+		<button class="dropbtn">Estimates<i class="fa fa-caret-down"></i></button>
+		<div class="dropdown-content">
+			<button class="tablinks" onclick="openTool(event, 'z-interval')">Z Confidence Interval of the Mean</button>
+			<button class="tablinks" onclick="openTool(event, 't-interval')">T Confidence Interval of the Mean</button>
+			<button class="tablinks" onclick="openTool(event, 'prop-interval')">Z Confidence Interval for a Proportion</button>
+			<button class="tablinks" onclick="openTool(event, 'z-int_2samp')">Z Confidence Interval of Two Means</button>
+			<button class="tablinks" onclick="openTool(event, 't-int_2samp')">T Confidence Interval of Two Means</button>
+			<button class="tablinks" onclick="openTool(event, 'prop-int_2samp')">Z Confidence Interval of Two Proportions</button>
+		</div>
+	</div>
+	<div class="dropdown">
+		<button class="dropbtn">Tests<i class="fa fa-caret-down"></i></button>
+		<div class="dropdown-content">
+			<button class="tablinks" onclick="openTool(event, 'z-test')">Z Test of a Mean</button>
+			<button class="tablinks" onclick="openTool(event, 't-test')">T Test of a Mean</button>
+			<button class="tablinks" onclick="openTool(event, 'prop-test')">Z Test of a Proportion</button>
+			<button class="tablinks" onclick="openTool(event, 'z-test_2samp')">Z Test of Two Means</button>
+			<button class="tablinks" onclick="openTool(event, 't-test_2samp')">T Test of Two Means</button>
+			<button class="tablinks" onclick="openTool(event, 'prop-test_2samp')">Z Test of Two Proportions</button>
+		</div>
+	</div>
 </div>
 
 <!-- Tab content -->
@@ -76,7 +193,21 @@
 <div id="t-distribution" class="jxgbox" style="width:540px; height:540px;"></div>
 <div id="chi-distribution" class="jxgbox" style="width:540px; height:540px;"></div>
 <div id="f-distribution" class="jxgbox" style="width:540px; height:540px;"></div>
-
+<div id="binomial-distribution" class="jxgbox" style="width:540px; height:540px;"></div>
+<div id="calculation" class="jxgbox" style="width:540px; height:540px;"></div>
+<div id="list-editor" class="jxgbox" style="width:540px; height:540px;"></div>
+<div id="z-interval" class="jxgbox" style="width:540px; height:540px;"></div>
+<div id="t-interval" class="jxgbox" style="width:540px; height:540px;"></div>
+<div id="prop-interval" class="jxgbox" style="width:540px; height:540px;"></div>
+<div id="z-int_2samp" class="jxgbox" style="width:540px; height:540px;"></div>
+<div id="t-int_2samp" class="jxgbox" style="width:540px; height:540px;"></div>
+<div id="prop-int_2samp" class="jxgbox" style="width:540px; height:540px;"></div>
+<div id="z-test" class="jxgbox" style="width:540px; height:540px;"></div>
+<div id="t-test" class="jxgbox" style="width:540px; height:540px;"></div>
+<div id="prop-test" class="jxgbox" style="width:540px; height:540px;"></div>
+<div id="z-test_2samp" class="jxgbox" style="width:540px; height:540px;"></div>
+<div id="t-test_2samp" class="jxgbox" style="width:540px; height:540px;"></div>
+<div id="prop-test_2samp" class="jxgbox" style="width:540px; height:540px;"></div>
 
 <script>
 function openTool(evt, tool) {
@@ -85,6 +216,11 @@ function openTool(evt, tool) {
 
 	// Get all elements with class="tabcontent" and hide them
 	tabcontent = document.getElementsByClassName("jxgbox");
+	for (i = 0; i < tabcontent.length; i++) {
+		tabcontent[i].style.display = "none";
+	}
+
+	tabcontent = document.getElementsByClassName("btn-group");
 	for (i = 0; i < tabcontent.length; i++) {
 		tabcontent[i].style.display = "none";
 	}
@@ -106,30 +242,1358 @@ document.getElementById("defaultOpen").click();
 <script>
 	// Define global variables
 
-	var shadeParam = { 
-		color: '#0000FF', 
-		fillOpacity: 0.4, 
+	var shadeParam = {
+		color: '#0000FF',
+		fillOpacity: 0.4,
 		withLabel: false,
 		fixed: true,
 		highlight: false,
 		curveLeft: { visible: false },
 		curveRight: { visible: false },
 	};
-	
+
 	var PTYPE = 'between';
-	
+
 	var BETWEEN = 0;
 	var LEFT = 1;
 	var RIGHT = 2;
-	
+
+	var LEFTTAIL = 0;
+	var RIGHTTAIL = 1;
+	var TWOTAIL = 2;
+
 </script>
+
+
+<!--////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////// List Editor /////////
+	////////////////////////////////////////////////////////////////////////-->
+
+<script>
+
+var list_board = JXG.JSXGraph.initBoard('list-editor', {
+		boundingbox: [0,10,10,0],
+      	showCopyright: false,
+      	showNavigation: true,
+		keepaspectratio: false,
+		axis: false,
+		zoom: {
+			factorX: 1.25,
+			factorY: 1.25,
+			wheel: false,
+			needshift: false,
+			eps: 0.1,
+				enabled: false
+		  },
+		pan: {
+			enabled: true
+		}
+    });
+
+var list_title1 = list_board.create('text', [1.5, 9.5, 'L1'], { fixed: true, fontSize: 18 });
+var list_title2 = list_board.create('text', [5.5, 9.5, 'L2'], { fixed: true, fontSize: 18 });
+
+var list1_data = [];
+var list2_data = [];
+
+for (var i = 0; i < 50; i++) {
+	list1_data[i] = list_board.create('input', [0.5, 9 - i * 0.5, '', ''],
+			{ cssStyle: 'width: 100px', fixed: true, fontSize: 18 });
+	list2_data[i] = list_board.create('input', [4.5, 9 - i * 0.5, '', ''],
+			{ cssStyle: 'width: 100px', fixed: true, fontSize: 18 });
+}
+
+</script>
+
+<!--////////////////////////////////////////////////////////////////////////
+	//////////////////// Confidence Interval for the Mean (Normal) /////////
+	////////////////////////////////////////////////////////////////////////-->
+
+<script>
+
+var zint_board = JXG.JSXGraph.initBoard('z-interval', {
+		boundingbox: [0,10,10,0],
+      	showCopyright: false,
+      	showNavigation: false,
+		keepaspectratio: false,
+		axis: false,
+		zoom: {
+			factorX: 1.25,
+			factorY: 1.25,
+			wheel: false,
+			needshift: false,
+			eps: 0.1,
+				enabled: false
+		  },
+		pan: {
+			enabled: false
+		}
+    });
+
+var zint_std = zint_board.create('input', [0.5, 9, '', '&sigma; = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var zint_mean = zint_board.create('input', [0.5, 8, '', 'x&#772; = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var zint_n = zint_board.create('input', [0.5, 7, '', 'n = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var zint_list = zint_board.create('input', [0.5, 6, 'L1', 'List: '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18, strokeColor: 'lightgray' });
+zint_list.setAttribute({ disabled: true });
+var zint_c = zint_board.create('input', [0.5, 5, '', 'c = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+
+var zint_interval = zint_board.create('text', [0.5, 3, ''],
+		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+
+var zint_cb_stats = JSXCheckbox(zint_board, 6, 8, 'Input from Stats', true,
+	function() {
+		setCheckbox(zint_cb_stats, true);
+		setCheckbox(zint_cb_data, false);
+		zint_list.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		zint_mean.setAttribute({ disabled: false, strokeColor: 'black' });
+		zint_n.setAttribute({ disabled: false, strokeColor: 'black' });
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+
+var zint_cb_data = JSXCheckbox(zint_board, 6, 7, 'Input from Data', false,
+	function() {
+		setCheckbox(zint_cb_stats, false);
+		setCheckbox(zint_cb_data, true);
+		zint_list.setAttribute({ disabled: false, strokeColor: 'black' });
+		zint_mean.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		zint_n.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+	}, { fontSize: 18, anchorY: 'top', frozen: true });
+
+var zint_calculate = zint_board.create('button', [6, 6, 'Calculate',
+
+	function() {
+
+		var c = Number(zint_c.rendNodeInput.value);
+		var std = Number(zint_std.rendNodeInput.value);
+		var n, mean = 0;
+
+		if(zint_cb_stats.Value()) {
+			n = Number(zint_n.rendNodeInput.value);
+			mean = Number(zint_mean.rendNodeInput.value);
+		} else {
+			var list = zint_list.rendNodeInput.value;
+			var xdata = getRawData(list);
+			n = xdata.length;
+			mean = stats.mean(xdata);
+		}
+
+		var z = Math.abs(jStat.normal.inv((1 - c) / 2, 0, 1));
+		var me = z * std / sqrt(n);
+		var lb = mean - me;
+		var ub = mean + me;
+
+		zint_interval.setText('(' + lb + ', ' + ub + ')');
+	}
+
+], { frozen: true, anchorY: 'top' });
+
+</script>
+
+<!--////////////////////////////////////////////////////////////////////////
+	///////////////////////// Confidence Interval for the Mean (T) /////////
+	////////////////////////////////////////////////////////////////////////-->
+
+<script>
+
+var tint_board = JXG.JSXGraph.initBoard('t-interval', {
+		boundingbox: [0,10,10,0],
+      	showCopyright: false,
+      	showNavigation: false,
+		keepaspectratio: false,
+		axis: false,
+		zoom: {
+			factorX: 1.25,
+			factorY: 1.25,
+			wheel: false,
+			needshift: false,
+			eps: 0.1,
+				enabled: false
+		  },
+		pan: {
+			enabled: false
+		}
+    });
+
+var tint_std = tint_board.create('input', [0.5, 9, '', 's = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var tint_mean = tint_board.create('input', [0.5, 8, '', 'x&#772; = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var tint_n = tint_board.create('input', [0.5, 7, '', 'n = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var tint_list = tint_board.create('input', [0.5, 6, 'L1', 'List: '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18, strokeColor: 'lightgray' });
+tint_list.setAttribute({ disabled: true });
+var tint_c = tint_board.create('input', [0.5, 5, '', 'c = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+
+var tint_interval = tint_board.create('text', [0.5, 3, ''],
+		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+
+var tint_cb_stats = JSXCheckbox(tint_board, 6, 8, 'Input from Stats', true,
+	function() {
+		setCheckbox(tint_cb_stats, true);
+		setCheckbox(tint_cb_data, false);
+		tint_list.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		tint_mean.setAttribute({ disabled: false, strokeColor: 'black' });
+		tint_std.setAttribute({ disabled: false, strokeColor: 'black' });
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+
+var tint_cb_data = JSXCheckbox(tint_board, 6, 7, 'Input from Data', false,
+	function() {
+		setCheckbox(tint_cb_stats, false);
+		setCheckbox(tint_cb_data, true);
+		tint_list.setAttribute({ disabled: false, strokeColor: 'black' });
+		tint_mean.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		tint_n.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		tint_std.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+	}, { fontSize: 18, anchorY: 'top', frozen: true });
+
+var tint_calculate = tint_board.create('button', [6, 6, 'Calculate',
+
+	function() {
+
+		var c = Number(tint_c.rendNodeInput.value);
+		var n, std, mean = 0;
+
+		if(tint_cb_stats.Value()) {
+			n = Number(tint_n.rendNodeInput.value);
+			mean = Number(tint_mean.rendNodeInput.value);
+			std = Number(tint_std.rendNodeInput.value);
+		} else {
+			var list = tint_list.rendNodeInput.value;
+			var xdata = getRawData(list);
+			n = xdata.length;
+			mean = stats.mean(xdata);
+			std = stats.stdev(xdata);
+		}
+
+		var t = Math.abs(jStat.studentt.inv((1 - c) / 2, n - 1));
+		var me = t * std / sqrt(n);
+		var lb = mean - me;
+		var ub = mean + me;
+
+		tint_interval.setText('(' + lb + ', ' + ub + ')');
+	}
+
+], { frozen: true, anchorY: 'top' });
+
+
+</script>
+
+<!--////////////////////////////////////////////////////////////////////////
+	///////////////////////// Confidence Interval for a Proportion /////////
+	////////////////////////////////////////////////////////////////////////-->
+
+<script>
+
+var pint_board = JXG.JSXGraph.initBoard('prop-interval', {
+		boundingbox: [0,10,10,0],
+      	showCopyright: false,
+      	showNavigation: false,
+		keepaspectratio: false,
+		axis: false,
+		zoom: {
+			factorX: 1.25,
+			factorY: 1.25,
+			wheel: false,
+			needshift: false,
+			eps: 0.1,
+				enabled: false
+		  },
+		pan: {
+			enabled: false
+		}
+    });
+
+var pint_x = pint_board.create('input', [0.5, 9, '', 'x = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var pint_n = pint_board.create('input', [0.5, 8, '', 'n = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var pint_c = pint_board.create('input', [0.5, 7, '', 'c = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+
+var pint_interval = pint_board.create('text', [0.5, 3, ''],
+		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+
+var pint_calculate = pint_board.create('button', [6, 8, 'Calculate',
+
+	function() {
+
+		var c = Number(pint_c.rendNodeInput.value);
+		var x = Number(pint_x.rendNodeInput.value);
+		var n = Number(pint_n.rendNodeInput.value);
+		var p = x / n;
+		var q = 1 - p;
+
+		var z = Math.abs(jStat.normal.inv((1 - c) / 2, 0, 1));
+		var me = z * sqrt(p * q / n);
+		var lb = p - me;
+		var ub = p + me;
+
+		pint_interval.setText('(' + lb + ', ' + ub + ')');
+	}
+
+], { frozen: true, anchorY: 'top' });
+
+</script>
+
+<!--////////////////////////////////////////////////////////////////////////
+	/////////////////// Confidence Interval for Two Means (Normal) /////////
+	////////////////////////////////////////////////////////////////////////-->
+
+<script>
+
+var zint2_board = JXG.JSXGraph.initBoard('z-int_2samp', {
+		boundingbox: [0,10,10,0],
+      	showCopyright: false,
+      	showNavigation: false,
+		keepaspectratio: false,
+		axis: false,
+		zoom: {
+			factorX: 1.25,
+			factorY: 1.25,
+			wheel: false,
+			needshift: false,
+			eps: 0.1,
+				enabled: false
+		  },
+		pan: {
+			enabled: false
+		}
+    });
+
+var zint2_std1 = zint2_board.create('input', [0.5, 9, '', '&sigma;<sub>1</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var zint2_mean1 = zint2_board.create('input', [0.5, 8, '', 'x&#772;<sub>1</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var zint2_n1 = zint2_board.create('input', [0.5, 7, '', 'n<sub>1</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var zint2_list1 = zint2_board.create('input', [0.5, 6, 'L1', 'List<sub>1</sub>: '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18, strokeColor: 'lightgray' });
+zint2_list1.setAttribute({ disabled: true });
+
+var zint2_std2 = zint2_board.create('input', [5, 9, '', '&sigma;<sub>2</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var zint2_mean2 = zint2_board.create('input', [5, 8, '', 'x&#772;<sub>2</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var zint2_n2 = zint2_board.create('input', [5, 7, '', 'n<sub>2</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var zint2_list2 = zint2_board.create('input', [5, 6, 'L2', 'List<sub>2</sub>: '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18, strokeColor: 'lightgray' });
+zint2_list2.setAttribute({ disabled: true });
+
+var zint2_c = zint2_board.create('input', [0.5, 5, '', 'c = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+
+var zint2_interval = zint2_board.create('text', [0.5, 3, ''],
+		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+
+var zint2_cb_stats = JSXCheckbox(zint2_board, 0.5, 4, 'Input from Stats', true,
+	function() {
+		setCheckbox(zint2_cb_stats, true);
+		setCheckbox(zint2_cb_data, false);
+		zint2_list1.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		zint2_mean1.setAttribute({ disabled: false, strokeColor: 'black' });
+		zint2_n1.setAttribute({ disabled: false, strokeColor: 'black' });
+		zint2_list2.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		zint2_mean2.setAttribute({ disabled: false, strokeColor: 'black' });
+		zint2_n2.setAttribute({ disabled: false, strokeColor: 'black' });
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+
+var zint2_cb_data = JSXCheckbox(zint2_board, 5, 4, 'Input from Data', false,
+	function() {
+		setCheckbox(zint2_cb_stats, false);
+		setCheckbox(zint2_cb_data, true);
+		zint2_list1.setAttribute({ disabled: false, strokeColor: 'black' });
+		zint2_mean1.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		zint2_n1.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		zint2_list2.setAttribute({ disabled: false, strokeColor: 'black' });
+		zint2_mean2.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		zint2_n2.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+	}, { fontSize: 18, anchorY: 'top', frozen: true });
+
+var zint2_calculate = zint2_board.create('button', [6, 4.8, 'Calculate',
+
+	function() {
+
+		var c = Number(zint2_c.rendNodeInput.value);
+		var std1 = Number(zint2_std1.rendNodeInput.value);
+		var std2 = Number(zint2_std2.rendNodeInput.value);
+		var n1, n2, mean1, mean2 = 0;
+
+		if(zint2_cb_stats.Value()) {
+			n1 = Number(zint2_n1.rendNodeInput.value);
+			mean1 = Number(zint2_mean1.rendNodeInput.value);
+			n2 = Number(zint2_n2.rendNodeInput.value);
+			mean2 = Number(zint2_mean2.rendNodeInput.value);
+		} else {
+			var list1 = zint2_list1.rendNodeInput.value;
+			var list2 = zint2_list2.rendNodeInput.value;
+			var xdata1 = getRawData(list1);
+			var xdata2 = getRawData(list2);
+			n1 = xdata1.length;
+			n2 = xdata2.length;
+			mean1 = stats.mean(xdata1);
+			mean2 = stats.mean(xdata2);
+		}
+
+		var z = Math.abs(jStat.normal.inv((1 - c) / 2, 0, 1));
+		var me = z * sqrt( sqr(std1) / n1 + sqr(std2) / n2);
+		var center = mean1 - mean2;
+		var lb = center - me;
+		var ub = center + me;
+
+		zint2_interval.setText('(' + lb + ', ' + ub + ')');
+	}
+
+], { frozen: true, anchorY: 'top' });
+
+</script>
+
+<!--////////////////////////////////////////////////////////////////////////
+	//////////////////////// Confidence Interval for Two Means (T) /////////
+	////////////////////////////////////////////////////////////////////////-->
+
+<script>
+
+var tint2_board = JXG.JSXGraph.initBoard('t-int_2samp', {
+		boundingbox: [0,10,10,0],
+      	showCopyright: false,
+      	showNavigation: false,
+		keepaspectratio: false,
+		axis: false,
+		zoom: {
+			factorX: 1.25,
+			factorY: 1.25,
+			wheel: false,
+			needshift: false,
+			eps: 0.1,
+				enabled: false
+		  },
+		pan: {
+			enabled: false
+		}
+    });
+
+var tint2_std1 = tint2_board.create('input', [0.5, 9, '', 's<sub>1</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var tint2_mean1 = tint2_board.create('input', [0.5, 8, '', 'x&#772;<sub>1</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var tint2_n1 = tint2_board.create('input', [0.5, 7, '', 'n<sub>1</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var tint2_list1 = tint2_board.create('input', [0.5, 6, 'L1', 'List<sub>1</sub>: '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18, strokeColor: 'lightgray' });
+tint2_list1.setAttribute({ disabled: true });
+
+var tint2_std2 = tint2_board.create('input', [5, 9, '', 's<sub>2</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var tint2_mean2 = tint2_board.create('input', [5, 8, '', 'x&#772;<sub>2</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var tint2_n2 = tint2_board.create('input', [5, 7, '', 'n<sub>2</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var tint2_list2 = tint2_board.create('input', [5, 6, 'L2', 'List<sub>2</sub>: '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18, strokeColor: 'lightgray' });
+tint2_list2.setAttribute({ disabled: true });
+
+var tint2_c = tint2_board.create('input', [0.5, 5, '', 'c = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+
+var tint2_interval = tint2_board.create('text', [0.5, 2, ''],
+		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+
+var tint2_cb_pooled = JSXCheckbox(tint2_board, 0.5, 4, 'Pooled Degrees of Freedom', false,
+	function() {
+		toggleCheckbox(tint2_cb_pooled);
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+
+var tint2_cb_stats = JSXCheckbox(tint2_board, 0.5, 3, 'Input from Stats', true,
+	function() {
+		setCheckbox(tint2_cb_stats, true);
+		setCheckbox(tint2_cb_data, false);
+		tint2_list1.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		tint2_mean1.setAttribute({ disabled: false, strokeColor: 'black' });
+		tint2_n1.setAttribute({ disabled: false, strokeColor: 'black' });
+		tint2_std1.setAttribute({ disabled: false, strokeColor: 'black' });
+		tint2_list2.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		tint2_mean2.setAttribute({ disabled: false, strokeColor: 'black' });
+		tint2_n2.setAttribute({ disabled: false, strokeColor: 'black' });
+		tint2_std2.setAttribute({ disabled: false, strokeColor: 'black' });
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+
+var tint2_cb_data = JSXCheckbox(tint2_board, 5, 3, 'Input from Data', false,
+	function() {
+		setCheckbox(tint2_cb_stats, false);
+		setCheckbox(tint2_cb_data, true);
+		tint2_list1.setAttribute({ disabled: false, strokeColor: 'black' });
+		tint2_mean1.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		tint2_n1.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		tint2_std1.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		tint2_list2.setAttribute({ disabled: false, strokeColor: 'black' });
+		tint2_mean2.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		tint2_n2.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		tint2_std2.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+	}, { fontSize: 18, anchorY: 'top', frozen: true });
+
+var tint2_calculate = tint2_board.create('button', [6, 4.8, 'Calculate',
+
+	function() {
+
+		var c = Number(tint2_c.rendNodeInput.value);
+		var n1, n2, std1, std2, mean1, mean2 = 0;
+
+		if(tint2_cb_stats.Value()) {
+			n1 = Number(tint2_n1.rendNodeInput.value);
+			mean1 = Number(tint2_mean1.rendNodeInput.value);
+			std1 = Number(tint2_std1.rendNodeInput.value);
+			n2 = Number(tint2_n2.rendNodeInput.value);
+			mean2 = Number(tint2_mean2.rendNodeInput.value);
+			std2 = Number(tint2_std2.rendNodeInput.value);
+		} else {
+			var list1 = tint2_list1.rendNodeInput.value;
+			var list2 = tint2_list2.rendNodeInput.value;
+			var xdata1 = getRawData(list1);
+			var xdata2 = getRawData(list2);
+			n1 = xdata1.length;
+			n2 = xdata2.length;
+			mean1 = stats.mean(xdata1);
+			mean2 = stats.mean(xdata2);
+			std1 = stats.stdev(xdata1);
+			std2 = stats.stdev(xdata2);
+		}
+
+		var serr, df = 0;
+		if (isChecked(tint2_cb_pooled)) {
+			df = n1 + n2 - 2;
+			var pooledsd = sqrt( ((n1 - 1) * sqr(std1) + (n2 - 1) * sqr(std2)) / df);
+			serr = sqrt( sqr(pooledsd) / n1 + sqr(pooledsd) / n2);
+		} else {
+			serr = sqrt( sqr(std1) / n1 + sqr(std2) / n2);
+			var num = sqr( sqr(std1) / n1 + sqr(std2) / n2 );
+			var denom1 = (1 / (n1 - 1)) * sqr( sqr(std1) / n1 );
+			var denom2 = (1 / (n2 - 1)) * sqr( sqr(std2) / n2 );
+			df = num / (denom1 + denom2);
+		}
+
+		var t = Math.abs(jStat.studentt.inv((1 - c) / 2, df));
+		var me = t * serr;
+		var center = mean1 - mean2;
+		var lb = center - me;
+		var ub = center + me;
+
+		tint2_interval.setText('(' + lb + ', ' + ub + ')');
+	}
+
+], { frozen: true, anchorY: 'top' });
+
+</script>
+
+<!--////////////////////////////////////////////////////////////////////////
+	////////////////////// Confidence Interval for Two Proportions /////////
+	////////////////////////////////////////////////////////////////////////-->
+
+<script>
+
+var pint2_board = JXG.JSXGraph.initBoard('prop-int_2samp', {
+		boundingbox: [0,10,10,0],
+      	showCopyright: false,
+      	showNavigation: false,
+		keepaspectratio: false,
+		axis: false,
+		zoom: {
+			factorX: 1.25,
+			factorY: 1.25,
+			wheel: false,
+			needshift: false,
+			eps: 0.1,
+				enabled: false
+		  },
+		pan: {
+			enabled: false
+		}
+    });
+
+var pint2_x1 = pint2_board.create('input', [0.5, 8, '', 'x<sub>1</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var pint2_n1 = pint2_board.create('input', [0.5, 7, '', 'n<sub>1</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+
+var pint2_x2 = pint2_board.create('input', [5, 8, '', 'x<sub>2</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var pint2_n2 = pint2_board.create('input', [5, 7, '', 'n<sub>2</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+
+var pint2_c = pint2_board.create('input', [0.5, 5, '', 'c = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+
+var pint2_interval = pint2_board.create('text', [0.5, 4, ''],
+		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+
+var pint2_calculate = pint2_board.create('button', [6, 4.8, 'Calculate',
+
+	function() {
+
+		var c = Number(pint2_c.rendNodeInput.value);
+
+		var x1 = Number(pint2_x1.rendNodeInput.value);
+		var n1 = Number(pint2_n1.rendNodeInput.value);
+		var x2 = Number(pint2_x2.rendNodeInput.value);
+		var n2 = Number(pint2_n2.rendNodeInput.value);
+		var p1 = x1 / n1;
+		var p2 = x2 / n2;
+
+		//var p = (x1 + x2) / (n1 + n2);
+		var serr = sqrt( p1 * (1 - p1) / n1 + p2 * (1 - p2) / n2 );
+
+		var z = Math.abs(jStat.normal.inv((1 - c) / 2, 0, 1));
+		var me = z * serr;
+		var center = x1 / n1 - x2 / n2;
+		var lb = center - me;
+		var ub = center + me;
+
+		pint2_interval.setText('(' + lb + ', ' + ub + ')');
+	}
+
+], { frozen: true, anchorY: 'top' });
+
+</script>
+
+<!--////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////// Test for a Mean (Normal) /////////
+	////////////////////////////////////////////////////////////////////////-->
+
+<script>
+
+var ztest_board = JXG.JSXGraph.initBoard('z-test', {
+		boundingbox: [0,10,10,0],
+      	showCopyright: false,
+      	showNavigation: false,
+		keepaspectratio: false,
+		axis: false,
+		zoom: {
+			factorX: 1.25,
+			factorY: 1.25,
+			wheel: false,
+			needshift: false,
+			eps: 0.1,
+				enabled: false
+		  },
+		pan: {
+			enabled: false
+		}
+    });
+
+var ztest_mu = ztest_board.create('input', [0.5, 9, '', 'Null Hypothesis: &mu; = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var ztest_alt = ztest_board.create('text', [0.5, 8, 'Alternative Hypothesis:'],
+		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+var ztest_cb_ne = JSXCheckbox(ztest_board, 4, 8, '&ne;', true,
+	function() {
+		setCheckbox(ztest_cb_ne, true);
+		setCheckbox(ztest_cb_lt, false);
+		setCheckbox(ztest_cb_gt, false);
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+var ztest_cb_lt = JSXCheckbox(ztest_board, 5, 8, '&lt;', false,
+	function() {
+		setCheckbox(ztest_cb_ne, false);
+		setCheckbox(ztest_cb_lt, true);
+		setCheckbox(ztest_cb_gt, false);
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+var ztest_cb_gt = JSXCheckbox(ztest_board, 6, 8, '&gt;', false,
+	function() {
+		setCheckbox(ztest_cb_ne, false);
+		setCheckbox(ztest_cb_lt, false);
+		setCheckbox(ztest_cb_gt, true);
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+
+var ztest_std = ztest_board.create('input', [0.5, 7, '', '&sigma; = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var ztest_mean = ztest_board.create('input', [0.5, 6, '', 'x&#772; = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var ztest_n = ztest_board.create('input', [0.5, 5, '', 'n = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var ztest_list = ztest_board.create('input', [0.5, 4, 'L1', 'List: '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18, strokeColor: 'lightgray' });
+ztest_list.setAttribute({ disabled: true });
+
+var ztest_output = ztest_board.create('text', [0.5, 3, ''],
+		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+
+var ztest_cb_stats = JSXCheckbox(ztest_board, 6, 7, 'Input from Stats', true,
+	function() {
+		setCheckbox(ztest_cb_stats, true);
+		setCheckbox(ztest_cb_data, false);
+		ztest_list.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		ztest_mean.setAttribute({ disabled: false, strokeColor: 'black' });
+		ztest_n.setAttribute({ disabled: false, strokeColor: 'black' });
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+
+var ztest_cb_data = JSXCheckbox(ztest_board, 6, 6, 'Input from Data', false,
+	function() {
+		setCheckbox(ztest_cb_stats, false);
+		setCheckbox(ztest_cb_data, true);
+		ztest_list.setAttribute({ disabled: false, strokeColor: 'black' });
+		ztest_mean.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		ztest_n.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+	}, { fontSize: 18, anchorY: 'top', frozen: true });
+
+var ztest_calculate = ztest_board.create('button', [6, 5, 'Calculate',
+
+	function() {
+
+		var std = Number(ztest_std.rendNodeInput.value);
+		var mu = Number(ztest_mu.rendNodeInput.value);
+		var p, n, mean = 0;
+
+		if(ztest_cb_stats.Value()) {
+			n = Number(ztest_n.rendNodeInput.value);
+			mean = Number(ztest_mean.rendNodeInput.value);
+		} else {
+			var list = ztest_list.rendNodeInput.value;
+			var xdata = getRawData(list);
+			n = xdata.length;
+			mean = stats.mean(xdata);
+		}
+
+		var z = (mean - mu) / (std / sqrt(n));
+
+		if(isChecked(ztest_cb_ne)) {
+			p = 2 * jStat.normal.cdf(-Math.abs(z), 0, 1);
+		} else if(isChecked(ztest_cb_lt)) {
+			p = jStat.normal.cdf(z, 0, 1);
+		} else {
+			p = 1 - jStat.normal.cdf(z, 0, 1);
+		}
+
+		ztest_output.setText('z = ' + z + '<br/>p = ' + p);
+	}
+
+], { frozen: true, anchorY: 'top' });
+
+</script>
+
+<!--////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////// Test for a Mean (T) /////////
+	////////////////////////////////////////////////////////////////////////-->
+
+<script>
+
+var ttest_board = JXG.JSXGraph.initBoard('t-test', {
+		boundingbox: [0,10,10,0],
+      	showCopyright: false,
+      	showNavigation: false,
+		keepaspectratio: false,
+		axis: false,
+		zoom: {
+			factorX: 1.25,
+			factorY: 1.25,
+			wheel: false,
+			needshift: false,
+			eps: 0.1,
+				enabled: false
+		  },
+		pan: {
+			enabled: false
+		}
+    });
+
+var ttest_mu = ttest_board.create('input', [0.5, 9, '', 'Null Hypothesis: &mu; = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var ttest_alt = ttest_board.create('text', [0.5, 8, 'Alternative Hypothesis:'],
+		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+var ttest_cb_ne = JSXCheckbox(ttest_board, 4, 8, '&ne;', true,
+	function() {
+		setCheckbox(ttest_cb_ne, true);
+		setCheckbox(ttest_cb_lt, false);
+		setCheckbox(ttest_cb_gt, false);
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+var ttest_cb_lt = JSXCheckbox(ttest_board, 5, 8, '&lt;', false,
+	function() {
+		setCheckbox(ttest_cb_ne, false);
+		setCheckbox(ttest_cb_lt, true);
+		setCheckbox(ttest_cb_gt, false);
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+var ttest_cb_gt = JSXCheckbox(ttest_board, 6, 8, '&gt;', false,
+	function() {
+		setCheckbox(ttest_cb_ne, false);
+		setCheckbox(ttest_cb_lt, false);
+		setCheckbox(ttest_cb_gt, true);
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+
+var ttest_std = ttest_board.create('input', [0.5, 7, '', 's = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var ttest_mean = ttest_board.create('input', [0.5, 6, '', 'x&#772; = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var ttest_n = ttest_board.create('input', [0.5, 5, '', 'n = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var ttest_list = ttest_board.create('input', [0.5, 4, 'L1', 'List: '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18, strokeColor: 'lightgray' });
+ttest_list.setAttribute({ disabled: true });
+
+var ttest_output = ttest_board.create('text', [0.5, 3, ''],
+		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+
+var ttest_cb_stats = JSXCheckbox(ttest_board, 6, 7, 'Input from Stats', true,
+	function() {
+		setCheckbox(ttest_cb_stats, true);
+		setCheckbox(ttest_cb_data, false);
+		ttest_list.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		ttest_mean.setAttribute({ disabled: false, strokeColor: 'black' });
+		ttest_n.setAttribute({ disabled: false, strokeColor: 'black' });
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+
+var ttest_cb_data = JSXCheckbox(ttest_board, 6, 6, 'Input from Data', false,
+	function() {
+		setCheckbox(ttest_cb_stats, false);
+		setCheckbox(ttest_cb_data, true);
+		ttest_list.setAttribute({ disabled: false, strokeColor: 'black' });
+		ttest_mean.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		ttest_n.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+	}, { fontSize: 18, anchorY: 'top', frozen: true });
+
+var ttest_calculate = ttest_board.create('button', [6, 5, 'Calculate',
+
+	function() {
+
+		var mu = Number(ttest_mu.rendNodeInput.value);
+		var p, std, n, mean = 0;
+
+		if(ttest_cb_stats.Value()) {
+			n = Number(ttest_n.rendNodeInput.value);
+			mean = Number(ttest_mean.rendNodeInput.value);
+			std = Number(ttest_std.rendNodeInput.value);
+		} else {
+			var list = ttest_list.rendNodeInput.value;
+			var xdata = getRawData(list);
+			n = xdata.length;
+			mean = stats.mean(xdata);
+			std = stats.stdev(xdata);
+		}
+
+		var t = (mean - mu) / (std / sqrt(n));
+
+		if(isChecked(ttest_cb_ne)) {
+			p = 2 * jStat.studentt.cdf(-Math.abs(t), n - 1);
+		} else if(isChecked(ttest_cb_lt)) {
+			p = jStat.studentt.cdf(t, n - 1);
+		} else {
+			p = 1 - jStat.studentt.cdf(t, n - 1);
+		}
+
+		ttest_output.setText('t = ' + t + '<br/>p = ' + p);
+	}
+
+], { frozen: true, anchorY: 'top' });
+
+</script>
+
+<!--////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////// Test for a Proportion /////////
+	////////////////////////////////////////////////////////////////////////-->
+
+<script>
+
+var ptest_board = JXG.JSXGraph.initBoard('prop-test', {
+		boundingbox: [0,10,10,0],
+      	showCopyright: false,
+      	showNavigation: false,
+		keepaspectratio: false,
+		axis: false,
+		zoom: {
+			factorX: 1.25,
+			factorY: 1.25,
+			wheel: false,
+			needshift: false,
+			eps: 0.1,
+				enabled: false
+		  },
+		pan: {
+			enabled: false
+		}
+    });
+
+var ptest_p = ptest_board.create('input', [0.5, 9, '', 'Null Hypothesis: p = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var ptest_alt = ptest_board.create('text', [0.5, 8, 'Alternative Hypothesis:'],
+		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+var ptest_cb_ne = JSXCheckbox(ptest_board, 4, 8, '&ne;', true,
+	function() {
+		setCheckbox(ptest_cb_ne, true);
+		setCheckbox(ptest_cb_lt, false);
+		setCheckbox(ptest_cb_gt, false);
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+var ptest_cb_lt = JSXCheckbox(ptest_board, 5, 8, '&lt;', false,
+	function() {
+		setCheckbox(ptest_cb_ne, false);
+		setCheckbox(ptest_cb_lt, true);
+		setCheckbox(ptest_cb_gt, false);
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+var ptest_cb_gt = JSXCheckbox(ptest_board, 6, 8, '&gt;', false,
+	function() {
+		setCheckbox(ptest_cb_ne, false);
+		setCheckbox(ptest_cb_lt, false);
+		setCheckbox(ptest_cb_gt, true);
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+
+var ptest_x = ptest_board.create('input', [0.5, 7, '', 'x = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var ptest_n = ptest_board.create('input', [0.5, 6, '', 'n = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+
+var ptest_output = ptest_board.create('text', [1, 4.5, ''],
+		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+
+var ptest_calculate = ptest_board.create('button', [6, 6, 'Calculate',
+
+	function() {
+
+		var p0 = Number(ptest_p.rendNodeInput.value);
+		var x, n, pval = 0;
+
+		n = Number(ptest_n.rendNodeInput.value);
+		x = Number(ptest_x.rendNodeInput.value);
+		phat = x / n;
+
+		var z = (phat - p0) / sqrt(p0 * (1 - p0) / n);
+
+		if(isChecked(ptest_cb_ne)) {
+			pval = 2 * jStat.studentt.cdf(-Math.abs(z), n - 1);
+		} else if(isChecked(ptest_cb_lt)) {
+			pval = jStat.studentt.cdf(z, n - 1);
+		} else {
+			pval = 1 - jStat.studentt.cdf(z, n - 1);
+		}
+
+		ptest_output.setText('z = ' + z + '<br/>p&#770; = ' + phat + '<br/>p-value = ' + pval);
+	}
+
+], { frozen: true, anchorY: 'top' });
+
+</script>
+
+<!--////////////////////////////////////////////////////////////////////////
+	////////////////////////////////// Test for Two Means (Normal) /////////
+	////////////////////////////////////////////////////////////////////////-->
+
+<script>
+
+var ztest2_board = JXG.JSXGraph.initBoard('z-test_2samp', {
+		boundingbox: [0,10,10,0],
+      	showCopyright: false,
+      	showNavigation: false,
+		keepaspectratio: false,
+		axis: false,
+		zoom: {
+			factorX: 1.25,
+			factorY: 1.25,
+			wheel: false,
+			needshift: false,
+			eps: 0.1,
+				enabled: false
+		  },
+		pan: {
+			enabled: false
+		}
+    });
+
+var ztest2_alt = ztest2_board.create('text', [0.5, 9, 'Alternative Hypothesis:'],
+		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+var ztest2_cb_ne = JSXCheckbox(ztest2_board, 4, 9, '&ne;', true,
+	function() {
+		setCheckbox(ztest2_cb_ne, true);
+		setCheckbox(ztest2_cb_lt, false);
+		setCheckbox(ztest2_cb_gt, false);
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+var ztest2_cb_lt = JSXCheckbox(ztest2_board, 5, 9, '&lt;', false,
+	function() {
+		setCheckbox(ztest2_cb_ne, false);
+		setCheckbox(ztest2_cb_lt, true);
+		setCheckbox(ztest2_cb_gt, false);
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+var ztest2_cb_gt = JSXCheckbox(ztest2_board, 6, 9, '&gt;', false,
+	function() {
+		setCheckbox(ztest2_cb_ne, false);
+		setCheckbox(ztest2_cb_lt, false);
+		setCheckbox(ztest2_cb_gt, true);
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+
+var ztest2_std1 = ztest2_board.create('input', [0.5, 8, '', '&sigma;<sub>1</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var ztest2_mean1 = ztest2_board.create('input', [0.5, 7, '', 'x&#772;<sub>1</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var ztest2_n1 = ztest2_board.create('input', [0.5, 6, '', 'n<sub>1</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var ztest2_list1 = ztest2_board.create('input', [0.5, 5, 'L1', 'List<sub>1</sub>: '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18, strokeColor: 'lightgray' });
+ztest2_list1.setAttribute({ disabled: true });
+
+var ztest2_std2 = ztest2_board.create('input', [5.5, 8, '', '&sigma;<sub>2</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var ztest2_mean2 = ztest2_board.create('input', [5.5, 7, '', 'x&#772;<sub>2</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var ztest2_n2 = ztest2_board.create('input', [5.5, 6, '', 'n<sub>2</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var ztest2_list2 = ztest2_board.create('input', [5.5, 5, 'L2', 'List<sub>2</sub>: '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18, strokeColor: 'lightgray' });
+ztest2_list2.setAttribute({ disabled: true });
+
+var ztest2_output = ztest2_board.create('text', [1, 3, ''],
+		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+
+var ztest2_cb_stats = JSXCheckbox(ztest2_board, 0.5, 4, 'Input from Stats', true,
+	function() {
+		setCheckbox(ztest2_cb_stats, true);
+		setCheckbox(ztest2_cb_data, false);
+		ztest2_list1.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		ztest2_mean1.setAttribute({ disabled: false, strokeColor: 'black' });
+		ztest2_n1.setAttribute({ disabled: false, strokeColor: 'black' });
+		ztest2_list2.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		ztest2_mean2.setAttribute({ disabled: false, strokeColor: 'black' });
+		ztest2_n2.setAttribute({ disabled: false, strokeColor: 'black' });
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+
+var ztest2_cb_data = JSXCheckbox(ztest2_board, 5, 4, 'Input from Data', false,
+	function() {
+		setCheckbox(ztest2_cb_stats, false);
+		setCheckbox(ztest2_cb_data, true);
+		ztest2_list1.setAttribute({ disabled: false, strokeColor: 'black' });
+		ztest2_mean1.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		ztest2_n1.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		ztest2_list2.setAttribute({ disabled: false, strokeColor: 'black' });
+		ztest2_mean2.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		ztest2_n2.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+	}, { fontSize: 18, anchorY: 'top', frozen: true });
+
+var ztest2_calculate = ztest2_board.create('button', [7, 3, 'Calculate',
+
+	function() {
+
+		var std1 = Number(ztest2_std1.rendNodeInput.value);
+		var std2 = Number(ztest2_std2.rendNodeInput.value);
+		var mean1, mean2, n1, n2 = 0;
+
+		if(ztest2_cb_stats.Value()) {
+			n1 = Number(ztest2_n1.rendNodeInput.value);
+			n2 = Number(ztest2_n2.rendNodeInput.value);
+			mean1 = Number(ztest2_mean1.rendNodeInput.value);
+			mean2 = Number(ztest2_mean2.rendNodeInput.value);
+		} else {
+			var list1 = ztest2_list1.rendNodeInput.value;
+			var list2 = ztest2_list2.rendNodeInput.value;
+			var xdata1 = getRawData(list1);
+			var xdata2 = getRawData(list2);
+			n1 = xdata1.length;
+			n2 = xdata2.length;
+			mean1 = stats.mean(xdata1);
+			mean2 = stats.mean(xdata2);
+		}
+
+		var z = (mean1 - mean2) / sqrt( sqr(std1) / n1 + sqr(std2 / n2) );
+
+		if(isChecked(ztest2_cb_ne)) {
+			p = 2 * jStat.normal.cdf(-Math.abs(z), 0, 1);
+		} else if(isChecked(ztest2_cb_lt)) {
+			p = jStat.normal.cdf(z, 0, 1);
+		} else {
+			p = 1 - jStat.normal.cdf(z, 0, 1);
+		}
+
+		ztest2_output.setText('z = ' + z + '<br/>p-value = ' + p);
+
+	}
+
+], { frozen: true, anchorY: 'top' });
+
+</script>
+
+<!--////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////// Test for Two Means (T) /////////
+	////////////////////////////////////////////////////////////////////////-->
+
+<script>
+
+var ttest2_board = JXG.JSXGraph.initBoard('t-test_2samp', {
+		boundingbox: [0,10,10,0],
+      	showCopyright: false,
+      	showNavigation: false,
+		keepaspectratio: false,
+		axis: false,
+		zoom: {
+			factorX: 1.25,
+			factorY: 1.25,
+			wheel: false,
+			needshift: false,
+			eps: 0.1,
+				enabled: false
+		  },
+		pan: {
+			enabled: false
+		}
+    });
+
+var ttest2_alt = ttest2_board.create('text', [0.5, 9, 'Alternative Hypothesis:'],
+		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+var ttest2_cb_ne = JSXCheckbox(ttest2_board, 4, 9, '&ne;', true,
+	function() {
+		setCheckbox(ttest2_cb_ne, true);
+		setCheckbox(ttest2_cb_lt, false);
+		setCheckbox(ttest2_cb_gt, false);
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+var ttest2_cb_lt = JSXCheckbox(ttest2_board, 5, 9, '&lt;', false,
+	function() {
+		setCheckbox(ttest2_cb_ne, false);
+		setCheckbox(ttest2_cb_lt, true);
+		setCheckbox(ttest2_cb_gt, false);
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+var ttest2_cb_gt = JSXCheckbox(ttest2_board, 6, 9, '&gt;', false,
+	function() {
+		setCheckbox(ttest2_cb_ne, false);
+		setCheckbox(ttest2_cb_lt, false);
+		setCheckbox(ttest2_cb_gt, true);
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+
+var ttest2_std1 = ttest2_board.create('input', [0.5, 8, '', 's<sub>1</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var ttest2_mean1 = ttest2_board.create('input', [0.5, 7, '', 'x&#772;<sub>1</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var ttest2_n1 = ttest2_board.create('input', [0.5, 6, '', 'n<sub>1</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var ttest2_list1 = ttest2_board.create('input', [0.5, 5, 'L1', 'List<sub>1</sub>: '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18, strokeColor: 'lightgray' });
+ttest2_list1.setAttribute({ disabled: true });
+
+var ttest2_std2 = ttest2_board.create('input', [5.5, 8, '', 's<sub>2</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var ttest2_mean2 = ttest2_board.create('input', [5.5, 7, '', 'x&#772;<sub>2</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var ttest2_n2 = ttest2_board.create('input', [5.5, 6, '', 'n<sub>2</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var ttest2_list2 = ttest2_board.create('input', [5.5, 5, 'L2', 'List<sub>2</sub>: '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18, strokeColor: 'lightgray' });
+ttest2_list2.setAttribute({ disabled: true });
+
+var ttest2_cb_pooled = JSXCheckbox(ttest2_board, 0.5, 3, 'Pooled Degrees of Freedom', false,
+	function() {
+		toggleCheckbox(ttest2_cb_pooled);
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+
+var ttest2_output = ttest2_board.create('text', [1, 2, ''],
+		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+
+var ttest2_cb_stats = JSXCheckbox(ttest2_board, 0.5, 4, 'Input from Stats', true,
+	function() {
+		setCheckbox(ttest2_cb_stats, true);
+		setCheckbox(ttest2_cb_data, false);
+		ttest2_list1.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		ttest2_mean1.setAttribute({ disabled: false, strokeColor: 'black' });
+		ttest2_n1.setAttribute({ disabled: false, strokeColor: 'black' });
+		ttest2_std1.setAttribute({ disabled: false, strokeColor: 'black' });
+		ttest2_list2.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		ttest2_mean2.setAttribute({ disabled: false, strokeColor: 'black' });
+		ttest2_n2.setAttribute({ disabled: false, strokeColor: 'black' });
+		ttest2_std2.setAttribute({ disabled: false, strokeColor: 'black' });
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+
+var ttest2_cb_data = JSXCheckbox(ttest2_board, 5, 4, 'Input from Data', false,
+	function() {
+		setCheckbox(ttest2_cb_stats, false);
+		setCheckbox(ttest2_cb_data, true);
+		ttest2_list1.setAttribute({ disabled: false, strokeColor: 'black' });
+		ttest2_mean1.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		ttest2_n1.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		ttest2_std1.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		ttest2_list2.setAttribute({ disabled: false, strokeColor: 'black' });
+		ttest2_mean2.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		ttest2_n2.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		ttest2_std2.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+	}, { fontSize: 18, anchorY: 'top', frozen: true });
+
+var ttest2_calculate = ttest2_board.create('button', [7, 3, 'Calculate',
+
+	function() {
+
+		var pval, mean1, mean2, n1, n2, std1, std2 = 0;
+
+		if(ttest2_cb_stats.Value()) {
+			n1 = Number(ttest2_n1.rendNodeInput.value);
+			n2 = Number(ttest2_n2.rendNodeInput.value);
+			mean1 = Number(ttest2_mean1.rendNodeInput.value);
+			mean2 = Number(ttest2_mean2.rendNodeInput.value);
+			std1 = Number(ttest2_std1.rendNodeInput.value);
+			std2 = Number(ttest2_std2.rendNodeInput.value);
+		} else {
+			var list1 = ttest2_list1.rendNodeInput.value;
+			var list2 = ttest2_list2.rendNodeInput.value;
+			var xdata1 = getRawData(list1);
+			var xdata2 = getRawData(list2);
+			n1 = xdata1.length;
+			n2 = xdata2.length;
+			mean1 = stats.mean(xdata1);
+			mean2 = stats.mean(xdata2);
+			std1 = stats.stdev(xdata1);
+			std2 = stats.stdev(xdata2);
+		}
+
+		var serr, df = 0;
+		if (isChecked(ttest2_cb_pooled)) {
+			df = n1 + n2 - 2;
+			var pooledsd = sqrt( ((n1 - 1) * sqr(std1) + (n2 - 1) * sqr(std2)) / df);
+			serr = sqrt( sqr(pooledsd) / n1 + sqr(pooledsd) / n2);
+		} else {
+			serr = sqrt( sqr(std1) / n1 + sqr(std2) / n2);
+			var num = sqr( sqr(std1) / n1 + sqr(std2) / n2 );
+			var denom1 = (1 / (n1 - 1)) * sqr( sqr(std1) / n1 );
+			var denom2 = (1 / (n2 - 1)) * sqr( sqr(std2) / n2 );
+			df = num / (denom1 + denom2);
+		}
+
+		var t = (mean1 - mean2) / serr;
+
+		if(isChecked(ttest2_cb_ne)) {
+			pval = 2 * jStat.studentt.cdf(-Math.abs(t), df);
+		} else if(isChecked(ttest2_cb_lt)) {
+			pval = jStat.studentt.cdf(t, df);
+		} else {
+			pval = 1 - jStat.studentt.cdf(t, df);
+		}
+
+		ttest2_output.setText('df = ' + df + '<br/>t = ' + t + '<br/>p-value = ' + pval);
+
+	}
+
+], { frozen: true, anchorY: 'top' });
+
+</script>
+
+<!--////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////// Test for Two Proportions /////////
+	////////////////////////////////////////////////////////////////////////-->
+
+<script>
+
+var ptest2_board = JXG.JSXGraph.initBoard('prop-test_2samp', {
+		boundingbox: [0,10,10,0],
+      	showCopyright: false,
+      	showNavigation: false,
+		keepaspectratio: false,
+		axis: false,
+		zoom: {
+			factorX: 1.25,
+			factorY: 1.25,
+			wheel: false,
+			needshift: false,
+			eps: 0.1,
+				enabled: false
+		  },
+		pan: {
+			enabled: false
+		}
+    });
+
+var ptest2_alt = ptest2_board.create('text', [0.5, 9, 'Alternative Hypothesis:'],
+		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+var ptest2_cb_ne = JSXCheckbox(ptest2_board, 4, 9, '&ne;', true,
+	function() {
+		setCheckbox(ptest2_cb_ne, true);
+		setCheckbox(ptest2_cb_lt, false);
+		setCheckbox(ptest2_cb_gt, false);
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+var ptest2_cb_lt = JSXCheckbox(ptest2_board, 5, 9, '&lt;', false,
+	function() {
+		setCheckbox(ptest2_cb_ne, false);
+		setCheckbox(ptest2_cb_lt, true);
+		setCheckbox(ptest2_cb_gt, false);
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+var ptest2_cb_gt = JSXCheckbox(ptest2_board, 6, 9, '&gt;', false,
+	function() {
+		setCheckbox(ptest2_cb_ne, false);
+		setCheckbox(ptest2_cb_lt, false);
+		setCheckbox(ptest2_cb_gt, true);
+	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+
+var ptest2_x1 = ptest2_board.create('input', [0.5, 8, '', 'x<sub>1</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var ptest2_n1 = ptest2_board.create('input', [0.5, 7, '', 'n<sub>1</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+
+var ptest2_x2 = ptest2_board.create('input', [5.5, 8, '', 'x<sub>2</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var ptest2_n2 = ptest2_board.create('input', [5.5, 7, '', 'n<sub>2</sub> = '],
+		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+
+var ptest2_output = ptest2_board.create('text', [1, 3, ''],
+		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+
+var ptest2_calculate = ptest2_board.create('button', [7, 3, 'Calculate',
+
+	function() {
+
+		var x1 = Number(ptest2_x1.rendNodeInput.value);
+		var n1 = Number(ptest2_n1.rendNodeInput.value);
+		var x2 = Number(ptest2_x2.rendNodeInput.value);
+		var n2 = Number(ptest2_n2.rendNodeInput.value);
+		var p1 = x1 / n1;
+		var p2 = x2 / n2;
+
+		var p = (x1 + x2) / (n1 + n2);
+		var z = (p1 - p2) / sqrt( p * (1 - p) / n1 + p * (1 - p) / n2 );;
+
+		if(isChecked(ptest2_cb_ne)) {
+			p = 2 * jStat.normal.cdf(-Math.abs(z), 0, 1);
+		} else if(isChecked(ptest2_cb_lt)) {
+			p = jStat.normal.cdf(z, 0, 1);
+		} else {
+			p = 1 - jStat.normal.cdf(z, 0, 1);
+		}
+
+		ptest2_output.setText('z = ' + z + '<br/>p-value = ' + p);
+
+	}
+
+], { frozen: true, anchorY: 'top' });
+
+</script>
+
+<!--////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////// Binomial Distribution /////////
+	////////////////////////////////////////////////////////////////////////-->
+
+<script>
+
+var bin_board = JXG.JSXGraph.initBoard('binomial-distribution', {
+		boundingbox: [0,10,10,0],
+      	showCopyright: false,
+      	showNavigation: false,
+		keepaspectratio: false,
+		axis: false,
+		zoom: {
+			factorX: 1.25,
+			factorY: 1.25,
+			wheel: false,
+			needshift: false,
+			eps: 0.1,
+				enabled: false
+		  },
+		pan: {
+			enabled: false
+		}
+    });
+
+</script>
+
+<!--////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////// Calculation /////////
+	////////////////////////////////////////////////////////////////////////-->
 
 
 <script>
 
-var board_normal = JXG.JSXGraph.initBoard('standard_normal', {
-		boundingbox: [-4,0.5,4,-0.5], 
-      	showCopyright: false, 
+var calc_board = JXG.JSXGraph.initBoard('calculation', {
+		boundingbox: [0,10,10,0],
+      	showCopyright: false,
       	showNavigation: false,
 		keepaspectratio: false,
 		axis: false,
@@ -140,35 +1604,172 @@ var board_normal = JXG.JSXGraph.initBoard('standard_normal', {
             needshift: false,
             eps: 0.1,
 			enabled: false
-        },	
+        },
+		pan: {
+			enabled: false
+		}
+    });
+
+var calc_text = calc_board.create('text', [0.35, 9.25, 'Enter an expression to evaluate:'], { fontSize: 18, frozen: true, fixed: true });
+var calc_input = calc_board.create('input', [0.35, 8.5, '', ''], { fontSize: 18, cssStyle: 'width: 480px', frozen: true, fixed: true });
+
+var calc_button = calc_board.create('button', [8, 9.25, 'Calculate',
+		function() {
+
+			var expression = calc_input.rendNodeInput.value;
+			var weightedstats = false;
+
+			// check to see if we are doing some statistics
+			if (expression.includes('1-var_stats')) {
+				// Determine if we are in weighted mode or not
+				if (expression.includes(',')) {
+					weightedstats = true;
+					var xdata = getRawData(list1_data);
+					var fdata = getRawData(list2_data);
+					var n = stats.wn(xdata, fdata);
+					var mean = stats.wmean(xdata, fdata);
+					var s = stats.wstdev(xdata, fdata);
+					var sigma = stats.wstdevp(xdata, fdata);
+					var sum = stats.wsum(xdata, fdata);
+					var sumofsqr = stats.wsumofsqr(xdata, fdata);
+					var min = stats.wmin(xdata, fdata);
+					var q1 = stats.wq1(xdata, fdata);
+					var median = stats.wmedian(xdata, fdata);
+					var q3 = stats.wq3(xdata, fdata);
+					var max = stats.wmax(xdata, fdata);
+					calc_output.setText('n = ' + n + '<br>x&#772; = ' + mean + '<br>s = ' + s +
+						'<br>&sigma; = ' + sigma + '<br>&Sigma;x = ' + sum + '<br>&Sigma;x<sup>2</sup> = ' +
+						sumofsqr + '<br>Minimum = ' + min + '<br>Q1 = ' + q1 + '<br>Median = ' + median +
+						'<br>Q3 = ' + q3 + '<br>Maximum = ' + max);
+				} else {
+					if (expression.includes('L1')) {
+						var xdata = getRawData(list1_data);
+					} else if (expression.includes('L2')) {
+						var xdata = getRawData(list2_data);
+					} else {
+						return NaN;
+					}
+					var n = xdata.length;
+					var mean = stats.mean(xdata);
+					var s = stats.stdev(xdata);
+					var sigma = stats.stdevp(xdata);
+					var sum = stats.sum(xdata);
+					var sumofsqr = stats.sumofsqr(xdata);
+					var min = stats.min(xdata);
+					var q1 = stats.q1(xdata);
+					var median = stats.median(xdata);
+					var q3 = stats.q3(xdata);
+					var max = stats.max(xdata);
+					calc_output.setText('n = ' + n + '<br>x&#772; = ' + mean + '<br>s = ' + s +
+						'<br>&sigma; = ' + sigma + '<br>&Sigma;x = ' + sum + '<br>&Sigma;x<sup>2</sup> = ' +
+						sumofsqr + '<br>Minimum = ' + min + '<br>Q1 = ' + q1 + '<br>Median = ' + median +
+						'<br>Q3 = ' + q3 + '<br>Maximum = ' + max);
+				}
+			} else if (expression.includes('lin_reg')) {
+				var xdata = getRawData(list1_data);
+				var ydata = getRawData(list2_data);
+				var r = stats.correlation(xdata, ydata);
+				var reg = stats.linreg(xdata, ydata);
+				var m = reg[0];
+				var b = reg[1];
+					calc_output.setText(
+						'a = ' + m.toFixed(10) +
+						'<br>b = ' + b.toFixed(10) +
+						'<br>r<sup>2</sup> = ' + sqr(r).toFixed(10) +
+						'<br>r = ' + r.toFixed(10));
+			} else {
+				// If not, just evaluate the expression
+				var v = math.eval(expression);
+				calc_output.setText(' = ' + v);
+			}
+
+		}], { frozen: true, fixed : true });
+
+var calc_output = calc_board.create('text', [1, 7.5, '='], { anchorY: 'top', fontSize: 24, frozen: true, fixed: true });
+
+var calc_1varstats = calc_board.create('button', [7, 6.5, 'Single Var Stats',
+		function() {
+			calc_input.rendNodeInput.value = calc_input.rendNodeInput.value + '1-var_stats(';
+		}], { frozen: true, fixed: true });
+
+var calc_1varstats = calc_board.create('button', [7, 5.5, 'Linear Regression',
+		function() {
+			calc_input.rendNodeInput.value = calc_input.rendNodeInput.value + 'lin_reg(';
+		}], { frozen: true, fixed: true });
+
+var calc_1varstats = calc_board.create('button', [7, 4.5, 'Combination',
+		function() {
+			calc_input.rendNodeInput.value = calc_input.rendNodeInput.value + 'combinations(';
+		}], { frozen: true, fixed: true });
+
+var calc_1varstats = calc_board.create('button', [7, 3.5, 'Permutation',
+		function() {
+			calc_input.rendNodeInput.value = calc_input.rendNodeInput.value + 'permutations(';
+		}], { frozen: true, fixed: true });
+
+var calc_1varstats = calc_board.create('button', [7, 2.5, 'Factorial',
+		function() {
+			calc_input.rendNodeInput.value = calc_input.rendNodeInput.value + '!';
+		}], { frozen: true, fixed: true });
+
+function getRawData(list_data) {
+	var raw_data = [];
+	for (var i = 0; i < list_data.length; i++) {
+		var data = list_data[i].rendNodeInput.value;
+		if (data !== '') {
+			var val = math.eval(data);
+			raw_data.push(val);
+		}
+	}
+	return raw_data;
+}
+
+</script>
+
+<script>
+
+var board_normal = JXG.JSXGraph.initBoard('standard_normal', {
+		boundingbox: [-4,0.5,4,-0.5],
+      	showCopyright: false,
+      	showNavigation: false,
+		keepaspectratio: false,
+		axis: false,
+      	zoom: {
+            factorX: 1.25,
+            factorY: 1.25,
+            wheel: false,
+            needshift: false,
+            eps: 0.1,
+			enabled: false
+        },
 		pan: {
 			enabled: false
 		}
     });
 
 mean_n = 0;
-stdev_n = 1;		
-			
-	
+stdev_n = 1;
+
+
 function zScore(x) {
 	return (x - mean_n) / stdev_n;
 }
-			
+
 function xValue(z) {
 	return mean_n + z * stdev_n;
-}				
-			
-normal_curve = board_normal.create('functiongraph', [function(x) { return normalpdf(zScore(x)); }], 
+}
+
+normal_curve = board_normal.create('functiongraph', [function(x) { return normalpdf(zScore(x)); }],
 	{ strokeWidth: 3, fixed: true, 	highlight: false });
-	
+
 hidden_axis = board_normal.create('line', [[0, 0], [1, 0]], { visible: false });
 
-x_axis = board_normal.create('axis', [[0, 0], [1, 0]], 
+x_axis = board_normal.create('axis', [[0, 0], [1, 0]],
 	{ ticks: { visible: false } });
-	
+
 z1 = board_normal.create('glider', [-2, 0, x_axis], { withLabel: false, color: 'black', snapToGrid: true, snapSizeX: 0.01 });
-z1.on('drag', 
-	function() { 
+z1.on('drag',
+	function() {
 		x1_input.rendNodeInput.value = z1.X().toFixed(2);
 		prob_input.rendNodeInput.value = currentProbability(zScore(z1.X()), zScore(z2.X()));
 		prob_disp.setText(') = ' + currentProbability(zScore(z1.X()), zScore(z2.X())));
@@ -176,8 +1777,8 @@ z1.on('drag',
 );
 
 z2 = board_normal.create('glider', [2, 0, x_axis], { withLabel: false, color: 'black', snapToGrid: true, snapSizeX: 0.01 });
-z2.on('drag', 
-	function() { 
+z2.on('drag',
+	function() {
 		x2_input.rendNodeInput.value = z2.X().toFixed(2);
 		x2_disp.setText('< <i>X</i> < ' + z2.X().toFixed(2));
 		prob_input.rendNodeInput.value = currentProbability(zScore(z1.X()), zScore(z2.X()));
@@ -198,13 +1799,13 @@ mean = board_normal.create('input', [1.3, 0.38, '0', '&mu; = '], { fontSize: 18,
 stdev = board_normal.create('input', [1.3, 0.3, '1', '&sigma; = '], { fontSize: 18, cssStyle: 'width: 100px', frozen: true, fixed: true });
 
 x1_input = board_normal.create('input', [-3.5, -0.32, '-2', 'P( '], { fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
-x2_input = board_normal.create('input', 
-		[-1.3, -0.32, '2', ' < <i>X</i> < '], 
+x2_input = board_normal.create('input',
+		[-1.3, -0.32, '2', ' < <i>X</i> < '],
 		{ fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
 x2_disp = board_normal.create('text', [-1.3, -0.32, '< <i>X</i> < 2'],
-		{ fontSize: 18, frozen: true, visible: false });		
-		
-prob_input = board_normal.create('input', [1.3, -0.32, '0.9500', ') = '], 
+		{ fontSize: 18, frozen: true, visible: false });
+
+prob_input = board_normal.create('input', [1.3, -0.32, '0.9500', ') = '],
 		{ fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
 prob_input.setAttribute( { visible: false } );
 
@@ -214,50 +1815,50 @@ prob_disp = board_normal.create('text', [1.3, -0.32, ') = 0.9500'],
 
 calc_normal = board_normal.create('button', [1.5, -0.42, 'Calculate',
 	function () {
-	
+
 		if(isChecked(cb_area)) {
 			if(!isNaN(x1_input.Value())) {
 				z1.moveTo([x1_input.Value(), 0]);
 			}
-	
+
 			if(!isNaN(x2_input.Value())) {
 				z2.moveTo([x2_input.Value(), 0]);
 			}
-	
+
 			prob_input.rendNodeInput.value = currentProbability(zScore(x1_input.Value()), zScore(x2_input.Value()));
 			prob_disp.setText(') = ' + currentProbability(zScore(x1_input.Value()), zScore(x2_input.Value())));
-		
+
 		} else {
 			if(!isNaN(prob_input.Value())) {
-			
+
 				var z = xValue(invnorm(prob_input.Value()));
 				z2.moveTo([z, 0]);
 				x2_input.rendNodeInput.value = z;
 				x2_disp.setText('< <i>X</i> < ' + z.toFixed(8));
-		
+
 			}
 		}
 }], { frozen: true });
 
 
 function updateAxisLabels() {
-	
+
 	for(var i = -3; i <= 3; i++) {
 		ticks_n[i + 3].point1.moveTo([xValue(i), 0.01]);
 		ticks_n[i + 3].point2.moveTo([xValue(i), -0.01]);
 		labels_n[i + 3].setText(xValue(i));
 		labels_n[i + 3].setCoords([xValue(i), -0.02]);
 	}
-	
+
 }
 
-update_normal = board_normal.create('button', [2.5, 0.22, 'Update', 
-	
+update_normal = board_normal.create('button', [2.5, 0.22, 'Update',
+
 	// If a new mean and standard deviation are provided, then we need to:
 	//   - change the bounds on the x-axis
 	//   - set the global mean_n and stdev_n variables
 	//   - reset the positions of z1 and z2 on the x-axis so that they are accessible again
-	
+
 	function() {
 		var cur_z1 = zScore(z1.X());
 		var cur_z2 = zScore(z2.X());
@@ -274,21 +1875,21 @@ update_normal = board_normal.create('button', [2.5, 0.22, 'Update',
 		x2_disp.setText('< <i>X</i> < ' + xValue(cur_z2).toFixed(8));
 		prob_input.rendNodeInput.value = currentProbability(cur_z1, cur_z2);
 		updateAxisLabels();
-		
+
 	}
-	
+
 ], { frozen: true });
 
 
-shadedregionleft = board_normal.create('integral', 
+shadedregionleft = board_normal.create('integral',
 	[[ function() { return xValue(-10000); }, function() { return z2.X(); }], normal_curve], shadeParam);
 shadedregionleft.setAttribute({ visible: false });
 
-shadedregionright = board_normal.create('integral', 
+shadedregionright = board_normal.create('integral',
 	[[ function() { return z1.X(); }, function() { return xValue(10000); }], normal_curve], shadeParam);
 shadedregionright.setAttribute({ visible: false });
 
-shadedregionbetween = board_normal.create('integral', 
+shadedregionbetween = board_normal.create('integral',
 	[[ function() { return z1.X(); }, function() { return z2.X(); }], normal_curve], shadeParam);
 
 
@@ -296,55 +1897,55 @@ cb_area = JSXCheckbox(board_normal, 1, -0.1, 'Calculate Area', true,
 	function() {
 		setCheckbox(cb_area, true);
 		setCheckbox(cb_xvalue, false);
-		
+
 		cb_between.setAttribute( { disabled: false, strokeColor: 'black', highlight: true  });
 		cb_left.setAttribute( { disabled: false });
 		cb_right.setAttribute( { disabled: false, strokeColor: 'black', highlight: true  });
-		
+
 		prob_input.setAttribute( { visible: false });
 		prob_disp.setAttribute( { visible: true });
 		x2_input.setAttribute( { visible: true });
 		x2_disp.setAttribute({ visible: false });
-		
-				
+
+
 	}, { fontSize: 18, frozen: true });
 
 cb_xvalue = JSXCheckbox(board_normal, 1, -0.16, 'Calculate x-Value', false,
 	function() {
 		setCheckbox(cb_xvalue, true);
 		setCheckbox(cb_area, false);
-		
+
 		cb_between.setAttribute( { disabled: true, strokeColor: 'lightgray', highlight: false });
 		cb_left.setAttribute( { disabled: false });
 		cb_right.setAttribute( { disabled: true, strokeColor: 'lightgray', highlight: false });
 		setCheckbox(cb_left, true);
 		setCheckbox(cb_between, false);
 		setCheckbox(cb_right, false);
-		
+
 		z1.setAttribute({ visible: false });
 		z2.setAttribute({ visible: true });
-		
+
 		shadedregionleft.setAttribute({ visible: true });
 		shadedregionright.setAttribute({ visible: false });
 		shadedregionbetween.setAttribute({ visible: false });
-		
+
 		x1_input.rendNodeInput.value = '-Infinity';
 		x1_input.setAttribute({ disabled: true });
-	
+
 		x2_input.rendNodeInput.value = z2.X().toFixed(2);
 		x2_input.setAttribute({ visible: false });
 		x2_disp.setAttribute({ visible: true });
 
-		
+
 		prob_input.setAttribute({ visible: true });
 		prob_disp.setAttribute({ visible: false });
-		
+
 		PTYPE = 'left';
-		
-		
+
+
 	}, { fontSize: 18, frozen: true });
 
-cb_between = JSXCheckbox(board_normal, -3.6, -0.1, 'P(a < x < b)', true, 
+cb_between = JSXCheckbox(board_normal, -3.6, -0.1, 'P(a < x < b)', true,
 	function() {
 		setCheckbox(cb_between, true);
 		setCheckbox(cb_left, false);
@@ -353,22 +1954,22 @@ cb_between = JSXCheckbox(board_normal, -3.6, -0.1, 'P(a < x < b)', true,
 		shadedregionleft.setAttribute({ visible: false });
 		shadedregionright.setAttribute({ visible: false });
 		shadedregionbetween.setAttribute({ visible: true });
-			
+
 		z1.setAttribute({ visible: true });
 		z2.setAttribute({ visible: true });
-		
+
 		x1_input.rendNodeInput.value = z1.X().toFixed(2);
 		x1_input.setAttribute({ disabled: false });
-		
+
 		x2_input.rendNodeInput.value = z2.X().toFixed(2);
 		x2_input.setAttribute({ visible: true });
 		x2_disp.setAttribute({ visible: false });
-		
+
 		prob_input.setAttribute({ visible: false });
 		prob_disp.setAttribute({ visible: true });
-		
+
 		PTYPE = 'between';
-			
+
 	}, { fontSize: 18, frozen: true });
 
 cb_left = JSXCheckbox(board_normal, -3.6, -0.16, 'P(x < b)', false,
@@ -376,27 +1977,27 @@ cb_left = JSXCheckbox(board_normal, -3.6, -0.16, 'P(x < b)', false,
 		setCheckbox(cb_left, true);
 		setCheckbox(cb_between, false);
 		setCheckbox(cb_right, false);
-		
+
 		z1.setAttribute({ visible: false });
 		z2.setAttribute({ visible: true });
-		
+
 		shadedregionleft.setAttribute({ visible: true });
 		shadedregionright.setAttribute({ visible: false });
 		shadedregionbetween.setAttribute({ visible: false });
-		
+
 		x1_input.rendNodeInput.value = '-Infinity';
 		x1_input.setAttribute({ disabled: true });
-	
+
 		x2_input.rendNodeInput.value = z2.X().toFixed(2);
 		x2_input.setAttribute({ visible: true });
 		x2_disp.setAttribute({ visible: false });
 
-		
+
 		prob_input.setAttribute({ visible: false });
 		prob_disp.setAttribute({ visible: true });
-		
+
 		PTYPE = 'left';
-		
+
 	}, { fontSize: 18, frozen: true });
 
 cb_right = JSXCheckbox(board_normal, -3.6, -0.22, 'P(x > a)', false,
@@ -404,46 +2005,46 @@ cb_right = JSXCheckbox(board_normal, -3.6, -0.22, 'P(x > a)', false,
 		setCheckbox(cb_right, true);
 		setCheckbox(cb_between, false);
 		setCheckbox(cb_left, false);
-		
+
 		z1.setAttribute({ visible: true });
 		z2.setAttribute({ visible: false });
-		
+
 		shadedregionleft.setAttribute({ visible: false });
 		shadedregionright.setAttribute({ visible: true });
 		shadedregionbetween.setAttribute({ visible: false });
-		
+
 		x1_input.rendNodeInput.value = z1.X().toFixed(2);
 		x1_input.setAttribute({ disabled: false });
-		
+
 		x2_input.rendNodeInput.value = 'Infinity';
 		x2_input.setAttribute({ visible: true });
 		x2_input.setAttribute({ disabled: true });
 		x2_disp.setAttribute({ visible: false });
-		
+
 		prob_input.setAttribute({ visible: false });
 		prob_disp.setAttribute({ visible: true });
-		
+
 		PTYPE = 'right';
-	
+
 	}, { fontSize: 18, frozen: true });
 
 
-function currentProbability(x1, x2) { 
-	
+function currentProbability(x1, x2) {
+
 	if(typeof(x1) !== 'number') {
 		x1 = Number(x1);
 	}
 	if(typeof(x2) !== 'number') {
 		x2 = Number(x2);
 	}
-	
-	if(cb_between.Value()) { 
+
+	if(cb_between.Value()) {
 		return Math.abs(normalcdf(x2) - normalcdf(x1)).toFixed(4);
 	} else if(cb_left.Value()) {
 		return normalcdf(x2).toFixed(4);
 	} else if(cb_right.Value()) {
 		return (1 - normalcdf(x1)).toFixed(4);
-	} 
+	}
 
 }
 
@@ -452,10 +2053,10 @@ function currentProbability(x1, x2) {
 
 
 <script type='text/javascript'>
-		
+
 var t_board = JXG.JSXGraph.initBoard('t-distribution', {
 		boundingbox: [-4,0.5,4,-0.5],
-      	showCopyright: false, 
+      	showCopyright: false,
       	showNavigation: false,
 		keepaspectratio: false,
 		axis: false,
@@ -471,28 +2072,28 @@ var t_board = JXG.JSXGraph.initBoard('t-distribution', {
 			enabled: false
 		}
     });
-		
+
 var t_mean = 0;
 var t_stdev = 1;
-var t_df = 10;	
-			
-	
+var t_df = 10;
+
+
 function tScore(x) {
 	return (x - t_mean) / t_stdev;
 }
-			
+
 function t_xval(t) {
 	return t_mean + t * t_stdev;
-}		
-			
-var t_curve = t_board.create('functiongraph', [function(x) { return tpdf(tScore(x), t_df); }], 
+}
+
+var t_curve = t_board.create('functiongraph', [function(x) { return tpdf(tScore(x), t_df); }],
 	{ strokeWidth: 3, fixed: true, 	highlight: false });
-	
+
 var t_axis = t_board.create('line', [[0, 0], [1, 0]], { strokeColor: 'black', strokeWidth: 1, highlight: false, fixed: true, frozen: true });
-	
+
 var t1 = t_board.create('glider', [-2, 0, t_axis], { withLabel: false, color: 'black', snapToGrid: true, snapSizeX: 0.01 });
-t1.on('drag', 
-	function() { 
+t1.on('drag',
+	function() {
 		t_x1_input.rendNodeInput.value = t1.X().toFixed(2);
 		t_df = Number(t_df_input.rendNodeInput.value);
 		t_prob_input.rendNodeInput.value = currentTProbability(tScore(t1.X()), tScore(t2.X()), t_df);
@@ -501,8 +2102,8 @@ t1.on('drag',
 );
 
 var t2 = t_board.create('glider', [2, 0, t_axis], { withLabel: false, color: 'black', snapToGrid: true, snapSizeX: 0.01 });
-t2.on('drag', 
-	function() { 
+t2.on('drag',
+	function() {
 		t_x2_input.rendNodeInput.value = t2.X().toFixed(2);
 		t_x2_disp.setText('< <i>X</i> < ' + t2.X().toFixed(2));
 		t_df = Number(t_df_input.rendNodeInput.value);
@@ -510,7 +2111,7 @@ t2.on('drag',
 		t_prob_disp.setText(') = ' + currentTProbability(tScore(t1.X()), tScore(t2.X()), t_df));
 	}
 );
-		
+
 var t_ticks = [];
 var t_labels = [];
 for (var i = -3; i <= 3; i++) {
@@ -520,70 +2121,70 @@ for (var i = -3; i <= 3; i++) {
 
 // input variables
 
-var t_df_input = t_board.create('input', [1.3, 0.45, t_df, 'df = '], { fontSize: 18, cssStyle: 'width: 100px', frozen: true, fixed: true });	
+var t_df_input = t_board.create('input', [1.3, 0.45, t_df, 'df = '], { fontSize: 18, cssStyle: 'width: 100px', frozen: true, fixed: true });
 var t_mean_input = t_board.create('input', [1.3, 0.38, '0', '&mu; = '], { fontSize: 18, cssStyle: 'width: 100px', frozen: true, fixed: true });
 var t_stdev_input = t_board.create('input', [1.3, 0.3, '1', '&sigma; = '], { fontSize: 18, cssStyle: 'width: 100px', frozen: true, fixed: true });
-		
-var t_shadeleft = t_board.create('integral', 
+
+var t_shadeleft = t_board.create('integral',
 	[[ function() { return t_xval(-10000); }, function() { return t2.X(); }], t_curve], shadeParam);
 t_shadeleft.setAttribute({ visible: false });
 
-var t_shaderight = t_board.create('integral', 
+var t_shaderight = t_board.create('integral',
 	[[ function() { return t1.X(); }, function() { return t_xval(10000); }], t_curve], shadeParam);
 t_shaderight.setAttribute({ visible: false });
 
-var t_shadebetween = t_board.create('integral', 
+var t_shadebetween = t_board.create('integral',
 	[[ function() { return t1.X(); }, function() { return t2.X(); }], t_curve], shadeParam);
-		
+
 var t_x1_input = t_board.create('input', [-3.5, -0.32, '-2', 'P( '], { fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
 
-var t_x2_input = t_board.create('input', [-1.3, -0.32, '2', ' < <i>X</i> < '], 
+var t_x2_input = t_board.create('input', [-1.3, -0.32, '2', ' < <i>X</i> < '],
 		{ fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
-		
+
 var t_x2_disp = t_board.create('text', [-1.3, -0.32, '< <i>X</i> < 2'],
-		{ fontSize: 18, frozen: true, visible: false, fixed: true });		
-		
-var t_prob_input = t_board.create('input', [1.3, -0.32, '0.9500', ') = '], 
+		{ fontSize: 18, frozen: true, visible: false, fixed: true });
+
+var t_prob_input = t_board.create('input', [1.3, -0.32, '0.9500', ') = '],
 		{ fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
 t_prob_input.setAttribute({ visible: false });
 
 var t_prob_disp = t_board.create('text', [1.3, -0.32, ') = 0.9500'],
-		{ fontSize: 18, frozen: true, fixed: true });		
-		
+		{ fontSize: 18, frozen: true, fixed: true });
+
 t_board.update();
-		
+
 // Buttons
 
 var t_calc_button = t_board.create('button', [1.5, -0.42, 'Calculate',
 	function () {
-	
+
 		if(isChecked(t_cb_area)) {
 			if(!isNaN(t_x1_input.Value())) {
 				t1.moveTo([t_x1_input.Value(), 0]);
 			}
-	
+
 			if(!isNaN(t_x2_input.Value())) {
 				t2.moveTo([t_x2_input.Value(), 0]);
 			}
 			t_df = Number(t_df_input.rendNodeInput.value);
 			t_prob_input.rendNodeInput.value = currentTProbability(tScore(t_x1_input.Value()), tScore(t_x2_input.Value()), t_df);
 			t_prob_disp.setText(') = ' + currentTProbability(tScore(t_x1_input.Value()), tScore(t_x2_input.Value()), t_df));
-		
+
 		} else {
 			if(!isNaN(t_prob_input.Value())) {
-			
+
 				t_df = Number(t_df_input.rendNodeInput.value);
 				var t = t_xval(tinv(t_prob_input.Value(), t_df));
 				t2.moveTo([t, 0]);
 				t_x2_input.rendNodeInput.value = t;
 				t_x2_disp.setText('< <i>X</i> < ' + t.toFixed(8));
-		
+
 			}
 		}
-}], { frozen: true });		
-		
-var t_update = t_board.create('button', [2.5, 0.22, 'Update', 
-		
+}], { frozen: true });
+
+var t_update = t_board.create('button', [2.5, 0.22, 'Update',
+
 	function() {
 		var cur_z1 = tScore(t1.X());
 		var cur_z2 = tScore(t2.X());
@@ -600,150 +2201,150 @@ var t_update = t_board.create('button', [2.5, 0.22, 'Update',
 		t_df = Number(t_df_input.rendNodeInput.value);
 		t_prob_input.rendNodeInput.value = currentTProbability(cur_z1, cur_z2, t_df);
 		updateTAxisLabels();
-		
+
 	}
-	
-], { frozen: true });		
-		
+
+], { frozen: true });
+
 // Checkboxes
 
 var t_cb_area = JSXCheckbox(t_board, 1, -0.1, 'Calculate Area', true,
 	function() {
 		setCheckbox(t_cb_area, true);
 		setCheckbox(t_cb_xvalue, false);
-		
+
 		t_cb[BETWEEN].setAttribute( { disabled: false, strokeColor: 'black', highlight: true  });
 		t_cb[LEFT].setAttribute( { disabled: false });
 		t_cb[RIGHT].setAttribute( { disabled: false, strokeColor: 'black', highlight: true  });
-		
+
 		t_prob_input.setAttribute( { visible: false });
 		t_prob_disp.setAttribute( { visible: true });
-		
+
 		t_x2_input.setAttribute( { disabled: false });
 		t_x2_input.setAttribute( { visible: true });
 		t_x2_disp.setAttribute({ visible: false });
-		
-				
+
+
 	}, { fontSize: 18, frozen: true });
 
 var t_cb_xvalue = JSXCheckbox(t_board, 1, -0.16, 'Calculate x-Value', false,
 	function() {
 		setCheckbox(t_cb_xvalue, true);
 		setCheckbox(t_cb_area, false);
-		
+
 		t_cb[BETWEEN].setAttribute( { disabled: true, strokeColor: 'lightgray', highlight: false });
 		t_cb[LEFT].setAttribute( { disabled: false });
 		t_cb[RIGHT].setAttribute( { disabled: true, strokeColor: 'lightgray', highlight: false });
 		set_t_cbtrue(LEFT);
-		
+
 		t1.setAttribute({ visible: false });
 		t2.setAttribute({ visible: true });
-		
+
 		t_shadeleft.setAttribute({ visible: true });
 		t_shaderight.setAttribute({ visible: false });
 		t_shadebetween.setAttribute({ visible: false });
-		
+
 		t_x1_input.rendNodeInput.value = '-Infinity';
 		t_x1_input.setAttribute({ disabled: true });
-	
+
 		t_x2_input.rendNodeInput.value = t2.X().toFixed(2);
 		t_x2_input.setAttribute({ visible: false });
 		t_x2_disp.setAttribute({ visible: true });
-		
+
 		t_prob_input.setAttribute({ visible: true });
 		t_prob_disp.setAttribute({ visible: false });
-		
+
 		t2.moveTo([t_x2_input.rendNodeInput.value, 0]);
-		
+
 	}, { fontSize: 18, frozen: true });
 
 var t_cb = [];
 
-t_cb[BETWEEN] = JSXCheckbox(t_board, -3.6, -0.1, 'P(a < x < b)', true, 
+t_cb[BETWEEN] = JSXCheckbox(t_board, -3.6, -0.1, 'P(a < x < b)', true,
 	function() {
 		set_t_cbtrue(BETWEEN);
 
 		t_shadeleft.setAttribute({ visible: false });
 		t_shaderight.setAttribute({ visible: false });
 		t_shadebetween.setAttribute({ visible: true });
-			
+
 		t1.setAttribute({ visible: true });
 		t2.setAttribute({ visible: true });
-		
+
 		t_x1_input.rendNodeInput.value = t1.X().toFixed(2);
 		t_x1_input.setAttribute({ disabled: false });
-		
+
 		t_x2_input.rendNodeInput.value = t2.X().toFixed(2);
 		t_x2_input.setAttribute({ visible: true });
 		t_x2_input.setAttribute({ disabled: false });
 		t_x2_disp.setAttribute({ visible: false });
-		
+
 		t_prob_input.setAttribute({ visible: false });
 		t_prob_disp.setAttribute({ visible: true });
-			
+
 	}, { fontSize: 18, frozen: true });
 
 t_cb[LEFT] = JSXCheckbox(t_board, -3.6, -0.16, 'P(x < b)', false,
 	function() {
 		set_t_cbtrue(LEFT);
-		
+
 		t1.setAttribute({ visible: false });
 		t2.setAttribute({ visible: true });
-		
+
 		t_shadeleft.setAttribute({ visible: true });
 		t_shaderight.setAttribute({ visible: false });
 		t_shadebetween.setAttribute({ visible: false });
-		
+
 		t_x1_input.rendNodeInput.value = '-Infinity';
 		t_x1_input.setAttribute({ disabled: true });
-	
+
 		t_x2_input.rendNodeInput.value = t2.X().toFixed(2);
 		t_x2_input.setAttribute({ visible: true });
 		t_x2_input.setAttribute({ disabled: false });
 		t_x2_disp.setAttribute({ visible: false });
-		
+
 		t_prob_input.setAttribute({ visible: false });
 		t_prob_disp.setAttribute({ visible: true });
-		
+
 	}, { fontSize: 18, frozen: true });
 
 t_cb[RIGHT] = JSXCheckbox(t_board, -3.6, -0.22, 'P(x > a)', false,
 	function() {
 		set_t_cbtrue(RIGHT);
-		
+
 		t1.setAttribute({ visible: true });
 		t2.setAttribute({ visible: false });
-		
+
 		t_shadeleft.setAttribute({ visible: false });
 		t_shaderight.setAttribute({ visible: true });
 		t_shadebetween.setAttribute({ visible: false });
-		
+
 		t_x1_input.rendNodeInput.value = t1.X().toFixed(2);
 		t_x1_input.setAttribute({ disabled: false });
-		
+
 		t_x2_input.rendNodeInput.value = 'Infinity';
 		t_x2_input.setAttribute({ visible: true });
 		t_x2_input.setAttribute({ disabled: true });
 		t_x2_disp.setAttribute({ visible: false });
-		
+
 		t_prob_input.setAttribute({ visible: false });
 		t_prob_disp.setAttribute({ visible: true });
-	
+
 	}, { fontSize: 18, frozen: true });
 
 function updateTAxisLabels() {
-	
+
 	for(var i = -3; i <= 3; i++) {
 		t_ticks[i + 3].point1.moveTo([t_xval(i), 0.01]);
 		t_ticks[i + 3].point2.moveTo([t_xval(i), -0.01]);
 		t_labels[i + 3].setText(t_xval(i));
 		t_labels[i + 3].setCoords([t_xval(i), -0.02]);
 	}
-	
+
 }
 
-function currentTProbability(x1, x2, df) { 
-	
+function currentTProbability(x1, x2, df) {
+
 	if(typeof(x1) !== 'number') {
 		x1 = Number(x1);
 	}
@@ -753,14 +2354,14 @@ function currentTProbability(x1, x2, df) {
 	if(typeof(df) !== 'number') {
 		df = Number(df);
 	}
-	
-	if(t_cb[BETWEEN].Value()) { 
+
+	if(t_cb[BETWEEN].Value()) {
 		return Math.abs(tcdf(x2, df) - tcdf(x1, df)).toFixed(4);
 	} else if(t_cb[LEFT].Value()) {
 		return tcdf(x2, df).toFixed(4);
 	} else if(t_cb[RIGHT].Value()) {
 		return (1 - tcdf(x1, df)).toFixed(4);
-	} 
+	}
 
 }
 
@@ -775,15 +2376,15 @@ function set_t_cbtrue(box) {
 	t_cb[box]._value = true;
 }
 
-	
+
 </script>
 
 
 <script type='text/javascript'>
-		
+
 var chi_board = JXG.JSXGraph.initBoard('chi-distribution', {
 		boundingbox: [0,0.5,24,-0.5],
-      	showCopyright: false, 
+      	showCopyright: false,
       	showNavigation: false,
 		keepaspectratio: false,
 		axis: false,
@@ -799,28 +2400,28 @@ var chi_board = JXG.JSXGraph.initBoard('chi-distribution', {
 			enabled: false
 		}
     });
-		
+
 var chi_mean = 6;
 var chi_stdev = Math.sqrt(jStat.chisquare.variance(6));
-var chi_df = 6;	
-			
-	
+var chi_df = 6;
+
+
 function chi_score(x) {
 	return (x - chi_mean) / chi_stdev;
 }
-			
+
 function chi_xval(t) {
 	return chi_mean + t * chi_stdev;
-}		
-			
-var chi_curve = chi_board.create('functiongraph', [function(x) { return jStat.chisquare.pdf(x, chi_df); }], 
+}
+
+var chi_curve = chi_board.create('functiongraph', [function(x) { return jStat.chisquare.pdf(x, chi_df); }],
 	{ strokeWidth: 3, fixed: true, 	highlight: false });
-	
+
 var chi_axis = chi_board.create('line', [[0, 0], [1, 0]], { strokeColor: 'black', strokeWidth: 1, highlight: false, fixed: true, frozen: true });
-	
+
 var chi_1 = chi_board.create('glider', [2, 0, chi_axis], { withLabel: false, color: 'black', snapToGrid: true, snapSizeX: 0.01 });
-chi_1.on('drag', 
-	function() { 
+chi_1.on('drag',
+	function() {
 		if(chi_1.X() < 0) {
 			chi_1.moveTo([0, 0]);
 		}
@@ -832,8 +2433,8 @@ chi_1.on('drag',
 );
 
 var chi_2 = chi_board.create('glider', [10, 0, chi_axis], { withLabel: false, color: 'black', snapToGrid: true, snapSizeX: 0.01 });
-chi_2.on('drag', 
-	function() { 
+chi_2.on('drag',
+	function() {
 		if(chi_2.X() < 0) {
 			chi_2.moveTo([0, 0]);
 		}
@@ -845,7 +2446,7 @@ chi_2.on('drag',
 	}
 );
 
-// Initialize the tick marks and axis labels so they can be updated later		
+// Initialize the tick marks and axis labels so they can be updated later
 var chi_ticks = [];
 var chi_labels = [];
 for (var i = 0; i < 20; i++) {
@@ -876,266 +2477,266 @@ for (var i = 0; i < chi_n_ticks; i++) {
 
 for (var i = 1; i < chi_n_ticks; i++) {
 	chi_labels[i-1].setText(i * chi_tick_delta);
-	chi_labels[i-1].moveTo([i * chi_tick_delta, -2 * tick_height]);				
+	chi_labels[i-1].moveTo([i * chi_tick_delta, -2 * tick_height]);
 }
 
 // input variables
 
-var chi_df_input = chi_board.create('input', [15, 0.15, chi_df, 'df = '], { fontSize: 18, cssStyle: 'width: 100px', frozen: true, fixed: true });	
+var chi_df_input = chi_board.create('input', [15, 0.15, chi_df, 'df = '], { fontSize: 18, cssStyle: 'width: 100px', frozen: true, fixed: true });
 var chi_mean_disp = chi_board.create('text', [15, 0.125, function() { return '&mu; = ' + chi_mean; }], { fontSize: 18, frozen: true, highlight: false, fixed: true });
 var chi_stdev_disp = chi_board.create('text', [15, 0.1, function() { return '&sigma; = ' + chi_stdev.toFixed(4); }], { fontSize: 18, frozen: true, highlight: false, fixed: true });
-		
-var chi_shadeleft = chi_board.create('integral', 
+
+var chi_shadeleft = chi_board.create('integral',
 	[[ 0 , function() { return chi_2.X(); }], chi_curve], shadeParam);
 chi_shadeleft.setAttribute({ visible: false });
 
-var chi_shaderight = chi_board.create('integral', 
+var chi_shaderight = chi_board.create('integral',
 	[[ function() { return chi_1.X(); }, function() { return 4 * chi_df; }], chi_curve], shadeParam);
 chi_shaderight.setAttribute({ visible: false });
 
-var chi_shadebetween = chi_board.create('integral', 
+var chi_shadebetween = chi_board.create('integral',
 	[[ function() { return chi_1.X(); }, function() { return chi_2.X(); }], chi_curve], shadeParam);
-		
+
 var chi_x1_input = chi_board.create('input', [2, -0.11, '2', 'P( '], { fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
 
-var chi_x2_input = chi_board.create('input', [9, -0.11, '10', ' < <i>X</i> < '], 
+var chi_x2_input = chi_board.create('input', [9, -0.11, '10', ' < <i>X</i> < '],
 		{ fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
-		
+
 var chi_x2_disp = chi_board.create('text', [9, -0.11, '< <i>X</i> < 2'],
-		{ fontSize: 18, frozen: true, visible: false, fixed: true });		
-		
-var chi_prob_input = chi_board.create('input', [17, -0.11, '0.7950', ') = '], 
+		{ fontSize: 18, frozen: true, visible: false, fixed: true });
+
+var chi_prob_input = chi_board.create('input', [17, -0.11, '0.7950', ') = '],
 		{ fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
 chi_prob_input.setAttribute({ visible: false });
 
 var chi_prob_disp = chi_board.create('text', [17, -0.11, ') = 0.7950'],
-		{ fontSize: 18, frozen: true, fixed: true });		
+		{ fontSize: 18, frozen: true, fixed: true });
 
 // Buttons
 
 var chi_calc_button = chi_board.create('button', [15, -0.14, 'Calculate',
 	function () {
-	
+
 		if(isChecked(chi_cb_area)) {
 			if(!isNaN(chi_x1_input.Value())) {
 				chi_1.moveTo([chi_x1_input.Value(), 0]);
 			}
-	
+
 			if(!isNaN(chi_x2_input.Value())) {
 				chi_2.moveTo([chi_x2_input.Value(), 0]);
 			}
 			chi_df = Number(chi_df_input.rendNodeInput.value);
 			chi_prob_input.rendNodeInput.value = current_chi_probability(chi_x1_input.Value(), chi_x2_input.Value(), chi_df);
 			chi_prob_disp.setText(') = ' + current_chi_probability(chi_x1_input.Value(), chi_x2_input.Value(), chi_df));
-		
+
 		} else {
 			if(!isNaN(chi_prob_input.Value())) {
-			
+
 				chi_df = Number(chi_df_input.rendNodeInput.value);
 				var chi = jStat.chisquare.inv(chi_prob_input.Value(), chi_df);
 				chi_2.moveTo([chi, 0]);
 				chi_x2_input.rendNodeInput.value = chi;
 				chi_x2_disp.setText('< <i>X</i> < ' + chi.toFixed(8));
-		
+
 			}
 		}
-}], { frozen: true });		
-		
+}], { frozen: true });
+
 var chi_update = chi_board.create('button', [17, 0.075, 'Update', function() {
-		
+
 		var new_df = chi_df_input.rendNodeInput.value;
-		
+
 		if (new_df >= 1) {
-			
-			chi_df = new_df;		
-			
+
+			chi_df = new_df;
+
 			chi_set_tick_metrics(chi_df);
-			
+
 			var y_val = chi_df > 2 ? jStat.chisquare.pdf(jStat.chisquare.mode(chi_df), chi_df) * 1.3 : 0.5;
 
 			chi_board.setBoundingBox([x_min, y_val, x_max, -y_val]);
 			var tick_height = y_val / chi_tick_ratio;
-	
+
 			// Move all ticks and labels off screen
 			for (var i = 0; i < 20; i++) {
 				chi_ticks[i].point1.moveTo([10, 10]);
 				chi_ticks[i].point2.moveTo([10, 11]);
 			}
-			
+
 			for (var i = 1; i < 20; i++) {
 				chi_labels[i-1].setText('');
-				chi_labels[i-1].moveTo([10, 10]);				
+				chi_labels[i-1].moveTo([10, 10]);
 			}
-	
+
 			if (chi_tick_delta != -1) {
-	
+
 				// Update the display for just the labels and ticks we want
 				for (var i = 0; i < chi_n_ticks; i++) {
 					chi_ticks[i].point1.moveTo([i * chi_tick_delta, tick_height]);
 					chi_ticks[i].point2.moveTo([i * chi_tick_delta, -tick_height]);
 				}
-			
+
 				for (var i = 1; i < chi_n_ticks; i++) {
 					chi_labels[i-1].setText(i * chi_tick_delta);
-					chi_labels[i-1].moveTo([i * chi_tick_delta, -2 * tick_height]);				
+					chi_labels[i-1].moveTo([i * chi_tick_delta, -2 * tick_height]);
 				}
 			}
-			
+
 			chi_mean = jStat.chisquare.mean(chi_df);
 			chi_stdev = Math.sqrt(jStat.chisquare.variance(chi_df));
 
-			
+
 			var cur_x1 = chi_x1_input.rendNodeInput.value;
 			var cur_x2 = chi_x2_input.rendNodeInput.value;
-			
+
 			if(cur_x2 > 4 * chi_df) {
 				cur_x2 = 3 * chi_df;
 			}
-			
+
 			chi_1.moveTo([cur_x1, 0]);
 			chi_2.moveTo([cur_x2, 0]);
-			
+
 			chi_x1_input.rendNodeInput.value = cur_x1;
 			chi_x2_input.rendNodeInput.value = cur_x2;
 			chi_x2_disp.setText('< <i>X</i> < ' + Number(cur_x2).toFixed(8));
-			
+
 			chi_prob_input.rendNodeInput.value = current_chi_probability(cur_x1, cur_x2, chi_df);
 			chi_prob_disp.setText(') = ' + current_chi_probability(cur_x1, cur_x2, chi_df));
 
 		}
-		
-		chi_df_input.rendNodeInput.value = chi_df;	
-		
-}], { frozen: true });		
-		
+
+		chi_df_input.rendNodeInput.value = chi_df;
+
+}], { frozen: true });
+
 // Checkboxes
 
 var chi_cb_area = JSXCheckbox(chi_board, 14, -0.025, 'Calculate Area', true,
 	function() {
 		setCheckbox(chi_cb_area, true);
 		setCheckbox(chi_cb_xvalue, false);
-		
+
 		chi_cb[BETWEEN].setAttribute( { disabled: false, strokeColor: 'black', highlight: true  });
 		chi_cb[LEFT].setAttribute( { disabled: false });
 		chi_cb[RIGHT].setAttribute( { disabled: false, strokeColor: 'black', highlight: true  });
-		
+
 		chi_prob_input.setAttribute( { visible: false });
 		chi_prob_disp.setAttribute( { visible: true });
-		
+
 		chi_x2_input.setAttribute( { disabled: false });
 		chi_x2_input.setAttribute( { visible: true });
 		chi_x2_disp.setAttribute({ visible: false });
-		
-				
+
+
 	}, { fontSize: 18, frozen: true });
 
 var chi_cb_xvalue = JSXCheckbox(chi_board, 14, -0.05, 'Calculate x-Value', false,
 	function() {
 		setCheckbox(chi_cb_xvalue, true);
 		setCheckbox(chi_cb_area, false);
-		
+
 		chi_cb[BETWEEN].setAttribute( { disabled: true, strokeColor: 'lightgray', highlight: false });
 		chi_cb[LEFT].setAttribute( { disabled: false });
 		chi_cb[RIGHT].setAttribute( { disabled: true, strokeColor: 'lightgray', highlight: false });
 		set_chi_cbtrue(LEFT);
-		
+
 		chi_1.setAttribute({ visible: false });
 		chi_2.setAttribute({ visible: true });
-		
+
 		chi_shadeleft.setAttribute({ visible: true });
 		chi_shaderight.setAttribute({ visible: false });
 		chi_shadebetween.setAttribute({ visible: false });
-		
+
 		chi_x1_input.rendNodeInput.value = '0';
 		chi_x1_input.setAttribute({ disabled: true });
-	
+
 		chi_x2_input.rendNodeInput.value = chi_2.X().toFixed(2);
 		chi_x2_input.setAttribute({ visible: false });
 		chi_x2_disp.setAttribute({ visible: true });
-		
+
 		chi_prob_input.setAttribute({ visible: true });
 		chi_prob_disp.setAttribute({ visible: false });
-		
+
 		chi_2.moveTo([chi_x2_input.rendNodeInput.value, 0]);
-		
+
 	}, { fontSize: 18, frozen: true });
 
 var chi_cb = [];
 
-chi_cb[BETWEEN] = JSXCheckbox(chi_board, 2, -0.025, 'P(a < x < b)', true, 
+chi_cb[BETWEEN] = JSXCheckbox(chi_board, 2, -0.025, 'P(a < x < b)', true,
 	function() {
 		set_chi_cbtrue(BETWEEN);
 
 		chi_shadeleft.setAttribute({ visible: false });
 		chi_shaderight.setAttribute({ visible: false });
 		chi_shadebetween.setAttribute({ visible: true });
-			
+
 		chi_1.setAttribute({ visible: true });
 		chi_2.setAttribute({ visible: true });
-		
+
 		chi_x1_input.rendNodeInput.value = chi_1.X().toFixed(2);
 		chi_x1_input.setAttribute({ disabled: false });
-		
+
 		chi_x2_input.rendNodeInput.value = chi_2.X().toFixed(2);
 		chi_x2_input.setAttribute({ visible: true });
 		chi_x2_input.setAttribute({ disabled: false });
 		chi_x2_disp.setAttribute({ visible: false });
-		
+
 		chi_prob_input.setAttribute({ visible: false });
 		chi_prob_disp.setAttribute({ visible: true });
-			
+
 	}, { fontSize: 18, frozen: true });
 
 chi_cb[LEFT] = JSXCheckbox(chi_board, 2, -0.05, 'P(x < b)', false,
 	function() {
 		set_chi_cbtrue(LEFT);
-		
+
 		chi_1.setAttribute({ visible: false });
 		chi_2.setAttribute({ visible: true });
-		
+
 		chi_shadeleft.setAttribute({ visible: true });
 		chi_shaderight.setAttribute({ visible: false });
 		chi_shadebetween.setAttribute({ visible: false });
-		
+
 		chi_x1_input.rendNodeInput.value = '0';
 		chi_x1_input.setAttribute({ disabled: true });
-	
+
 		chi_x2_input.rendNodeInput.value = chi_2.X().toFixed(2);
 		chi_x2_input.setAttribute({ visible: true });
 		chi_x2_input.setAttribute({ disabled: false });
 		chi_x2_disp.setAttribute({ visible: false });
-		
+
 		chi_prob_input.setAttribute({ visible: false });
 		chi_prob_disp.setAttribute({ visible: true });
-		
+
 	}, { fontSize: 18, frozen: true });
 
 chi_cb[RIGHT] = JSXCheckbox(chi_board, 2, -0.075, 'P(x > a)', false,
 	function() {
 		set_chi_cbtrue(RIGHT);
-		
+
 		chi_1.setAttribute({ visible: true });
 		chi_2.setAttribute({ visible: false });
-		
+
 		chi_shadeleft.setAttribute({ visible: false });
 		chi_shaderight.setAttribute({ visible: true });
 		chi_shadebetween.setAttribute({ visible: false });
-		
+
 		chi_x1_input.rendNodeInput.value = chi_1.X().toFixed(2);
 		chi_x1_input.setAttribute({ disabled: false });
-		
+
 		chi_x2_input.rendNodeInput.value = 'Infinity';
 		chi_x2_input.setAttribute({ visible: true });
 		chi_x2_input.setAttribute({ disabled: true });
 		chi_x2_disp.setAttribute({ visible: false });
-		
+
 		chi_prob_input.setAttribute({ visible: false });
 		chi_prob_disp.setAttribute({ visible: true });
-	
+
 	}, { fontSize: 18, frozen: true });
 
-function current_chi_probability(x1, x2, df) { 
-	
+function current_chi_probability(x1, x2, df) {
+
 	if(typeof(x1) !== 'number') {
 		x1 = Number(x1);
 	}
@@ -1145,28 +2746,28 @@ function current_chi_probability(x1, x2, df) {
 	if(typeof(df) !== 'number') {
 		df = Number(df);
 	}
-	
-	if(chi_cb[BETWEEN].Value()) { 
-		
+
+	if(chi_cb[BETWEEN].Value()) {
+
 		var v1 = jStat.chisquare.cdf(x1, df);
 		var v2 = jStat.chisquare.cdf(x2, df);
-		
+
 		return (v2 - v1).toFixed(4);
-		
+
 	} else if(chi_cb[LEFT].Value()) {
-		
+
 		return jStat.chisquare.cdf(x2, df).toFixed(4);
-		
+
 	} else if(chi_cb[RIGHT].Value()) {
-		
+
 		return (1 - jStat.chisquare.cdf(x1, df)).toFixed(4);
-		
-	} 
+
+	}
 
 }
 
 function chi_set_tick_metrics(chi_df) {
-	
+
 	if (chi_df == 1) {
 		chi_tick_delta = 0.25;
 	} else if (chi_df == 2) {
@@ -1184,8 +2785,8 @@ function chi_set_tick_metrics(chi_df) {
 	} else if (chi_df <= 1000) {
 		chi_tick_delta = 50;
 	} else chi_tick_delta = -1;
-	
-	
+
+
 	x_min = 0;
 	x_max = 4 * chi_df;
 	if (chi_tick_delta != -1) {
@@ -1193,7 +2794,7 @@ function chi_set_tick_metrics(chi_df) {
 	} else {
 		chi_n_ticks = -1;
 	}
-	
+
 }
 
 function set_chi_cbtrue(box) {
@@ -1206,7 +2807,7 @@ function set_chi_cbtrue(box) {
 	chi_cb[box].rendNodeCheckbox.checked = true;
 	chi_cb[box]._value = true;
 }
-	
+
 </script>
 
 <!--////////////////////////////////////////////////////////////////////////
@@ -1217,7 +2818,7 @@ function set_chi_cbtrue(box) {
 
 // Initial Values
 var f_df1 = 12;
-var f_df2 = 10;		
+var f_df2 = 10;
 var f_mean = jStat.centralF.mean(f_df1, f_df2);
 var f_stdev = Math.sqrt(jStat.centralF.variance(f_df1, f_df2));
 var f_ymax = jStat.centralF.pdf(jStat.centralF.mode(f_df1, f_df2), f_df1, f_df2) * 1.3;
@@ -1228,10 +2829,10 @@ var f_tick_delta = 0.5;
 var f_n_ticks = f_xmax / f_tick_delta;
 var f_tick_ratio = 50; // ticks are 1/50 the value of y-max
 var f_prob_type = BETWEEN;
-	
+
 var f_board = JXG.JSXGraph.initBoard('f-distribution', {
 		boundingbox: [0,f_ymax,f_xmax,-f_ymax],
-      	showCopyright: false, 
+      	showCopyright: false,
       	showNavigation: false,
 		keepaspectratio: false,
 		axis: false,
@@ -1249,15 +2850,15 @@ var f_board = JXG.JSXGraph.initBoard('f-distribution', {
     });
 
 
-			
-var f_curve = f_board.create('functiongraph', [function(x) { return jStat.centralF.pdf(x, f_df1, f_df2); }], 
+
+var f_curve = f_board.create('functiongraph', [function(x) { return jStat.centralF.pdf(x, f_df1, f_df2); }],
 	{ strokeWidth: 3, fixed: true, 	highlight: false });
-	
+
 var f_axis = f_board.create('line', [[0, 0], [1, 0]], { strokeColor: 'black', strokeWidth: 1, highlight: false, fixed: true, frozen: true });
-	
+
 var f_1 = f_board.create('glider', [f_init_x1, 0, f_axis], { withLabel: false, color: 'black', snapToGrid: true, snapSizeX: 0.01 });
-f_1.on('drag', 
-	function() { 
+f_1.on('drag',
+	function() {
 		if(f_1.X() < 0) {
 			f_1.moveTo([0, 0]);
 		}
@@ -1270,8 +2871,8 @@ f_1.on('drag',
 );
 
 var f_2 = f_board.create('glider', [f_init_x2, 0, f_axis], { withLabel: false, color: 'black', snapToGrid: true, snapSizeX: 0.01 });
-f_2.on('drag', 
-	function() { 
+f_2.on('drag',
+	function() {
 		if(f_2.X() < 0) {
 			f_2.moveTo([0, 0]);
 		}
@@ -1284,78 +2885,78 @@ f_2.on('drag',
 	}
 );
 
-// Set up the tick marks on the x-axis		
+// Set up the tick marks on the x-axis
 var f_ticks = [];
 var f_labels = [];
 
 var tick_height = f_ymax / f_tick_ratio;
 for (var i = 0; i < f_n_ticks; i++) {
-	f_ticks[i] = f_board.create('segment', 
-			[[i * f_tick_delta, tick_height], [i * f_tick_delta, -tick_height]], 
+	f_ticks[i] = f_board.create('segment',
+			[[i * f_tick_delta, tick_height], [i * f_tick_delta, -tick_height]],
 			{ color: 'grey', strokeWidth: 1, fixed: true, highlight: false });
 }
 
 for (var i = 1; i < f_n_ticks; i++) {
-	f_labels[i-1] = f_board.create('text', 
-			[i * f_tick_delta, -2 * tick_height, i * f_tick_delta ], 
+	f_labels[i-1] = f_board.create('text',
+			[i * f_tick_delta, -2 * tick_height, i * f_tick_delta ],
 			{ fixed: true, highlight: false });
-		
+
 }
 
 // input variables
 
-var f_df1_input = f_board.create('input', [2.5, 0.9, f_df1, 'df 1 = '], 
+var f_df1_input = f_board.create('input', [2.5, 0.9, f_df1, 'df 1 = '],
 		{ fontSize: 18, cssStyle: 'width: 100px', frozen: true, fixed: true });
-		
-var f_df2_input = f_board.create('input', [2.5, 0.75, f_df2, 'df 2 = '], 
+
+var f_df2_input = f_board.create('input', [2.5, 0.75, f_df2, 'df 2 = '],
 		{ fontSize: 18, cssStyle: 'width: 100px', frozen: true, fixed: true });
 
 // display for the mean and standard deviation
 
-var f_mean_disp = f_board.create('text', [2.65, 0.6, 
-		function() { return '&mu; = ' + f_mean.toFixed(4); }], 
+var f_mean_disp = f_board.create('text', [2.65, 0.6,
+		function() { return '&mu; = ' + f_mean.toFixed(4); }],
 		{ fontSize: 18, frozen: true, highlight: false, fixed: true });
-		
-var f_stdev_disp = f_board.create('text', [2.65, 0.45, 
-		function() { return '&sigma; = ' + f_stdev.toFixed(4); }], 
+
+var f_stdev_disp = f_board.create('text', [2.65, 0.45,
+		function() { return '&sigma; = ' + f_stdev.toFixed(4); }],
 		{ fontSize: 18, frozen: true, highlight: false, fixed: true });
-		
-var f_shadeleft = f_board.create('integral', 
+
+var f_shadeleft = f_board.create('integral',
 		[[ function() { return 0; } , function() { return f_2.X(); }], f_curve], shadeParam);
 f_shadeleft.setAttribute({ visible: false });
 
-var f_shaderight = f_board.create('integral', 
+var f_shaderight = f_board.create('integral',
 		[[ function() { return f_1.X(); }, function() { return 100; }], f_curve], shadeParam);
 f_shaderight.setAttribute({ visible: false });
 
-var f_shadebetween = f_board.create('integral', 
+var f_shadebetween = f_board.create('integral',
 		[[ function() { return f_1.X(); }, function() { return f_2.X(); }], f_curve], shadeParam);
-		
+
 var f_x1_input = f_board.create('input', [0.2, -0.6, f_1.X(), 'P( '], { fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
 
-var f_x2_input = f_board.create('input', [1.25, -0.6, f_2.X(), ' < <i>X</i> < '], 
+var f_x2_input = f_board.create('input', [1.25, -0.6, f_2.X(), ' < <i>X</i> < '],
 		{ fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
-		
+
 var f_x2_disp = f_board.create('text', [1.25, -0.6, '< <i>X</i> < 2'],
-		{ fontSize: 18, frozen: true, visible: false, fixed: true });		
-		
-var f_prob_input = f_board.create('input', [2.5, -0.6, current_f_probability(f_1.X(), f_2.X(), f_df1, f_df2), ') = '], 
+		{ fontSize: 18, frozen: true, visible: false, fixed: true });
+
+var f_prob_input = f_board.create('input', [2.5, -0.6, current_f_probability(f_1.X(), f_2.X(), f_df1, f_df2), ') = '],
 		{ fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
 f_prob_input.setAttribute({ visible: false });
 
 var f_prob_disp = f_board.create('text', [2.5, -0.6, ') = ' + current_f_probability(f_1.X(), f_2.X(), f_df1, f_df2)],
-		{ fontSize: 18, frozen: true, fixed: true });		
+		{ fontSize: 18, frozen: true, fixed: true });
 
 // Buttons
 
 var f_calc_button = f_board.create('button', [2.75, -0.8, 'Calculate',
 	function () {
-	
+
 		if(isChecked(f_cb_area)) {
 			if(!isNaN(f_x1_input.Value())) {
 				f_1.moveTo([f_x1_input.Value(), 0]);
 			}
-	
+
 			if(!isNaN(f_x2_input.Value())) {
 				f_2.moveTo([f_x2_input.Value(), 0]);
 			}
@@ -1363,31 +2964,31 @@ var f_calc_button = f_board.create('button', [2.75, -0.8, 'Calculate',
 			f_df2 = Number(f_df2_input.rendNodeInput.value);
 			f_prob_input.rendNodeInput.value = current_f_probability(f_x1_input.Value(), f_x2_input.Value(), f_df1, f_df2);
 			f_prob_disp.setText(') = ' + current_f_probability(f_x1_input.Value(), f_x2_input.Value(), f_df1, f_df2));
-		
+
 		} else {
 			if(!isNaN(f_prob_input.Value())) {
-			
+
 				f_df1 = Number(f_df1_input.rendNodeInput.value);
 				f_df2 = Number(f_df2_input.rendNodeInput.value);
 				var f = jStat.centralF.inv(f_prob_input.Value(), f_df1, f_df2);
 				f_2.moveTo([f, 0]);
 				f_x2_input.rendNodeInput.value = f;
 				f_x2_disp.setText('< <i>X</i> < ' + f.toFixed(8));
-		
+
 			}
 		}
-}], { frozen: true });		
-		
+}], { frozen: true });
+
 var f_update = f_board.create('button', [2.75, 0.3, 'Update', function() {
-		
+
 		var new_df1 = f_df1_input.rendNodeInput.value;
 		var new_df2 = f_df2_input.rendNodeInput.value;
-		
+
 		if ((new_df1 >= 1) && (new_df2 >= 1)) {
-			
+
 			f_df1 = Number(new_df1);
-			f_df2 = Number(new_df2);	
-			
+			f_df2 = Number(new_df2);
+
 			if ((f_df1 >= 1) && (f_df1 < 2)) {
 				f_ymax = 2.5;
 			} else if ((f_df1 >= 2) && (f_df1 < 3)) {
@@ -1398,18 +2999,18 @@ var f_update = f_board.create('button', [2.75, 0.3, 'Update', function() {
 
 			f_board.setBoundingBox([0, f_ymax, f_xmax, -f_ymax]);
 			var tick_height = f_ymax / f_tick_ratio;
-	
+
 			// Update the display for just the labels and ticks we want
 			for (var i = 0; i < f_n_ticks; i++) {
 				f_ticks[i].point1.moveTo([i * f_tick_delta, tick_height]);
 				f_ticks[i].point2.moveTo([i * f_tick_delta, -tick_height]);
 			}
-			
+
 			for (var i = 1; i < f_n_ticks; i++) {
 				f_labels[i-1].setText(i * f_tick_delta);
-				f_labels[i-1].moveTo([i * f_tick_delta, -2 * tick_height]);				
+				f_labels[i-1].moveTo([i * f_tick_delta, -2 * tick_height]);
 			}
-			
+
 			if (f_df2 <= 2) {
 				f_mean = NaN;
 			} else {
@@ -1417,159 +3018,159 @@ var f_update = f_board.create('button', [2.75, 0.3, 'Update', function() {
 				f_stdev = Math.sqrt(jStat.centralF.variance(f_df1, f_df2));
 			}
 
-			
+
 			var cur_x1 = f_x1_input.rendNodeInput.value;
 			var cur_x2 = f_x2_input.rendNodeInput.value;
-			
+
 			f_1.moveTo([cur_x1, 0]);
 			f_2.moveTo([cur_x2, 0]);
-			
+
 			f_x1_input.rendNodeInput.value = cur_x1;
 			f_x2_input.rendNodeInput.value = cur_x2;
 			f_x2_disp.setText('< <i>X</i> < ' + Number(cur_x2).toFixed(8));
-			
+
 			f_prob_input.rendNodeInput.value = current_f_probability(cur_x1, cur_x2, f_df1, f_df2);
 			f_prob_disp.setText(') = ' + current_f_probability(cur_x1, cur_x2, f_df1, f_df2));
 
 		}
-		
-		//f_df_input.rendNodeInput.value = f_df;	
-		
-}], { frozen: true });		
-		
+
+		//f_df_input.rendNodeInput.value = f_df;
+
+}], { frozen: true });
+
 // Checkboxes
 
 var f_cb_area = JSXCheckbox(f_board, 2.25, -0.2, 'Calculate Area', true,
 	function() {
 		setCheckbox(f_cb_area, true);
 		setCheckbox(f_cb_xvalue, false);
-		
+
 		f_cb[BETWEEN].setAttribute( { disabled: false, strokeColor: 'black', highlight: true  });
 		f_cb[LEFT].setAttribute( { disabled: false });
 		f_cb[RIGHT].setAttribute( { disabled: false, strokeColor: 'black', highlight: true  });
-		
+
 		f_prob_input.setAttribute( { visible: false });
 		f_prob_disp.setAttribute( { visible: true });
-		
+
 		f_x2_input.setAttribute( { disabled: false });
 		f_x2_input.setAttribute( { visible: true });
 		f_x2_disp.setAttribute({ visible: false });
-		
+
 		f_prob_type = LEFT;
-				
+
 	}, { fontSize: 18, frozen: true });
 
 var f_cb_xvalue = JSXCheckbox(f_board, 2.25, -0.325, 'Calculate x-Value', false,
 	function() {
 		setCheckbox(f_cb_xvalue, true);
 		setCheckbox(f_cb_area, false);
-		
+
 		f_cb[BETWEEN].setAttribute( { disabled: true, strokeColor: 'lightgray', highlight: false });
 		f_cb[LEFT].setAttribute( { disabled: false });
 		f_cb[RIGHT].setAttribute( { disabled: true, strokeColor: 'lightgray', highlight: false });
 		set_f_cbtrue(LEFT);
 		f_prob_type = LEFT;
-		
+
 		f_1.setAttribute({ visible: false });
 		f_2.setAttribute({ visible: true });
-		
+
 		f_shadeleft.setAttribute({ visible: true });
 		f_shaderight.setAttribute({ visible: false });
 		f_shadebetween.setAttribute({ visible: false });
-		
+
 		f_x1_input.rendNodeInput.value = '0';
 		f_x1_input.setAttribute({ disabled: true });
-	
+
 		f_x2_input.rendNodeInput.value = f_2.X().toFixed(2);
 		f_x2_input.setAttribute({ visible: false });
 		f_x2_disp.setAttribute({ visible: true });
-		
+
 		f_prob_input.setAttribute({ visible: true });
 		f_prob_disp.setAttribute({ visible: false });
-		
+
 		f_2.moveTo([f_x2_input.rendNodeInput.value, 0]);
-		
+
 	}, { fontSize: 18, frozen: true });
 
 var f_cb = [];
 
-f_cb[BETWEEN] = JSXCheckbox(f_board, 0.2, -0.2, 'P(a < x < b)', true, 
+f_cb[BETWEEN] = JSXCheckbox(f_board, 0.2, -0.2, 'P(a < x < b)', true,
 	function() {
 		set_f_cbtrue(BETWEEN);
 		f_prob_type = BETWEEN;
-		
+
 		f_shadeleft.setAttribute({ visible: false });
 		f_shaderight.setAttribute({ visible: false });
 		f_shadebetween.setAttribute({ visible: true });
-			
+
 		f_1.setAttribute({ visible: true });
 		f_2.setAttribute({ visible: true });
-		
+
 		f_x1_input.rendNodeInput.value = f_1.X().toFixed(2);
 		f_x1_input.setAttribute({ disabled: false });
-		
+
 		f_x2_input.rendNodeInput.value = f_2.X().toFixed(2);
 		f_x2_input.setAttribute({ visible: true });
 		f_x2_input.setAttribute({ disabled: false });
 		f_x2_disp.setAttribute({ visible: false });
-		
+
 		f_prob_input.setAttribute({ visible: false });
 		f_prob_disp.setAttribute({ visible: true });
-			
+
 	}, { fontSize: 18, frozen: true });
 
 f_cb[LEFT] = JSXCheckbox(f_board, 0.2, -0.325, 'P(x < b)', false,
 	function() {
 		set_f_cbtrue(LEFT);
 		f_prob_type = LEFT;
-		
+
 		f_1.setAttribute({ visible: false });
 		f_2.setAttribute({ visible: true });
-		
+
 		f_shadeleft.setAttribute({ visible: true });
 		f_shaderight.setAttribute({ visible: false });
 		f_shadebetween.setAttribute({ visible: false });
-		
+
 		f_x1_input.rendNodeInput.value = '0';
 		f_x1_input.setAttribute({ disabled: true });
-	
+
 		f_x2_input.rendNodeInput.value = f_2.X().toFixed(2);
 		f_x2_input.setAttribute({ visible: true });
 		f_x2_input.setAttribute({ disabled: false });
 		f_x2_disp.setAttribute({ visible: false });
-		
+
 		f_prob_input.setAttribute({ visible: false });
 		f_prob_disp.setAttribute({ visible: true });
-		
+
 	}, { fontSize: 18, frozen: true });
 
 f_cb[RIGHT] = JSXCheckbox(f_board, 0.2, -0.45, 'P(x > a)', false,
 	function() {
 		set_f_cbtrue(RIGHT);
 		f_prob_type = RIGHT;
-		
+
 		f_1.setAttribute({ visible: true });
 		f_2.setAttribute({ visible: false });
-		
+
 		f_shadeleft.setAttribute({ visible: false });
 		f_shaderight.setAttribute({ visible: true });
 		f_shadebetween.setAttribute({ visible: false });
-		
+
 		f_x1_input.rendNodeInput.value = f_1.X().toFixed(2);
 		f_x1_input.setAttribute({ disabled: false });
-		
+
 		f_x2_input.rendNodeInput.value = 'Infinity';
 		f_x2_input.setAttribute({ visible: true });
 		f_x2_input.setAttribute({ disabled: true });
 		f_x2_disp.setAttribute({ visible: false });
-		
+
 		f_prob_input.setAttribute({ visible: false });
 		f_prob_disp.setAttribute({ visible: true });
-	
+
 	}, { fontSize: 18, frozen: true });
 
-function current_f_probability(x1, x2, df1, df2) { 
-	
+function current_f_probability(x1, x2, df1, df2) {
+
 	if(typeof(x1) !== 'number') {
 		x1 = Number(x1);
 	}
@@ -1582,23 +3183,23 @@ function current_f_probability(x1, x2, df1, df2) {
 	if(typeof(df2) !== 'number') {
 		df2 = Number(df2);
 	}
-	
-	if(f_prob_type == BETWEEN) { 
-		
+
+	if(f_prob_type == BETWEEN) {
+
 		var v1 = jStat.centralF.cdf(x1, df1, df2);
 		var v2 = jStat.centralF.cdf(x2, df1, df2);
-		
+
 		return (v2 - v1).toFixed(4);
-		
+
 	} else if(f_prob_type == LEFT) {
-		
+
 		return jStat.centralF.cdf(x2, df1, df2).toFixed(4);
-		
+
 	} else if(f_prob_type == RIGHT) {
-		
+
 		return (1 - jStat.centralF.cdf(x1, df1, df2)).toFixed(4);
-		
-	} 
+
+	}
 
 }
 
