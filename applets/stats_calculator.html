@@ -252,6 +252,21 @@ document.getElementById("defaultOpen").click();
 		curveRight: { visible: false },
 	};
 
+	var textParam = {
+		fontSize: 18,
+		frozen: true,
+		fixed: true,
+		anchorY: 'top'
+	};
+
+	var inputParam = {
+		fontSize: 18,
+		cssStyle: 'width: 100px',
+		frozen: true,
+		fixed: true,
+		anchorY: 'top'
+	}
+
 	var PTYPE = 'between';
 
 	var BETWEEN = 0;
@@ -1557,32 +1572,6 @@ var ptest2_calculate = ptest2_board.create('button', [7, 3, 'Calculate',
 
 </script>
 
-<!--////////////////////////////////////////////////////////////////////////
-	//////////////////////////////////////// Binomial Distribution /////////
-	////////////////////////////////////////////////////////////////////////-->
-
-<script>
-
-var bin_board = JXG.JSXGraph.initBoard('binomial-distribution', {
-		boundingbox: [0,10,10,0],
-      	showCopyright: false,
-      	showNavigation: false,
-		keepaspectratio: false,
-		axis: false,
-		zoom: {
-			factorX: 1.25,
-			factorY: 1.25,
-			wheel: false,
-			needshift: false,
-			eps: 0.1,
-				enabled: false
-		  },
-		pan: {
-			enabled: false
-		}
-    });
-
-</script>
 
 <!--////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////// Calculation /////////
@@ -2807,6 +2796,298 @@ function set_chi_cbtrue(box) {
 	chi_cb[box].rendNodeCheckbox.checked = true;
 	chi_cb[box]._value = true;
 }
+
+</script>
+
+
+<!--////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////// Binomial Distribution /////////
+	////////////////////////////////////////////////////////////////////////-->
+
+<script>
+
+// Initial Values
+var binom_n = 8;
+var binom_p = 0.75;
+var binom_mean = binom_n * binom_p;
+var binom_stdev = sqrt(binom_n * binom_p * (1 - binom_p));
+
+var binom_xmin = -1;
+var binom_xmax = binom_n + 1;
+var binom_ymin = -1;
+var binom_ymax = 1;
+
+var binom_x1 = 3;
+var binom_x2 = 6;
+var binom_ptype = BETWEEN;
+
+var binom_decimals = 4;
+
+var binom_board = JXG.JSXGraph.initBoard('binomial-distribution', {
+		boundingbox: [binom_xmin, binom_ymax, binom_xmax, binom_ymin],
+      	showCopyright: false,
+      	showNavigation: false,
+		keepaspectratio: false,
+		axis: false,
+		zoom: {
+			factorX: 1.25,
+			factorY: 1.25,
+			wheel: false,
+			needshift: false,
+			eps: 0.1,
+				enabled: false
+		  },
+		pan: {
+			enabled: false
+		}
+    });
+
+
+/*var binom_curve = binom_board.create('functiongraph', [function(x) { return tpdf(tScore(x), binom_df); }],
+	{ strokeWidth: 3, fixed: true, 	highlight: false });*/
+
+var binom_axis = binom_board.create('line', [[0, 0], [1, 0]],
+		{ strokeColor: 'black', strokeWidth: 1, highlight: false, fixed: true, frozen: true });
+
+var binom_p1 = binom_board.create('glider', [binom_x1, 0, binom_axis],
+		{ withLabel: false, color: 'black', snapToGrid: true, snapSizeX: 1 });
+binom_p1.on('drag',
+	function() {
+		// Bounds check on the movable point
+		if(binom_p1.X() < 0) { binom_p1.moveTo([0, 0]); }
+		if(binom_p1.X() > binom_n) { binom_p1.moveTo([binom_n, 0]);	}
+		binom_x1_input.rendNodeInput.value = binom_p1.X();
+		binom_x1 = binom_p1.X();
+		binom_prob_disp.setText(') = ' + binom_cprob(binom_x1, binom_x2, binom_n, binom_p, binom_ptype));
+	}
+);
+
+var binom_p2 = binom_board.create('glider', [binom_x2, 0, binom_axis],
+		{ withLabel: false, color: 'black', snapToGrid: true, snapSizeX: 1 });
+binom_p2.on('drag',
+	function() {
+		// Bounds check on the movable point
+		if(binom_p2.X() < 0) { binom_p2.moveTo([0, 0]); }
+		if(binom_p2.X() > binom_n) { binom_p2.moveTo([binom_n, 0]);	}
+		binom_x2_input.rendNodeInput.value = binom_p2.X();
+		binom_x2 = binom_p2.X();
+		binom_prob_disp.setText(') = ' + binom_cprob(binom_x1, binom_x2, binom_n, binom_p, binom_ptype));
+	}
+);
+
+//var binom_ticks = [];
+//var binom_labels = [];
+//for (var i = -3; i <= 3; i++) {
+//	binom_ticks[i + 3] = binom_board.create('segment', [[i,.01], [i,-0.01]], { color: 'grey', strokeWidth: 1, fixed: true, highlight: false });
+//	binom_labels[i + 3] = binom_board.create('text', [i-.05, -0.02, i], { fixed: true, highlight: false });
+//}
+
+// input variables
+
+
+var binom_mean_label = binom_board.create('text', [6.5, 0.9,
+		function() {
+			return '&mu; = ' + binom_mean.toFixed(4);
+		}],	textParam);
+
+var binom_stdev_label = binom_board.create('text', [6.5, 0.8,
+		function() {
+			return '&sigma; = ' + binom_stdev.toFixed(4);
+		}],	textParam);
+
+var binom_n_input = binom_board.create('input',
+		[4.5, -0.15, binom_n, 'n = '], inputParam);
+var binom_p_input = binom_board.create('input',
+		[4.5, -0.3, binom_p, 'p = '], inputParam);
+
+/*var binom_shadeleft = binom_board.create('integral',
+	[[ function() { return binom_xval(-10000); }, function() { return t2.X(); }], binom_curve], shadeParam);
+binom_shadeleft.setAttribute({ visible: false });
+
+var binom_shaderight = binom_board.create('integral',
+	[[ function() { return t1.X(); }, function() { return binom_xval(10000); }], binom_curve], shadeParam);
+binom_shaderight.setAttribute({ visible: false });
+
+var binom_shadebetween = binom_board.create('integral',
+	[[ function() { return t1.X(); }, function() { return t2.X(); }], binom_curve], shadeParam); */
+
+var binom_x1_input = binom_board.create('input',
+		[-0.5, -0.65, binom_x1, 'P( '],	inputParam);
+var binom_x2_input = binom_board.create('input',
+		[2.5, -0.65, binom_x2, ' < <i>X</i> < '], inputParam);
+var binom_prob_disp = binom_board.create('text', [6, -0.65,
+		') = ' + binom_cprob(binom_x1, binom_x2, binom_n, binom_p, binom_ptype)],
+		textParam);
+
+// Buttons
+
+var binom_calc_button = binom_board.create('button', [7, -0.8, 'Calculate',
+	function () {
+
+		binom_n = Number(binom_n_input.rendNodeInput.value);
+		binom_p = Number(binom_p_input.rendNodeInput.value);
+		binom_mean = binom_n * binom_p;
+		binom_stdev = sqrt(binom_n * binom_p * (1 - binom_p));
+
+		binom_x1 = Number(binom_x1_input.rendNodeInput.value);
+		binom_x2 = Number(binom_x2_input.rendNodeInput.value);
+
+		binom_xmax = binom_n + 1;
+
+		binom_board.setBoundingBox([binom_xmin, binom_ymax, binom_xmax, binom_ymin]);
+
+		binom_p1.moveTo([binom_x1, 0]);
+		binom_p2.moveTo([binom_x2, 0]);
+
+		//binom_x1_input.rendNodeInput.value = binom_xval(cur_z1);
+		//binom_x2_input.rendNodeInput.value = binom_xval(cur_z2);
+		//binom_x2_disp.setText('< <i>X</i> < ' + binom_xval(cur_z2).toFixed(8));
+
+		//binom_updateAxisLabels();
+
+		//if(!isNaN(binom_x1_input.Value())) {
+		//	t1.moveTo([binom_x1_input.Value(), 0]);
+		//}
+
+		//if(!isNaN(binom_x2_input.Value())) {
+		//	t2.moveTo([binom_x2_input.Value(), 0]);
+		//}
+
+		binom_prob_disp.setText(') = ' + binom_cprob(binom_x1, binom_x2, binom_n, binom_p, binom_ptype));
+
+	}], { frozen: true });
+
+
+// Checkboxes
+
+var binom_cb = [];
+
+binom_cb[BETWEEN] = JSXCheckbox(binom_board, 0, -0.15, 'P(a < x < b)', true,
+	function() {
+		binom_ptype = BETWEEN;
+		set_binom_cbtrue(binom_ptype);
+
+		//binom_shadeleft.setAttribute({ visible: false });
+		//binom_shaderight.setAttribute({ visible: false });
+		//binom_shadebetween.setAttribute({ visible: true });
+
+		// Make sure both points and input boxes are visible and enabled
+		binom_p1.setAttribute({ visible: true });
+		binom_p2.setAttribute({ visible: true });
+
+		binom_x1_input.setAttribute({ disabled: false });
+		binom_x2_input.setAttribute({ disabled: false });
+
+		// Make sure the points and input boxes show the same value
+		binom_x1_input.rendNodeInput.value = binom_p1.X();
+		binom_x2_input.rendNodeInput.value = binom_p2.X();
+
+		// update the probability
+		binom_x1 = binom_p1.X();
+		binom_x2 = binom_p2.X();
+
+		binom_p = Number(binom_p_input.rendNodeInput.value);
+		binom_n = Number(binom_n_input.rendNodeInput.value);
+
+		binom_prob_disp.setText(') = ' + binom_cprob(binom_x1, binom_x2, binom_n, binom_p, binom_ptype));
+
+	}, { fontSize: 18, frozen: true });
+
+binom_cb[LEFT] = JSXCheckbox(binom_board, 0, -0.3, 'P(x < b)', false,
+	function() {
+		binom_ptype = LEFT;
+		set_binom_cbtrue(binom_ptype);
+
+		//binom_shadeleft.setAttribute({ visible: true });
+		//binom_shaderight.setAttribute({ visible: false });
+		//binom_shadebetween.setAttribute({ visible: false });
+
+		// Make sure only p2 and x2 are visible and enabled
+		binom_p1.setAttribute({ visible: false });
+		binom_p2.setAttribute({ visible: true });
+
+		binom_x1_input.setAttribute({ disabled: true });
+		binom_x2_input.setAttribute({ disabled: false });
+
+		// Make sure the points and input boxes show the same value
+		binom_x1_input.rendNodeInput.value = '-Infinity';
+		binom_x2_input.rendNodeInput.value = binom_p2.X();
+
+		// update the probability
+		binom_x1 = binom_p1.X();
+		binom_x2 = binom_p2.X();
+
+		binom_p = Number(binom_p_input.rendNodeInput.value);
+		binom_n = Number(binom_n_input.rendNodeInput.value);
+
+		binom_prob_disp.setText(') = ' + binom_cprob(binom_x1, binom_x2, binom_n, binom_p, binom_ptype));
+
+	}, { fontSize: 18, frozen: true });
+
+binom_cb[RIGHT] = JSXCheckbox(binom_board, 0, -0.45, 'P(x > a)', false,
+	function() {
+		binom_ptype = RIGHT;
+		set_binom_cbtrue(binom_ptype);
+
+		//binom_shadeleft.setAttribute({ visible: false });
+		//binom_shaderight.setAttribute({ visible: true });
+		//binom_shadebetween.setAttribute({ visible: false });
+
+		// Make sure only p1 and x1 are visible and enabled
+		binom_p1.setAttribute({ visible: true });
+		binom_p2.setAttribute({ visible: false });
+
+		binom_x1_input.setAttribute({ disabled: false });
+		binom_x2_input.setAttribute({ disabled: true });
+
+		// Make sure the points and input boxes show the same value
+		binom_x1_input.rendNodeInput.value = binom_p1.X();
+		binom_x2_input.rendNodeInput.value = 'Infinity';
+
+		// update the probability
+		binom_x1 = binom_p1.X();
+		binom_x2 = binom_p2.X();
+
+		binom_p = Number(binom_p_input.rendNodeInput.value);
+		binom_n = Number(binom_n_input.rendNodeInput.value);
+
+		binom_prob_disp.setText(') = ' + binom_cprob(binom_x1, binom_x2, binom_n, binom_p, binom_ptype));
+
+	}, { fontSize: 18, frozen: true });
+
+function binom_updateAxisLabels() {
+
+	for(var i = -3; i <= 3; i++) {
+		binom_ticks[i + 3].point1.moveTo([binom_xval(i), 0.01]);
+		binom_ticks[i + 3].point2.moveTo([binom_xval(i), -0.01]);
+		binom_labels[i + 3].setText(binom_xval(i));
+		binom_labels[i + 3].setCoords([binom_xval(i), -0.02]);
+	}
+
+}
+
+function binom_cprob(x1, x2, n, p, type) {
+
+	var prob = -1;
+
+	if(type == BETWEEN) {
+		prob = abs(jStat.binomial.cdf(x2, n, p) - jStat.binomial.cdf(x1, n, p));
+	} else if(type == LEFT) {
+		prob = jStat.binomial.cdf(x1, n, p);
+	} else if(type == RIGHT) {
+		prob = 1 - jStat.binomial.cdf(x2, n, p);
+	}
+
+	return prob.toFixed(binom_decimals);
+
+}
+
+function set_binom_cbtrue(box) {
+	for(i = 0; i < 3; i++) {
+		setCheckbox(binom_cb[i], i == box);
+	}
+}
+
 
 </script>
 

@@ -30,6 +30,7 @@ MINLOG    = Math.log(MINDOUBLE);
 dashsetting = 3;
 
 // Convenience functions
+function abs(x) { return Math.abs(x); }
 function sqr(x) { return Math.pow(x, 2); }
 function sqrt(x) { return Math.sqrt(x); }
 function pow(x, a) { return Math.pow(x, a); }
