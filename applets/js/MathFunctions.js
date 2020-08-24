@@ -41,6 +41,7 @@ function log(x) { return Math.log(x) / Math.log(10); }
 function logb(x) { return Math.log(x) / Math.log(b); }
 function ceil(x) { return Math.ceil(x); }
 function floor(x) { return Math.floor(x); }
+function swap(a, b) { return [b, a]; }
 
 ///////////////////////////////////////////////////////////////////////////////
 //

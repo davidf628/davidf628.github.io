@@ -272,6 +272,7 @@ document.getElementById("defaultOpen").click();
 	var BETWEEN = 0;
 	var LEFT = 1;
 	var RIGHT = 2;
+	var EQUAL = 3;
 
 	var LEFTTAIL = 0;
 	var RIGHTTAIL = 1;
@@ -1601,80 +1602,85 @@ var calc_board = JXG.JSXGraph.initBoard('calculation', {
 
 var calc_text = calc_board.create('text', [0.35, 9.25, 'Enter an expression to evaluate:'], { fontSize: 18, frozen: true, fixed: true });
 var calc_input = calc_board.create('input', [0.35, 8.5, '', ''], { fontSize: 18, cssStyle: 'width: 480px', frozen: true, fixed: true });
+calc_input.rendNodeInput.onkeypress = function(e) {
+	if(e.which == 13) {
+		calc_calculate();
+	}
+};
 
-var calc_button = calc_board.create('button', [8, 9.25, 'Calculate',
-		function() {
-
-			var expression = calc_input.rendNodeInput.value;
-			var weightedstats = false;
-
-			// check to see if we are doing some statistics
-			if (expression.includes('1-var_stats')) {
-				// Determine if we are in weighted mode or not
-				if (expression.includes(',')) {
-					weightedstats = true;
-					var xdata = getRawData(list1_data);
-					var fdata = getRawData(list2_data);
-					var n = stats.wn(xdata, fdata);
-					var mean = stats.wmean(xdata, fdata);
-					var s = stats.wstdev(xdata, fdata);
-					var sigma = stats.wstdevp(xdata, fdata);
-					var sum = stats.wsum(xdata, fdata);
-					var sumofsqr = stats.wsumofsqr(xdata, fdata);
-					var min = stats.wmin(xdata, fdata);
-					var q1 = stats.wq1(xdata, fdata);
-					var median = stats.wmedian(xdata, fdata);
-					var q3 = stats.wq3(xdata, fdata);
-					var max = stats.wmax(xdata, fdata);
-					calc_output.setText('n = ' + n + '<br>x&#772; = ' + mean + '<br>s = ' + s +
-						'<br>&sigma; = ' + sigma + '<br>&Sigma;x = ' + sum + '<br>&Sigma;x<sup>2</sup> = ' +
-						sumofsqr + '<br>Minimum = ' + min + '<br>Q1 = ' + q1 + '<br>Median = ' + median +
-						'<br>Q3 = ' + q3 + '<br>Maximum = ' + max);
-				} else {
-					if (expression.includes('L1')) {
-						var xdata = getRawData(list1_data);
-					} else if (expression.includes('L2')) {
-						var xdata = getRawData(list2_data);
-					} else {
-						return NaN;
-					}
-					var n = xdata.length;
-					var mean = stats.mean(xdata);
-					var s = stats.stdev(xdata);
-					var sigma = stats.stdevp(xdata);
-					var sum = stats.sum(xdata);
-					var sumofsqr = stats.sumofsqr(xdata);
-					var min = stats.min(xdata);
-					var q1 = stats.q1(xdata);
-					var median = stats.median(xdata);
-					var q3 = stats.q3(xdata);
-					var max = stats.max(xdata);
-					calc_output.setText('n = ' + n + '<br>x&#772; = ' + mean + '<br>s = ' + s +
-						'<br>&sigma; = ' + sigma + '<br>&Sigma;x = ' + sum + '<br>&Sigma;x<sup>2</sup> = ' +
-						sumofsqr + '<br>Minimum = ' + min + '<br>Q1 = ' + q1 + '<br>Median = ' + median +
-						'<br>Q3 = ' + q3 + '<br>Maximum = ' + max);
-				}
-			} else if (expression.includes('lin_reg')) {
-				var xdata = getRawData(list1_data);
-				var ydata = getRawData(list2_data);
-				var r = stats.correlation(xdata, ydata);
-				var reg = stats.linreg(xdata, ydata);
-				var m = reg[0];
-				var b = reg[1];
-					calc_output.setText(
-						'a = ' + m.toFixed(10) +
-						'<br>b = ' + b.toFixed(10) +
-						'<br>r<sup>2</sup> = ' + sqr(r).toFixed(10) +
-						'<br>r = ' + r.toFixed(10));
-			} else {
-				// If not, just evaluate the expression
-				var v = math.eval(expression);
-				calc_output.setText(' = ' + v);
-			}
-
-		}], { frozen: true, fixed : true });
-
+var calc_button = calc_board.create('button', [8, 9.25, 'Calculate', function() { calc_calculate(); }], { frozen: true, fixed : true });
 var calc_output = calc_board.create('text', [1, 7.5, '='], { anchorY: 'top', fontSize: 24, frozen: true, fixed: true });
+
+function calc_calculate() {
+
+	var expression = calc_input.rendNodeInput.value;
+	var weightedstats = false;
+
+	// check to see if we are doing some statistics
+	if (expression.includes('1-var_stats')) {
+		// Determine if we are in weighted mode or not
+		if (expression.includes(',')) {
+			weightedstats = true;
+			var xdata = getRawData(list1_data);
+			var fdata = getRawData(list2_data);
+			var n = stats.wn(xdata, fdata);
+			var mean = stats.wmean(xdata, fdata);
+			var s = stats.wstdev(xdata, fdata);
+			var sigma = stats.wstdevp(xdata, fdata);
+			var sum = stats.wsum(xdata, fdata);
+			var sumofsqr = stats.wsumofsqr(xdata, fdata);
+			var min = stats.wmin(xdata, fdata);
+			var q1 = stats.wq1(xdata, fdata);
+			var median = stats.wmedian(xdata, fdata);
+			var q3 = stats.wq3(xdata, fdata);
+			var max = stats.wmax(xdata, fdata);
+			calc_output.setText('n = ' + n + '<br>x&#772; = ' + mean + '<br>s = ' + s +
+				'<br>&sigma; = ' + sigma + '<br>&Sigma;x = ' + sum + '<br>&Sigma;x<sup>2</sup> = ' +
+				sumofsqr + '<br>Minimum = ' + min + '<br>Q1 = ' + q1 + '<br>Median = ' + median +
+				'<br>Q3 = ' + q3 + '<br>Maximum = ' + max);
+		} else {
+			if (expression.includes('L1')) {
+				var xdata = getRawData(list1_data);
+			} else if (expression.includes('L2')) {
+				var xdata = getRawData(list2_data);
+			} else {
+				return NaN;
+			}
+			var n = xdata.length;
+			var mean = stats.mean(xdata);
+			var s = stats.stdev(xdata);
+			var sigma = stats.stdevp(xdata);
+			var sum = stats.sum(xdata);
+			var sumofsqr = stats.sumofsqr(xdata);
+			var min = stats.min(xdata);
+			var q1 = stats.q1(xdata);
+			var median = stats.median(xdata);
+			var q3 = stats.q3(xdata);
+			var max = stats.max(xdata);
+			calc_output.setText('n = ' + n + '<br>x&#772; = ' + mean + '<br>s = ' + s +
+				'<br>&sigma; = ' + sigma + '<br>&Sigma;x = ' + sum + '<br>&Sigma;x<sup>2</sup> = ' +
+				sumofsqr + '<br>Minimum = ' + min + '<br>Q1 = ' + q1 + '<br>Median = ' + median +
+				'<br>Q3 = ' + q3 + '<br>Maximum = ' + max);
+		}
+	} else if (expression.includes('lin_reg')) {
+		var xdata = getRawData(list1_data);
+		var ydata = getRawData(list2_data);
+		var r = stats.correlation(xdata, ydata);
+		var reg = stats.linreg(xdata, ydata);
+		var m = reg[0];
+		var b = reg[1];
+			calc_output.setText(
+				'a = ' + m.toFixed(10) +
+				'<br>b = ' + b.toFixed(10) +
+				'<br>r<sup>2</sup> = ' + sqr(r).toFixed(10) +
+				'<br>r = ' + r.toFixed(10));
+	} else {
+		// If not, just evaluate the expression
+		var v = math.eval(expression);
+		calc_output.setText(' = ' + v);
+	}
+
+}
 
 var calc_1varstats = calc_board.create('button', [7, 6.5, 'Single Var Stats',
 		function() {
@@ -2914,7 +2920,7 @@ var binom_shadebetween = binom_board.create('integral',
 var binom_x1_input = binom_board.create('input',
 		[-0.5, -0.65, binom_x1, 'P( '],	inputParam);
 var binom_x2_input = binom_board.create('input',
-		[2.5, -0.65, binom_x2, ' < <i>X</i> < '], inputParam);
+		[2.5, -0.65, binom_x2, ' &le; <i>X</i> &le; '], inputParam);
 var binom_prob_disp = binom_board.create('text', [6, -0.65,
 		') = ' + binom_cprob(binom_x1, binom_x2, binom_n, binom_p, binom_ptype)],
 		textParam);
@@ -2962,7 +2968,7 @@ var binom_calc_button = binom_board.create('button', [7, -0.8, 'Calculate',
 
 var binom_cb = [];
 
-binom_cb[BETWEEN] = JSXCheckbox(binom_board, 0, -0.15, 'P(a < x < b)', true,
+binom_cb[BETWEEN] = JSXCheckbox(binom_board, -0.5, -0.1, 'P(a &le; x &le; b)', true,
 	function() {
 		binom_ptype = BETWEEN;
 		set_binom_cbtrue(binom_ptype);
@@ -2975,12 +2981,14 @@ binom_cb[BETWEEN] = JSXCheckbox(binom_board, 0, -0.15, 'P(a < x < b)', true,
 		binom_p1.setAttribute({ visible: true });
 		binom_p2.setAttribute({ visible: true });
 
-		binom_x1_input.setAttribute({ disabled: false });
+		binom_x1_input.setAttribute({ disabled: false, visible: true });
 		binom_x2_input.setAttribute({ disabled: false });
 
 		// Make sure the points and input boxes show the same value
 		binom_x1_input.rendNodeInput.value = binom_p1.X();
 		binom_x2_input.rendNodeInput.value = binom_p2.X();
+
+		binom_x2_input.rendNodeLabel.innerHTML = ' &le; <i>X</i> &le; ';
 
 		// update the probability
 		binom_x1 = binom_p1.X();
@@ -2993,7 +3001,7 @@ binom_cb[BETWEEN] = JSXCheckbox(binom_board, 0, -0.15, 'P(a < x < b)', true,
 
 	}, { fontSize: 18, frozen: true });
 
-binom_cb[LEFT] = JSXCheckbox(binom_board, 0, -0.3, 'P(x < b)', false,
+binom_cb[LEFT] = JSXCheckbox(binom_board, -0.5, -0.22, 'P(x &le; b)', false,
 	function() {
 		binom_ptype = LEFT;
 		set_binom_cbtrue(binom_ptype);
@@ -3006,12 +3014,14 @@ binom_cb[LEFT] = JSXCheckbox(binom_board, 0, -0.3, 'P(x < b)', false,
 		binom_p1.setAttribute({ visible: false });
 		binom_p2.setAttribute({ visible: true });
 
-		binom_x1_input.setAttribute({ disabled: true });
+		binom_x1_input.setAttribute({ disabled: true, visible: true });
 		binom_x2_input.setAttribute({ disabled: false });
 
 		// Make sure the points and input boxes show the same value
 		binom_x1_input.rendNodeInput.value = '-Infinity';
 		binom_x2_input.rendNodeInput.value = binom_p2.X();
+
+		binom_x2_input.rendNodeLabel.innerHTML = ' &le; <i>X</i> &le; ';
 
 		// update the probability
 		binom_x1 = binom_p1.X();
@@ -3024,7 +3034,7 @@ binom_cb[LEFT] = JSXCheckbox(binom_board, 0, -0.3, 'P(x < b)', false,
 
 	}, { fontSize: 18, frozen: true });
 
-binom_cb[RIGHT] = JSXCheckbox(binom_board, 0, -0.45, 'P(x > a)', false,
+binom_cb[RIGHT] = JSXCheckbox(binom_board, -0.5, -0.34, 'P(x &ge; a)', false,
 	function() {
 		binom_ptype = RIGHT;
 		set_binom_cbtrue(binom_ptype);
@@ -3037,12 +3047,47 @@ binom_cb[RIGHT] = JSXCheckbox(binom_board, 0, -0.45, 'P(x > a)', false,
 		binom_p1.setAttribute({ visible: true });
 		binom_p2.setAttribute({ visible: false });
 
-		binom_x1_input.setAttribute({ disabled: false });
+		binom_x1_input.setAttribute({ disabled: false, visible: true });
 		binom_x2_input.setAttribute({ disabled: true });
 
 		// Make sure the points and input boxes show the same value
 		binom_x1_input.rendNodeInput.value = binom_p1.X();
 		binom_x2_input.rendNodeInput.value = 'Infinity';
+
+		binom_x2_input.rendNodeLabel.innerHTML = ' &le; <i>X</i> &le; ';
+
+		// update the probability
+		binom_x1 = binom_p1.X();
+		binom_x2 = binom_p2.X();
+
+		binom_p = Number(binom_p_input.rendNodeInput.value);
+		binom_n = Number(binom_n_input.rendNodeInput.value);
+
+		binom_prob_disp.setText(') = ' + binom_cprob(binom_x1, binom_x2, binom_n, binom_p, binom_ptype));
+
+	}, { fontSize: 18, frozen: true });
+
+binom_cb[EQUAL] = JSXCheckbox(binom_board, -0.5, -0.46, 'P(x = a)', false,
+	function() {
+		binom_ptype = EQUAL;
+		set_binom_cbtrue(binom_ptype);
+
+		//binom_shadeleft.setAttribute({ visible: false });
+		//binom_shaderight.setAttribute({ visible: true });
+		//binom_shadebetween.setAttribute({ visible: false });
+
+		// Make sure only p2 and x2 are visible and enabled
+		binom_p1.setAttribute({ visible: false });
+		binom_p2.setAttribute({ visible: true });
+
+		binom_x1_input.setAttribute({ disabled: true, visible: false });
+		binom_x2_input.setAttribute({ disabled: false });
+
+		// Make sure the points and input boxes show the same value
+		binom_x1_input.rendNodeInput.value = 'Infinity';
+		binom_x2_input.rendNodeInput.value = binom_p2.X();
+
+		binom_x2_input.rendNodeLabel.innerHTML = 'P( X = ';
 
 		// update the probability
 		binom_x1 = binom_p1.X();
@@ -3071,11 +3116,17 @@ function binom_cprob(x1, x2, n, p, type) {
 	var prob = -1;
 
 	if(type == BETWEEN) {
-		prob = abs(jStat.binomial.cdf(x2, n, p) - jStat.binomial.cdf(x1, n, p));
+		prob = 0;
+		if(x2 < x1) { [x1, x2] = swap(x1, x2); }
+		for(var i = x1; i <= x2; i++) {
+			prob += jStat.binomial.pdf(i, n, p);
+		}
 	} else if(type == LEFT) {
-		prob = jStat.binomial.cdf(x1, n, p);
+		prob = jStat.binomial.cdf(x2, n, p);
 	} else if(type == RIGHT) {
-		prob = 1 - jStat.binomial.cdf(x2, n, p);
+		prob = 1 - jStat.binomial.cdf(x1, n, p);
+	} else if(type == EQUAL) {
+		prob = jStat.binomial.pdf(x2, n, p);
 	}
 
 	return prob.toFixed(binom_decimals);
@@ -3083,7 +3134,7 @@ function binom_cprob(x1, x2, n, p, type) {
 }
 
 function set_binom_cbtrue(box) {
-	for(i = 0; i < 3; i++) {
+	for(i = 0; i < 4; i++) {
 		setCheckbox(binom_cb[i], i == box);
 	}
 }
