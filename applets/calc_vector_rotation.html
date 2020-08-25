@@ -3,7 +3,7 @@
 
 <head>
 
-    <title>Vector Scalar Multiplication</title>
+    <title>Vector Rotation</title>
     <meta charset="utf-8">
     <script type="text/x-mathjax-config">
                  MathJax.Hub.Config({
@@ -19,7 +19,7 @@
 
 <body>
 
-<h1>Scalar Multiplication of Vectors</h1>
+<h1>Rotation of Vectors</h1>
 
 <div id="jxgbox" class="jxgbox" style="width:1000px; height:720px;"></div>
 
@@ -29,12 +29,13 @@
 
 
     var board = JXG.JSXGraph.initBoard('jxgbox', {
-        boundingbox: [-2, 8, 8, -8],
+        boundingbox: [-8, 8, 8, -8],
         axis: false,
         showCopyright: false,
-        showNavigation: false,
+        showNavigation: true,
+		keepAspectRatio: true,
 		zoom: { enabled: false },
-		pan: { enabled: false }
+		pan: { enabled: true }
     });
 
 	var pointParam = {
@@ -47,47 +48,33 @@
 
     // vector u
 
-    var a_start = board.create('point', [0, 0], pointParam);
-    var a_end = board.create('point', [1, 3], { snapSizeX: 0.2, snapSizeY: 0.2, snapToGrid: true, visible: true, showInfoBox: false, name: 'P' });
+    var origin = board.create('point', [0, 0], { visible: false, showInfoBox: false, withLabel: false });
+    var p = board.create('point', [1, 3], { showInfoBox: false, name: 'P' });
 
-    create_mid_label(a_start, a_end, '$\\vec{u}$');
-    create_end_label(a_start, a_end);
+    create_mid_label(origin, p, '$\\vec{u}$');
+    create_end_label(origin, p);
 
-    var a = Vector({start: a_start, end: a_end, color: 'blue' });
+    var u = Vector({start: origin, end: p, color: 'blue' });
 
-    // vector 2u
+    // vector u rotated 90 degrees counter-clockwise
 
-    var b_start = board.create('point', [2, 0], pointParam);
-    var b_end = board.create('point', [
-			function () { return 2 * a_end.X() + 2; }, 
-			function () { return 2 * a_end.Y(); }], pointParam);
+    var p1 = board.create('point', [
+			function () { return -p.Y(); }, 
+			function () { return p.X() }], pointParam);
 			
-    create_mid_label(b_start, b_end, '$2\\vec{u}$');
-    create_end_label(b_start, b_end);
+    create_end_label(origin, p1);
 
-    b = Vector({start: b_start, end: b_end, color: 'black'});
+    var u1 = Vector({start: origin, end: p1, color: 'violet', dash: 2 });
 
-    // vector 1/2u
-    var c_start = board.create('point', [4, 0], pointParam);
-    var c_end = board.create('point', [
-			function () { return 0.5 * a_end.X() + 4; }, 
-			function () { return 0.5 * a_end.Y(); }], pointParam);
+    // vector u rotated 90 degrees clockwise
 
-    create_mid_label(c_start, c_end, '$\\frac{1}{2}\\vec{u}$');
-    create_end_label(c_start, c_end);
+    var p2 = board.create('point', [
+			function () { return p.Y(); }, 
+			function () { return -p.X() }], pointParam);
 
-    c = Vector({start: c_start, end: c_end, color: 'black'});
+    create_end_label(origin, p2);
 
-    // vector -u
-    var d_start = board.create('point', [6, 0], pointParam);
-    var d_end = board.create('point', [
-			function () { return -1 * a_end.X() + 6; }, 
-			function () { return -1 * a_end.Y(); }], pointParam);
-
-    create_mid_label(d_start, d_end, '$-\\vec{u}$');
-    create_end_label(d_start, d_end);
-
-    d = Vector({start: d_start, end: d_end, color: 'black'});
+    u2 = Vector({start: origin, end: p2, color: 'green', daseh: 2 });
 
     function Vector(arg) {
 
