@@ -46,6 +46,8 @@
             showInfoBox: false
 		};
 
+    var angle = board.create('slider', [[5, 7],[11, 7], [-360, 0, 360]], { name: "Angle", precision: 0, label: { fontSize: 18 } } );
+
     // vector u
 
     var origin = board.create('point', [0, 0], { visible: false, showInfoBox: false, withLabel: false });
@@ -59,9 +61,9 @@
     // vector u rotated 90 degrees counter-clockwise
 
     var p1 = board.create('point', [
-			function () { return -p.Y(); }, 
+			function () { return -p.Y(); },
 			function () { return p.X() }], pointParam);
-			
+
     create_end_label(origin, p1);
 
     var u1 = Vector({start: origin, end: p1, color: 'violet', dash: 2 });
@@ -69,7 +71,7 @@
     // vector u rotated 90 degrees clockwise
 
     var p2 = board.create('point', [
-			function () { return p.Y(); }, 
+			function () { return p.Y(); },
 			function () { return -p.X() }], pointParam);
 
     create_end_label(origin, p2);
@@ -88,26 +90,26 @@
 			fixed: true,
             highlight: false
         });
-		
+
 		return v;
 
     }
 
     function create_mid_label(p1, p2, s) {
         var p = board.create('point', [
-					function () { return (p1.X() + p2.X()) / 2 + 0.2; }, 
-					function () { return (p1.Y() + p2.Y()) / 2; }], 
+					function () { return (p1.X() + p2.X()) / 2 + 0.2; },
+					function () { return (p1.Y() + p2.Y()) / 2; }],
 					{ visible: false });
-					
+
         var label = board.create('text', [0, 0, function () { return s; }], { anchor: p, fontSize: 18 });
     }
 
     function create_end_label(p1, p2) {
         var p = board.create('point', [
-					function() { return p2.X() + 0.2; }, 
+					function() { return p2.X() + 0.2; },
 					function() { return p2.Y(); }],
 					{ visible: false });
-					
+
         var label = board.create('text', [0, 0,
             function () {
                 return '$\\Big\\langle' + (p2.X() - p1.X()).toFixed(1) + ', ' + (p2.Y() - p1.Y()).toFixed(1) + '\\Big\\rangle$';
