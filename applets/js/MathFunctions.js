@@ -42,6 +42,7 @@ function logb(x) { return Math.log(x) / Math.log(b); }
 function ceil(x) { return Math.ceil(x); }
 function floor(x) { return Math.floor(x); }
 function swap(a, b) { return [b, a]; }
+function sort(list) { return list.sort(function(a, b) { return a - b; }); }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -387,13 +388,13 @@ var stats = {
 	///////////////////////////////////////////////////////////////////////////////
 
 	median: function(list) {
-		var a = list.sort();
+		var a = sort(list);
 		var mid = a.length / 2;
 		var med = MINDOUBLE;
 		if (a.length % 2 == 0) {
-			med = a[mid];
+			med = (a[mid - 1] + a[mid]) / 2;
 		} else {
-			med = (list[Math.floor(mid)] + list[Math.ceil(mid)]) / 2;
+			med = a[Math.floor(mid)];
 		}
 		return med;
 	},
@@ -403,7 +404,7 @@ var stats = {
 	///////////////////////////////////////////////////////////////////////////////
 
 	q1: function(list) {
-		var a = list.sort();
+		var a = sort(list);
 		var mid = a.length / 2;
 		if (a.length % 2 == 0) {
 			return stats.median(a.slice(0, mid));
@@ -417,12 +418,12 @@ var stats = {
 	//////////////////////////////////////////////////////////////////////////////
 
 	q3: function(list) {
-		var a = list.sort();
+		var a = sort(list);
 		var mid = a.length / 2;
 		if (a.length % 2 == 0) {
 			return stats.median(a.slice(mid + 1, a.length));
 		} else {
-			return stats.median(a.slice(Math.ceil(mid) + 1, a.length));
+			return stats.median(a.slice(Math.ceil(mid), a.length));
 		}
 	},
 
