@@ -406,11 +406,7 @@ var stats = {
 	q1: function(list) {
 		var a = sort(list);
 		var mid = a.length / 2;
-		if (a.length % 2 == 0) {
-			return stats.median(a.slice(0, mid));
-		} else {
-			return stats.median(a.slice(0, Math.floor(mid)));
-		}
+		return stats.median(a.slice(0, Math.floor(mid)));
 	},
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -420,11 +416,7 @@ var stats = {
 	q3: function(list) {
 		var a = sort(list);
 		var mid = a.length / 2;
-		if (a.length % 2 == 0) {
-			return stats.median(a.slice(mid + 1, a.length));
-		} else {
-			return stats.median(a.slice(Math.ceil(mid), a.length));
-		}
+		return stats.median(a.slice(Math.ceil(mid), a.length));
 	},
 
 	///////////////////////////////////////////////////////////////////////////
