@@ -278,6 +278,10 @@ document.getElementById("defaultOpen").click();
 	var RIGHTTAIL = 1;
 	var TWOTAIL = 2;
 
+	var MAXLISTSIZE = 50;
+
+	var PRECISION = 12;
+
 </script>
 
 
@@ -309,12 +313,71 @@ var list_board = JXG.JSXGraph.initBoard('list-editor', {
 var list_title1 = list_board.create('text', [1.5, 9.5, 'L1'], { fixed: true, fontSize: 18 });
 var list_title2 = list_board.create('text', [5.5, 9.5, 'L2'], { fixed: true, fontSize: 18 });
 
+var list_clear_button1 = list_board.create('button', [7.5, 8, 'Clear L1',
+	function() {
+		for(var i = 0; i < list1_data.length; i++) {
+			list1_data[i].rendNodeInput.value = "";
+		}
+	}]);
+
+var list_clear_button2 = list_board.create('button', [7.5, 7, 'Clear L2',
+	function() {
+		for(var i = 0; i < list2_data.length; i++) {
+			list2_data[i].rendNodeInput.value = '';
+		}
+	}]);
+
+var list_formula = list_board.create('input', [7.5, 6, '', ''], { fontSize: 18, cssStyle: 'width: 100px', frozen: true, fixed: true });
+list_formula.rendNodeInput.onkeypress = function(e) {
+	if(e.which == 13) {
+		list_calculate();
+	}
+};
+
+var list_calculate_button = list_board.create('button', [7.5, 5, 'Apply Formula', function() { list_calculate(); }], { frozen: true, fixed : true });
+
+function list_calculate() {
+
+	var formula = list_formula.rendNodeInput.value.toLowerCase();
+
+	if (formula.startsWith('l1')) {
+
+		var parts = formula.split('=');
+		for(var i = 0; i < list1_data.length; i++) {
+			if (list2_data[i].rendNodeInput.value !== '') {
+				var val = Number(list2_data[i].rendNodeInput.value);
+				var scope = { l2: val };
+				list1_data[i].rendNodeInput.value = round(math.eval(formula, scope), PRECISION);
+			}
+		}
+
+	} else if (formula.startsWith('l2')) {
+
+		var parts = formula.split('=');
+		for(var i = 0; i < list2_data.length; i++) {
+			if (list1_data[i].rendNodeInput.value !== '') {
+				var val = Number(list1_data[i].rendNodeInput.value);
+				var scope = { l1: val };
+				list2_data[i].rendNodeInput.value = round(math.eval(formula, scope), PRECISION);
+			}
+		}
+
+	} else {
+		alert('Error in list formula. The formula must begin with L1 = or L2 = ');
+	}
+
+}
+
 var list1_data = [];
 var list2_data = [];
 
-for (var i = 0; i < 50; i++) {
+// These are done in two groups to make the tab order more sensible
+for (var i = 0; i < MAXLISTSIZE; i++) {
 	list1_data[i] = list_board.create('input', [0.5, 9 - i * 0.5, '', ''],
 			{ cssStyle: 'width: 100px', fixed: true, fontSize: 18 });
+}
+
+for(var i = 0; i < MAXLISTSIZE; i++) {
 	list2_data[i] = list_board.create('input', [4.5, 9 - i * 0.5, '', ''],
 			{ cssStyle: 'width: 100px', fixed: true, fontSize: 18 });
 }
@@ -1609,6 +1672,11 @@ calc_input.rendNodeInput.onkeypress = function(e) {
 };
 
 var calc_button = calc_board.create('button', [8, 9.25, 'Calculate', function() { calc_calculate(); }], { frozen: true, fixed : true });
+var calc_clear_button = calc_board.create('button', [7.75, 7.5, 'Clear',
+	function() {
+		calc_input.rendNodeInput.value = '';
+	}]);
+
 var calc_output = calc_board.create('text', [1, 7.5, '='], { anchorY: 'top', fontSize: 24, frozen: true, fixed: true });
 
 function calc_calculate() {
@@ -1624,9 +1692,9 @@ function calc_calculate() {
 			var xdata = getRawData(list1_data);
 			var fdata = getRawData(list2_data);
 			var n = stats.wn(xdata, fdata);
-			var mean = stats.wmean(xdata, fdata);
-			var s = stats.wstdev(xdata, fdata);
-			var sigma = stats.wstdevp(xdata, fdata);
+			var mean = round(stats.wmean(xdata, fdata), PRECISION);
+			var s = round(stats.wstdev(xdata, fdata), PRECISION);
+			var sigma = round(stats.wstdevp(xdata, fdata), PRECISION);
 			var sum = stats.wsum(xdata, fdata);
 			var sumofsqr = stats.wsumofsqr(xdata, fdata);
 			var min = stats.wmin(xdata, fdata);
@@ -1639,17 +1707,17 @@ function calc_calculate() {
 				sumofsqr + '<br>Minimum = ' + min + '<br>Q1 = ' + q1 + '<br>Median = ' + median +
 				'<br>Q3 = ' + q3 + '<br>Maximum = ' + max);
 		} else {
-			if (expression.includes('L1')) {
+			if (expression.includes('L1') || expression.includes('l1')) {
 				var xdata = getRawData(list1_data);
-			} else if (expression.includes('L2')) {
+			} else if (expression.includes('L2') || expression.includes('l2')) {
 				var xdata = getRawData(list2_data);
 			} else {
 				return NaN;
 			}
 			var n = xdata.length;
-			var mean = stats.mean(xdata);
-			var s = stats.stdev(xdata);
-			var sigma = stats.stdevp(xdata);
+			var mean = round(stats.mean(xdata), PRECISION);
+			var s = round(stats.stdev(xdata), PRECISION);
+			var sigma = round(stats.stdevp(xdata), PRECISION);
 			var sum = stats.sum(xdata);
 			var sumofsqr = stats.sumofsqr(xdata);
 			var min = stats.min(xdata);
@@ -1665,18 +1733,19 @@ function calc_calculate() {
 	} else if (expression.includes('lin_reg')) {
 		var xdata = getRawData(list1_data);
 		var ydata = getRawData(list2_data);
-		var r = stats.correlation(xdata, ydata);
+		var r = round(stats.correlation(xdata, ydata), PRECISION);
+		var rsqr = round(sqr(r), PRECISION);
 		var reg = stats.linreg(xdata, ydata);
-		var m = reg[0];
-		var b = reg[1];
+		var m = round(reg[0], PRECISION);
+		var b = round(reg[1], PRECISION);
 			calc_output.setText(
-				'a = ' + m.toFixed(10) +
-				'<br>b = ' + b.toFixed(10) +
-				'<br>r<sup>2</sup> = ' + sqr(r).toFixed(10) +
-				'<br>r = ' + r.toFixed(10));
+				'a = ' + m +
+				'<br>b = ' + b +
+				'<br>r<sup>2</sup> = ' + rsqr +
+				'<br>r = ' + r);
 	} else {
 		// If not, just evaluate the expression
-		var v = math.eval(expression);
+		var v = round(math.eval(expression), PRECISION);
 		calc_output.setText(' = ' + v);
 	}
 
