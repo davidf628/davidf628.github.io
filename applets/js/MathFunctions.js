@@ -579,6 +579,24 @@ var stats = {
 		return s;
 	},
 
+	///////////////////////////////////////////////////////////////////////////
+	//  Computes a dot product of two sets of numbers, similar to a weighted
+	//  sum, but allows for "frequencies" to be negative.
+	///////////////////////////////////////////////////////////////////////////
+
+	innerproduct: function(list1, list2) {
+
+		if (list1.length != list2.length) {
+			return NaN;
+		}
+
+		var s = 0;
+		for(var i = 0; i < list1.length; i++) {
+			s += list1[i] * list2[i];
+		}
+		return s;
+	},
+
 	///////////////////////////////////////////////////////////////////////////////
 	//  Calculates the weighted median in an array
 	///////////////////////////////////////////////////////////////////////////////
@@ -787,7 +805,7 @@ var stats = {
 
 		var sx = stats.sum(x_data);
 		var sy = stats.sum(y_data);
-		var sxy = stats.wsum(x_data, y_data);
+		var sxy = stats.innerproduct(x_data, y_data);
 		var sxx = stats.sumofsqr(x_data);
 		var n = x_data.length;
 
