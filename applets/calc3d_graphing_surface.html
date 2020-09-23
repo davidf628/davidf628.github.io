@@ -98,8 +98,8 @@ function step2() {
 }
 
 function step3() {
-	var wireframe = createWireFrame('sin(0.5 * (x^2 + y^2) )', new THREE.Color('black'), 0.25, 0.25);
-	scene.add(wireframe);
+	var wireframe = new Wireframe('sin(0.5 * (x^2 + y^2))', { dx: 0.25 });
+	scene.add(wireframe.getObject());
 }
 
 function step4() {
