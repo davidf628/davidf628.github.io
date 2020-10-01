@@ -6,9 +6,10 @@
 TODO:
 
   - impplement binomial distribution
+  - consider allowing binomial to be calculated from each input boxes
+
   - update t-dist and normal to use jstat
   - change all inputs and text to align correctly
-  - add button to apply a formula to L1 and L2
   - fix dropdown menus to show up below the menu bar
   - add extra output to confidence intervals
 
@@ -2896,7 +2897,7 @@ var binom_x1 = 3;
 var binom_x2 = 6;
 var binom_ptype = BETWEEN;
 
-var binom_decimals = 4;
+var binom_decimals = 9;
 
 var binom_board = JXG.JSXGraph.initBoard('binomial-distribution', {
 		boundingbox: [binom_xmin, binom_ymax, binom_xmax, binom_ymin],
@@ -3122,6 +3123,12 @@ var binom_n_input = binom_board.create('input',
 var binom_p_input = binom_board.create('input',
 		[4.5, -0.3, binom_p, 'p = '], inputParam);
 
+/*binom_n_input.rendNodeInput.onkeypress = function(e) {
+	if(e.which == 13) {
+		binom_prob_disp.setText(') = ' + binom_cprob(binom_x1, binom_x2, binom_n, binom_p, binom_ptype));
+	}
+};*/
+
 var binom_x1_input = binom_board.create('input',
 		[-0.5, -0.65, binom_x1, 'P( '],	inputParam);
 var binom_x2_input = binom_board.create('input',
@@ -3223,12 +3230,12 @@ function binom_cprob(x1, x2, n, p, type) {
 	} else if(type == LEFT) {
 		prob = jStat.binomial.cdf(x2, n, p);
 	} else if(type == RIGHT) {
-		prob = 1 - jStat.binomial.cdf(x1, n, p);
+		prob = 1 - jStat.binomial.cdf(x1 - 1, n, p);
 	} else if(type == EQUAL) {
 		prob = jStat.binomial.pdf(x2, n, p);
 	}
 
-	return prob.toFixed(binom_decimals);
+	return round(prob, binom_decimals);
 
 }
 
