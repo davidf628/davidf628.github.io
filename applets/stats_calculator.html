@@ -281,7 +281,7 @@ document.getElementById("defaultOpen").click();
 
 	var MAXLISTSIZE = 50;
 
-	var PRECISION = 12;
+	var PRECISION = 9;
 
 </script>
 
@@ -1793,7 +1793,7 @@ function getRawData(list_data) {
 
 <script>
 
-var board_normal = JXG.JSXGraph.initBoard('standard_normal', {
+var normal_board = JXG.JSXGraph.initBoard('standard_normal', {
 		boundingbox: [-4,0.5,4,-0.5],
       	showCopyright: false,
       	showNavigation: false,
@@ -1812,289 +1812,272 @@ var board_normal = JXG.JSXGraph.initBoard('standard_normal', {
 		}
     });
 
-mean_n = 0;
-stdev_n = 1;
-
+var normal_mean = 0;
+var normal_stdev = 1;
 
 function zScore(x) {
-	return (x - mean_n) / stdev_n;
+	return (x - normal_mean) / normal_stdev;
 }
 
 function xValue(z) {
-	return mean_n + z * stdev_n;
+	return normal_mean + z * normal_stdev;
 }
 
-normal_curve = board_normal.create('functiongraph', [function(x) { return normalpdf(zScore(x)); }],
+var normal_curve = normal_board.create('functiongraph', [function(x) { return jStat.normal.pdf(x, normal_mean, normal_stdev); }],
 	{ strokeWidth: 3, fixed: true, 	highlight: false });
 
-hidden_axis = board_normal.create('line', [[0, 0], [1, 0]], { visible: false });
+var normal_axis = normal_board.create('axis', [[0, 0], [1, 0]],	{ ticks: { visible: false } });
 
-x_axis = board_normal.create('axis', [[0, 0], [1, 0]],
-	{ ticks: { visible: false } });
-
-z1 = board_normal.create('glider', [-2, 0, x_axis], { withLabel: false, color: 'black', snapToGrid: true, snapSizeX: 0.01 });
-z1.on('drag',
-	function() {
-		x1_input.rendNodeInput.value = z1.X().toFixed(2);
-		prob_input.rendNodeInput.value = currentProbability(zScore(z1.X()), zScore(z2.X()));
-		prob_disp.setText(') = ' + currentProbability(zScore(z1.X()), zScore(z2.X())));
-	}
-);
-
-z2 = board_normal.create('glider', [2, 0, x_axis], { withLabel: false, color: 'black', snapToGrid: true, snapSizeX: 0.01 });
-z2.on('drag',
-	function() {
-		x2_input.rendNodeInput.value = z2.X().toFixed(2);
-		x2_disp.setText('< <i>X</i> < ' + z2.X().toFixed(2));
-		prob_input.rendNodeInput.value = currentProbability(zScore(z1.X()), zScore(z2.X()));
-		prob_disp.setText(') = ' + currentProbability(zScore(z1.X()), zScore(z2.X())));
-	}
-);
-
-ticks_n = [];
-labels_n = [];
+var normal_ticks = [];
+var normal_axislabels = [];
 for (var i = -3; i <= 3; i++) {
-	ticks_n[i + 3] = board_normal.create('segment', [[i,.01], [i,-0.01]], { color: 'grey', strokeWidth: 1, fixed: true, highlight: false });
-	labels_n[i + 3] = board_normal.create('text', [i-.05, -0.02, i], { fixed: true, highlight: false });
+	normal_ticks[i + 3] = normal_board.create('segment', [[i,.01], [i,-0.01]], { color: 'grey', strokeWidth: 1, fixed: true, highlight: false });
+	normal_axislabels[i + 3] = normal_board.create('text', [i-.05, -0.02, i], { fixed: true, highlight: false });
 }
+
+var normal_x1 = normal_board.create('glider', [-2, 0, normal_axis], { withLabel: false, color: 'black', snapToGrid: true, snapSizeX: 0.01 });
+normal_x1.on('drag',
+	function() {
+		normal_x1_input.rendNodeInput.value = normal_x1.X().toFixed(2);
+		normal_prob_input.rendNodeInput.value = normal_cprob(zScore(normal_x1.X()), zScore(normal_x2.X()));
+	}
+);
+
+var normal_x2 = normal_board.create('glider', [2, 0, normal_axis], { withLabel: false, color: 'black', snapToGrid: true, snapSizeX: 0.01 });
+normal_x2.on('drag',
+	function() {
+		normal_x2_input.rendNodeInput.value = normal_x2.X().toFixed(2);
+		normal_prob_input.rendNodeInput.value = normal_cprob(zScore(normal_x1.X()), zScore(normal_x2.X()));
+	}
+);
+
+var shadedregionleft = normal_board.create('integral',
+	[[ function() { return xValue(-10000); }, function() { return normal_x2.X(); }], normal_curve], shadeParam);
+shadedregionleft.setAttribute({ visible: false });
+
+var shadedregionright = normal_board.create('integral',
+	[[ function() { return normal_x1.X(); }, function() { return xValue(10000); }], normal_curve], shadeParam);
+shadedregionright.setAttribute({ visible: false });
+
+var shadedregionbetween = normal_board.create('integral',
+	[[ function() { return normal_x1.X(); }, function() { return normal_x2.X(); }], normal_curve], shadeParam);
 
 // input variables
 
-mean = board_normal.create('input', [1.3, 0.38, '0', '&mu; = '], { fontSize: 18, cssStyle: 'width: 100px', frozen: true, fixed: true });
-stdev = board_normal.create('input', [1.3, 0.3, '1', '&sigma; = '], { fontSize: 18, cssStyle: 'width: 100px', frozen: true, fixed: true });
+var normal_mean_input = normal_board.create('input', [1.3, 0.38, '0', '&mu; = '], inputParam);
+var normal_stdev_input = normal_board.create('input', [1.3, 0.3, '1', '&sigma; = '], inputParam);
 
-x1_input = board_normal.create('input', [-3.5, -0.32, '-2', 'P( '], { fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
-x2_input = board_normal.create('input',
-		[-1.3, -0.32, '2', ' < <i>X</i> < '],
-		{ fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
-x2_disp = board_normal.create('text', [-1.3, -0.32, '< <i>X</i> < 2'],
-		{ fontSize: 18, frozen: true, visible: false });
-
-prob_input = board_normal.create('input', [1.3, -0.32, '0.9500', ') = '],
-		{ fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
-prob_input.setAttribute( { visible: false } );
-
-prob_disp = board_normal.create('text', [1.3, -0.32, ') = 0.9500'],
-		{ fontSize: 18, frozen: true, fixed: true });
-
-
-calc_normal = board_normal.create('button', [1.5, -0.42, 'Calculate',
-	function () {
-
-		if(isChecked(cb_area)) {
-			if(!isNaN(x1_input.Value())) {
-				z1.moveTo([x1_input.Value(), 0]);
-			}
-
-			if(!isNaN(x2_input.Value())) {
-				z2.moveTo([x2_input.Value(), 0]);
-			}
-
-			prob_input.rendNodeInput.value = currentProbability(zScore(x1_input.Value()), zScore(x2_input.Value()));
-			prob_disp.setText(') = ' + currentProbability(zScore(x1_input.Value()), zScore(x2_input.Value())));
-
-		} else {
-			if(!isNaN(prob_input.Value())) {
-
-				var z = xValue(invnorm(prob_input.Value()));
-				z2.moveTo([z, 0]);
-				x2_input.rendNodeInput.value = z;
-				x2_disp.setText('< <i>X</i> < ' + z.toFixed(8));
-
-			}
-		}
-}], { frozen: true });
-
-
-function updateAxisLabels() {
-
-	for(var i = -3; i <= 3; i++) {
-		ticks_n[i + 3].point1.moveTo([xValue(i), 0.01]);
-		ticks_n[i + 3].point2.moveTo([xValue(i), -0.01]);
-		labels_n[i + 3].setText(xValue(i));
-		labels_n[i + 3].setCoords([xValue(i), -0.02]);
-	}
-
-}
-
-update_normal = board_normal.create('button', [2.5, 0.22, 'Update',
+var normal_update = normal_board.create('button', [2.5, 0.22, 'Update',
 
 	// If a new mean and standard deviation are provided, then we need to:
 	//   - change the bounds on the x-axis
-	//   - set the global mean_n and stdev_n variables
-	//   - reset the positions of z1 and z2 on the x-axis so that they are accessible again
+	//   - set the global normal_mean and normal_stdev variables
+	//   - reset the positions of normal_x1 and normal_x2 on the x-axis so that they are accessible again
 
 	function() {
-		var cur_z1 = zScore(z1.X());
-		var cur_z2 = zScore(z2.X());
-		mean_n = Number(mean.Value());
-		stdev_n = Number(eval(stdev.Value()));
+		var cur_z1 = zScore(normal_x1.X());
+		var cur_z2 = zScore(normal_x2.X());
+		normal_mean = Number(normal_mean_input.Value());
+		normal_stdev = Number(eval(normal_stdev_input.Value()));
 		var x_min = xValue(-4);
 		var x_max = xValue(4);
-		//JSXSetBounds(board_normal, { xmin: x_min, xmax: x_max }, false);
-		board_normal.setBoundingBox([x_min, 0.5, x_max, -0.5]);
-		z1.moveTo([xValue(cur_z1), 0]);
-		z2.moveTo([xValue(cur_z2), 0]);
-		x1_input.rendNodeInput.value = xValue(cur_z1);
-		x2_input.rendNodeInput.value = xValue(cur_z2);
-		x2_disp.setText('< <i>X</i> < ' + xValue(cur_z2).toFixed(8));
-		prob_input.rendNodeInput.value = currentProbability(cur_z1, cur_z2);
-		updateAxisLabels();
-
+		normal_board.setBoundingBox([x_min, 0.5, x_max, -0.5]);
+		normal_x1.moveTo([xValue(cur_z1), 0]);
+		normal_x2.moveTo([xValue(cur_z2), 0]);
+		normal_x1_input.rendNodeInput.value = xValue(cur_z1);
+		normal_x2_input.rendNodeInput.value = xValue(cur_z2);
+		normal_prob_input.rendNodeInput.value = normal_cprob(cur_z1, cur_z2);
+		normal_updateAxisLabels();
 	}
 
 ], { frozen: true });
 
-
-shadedregionleft = board_normal.create('integral',
-	[[ function() { return xValue(-10000); }, function() { return z2.X(); }], normal_curve], shadeParam);
-shadedregionleft.setAttribute({ visible: false });
-
-shadedregionright = board_normal.create('integral',
-	[[ function() { return z1.X(); }, function() { return xValue(10000); }], normal_curve], shadeParam);
-shadedregionright.setAttribute({ visible: false });
-
-shadedregionbetween = board_normal.create('integral',
-	[[ function() { return z1.X(); }, function() { return z2.X(); }], normal_curve], shadeParam);
-
-
-cb_area = JSXCheckbox(board_normal, 1, -0.1, 'Calculate Area', true,
+var normal_cb_between = JSXCheckbox(normal_board, -3.6, -0.1, 'P(a < x < b)', true,
 	function() {
-		setCheckbox(cb_area, true);
-		setCheckbox(cb_xvalue, false);
-
-		cb_between.setAttribute( { disabled: false, strokeColor: 'black', highlight: true  });
-		cb_left.setAttribute( { disabled: false });
-		cb_right.setAttribute( { disabled: false, strokeColor: 'black', highlight: true  });
-
-		prob_input.setAttribute( { visible: false });
-		prob_disp.setAttribute( { visible: true });
-		x2_input.setAttribute( { visible: true });
-		x2_disp.setAttribute({ visible: false });
-
-
-	}, { fontSize: 18, frozen: true });
-
-cb_xvalue = JSXCheckbox(board_normal, 1, -0.16, 'Calculate x-Value', false,
-	function() {
-		setCheckbox(cb_xvalue, true);
-		setCheckbox(cb_area, false);
-
-		cb_between.setAttribute( { disabled: true, strokeColor: 'lightgray', highlight: false });
-		cb_left.setAttribute( { disabled: false });
-		cb_right.setAttribute( { disabled: true, strokeColor: 'lightgray', highlight: false });
-		setCheckbox(cb_left, true);
-		setCheckbox(cb_between, false);
-		setCheckbox(cb_right, false);
-
-		z1.setAttribute({ visible: false });
-		z2.setAttribute({ visible: true });
-
-		shadedregionleft.setAttribute({ visible: true });
-		shadedregionright.setAttribute({ visible: false });
-		shadedregionbetween.setAttribute({ visible: false });
-
-		x1_input.rendNodeInput.value = '-Infinity';
-		x1_input.setAttribute({ disabled: true });
-
-		x2_input.rendNodeInput.value = z2.X().toFixed(2);
-		x2_input.setAttribute({ visible: false });
-		x2_disp.setAttribute({ visible: true });
-
-
-		prob_input.setAttribute({ visible: true });
-		prob_disp.setAttribute({ visible: false });
-
-		PTYPE = 'left';
-
-
-	}, { fontSize: 18, frozen: true });
-
-cb_between = JSXCheckbox(board_normal, -3.6, -0.1, 'P(a < x < b)', true,
-	function() {
-		setCheckbox(cb_between, true);
-		setCheckbox(cb_left, false);
-		setCheckbox(cb_right, false);
+		setCheckbox(normal_cb_between, true);
+		setCheckbox(normal_cb_left, false);
+		setCheckbox(normal_cb_right, false);
 
 		shadedregionleft.setAttribute({ visible: false });
 		shadedregionright.setAttribute({ visible: false });
 		shadedregionbetween.setAttribute({ visible: true });
 
-		z1.setAttribute({ visible: true });
-		z2.setAttribute({ visible: true });
+		normal_x1.setAttribute({ visible: true });
+		normal_x2.setAttribute({ visible: true });
 
-		x1_input.rendNodeInput.value = z1.X().toFixed(2);
-		x1_input.setAttribute({ disabled: false });
+		normal_x1_input.rendNodeInput.value = normal_x1.X().toFixed(2);
+		normal_x1_input.setAttribute({ disabled: false });
 
-		x2_input.rendNodeInput.value = z2.X().toFixed(2);
-		x2_input.setAttribute({ visible: true });
-		x2_disp.setAttribute({ visible: false });
+		normal_x2_input.rendNodeInput.value = normal_x2.X().toFixed(2);
+		normal_x2_input.setAttribute({ disabled: false });
 
-		prob_input.setAttribute({ visible: false });
-		prob_disp.setAttribute({ visible: true });
+		normal_prob_input.setAttribute({ disabled: true });
 
 		PTYPE = 'between';
 
 	}, { fontSize: 18, frozen: true });
 
-cb_left = JSXCheckbox(board_normal, -3.6, -0.16, 'P(x < b)', false,
+var normal_cb_left = JSXCheckbox(normal_board, -3.6, -0.16, 'P(x < b)', false,
 	function() {
-		setCheckbox(cb_left, true);
-		setCheckbox(cb_between, false);
-		setCheckbox(cb_right, false);
+		setCheckbox(normal_cb_left, true);
+		setCheckbox(normal_cb_between, false);
+		setCheckbox(normal_cb_right, false);
 
-		z1.setAttribute({ visible: false });
-		z2.setAttribute({ visible: true });
+		normal_x1.setAttribute({ visible: false });
+		normal_x2.setAttribute({ visible: true });
 
 		shadedregionleft.setAttribute({ visible: true });
 		shadedregionright.setAttribute({ visible: false });
 		shadedregionbetween.setAttribute({ visible: false });
 
-		x1_input.rendNodeInput.value = '-Infinity';
-		x1_input.setAttribute({ disabled: true });
+		normal_x1_input.rendNodeInput.value = '-Infinity';
+		normal_x1_input.setAttribute({ disabled: true });
 
-		x2_input.rendNodeInput.value = z2.X().toFixed(2);
-		x2_input.setAttribute({ visible: true });
-		x2_disp.setAttribute({ visible: false });
+		normal_x2_input.rendNodeInput.value = normal_x2.X().toFixed(2);
+		normal_x2_input.setAttribute({ disabled: false });
 
-
-		prob_input.setAttribute({ visible: false });
-		prob_disp.setAttribute({ visible: true });
-
+		normal_prob_input.setAttribute({ disabled: true });
+		
 		PTYPE = 'left';
 
 	}, { fontSize: 18, frozen: true });
 
-cb_right = JSXCheckbox(board_normal, -3.6, -0.22, 'P(x > a)', false,
+var normal_cb_right = JSXCheckbox(normal_board, -3.6, -0.22, 'P(x > a)', false,
 	function() {
-		setCheckbox(cb_right, true);
-		setCheckbox(cb_between, false);
-		setCheckbox(cb_left, false);
+		setCheckbox(normal_cb_right, true);
+		setCheckbox(normal_cb_between, false);
+		setCheckbox(normal_cb_left, false);
 
-		z1.setAttribute({ visible: true });
-		z2.setAttribute({ visible: false });
+		normal_x1.setAttribute({ visible: true });
+		normal_x2.setAttribute({ visible: false });
 
 		shadedregionleft.setAttribute({ visible: false });
 		shadedregionright.setAttribute({ visible: true });
 		shadedregionbetween.setAttribute({ visible: false });
 
-		x1_input.rendNodeInput.value = z1.X().toFixed(2);
-		x1_input.setAttribute({ disabled: false });
+		if(typeof(normal_x1.X()) !== 'number') {
+			normal_x1.moveTo([xValue(-2), 0]);
+		}
+		normal_x1_input.rendNodeInput.value = normal_x1.X().toFixed(2);
+		normal_x1_input.setAttribute({ disabled: false });
 
-		x2_input.rendNodeInput.value = 'Infinity';
-		x2_input.setAttribute({ visible: true });
-		x2_input.setAttribute({ disabled: true });
-		x2_disp.setAttribute({ visible: false });
+		normal_x2_input.rendNodeInput.value = 'Infinity';
+		normal_x2_input.setAttribute({ disabled: true });
 
-		prob_input.setAttribute({ visible: false });
-		prob_disp.setAttribute({ visible: true });
+		normal_prob_input.setAttribute({ disabled: true });
 
 		PTYPE = 'right';
 
 	}, { fontSize: 18, frozen: true });
 
+var normal_cb_area = JSXCheckbox(normal_board, 1, -0.1, 'Calculate Area', true,
+	function() {
+		setCheckbox(normal_cb_area, true);
+		setCheckbox(normal_cb_xvalue, false);
 
-function currentProbability(x1, x2) {
+		normal_cb_between.setAttribute( { disabled: false, strokeColor: 'black', highlight: true  });
+		normal_cb_left.setAttribute( { disabled: false });
+		normal_cb_right.setAttribute( { disabled: false, strokeColor: 'black', highlight: true  });
+
+		normal_prob_input.setAttribute( { disabled: true });
+		normal_x2_input.setAttribute( { disabled: false });
+
+	}, { fontSize: 18, frozen: true });
+
+var normal_cb_xvalue = JSXCheckbox(normal_board, 1, -0.16, 'Calculate x-Value', false,
+	function() {
+		setCheckbox(normal_cb_xvalue, true);
+		setCheckbox(normal_cb_area, false);
+
+		normal_cb_between.setAttribute( { disabled: true, strokeColor: 'lightgray', highlight: false });
+		normal_cb_left.setAttribute( { disabled: false });
+		normal_cb_right.setAttribute( { disabled: true, strokeColor: 'lightgray', highlight: false });
+		setCheckbox(normal_cb_left, true);
+		setCheckbox(normal_cb_between, false);
+		setCheckbox(normal_cb_right, false);
+
+		normal_x1.setAttribute({ visible: false });
+		normal_x2.setAttribute({ visible: true });
+
+		shadedregionleft.setAttribute({ visible: true });
+		shadedregionright.setAttribute({ visible: false });
+		shadedregionbetween.setAttribute({ visible: false });
+
+		normal_x1_input.rendNodeInput.value = '-Infinity';
+		normal_x1_input.setAttribute({ disabled: true });
+
+		normal_x2_input.rendNodeInput.value = normal_x2.X().toFixed(2);
+		normal_x2_input.setAttribute({ disabled: true });
+
+		normal_prob_input.setAttribute({ disabled: false });
+
+		PTYPE = 'left';
+
+
+	}, { fontSize: 18, frozen: true });
+
+var normal_x1_input = normal_board.create('input', [-3.5, -0.32, '-2', 'P( '], inputParam);
+normal_x1_input.rendNodeInput.onkeypress = function(e) {
+	if(e.which == 13) {
+		normal_docalc();
+	}
+};
+var normal_x2_input = normal_board.create('input', [-1.3, -0.32, '2', ' < <i>X</i> < '], inputParam);
+normal_x2_input.rendNodeInput.onkeypress = function(e) {
+	if(e.which == 13) {
+		normal_docalc();
+	}
+};
+
+var normal_prob_input = normal_board.create('input', [1.3, -0.32, '0.9500', ') = '], inputParam);
+normal_prob_input.setAttribute( { disabled: true } );
+normal_prob_input.rendNodeInput.onkeypress = function(e) {
+	if(e.which == 13) {
+		normal_docalc();
+	}
+};
+
+var normal_calc = normal_board.create('button', [1.5, -0.42, 'Calculate', normal_docalc()], { frozen: true });
+
+function normal_docalc() {
+	if(isChecked(normal_cb_area)) {
+
+		if(!isNaN(normal_x1_input.Value())) {
+			normal_x1.moveTo([normal_x1_input.Value(), 0]);
+		}
+
+		if(!isNaN(normal_x2_input.Value())) {
+			normal_x2.moveTo([normal_x2_input.Value(), 0]);
+		}
+
+		normal_prob_input.rendNodeInput.value = normal_cprob(normal_x1_input.Value(), normal_x2_input.Value());
+
+	} else {
+		if(!isNaN(normal_prob_input.Value())) {
+			var z = jStat.normal.inv(normal_prob_input.Value(), normal_mean, normal_stdev);
+			normal_x2.moveTo([z, 0]);
+			normal_x2_input.rendNodeInput.value = z;
+		}
+	}
+	normal_board.update();
+}
+
+
+function normal_updateAxisLabels() {
+
+	for(var i = -3; i <= 3; i++) {
+		normal_ticks[i + 3].point1.moveTo([xValue(i), 0.01]);
+		normal_ticks[i + 3].point2.moveTo([xValue(i), -0.01]);
+		normal_axislabels[i + 3].setText(xValue(i));
+		normal_axislabels[i + 3].setCoords([xValue(i), -0.02]);
+	}
+
+}
+
+function normal_cprob(x1, x2) {
+
+	var m = normal_mean;
+	var s = normal_stdev;
 
 	if(typeof(x1) !== 'number') {
 		x1 = Number(x1);
@@ -2103,12 +2086,12 @@ function currentProbability(x1, x2) {
 		x2 = Number(x2);
 	}
 
-	if(cb_between.Value()) {
-		return Math.abs(normalcdf(x2) - normalcdf(x1)).toFixed(4);
-	} else if(cb_left.Value()) {
-		return normalcdf(x2).toFixed(4);
-	} else if(cb_right.Value()) {
-		return (1 - normalcdf(x1)).toFixed(4);
+	if(normal_cb_between.Value()) {
+		return round(abs(jStat.normal.cdf(x2, m, s) - jStat.normal.cdf(x1, m, s)), PRECISION);
+	} else if(normal_cb_left.Value()) {
+		return round(normalcdf(x2, m, s), PRECISION);
+	} else if(normal_cb_right.Value()) {
+		return round(1 - normalcdf(x1, m, s), PRECISION);
 	}
 
 }
@@ -2971,11 +2954,25 @@ var binom_stdev_label = binom_board.create('text', [6.5, 0.8,
 			return '&sigma; = ' + binom_stdev.toFixed(4);
 		}],	textParam);
 
-/*var binom_shadeleft = binom_board.create('integral',
-	[[ function() { return binom_xval(-10000); }, function() { return t2.X(); }], binom_curve], shadeParam);
-binom_shadeleft.setAttribute({ visible: false });
+var binom_shadeleft = new Histogram(binom_board, binom_pdf(), binom_colors(), [-0.5, 0], 1);
 
-var binom_shaderight = binom_board.create('integral',
+function binom_pdf() {
+	var prob = [];
+	for (var i = 0; i <= binom_n; i++) {
+		prob.push(jStat.binomial.pdf(i, binom_n, binom_p));
+	}
+	return prob;
+}
+
+function binom_colors() {
+	var colors = [];
+	for (var i = 0; i <= binom_n; i++) {
+		colors.push('#0000FF');
+	}
+	return colors;
+}
+
+/*var binom_shaderight = binom_board.create('integral',
 	[[ function() { return t1.X(); }, function() { return binom_xval(10000); }], binom_curve], shadeParam);
 binom_shaderight.setAttribute({ visible: false });
 
@@ -3036,7 +3033,7 @@ binom_cb[LEFT] = JSXCheckbox(binom_board, -0.5, -0.22, 'P(x &le; b)', false,
 		binom_x2_input.setAttribute({ disabled: false });
 
 		// Make sure the points and input boxes show the same value
-		binom_x1_input.rendNodeInput.value = '-Infinity';
+		binom_x1_input.rendNodeInput.value = '0';
 		binom_x2_input.rendNodeInput.value = binom_p2.X();
 
 		binom_x2_input.rendNodeLabel.innerHTML = ' &le; <i>X</i> &le; ';
@@ -3070,7 +3067,7 @@ binom_cb[RIGHT] = JSXCheckbox(binom_board, -0.5, -0.34, 'P(x &ge; a)', false,
 
 		// Make sure the points and input boxes show the same value
 		binom_x1_input.rendNodeInput.value = binom_p1.X();
-		binom_x2_input.rendNodeInput.value = 'Infinity';
+		binom_x2_input.rendNodeInput.value = binom_n;
 
 		binom_x2_input.rendNodeLabel.innerHTML = ' &le; <i>X</i> &le; ';
 
@@ -3123,11 +3120,6 @@ var binom_n_input = binom_board.create('input',
 var binom_p_input = binom_board.create('input',
 		[4.5, -0.3, binom_p, 'p = '], inputParam);
 
-/*binom_n_input.rendNodeInput.onkeypress = function(e) {
-	if(e.which == 13) {
-		binom_prob_disp.setText(') = ' + binom_cprob(binom_x1, binom_x2, binom_n, binom_p, binom_ptype));
-	}
-};*/
 
 var binom_x1_input = binom_board.create('input',
 		[-0.5, -0.65, binom_x1, 'P( '],	inputParam);
@@ -3136,6 +3128,13 @@ var binom_x2_input = binom_board.create('input',
 var binom_prob_disp = binom_board.create('text', [6, -0.65,
 		') = ' + binom_cprob(binom_x1, binom_x2, binom_n, binom_p, binom_ptype)],
 		textParam);
+
+/*binom_x1_input.rendNodeInput.onkeypress = function(e) {
+	if(e.which == 13) {
+		binom_prob_disp.setText(') = ' + binom_cprob(binom_x1, binom_x2, binom_n, binom_p, binom_ptype));
+		binom_board.update();
+	}
+};*/
 
 var binom_calc_button = binom_board.create('button', [7, -0.8, 'Calculate',
 	function () {

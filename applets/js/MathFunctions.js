@@ -1746,10 +1746,10 @@ class Rectangle2 {
 		this.width = width;
 		this.height = height;
 		this.color = color;
-		this.p1 = new Point(board, x, y, { visible: false });
-		this.p2 = new Point(board, x + width, y, { visible: false });
-		this.p3 = new Point(board, x + width, y + height, { visible: false });
-		this.p4 = new Point(board, x, y + height, { visible: false });
+		this.p1 = new Point2(board, x, y, { visible: false });
+		this.p2 = new Point2(board, x + width, y, { visible: false });
+		this.p3 = new Point2(board, x + width, y + height, { visible: false });
+		this.p4 = new Point2(board, x, y + height, { visible: false });
 		this.rect = board.create('polygon', [this.p1.p, this.p2.p, this.p3.p, this.p4.p], {
 			hasInnerPoints: false,
 			fillColor: color,
@@ -1811,7 +1811,7 @@ class Histogram {
 
 		var length = barHeights.length;
 		for(var i = 0; i < length; i++) {
-			this.bars[i] = new Rectangle(board, this.x + i * this.delta_x, this.y, this.delta_x, this.barHeights[i], this.colors[i]);
+			this.bars[i] = new Rectangle2(board, this.x + i * this.delta_x, this.y, this.delta_x, this.barHeights[i], this.colors[i]);
 		}
 
 	}
