@@ -1753,6 +1753,8 @@ class Rectangle2 {
 		this.rect = board.create('polygon', [this.p1.p, this.p2.p, this.p3.p, this.p4.p], {
 			hasInnerPoints: false,
 			fillColor: color,
+			fixed: true,
+			highlight: false,
 			borders: {
 				fixed: true,
 				highlight: false
@@ -1788,6 +1790,7 @@ class Rectangle2 {
 	setColor(color) {
 		this.color = color;
 		this.rect.setAttribute( { fillColor: color } );
+		this.rect.needsUpdate = true;
 		// Find a way to set the border of the polygon to the new color (set each border separately)
 	}
 
@@ -1831,7 +1834,7 @@ class Histogram {
 	}
 
 	setBarColor(bar, color) {
-		this.bars.setColor(color);
+		this.bars[i].setColor(color);
 	}
 
 	setBarColors(colors) {

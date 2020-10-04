@@ -1794,7 +1794,7 @@ function getRawData(list_data) {
 <script>
 
 var normal_board = JXG.JSXGraph.initBoard('standard_normal', {
-		boundingbox: [-4,0.5,4,-0.5],
+		boundingbox: [-4,0.48,4,-0.48],
       	showCopyright: false,
       	showNavigation: false,
 		keepaspectratio: false,
@@ -1839,7 +1839,7 @@ var normal_x1 = normal_board.create('glider', [-2, 0, normal_axis], { withLabel:
 normal_x1.on('drag',
 	function() {
 		normal_x1_input.rendNodeInput.value = normal_x1.X().toFixed(2);
-		normal_prob_input.rendNodeInput.value = normal_cprob(zScore(normal_x1.X()), zScore(normal_x2.X()));
+		normal_prob_input.rendNodeInput.value = normal_cprob(normal_x1.X(), normal_x2.X());
 	}
 );
 
@@ -1847,7 +1847,7 @@ var normal_x2 = normal_board.create('glider', [2, 0, normal_axis], { withLabel: 
 normal_x2.on('drag',
 	function() {
 		normal_x2_input.rendNodeInput.value = normal_x2.X().toFixed(2);
-		normal_prob_input.rendNodeInput.value = normal_cprob(zScore(normal_x1.X()), zScore(normal_x2.X()));
+		normal_prob_input.rendNodeInput.value = normal_cprob(normal_x1.X(), normal_x2.X());
 	}
 );
 
@@ -1881,13 +1881,15 @@ var normal_update = normal_board.create('button', [2.5, 0.22, 'Update',
 		normal_stdev = Number(eval(normal_stdev_input.Value()));
 		var x_min = xValue(-4);
 		var x_max = xValue(4);
-		normal_board.setBoundingBox([x_min, 0.5, x_max, -0.5]);
+		var y_min = (-0.4 / normal_stdev) * 1.2;
+		var y_max = (0.4 / normal_stdev) * 1.2;
+		normal_board.setBoundingBox([x_min, y_max, x_max, y_min]);
 		normal_x1.moveTo([xValue(cur_z1), 0]);
 		normal_x2.moveTo([xValue(cur_z2), 0]);
 		normal_x1_input.rendNodeInput.value = xValue(cur_z1);
 		normal_x2_input.rendNodeInput.value = xValue(cur_z2);
 		normal_prob_input.rendNodeInput.value = normal_cprob(cur_z1, cur_z2);
-		normal_updateAxisLabels();
+		normal_updateAxisLabels(y_max);
 	}
 
 ], { frozen: true });
@@ -1930,6 +1932,10 @@ var normal_cb_left = JSXCheckbox(normal_board, -3.6, -0.16, 'P(x < b)', false,
 		shadedregionright.setAttribute({ visible: false });
 		shadedregionbetween.setAttribute({ visible: false });
 
+		if(typeof(normal_x2.X()) !== 'number') {
+			normal_x2.moveTo([xValue(2), 0]);
+		}
+
 		normal_x1_input.rendNodeInput.value = '-Infinity';
 		normal_x1_input.setAttribute({ disabled: true });
 
@@ -1937,7 +1943,7 @@ var normal_cb_left = JSXCheckbox(normal_board, -3.6, -0.16, 'P(x < b)', false,
 		normal_x2_input.setAttribute({ disabled: false });
 
 		normal_prob_input.setAttribute({ disabled: true });
-		
+
 		PTYPE = 'left';
 
 	}, { fontSize: 18, frozen: true });
@@ -2063,13 +2069,13 @@ function normal_docalc() {
 }
 
 
-function normal_updateAxisLabels() {
+function normal_updateAxisLabels(y_max) {
 
 	for(var i = -3; i <= 3; i++) {
-		normal_ticks[i + 3].point1.moveTo([xValue(i), 0.01]);
-		normal_ticks[i + 3].point2.moveTo([xValue(i), -0.01]);
+		normal_ticks[i + 3].point1.moveTo([xValue(i), 0.02 * y_max]);
+		normal_ticks[i + 3].point2.moveTo([xValue(i), -0.02 * y_max]);
 		normal_axislabels[i + 3].setText(xValue(i));
-		normal_axislabels[i + 3].setCoords([xValue(i), -0.02]);
+		normal_axislabels[i + 3].setCoords([xValue(i), -0.06 * y_max]);
 	}
 
 }
@@ -2089,9 +2095,9 @@ function normal_cprob(x1, x2) {
 	if(normal_cb_between.Value()) {
 		return round(abs(jStat.normal.cdf(x2, m, s) - jStat.normal.cdf(x1, m, s)), PRECISION);
 	} else if(normal_cb_left.Value()) {
-		return round(normalcdf(x2, m, s), PRECISION);
+		return round(jStat.normal.cdf(x2, m, s), PRECISION);
 	} else if(normal_cb_right.Value()) {
-		return round(1 - normalcdf(x1, m, s), PRECISION);
+		return round(1 - jStat.normal.cdf(x1, m, s), PRECISION);
 	}
 
 }
@@ -2909,7 +2915,7 @@ var binom_axis = binom_board.create('line', [[0, 0], [1, 0]],
 		{ strokeColor: 'black', strokeWidth: 1, highlight: false, fixed: true, frozen: true });
 
 var binom_p1 = binom_board.create('glider', [binom_x1, 0, binom_axis],
-		{ withLabel: false, color: 'black', snapToGrid: true, snapSizeX: 1 });
+		{ withLabel: false, showInfobox: false, color: 'black', snapToGrid: true, snapSizeX: 1 });
 binom_p1.on('drag',
 	function() {
 		// Bounds check on the movable point
@@ -2918,11 +2924,12 @@ binom_p1.on('drag',
 		binom_x1_input.rendNodeInput.value = binom_p1.X();
 		binom_x1 = binom_p1.X();
 		binom_prob_disp.setText(') = ' + binom_cprob(binom_x1, binom_x2, binom_n, binom_p, binom_ptype));
+		binom_update_colors();
 	}
 );
 
 var binom_p2 = binom_board.create('glider', [binom_x2, 0, binom_axis],
-		{ withLabel: false, color: 'black', snapToGrid: true, snapSizeX: 1 });
+		{ withLabel: false, showInfobox: false, color: 'black', snapToGrid: true, snapSizeX: 1 });
 binom_p2.on('drag',
 	function() {
 		// Bounds check on the movable point
@@ -2931,6 +2938,7 @@ binom_p2.on('drag',
 		binom_x2_input.rendNodeInput.value = binom_p2.X();
 		binom_x2 = binom_p2.X();
 		binom_prob_disp.setText(') = ' + binom_cprob(binom_x1, binom_x2, binom_n, binom_p, binom_ptype));
+		binom_update_colors();
 	}
 );
 
@@ -2943,7 +2951,6 @@ for (var i = 0; i <= binom_n; i++) {
 
 // input variables
 
-
 var binom_mean_label = binom_board.create('text', [6.5, 0.9,
 		function() {
 			return '&mu; = ' + binom_mean.toFixed(4);
@@ -2954,7 +2961,7 @@ var binom_stdev_label = binom_board.create('text', [6.5, 0.8,
 			return '&sigma; = ' + binom_stdev.toFixed(4);
 		}],	textParam);
 
-var binom_shadeleft = new Histogram(binom_board, binom_pdf(), binom_colors(), [-0.5, 0], 1);
+var binom_shadeleft = new Histogram(binom_board, binom_pdf(), binom_defaultcolors(), [-0.5, 0], 1);
 
 function binom_pdf() {
 	var prob = [];
@@ -2964,12 +2971,45 @@ function binom_pdf() {
 	return prob;
 }
 
-function binom_colors() {
-	var colors = [];
-	for (var i = 0; i <= binom_n; i++) {
-		colors.push('#0000FF');
-	}
+function binom_defaultcolors() {
+	var colors = ['white', 'white', 'blue', 'blue', 'blue', 'blue', 'blue', 'white', 'white'];
 	return colors;
+}
+
+function binom_update_colors() {
+	if (binom_cb[EQUAL].Value()) {
+		for (var i = 0; i <= binom_n; i++) {
+			binom_shadeleft.bars[i].rect.setAttribute({ fillColor: 'white' });
+		}
+		binom_shadeleft.bars[binom_p2.X()].rect.setAttribute({ fillColor: 'blue' });
+	} else if (binom_cb[LEFT].Value()) {
+		for (var i = 0; i <= binom_n; i++) {
+			if (i <= binom_p2.X()) {
+				binom_shadeleft.bars[i].rect.setAttribute({ fillColor: 'blue' });
+			} else {
+				binom_shadeleft.bars[i].rect.setAttribute({ fillColor: 'white' });
+			}
+		}
+	} else if (binom_cb[RIGHT].Value()) {
+		for (var i = 0; i <= binom_n; i++) {
+			if (i < binom_p1.X()) {
+				binom_shadeleft.bars[i].rect.setAttribute({ fillColor: 'white' });
+			} else {
+				binom_shadeleft.bars[i].rect.setAttribute({ fillColor: 'blue' });
+			}
+		}
+	} else if (binom_cb[BETWEEN].Value()) {
+		var p1 = binom_p1.X() >= binom_p2.X() ? binom_p2.X() : binom_p1.X();
+		var p2 = binom_p1.X() >= binom_p2.X() ? binom_p1.X() : binom_p2.X();
+		for (var i = 0; i <= binom_n; i++) {
+			if (i < p1 || i > p2) {
+				binom_shadeleft.bars[i].rect.setAttribute({ fillColor: 'white' });
+			} else {
+				binom_shadeleft.bars[i].rect.setAttribute({ fillColor: 'blue' });
+			}
+		}
+	}
+
 }
 
 /*var binom_shaderight = binom_board.create('integral',
@@ -3013,6 +3053,7 @@ binom_cb[BETWEEN] = JSXCheckbox(binom_board, -0.5, -0.1, 'P(a &le; x &le; b)', t
 		binom_n = Number(binom_n_input.rendNodeInput.value);
 
 		binom_prob_disp.setText(') = ' + binom_cprob(binom_x1, binom_x2, binom_n, binom_p, binom_ptype));
+		binom_update_colors();
 
 	}, { fontSize: 18, frozen: true });
 
@@ -3046,6 +3087,7 @@ binom_cb[LEFT] = JSXCheckbox(binom_board, -0.5, -0.22, 'P(x &le; b)', false,
 		binom_n = Number(binom_n_input.rendNodeInput.value);
 
 		binom_prob_disp.setText(') = ' + binom_cprob(binom_x1, binom_x2, binom_n, binom_p, binom_ptype));
+		binom_update_colors();
 
 	}, { fontSize: 18, frozen: true });
 
@@ -3079,6 +3121,7 @@ binom_cb[RIGHT] = JSXCheckbox(binom_board, -0.5, -0.34, 'P(x &ge; a)', false,
 		binom_n = Number(binom_n_input.rendNodeInput.value);
 
 		binom_prob_disp.setText(') = ' + binom_cprob(binom_x1, binom_x2, binom_n, binom_p, binom_ptype));
+		binom_update_colors();
 
 	}, { fontSize: 18, frozen: true });
 
@@ -3112,6 +3155,7 @@ binom_cb[EQUAL] = JSXCheckbox(binom_board, -0.5, -0.46, 'P(x = a)', false,
 		binom_n = Number(binom_n_input.rendNodeInput.value);
 
 		binom_prob_disp.setText(') = ' + binom_cprob(binom_x1, binom_x2, binom_n, binom_p, binom_ptype));
+		binom_update_colors();
 
 	}, { fontSize: 18, frozen: true });
 
@@ -3165,6 +3209,9 @@ var binom_calc_button = binom_board.create('button', [7, -0.8, 'Calculate',
 
 		binom_p1.moveTo([binom_x1, 0]);
 		binom_p2.moveTo([binom_x2, 0]);
+
+		binom_shadeleft.setBarHeights(binom_pdf(), 0);
+		binom_update_colors();
 
 		//binom_x1_input.rendNodeInput.value = binom_xval(cur_z1);
 		//binom_x2_input.rendNodeInput.value = binom_xval(cur_z2);
