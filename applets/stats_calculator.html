@@ -2888,6 +2888,8 @@ var binom_ptype = BETWEEN;
 
 var binom_decimals = 9;
 
+var binom_defaultcolors = ['white', 'white', 'white', 'blue', 'blue', 'blue', 'blue', 'white', 'white'];
+
 var binom_board = JXG.JSXGraph.initBoard('binomial-distribution', {
 		boundingbox: [binom_xmin, binom_ymax, binom_xmax, binom_ymin],
       	showCopyright: false,
@@ -2961,7 +2963,7 @@ var binom_stdev_label = binom_board.create('text', [6.5, 0.8,
 			return '&sigma; = ' + binom_stdev.toFixed(4);
 		}],	textParam);
 
-var binom_shadeleft = new Histogram(binom_board, binom_pdf(), binom_defaultcolors(), [-0.5, 0], 1);
+var binom_shadeleft = new Histogram(binom_board, binom_pdf(), binom_defaultcolors, [-0.5, 0], 1);
 
 function binom_pdf() {
 	var prob = [];
@@ -2971,43 +2973,37 @@ function binom_pdf() {
 	return prob;
 }
 
-function binom_defaultcolors() {
-	var colors = ['white', 'white', 'blue', 'blue', 'blue', 'blue', 'blue', 'white', 'white'];
-	return colors;
-}
-
-function binom_update_colors() {
+function binom_getcolors() {
+	var colors = [];
+	
 	if (binom_cb[EQUAL].Value()) {
 		for (var i = 0; i <= binom_n; i++) {
-			binom_shadeleft.bars[i].rect.setAttribute({ fillColor: 'white' });
+			colors[i] = i == binom_p2.X() ? 'blue' : 'white';
 		}
-		binom_shadeleft.bars[binom_p2.X()].rect.setAttribute({ fillColor: 'blue' });
 	} else if (binom_cb[LEFT].Value()) {
 		for (var i = 0; i <= binom_n; i++) {
-			if (i <= binom_p2.X()) {
-				binom_shadeleft.bars[i].rect.setAttribute({ fillColor: 'blue' });
-			} else {
-				binom_shadeleft.bars[i].rect.setAttribute({ fillColor: 'white' });
-			}
+			colors[i] = i <= binom_p2.X() ? 'blue' : 'white';
 		}
 	} else if (binom_cb[RIGHT].Value()) {
 		for (var i = 0; i <= binom_n; i++) {
-			if (i < binom_p1.X()) {
-				binom_shadeleft.bars[i].rect.setAttribute({ fillColor: 'white' });
-			} else {
-				binom_shadeleft.bars[i].rect.setAttribute({ fillColor: 'blue' });
-			}
+			colors[i] = i < binom_p1.X() ? 'white' : 'blue';
 		}
 	} else if (binom_cb[BETWEEN].Value()) {
 		var p1 = binom_p1.X() >= binom_p2.X() ? binom_p2.X() : binom_p1.X();
 		var p2 = binom_p1.X() >= binom_p2.X() ? binom_p1.X() : binom_p2.X();
 		for (var i = 0; i <= binom_n; i++) {
-			if (i < p1 || i > p2) {
-				binom_shadeleft.bars[i].rect.setAttribute({ fillColor: 'white' });
-			} else {
-				binom_shadeleft.bars[i].rect.setAttribute({ fillColor: 'blue' });
-			}
+			colors[i] = i < p1 || i > p2 ? 'white' : 'blue';
 		}
+	}
+	
+	return colors;
+}
+
+function binom_update_colors() {
+	var colors = binom_getcolors();
+	
+	for (var i = 0; i <= binom_n; i++) {
+		binom_shadeleft.bars[i].rect.setAttribute({ fillColor: colors[i] });
 	}
 
 }
@@ -3183,49 +3179,56 @@ var binom_prob_disp = binom_board.create('text', [6, -0.65,
 var binom_calc_button = binom_board.create('button', [7, -0.8, 'Calculate',
 	function () {
 
-		binom_n = Number(binom_n_input.rendNodeInput.value);
-		binom_p = Number(binom_p_input.rendNodeInput.value);
+		if(binom_n != Number(binom_n_input.rendNodeInput.value)) {
+		
+			for(var i = 0; i <= binom_n; i++) {
+				binom_board.removeObject(binom_shadeleft.bars[i].rect);
+			}
+			
+			binom_n = Number(binom_n_input.rendNodeInput.value);
+			binom_p = Number(binom_p_input.rendNodeInput.value);
+			binom_xmax = binom_n + 1;
 
-		binom_xmax = binom_n + 1;
+			JSXSetBounds(binom_board, { xmxax: binom_xmax });
+			binom_updateAxis();
 
-		JSXSetBounds(binom_board, { xmxax: binom_xmax });
-		binom_updateAxis();
+			if(binom_x1_input.rendNodeInput.value > binom_xmax) {
+				binom_x1_input.rendNodeInput.value = 0;
+			}
 
-		if(binom_x1_input.rendNodeInput.value > binom_xmax) {
-			binom_x1_input.rendNodeInput.value = 0;
+			if(binom_x2_input.rendNodeInput.value > binom_xmax) {
+				binom_x2_input.rendNodeInput.value = binom_xmax - 1;
+			}
+						
+			binom_board.setBoundingBox([binom_xmin, binom_ymax, binom_xmax, binom_ymin]);
+			binom_mean = binom_n * binom_p;
+			binom_stdev = sqrt(binom_n * binom_p * (1 - binom_p));
+
+			binom_x1 = Number(binom_x1_input.rendNodeInput.value);
+			binom_x2 = Number(binom_x2_input.rendNodeInput.value);
+
+			binom_p1.moveTo([binom_x1, 0]);
+			binom_p2.moveTo([binom_x2, 0]);
+			
+			binom_shadeleft = new Histogram(binom_board, binom_pdf(), binom_getcolors(), [-0.5, 0], 1);
+			
+		} else {
+			binom_n = Number(binom_n_input.rendNodeInput.value);
+			binom_p = Number(binom_p_input.rendNodeInput.value);
+	
+			binom_mean = binom_n * binom_p;
+			binom_stdev = sqrt(binom_n * binom_p * (1 - binom_p));
+
+			binom_x1 = Number(binom_x1_input.rendNodeInput.value);
+			binom_x2 = Number(binom_x2_input.rendNodeInput.value);
+
+			binom_p1.moveTo([binom_x1, 0]);
+			binom_p2.moveTo([binom_x2, 0]);
+			
+			binom_update_colors();
+			binom_shadeleft.setBarHeights(binom_pdf(), 0);
+			
 		}
-
-		if(binom_x2_input.rendNodeInput.value > binom_xmax) {
-			binom_x2_input.rendNodeInput.value = binom_xmax - 1;
-		}
-
-		binom_mean = binom_n * binom_p;
-		binom_stdev = sqrt(binom_n * binom_p * (1 - binom_p));
-
-		binom_x1 = Number(binom_x1_input.rendNodeInput.value);
-		binom_x2 = Number(binom_x2_input.rendNodeInput.value);
-
-		binom_board.setBoundingBox([binom_xmin, binom_ymax, binom_xmax, binom_ymin]);
-
-		binom_p1.moveTo([binom_x1, 0]);
-		binom_p2.moveTo([binom_x2, 0]);
-
-		binom_shadeleft.setBarHeights(binom_pdf(), 0);
-		binom_update_colors();
-
-		//binom_x1_input.rendNodeInput.value = binom_xval(cur_z1);
-		//binom_x2_input.rendNodeInput.value = binom_xval(cur_z2);
-		//binom_x2_disp.setText('< <i>X</i> < ' + binom_xval(cur_z2).toFixed(8));
-
-		//binom_updateAxisLabels();
-
-		//if(!isNaN(binom_x1_input.Value())) {
-		//	t1.moveTo([binom_x1_input.Value(), 0]);
-		//}
-
-		//if(!isNaN(binom_x2_input.Value())) {
-		//	t2.moveTo([binom_x2_input.Value(), 0]);
-		//}
 
 		binom_prob_disp.setText(') = ' + binom_cprob(binom_x1, binom_x2, binom_n, binom_p, binom_ptype));
 

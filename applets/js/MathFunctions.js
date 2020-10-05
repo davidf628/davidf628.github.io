@@ -1799,6 +1799,7 @@ class Rectangle2 {
 class Histogram {
 
 	constructor(board, barHeights, colors, coords, delta_x) {
+		this.board = board;
 		this.barHeights = barHeights;
 		this.colors = colors;
 		this.delta_x = delta_x || 1;
@@ -1841,6 +1842,18 @@ class Histogram {
 		for(var i = 0; i < this.bars.length; i++) {
 			this.bars[i].setColor(colors[i]);
 		}
+	}
+	
+	newBars(newbars, colors) {
+		//for(var i = 0; i < this.bars.length; i++) {
+		//	this.board.removeChild(this.bars[i].rect);
+		//}
+		this.bars = [];
+		for(var i = 0; i < newbars.length; i++) {
+			this.bars[i] = new Rectangle2(this.board, this.x + i * this.delta_x, this.y, this.delta_x, newbars[i], colors[i]);
+		}
+		this.barHeights = newbars;
+		this.colors = colors;
 	}
 
 }
