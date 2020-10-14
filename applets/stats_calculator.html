@@ -1937,19 +1937,25 @@ var normal_cb_left = JSXCheckbox(normal_board, -3.6, -0.16, 'P(x < b)', false,
 		}
 
 		normal_x1_input.rendNodeInput.value = '-Infinity';
-		normal_x1_input.setAttribute({ disabled: true });
-
 		normal_x2_input.rendNodeInput.value = normal_x2.X().toFixed(2);
-		normal_x2_input.setAttribute({ disabled: false });
-
-		normal_prob_input.setAttribute({ disabled: true });
-
 		PTYPE = 'left';
+
+		if(normal_cb_area.Value()) {
+			normal_x1_input.setAttribute({ disabled: true });
+			normal_x2_input.setAttribute({ disabled: false });
+			normal_prob_input.setAttribute({ disabled: true });
+
+		} else {
+			normal_x1_input.setAttribute({ disabled: true });
+			normal_x2_input.setAttribute({ disabled: true });
+			normal_prob_input.setAttribute({ disabled: false });
+		}
 
 	}, { fontSize: 18, frozen: true });
 
 var normal_cb_right = JSXCheckbox(normal_board, -3.6, -0.22, 'P(x > a)', false,
 	function() {
+	
 		setCheckbox(normal_cb_right, true);
 		setCheckbox(normal_cb_between, false);
 		setCheckbox(normal_cb_left, false);
@@ -1964,15 +1970,20 @@ var normal_cb_right = JSXCheckbox(normal_board, -3.6, -0.22, 'P(x > a)', false,
 		if(typeof(normal_x1.X()) !== 'number') {
 			normal_x1.moveTo([xValue(-2), 0]);
 		}
+		
 		normal_x1_input.rendNodeInput.value = normal_x1.X().toFixed(2);
-		normal_x1_input.setAttribute({ disabled: false });
-
 		normal_x2_input.rendNodeInput.value = 'Infinity';
-		normal_x2_input.setAttribute({ disabled: true });
-
-		normal_prob_input.setAttribute({ disabled: true });
-
 		PTYPE = 'right';
+		
+		if(normal_cb_area.Value()) {
+			normal_x1_input.setAttribute({ disabled: false });
+			normal_x2_input.setAttribute({ disabled: true });
+			normal_prob_input.setAttribute({ disabled: true });
+		} else {
+			normal_x1_input.setAttribute({ disabled: true });
+			normal_x2_input.setAttribute({ disabled: true });
+			nornam_prob_input.setAttribute({ disabled: false });
+		}
 
 	}, { fontSize: 18, frozen: true });
 
@@ -1997,7 +2008,7 @@ var normal_cb_xvalue = JSXCheckbox(normal_board, 1, -0.16, 'Calculate x-Value', 
 
 		normal_cb_between.setAttribute( { disabled: true, strokeColor: 'lightgray', highlight: false });
 		normal_cb_left.setAttribute( { disabled: false });
-		normal_cb_right.setAttribute( { disabled: true, strokeColor: 'lightgray', highlight: false });
+		normal_cb_right.setAttribute( { disabled: false });
 		setCheckbox(normal_cb_left, true);
 		setCheckbox(normal_cb_between, false);
 		setCheckbox(normal_cb_right, false);
@@ -2060,9 +2071,15 @@ function normal_docalc() {
 
 	} else {
 		if(!isNaN(normal_prob_input.Value())) {
-			var z = jStat.normal.inv(normal_prob_input.Value(), normal_mean, normal_stdev);
-			normal_x2.moveTo([z, 0]);
-			normal_x2_input.rendNodeInput.value = z;
+			if(normal_cb_left.Value()) {
+				var z = jStat.normal.inv(normal_prob_input.Value(), normal_mean, normal_stdev);
+				normal_x2.moveTo([z, 0]);
+				normal_x2_input.rendNodeInput.value = z;
+			} else {
+				var z = jStat.normal.inv(1 - normal_prob_input.Value(), normal_mean, normal_stdev);
+				normal_x1.moveTo([z, 0]);
+				normal_x1_input.rendNodeInput.value = z;
+			}
 		}
 	}
 	normal_board.update();
