@@ -1,0 +1,113 @@
+<html>
+
+<head>
+	<meta charset="utf-8">
+		<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
+		<script src='./js/jsxgraphcore.js' type='text/javascript'></script>
+		<script src='./js/MathFunctions.js' type='text/javascript'></script>
+		<script src='./js/math.min.js' type='text/javascript'></script>
+		<script src='./js/helpers.js' type='text/javascript'></script>
+
+		<!-- Libraries for MathJax to display math formulas on screen -->
+		<script type="text/x-mathjax-config">
+			MathJax.Hub.Config({ tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}, });
+		</script>
+		<script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+
+	</meta>
+</head>
+
+<div id="jxgbox" class="jxgbox" style="width:1000px; height:500px;"></div>
+
+<script type='text/javascript'>
+
+board = JXG.JSXGraph.initBoard('jxgbox', {
+          boundingbox:[0,100,100,0],
+          showCopyright:false,
+          showNavigation:false,
+          axis:false,
+          keepaspectratio:false
+        });
+
+var startx = 5;
+var starty = 70;
+var padx = 2;
+var pady = 2;
+var newline = -10;
+
+var video_txt = board.create('text', [startx, starty, 'Video Avg']);
+var hwk_txt = board.create('text', [startx + 10 + padx, starty, 'Homework Avg']);
+var exam1_txt = board.create('text', [startx + 20 + 2 * padx, starty, 'Exam 1']);
+var exam2_txt = board.create('text', [startx + 30 + 3 * padx, starty, 'Exam 2']);
+var exam3_txt = board.create('text', [startx + 40 + 4 * padx, starty, 'Exam 3']);
+var exam4_txt = board.create('text', [startx + 50 + 5 * padx, starty, 'Exam 4']);
+var bonus_txt = board.create('text', [startx + 60 + 6 * padx, starty, 'Bonus']);
+var examf_txt = board.create('text', [startx + 70 + 7 * padx, starty, 'Final Exam']);
+
+var video_pct = board.create('text', [startx, starty + 1 * pady + .5 * newline, '5 %']);
+var hwk_pct = board.create('text', [startx + 10 + padx, starty + 1 * pady + .5 * newline, '15 %']);
+var exam1_pct = board.create('text', [startx + 20 + 2 * padx, starty + 1 * pady + .5 * newline, '13.75 %']);
+var exam2_pct = board.create('text', [startx + 30 + 3 * padx, starty + 1 * pady + .5 * newline, '13.75 %']);
+var exam3_pct = board.create('text', [startx + 40 + 4 * padx, starty + 1 * pady + .5 * newline, '13.75 %']);
+var exam4_pct = board.create('text', [startx + 50 + 5 * padx, starty + 1 * pady + .5 * newline, '13.75 %']);
+var bonus_pct = board.create('text', [startx + 60 + 6 * padx, starty + 1 * pady + .5 * newline, 'N/A']);
+var examf_pct = board.create('text', [startx + 70 + 7 * padx, starty + 1 * pady + .5 * newline, '25 %']);
+
+var video = board.create('input', [startx, starty + 2 * pady + 1.5 * newline, '', ''], { cssStyle: 'width: 80px'});
+var hwk = board.create('input', [startx + 10 + 1 * padx, starty + 2 * pady + 1.5 * newline, '', ''], { cssStyle: 'width: 80px'});
+var exam1 = board.create('input', [startx + 20 + 2 * padx, starty + 2 * pady + 1.5 * newline, '', ''], { cssStyle: 'width: 80px'});
+var exam2 = board.create('input', [startx + 30 + 3 * padx, starty + 2 * pady + 1.5 * newline, '', ''], { cssStyle: 'width: 80px'});
+var exam3 = board.create('input', [startx + 40 + 4 * padx, starty + 2 * pady + 1.5 * newline, '', ''], { cssStyle: 'width: 80px'});
+var exam4 = board.create('input', [startx + 50 + 5 * padx, starty + 2 * pady + 1.5 * newline, '', ''], { cssStyle: 'width: 80px'});
+var bonus = board.create('input', [startx + 60 + 6 * padx, starty + 2 * pady + 1.5 * newline, '', ''], { cssStyle: 'width: 80px'});
+var examf = board.create('input', [startx + 70 + 7 * padx, starty + 2 * pady + 1.5 * newline, '', ''], { cssStyle: 'width: 80px'});
+
+var grade_txt = board.create('text', [startx, starty + 3 * pady + 3 * newline, 'Final Grade: ']);
+
+var calc_button = board.create('button', [70, 20, 'Caculate Grade', function() { calculate_grade() }]);
+
+function calculate_grade() {
+
+	var grade = 0;
+	var sum = 0;
+	var grades = [];
+
+	grades[0] = get_value(video.Value());
+	grades[1] = get_value(hwk.Value());
+	grades[2] = get_value(exam1.Value());
+	grades[3] = get_value(exam2.Value());
+	grades[4] = get_value(exam3.Value());
+	grades[5] = get_value(exam4.Value());
+	grades[6] = get_value(bonus.Value());
+	grades[7] = get_value(examf.Value());
+
+	weights = [0.05, 0.15, 0.1375, 0.1375, 0.1375, 0.1375, 0.1375, 0.25];
+
+	for(var i = 0; i <= 7; i++) {
+		if (!isNaN(grades[i])) {
+			grade += grades[i] * weights[i];
+			if (i != 6) { // skip the bonus category
+				sum += weights[i];
+			}
+		}
+	}
+
+	grade = round(grade / sum, 1);
+	grade_txt.setText('Final Grade: ' + grade);
+
+}
+
+function get_value(s) {
+	if (s === null || isNaN(Number(s)) || Number(s) < 0) {
+		alert("Invalid grade entry, make sure there is no text or negative values in the grade boxes.");
+		return Number.NaN;
+	} else if (s === '') {
+		return Number.NaN;
+	} else {
+		return Number(s);
+	}
+}
+
+</script>
+
+</html>
