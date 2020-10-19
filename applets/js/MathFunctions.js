@@ -43,7 +43,7 @@ function ceil(x) { return Math.ceil(x); }
 function floor(x) { return Math.floor(x); }
 function swap(a, b) { return [b, a]; }
 function sort(list) { return list.sort(function(a, b) { return a - b; }); }
-function round(x, a) { return Math.round(x * Math.pow(10, a)) / Math.pow(10, a); }
+function round(x, a=0) { return Math.round(x * Math.pow(10, a)) / Math.pow(10, a); }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
