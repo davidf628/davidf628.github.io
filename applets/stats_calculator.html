@@ -3017,11 +3017,16 @@ function binom_getcolors() {
 }
 
 function binom_update_colors() {
+
+	binom_board.suspendUpdate();
 	var colors = binom_getcolors();
 	
 	for (var i = 0; i <= binom_n; i++) {
-		binom_shadeleft.bars[i].rect.setAttribute({ fillColor: colors[i] });
+		if(typeof(binom_shadeleft.bars[i]) != 'undefined') {
+			binom_shadeleft.bars[i].rect.setAttribute({ fillColor: colors[i] });
+		}
 	}
+	binom_board.unsuspendUpdate();
 
 }
 
@@ -3186,28 +3191,31 @@ var binom_prob_disp = binom_board.create('text', [6, -0.65,
 		') = ' + binom_cprob(binom_x1, binom_x2, binom_n, binom_p, binom_ptype)],
 		textParam);
 
-/*binom_x1_input.rendNodeInput.onkeypress = function(e) {
-	if(e.which == 13) {
-		binom_prob_disp.setText(') = ' + binom_cprob(binom_x1, binom_x2, binom_n, binom_p, binom_ptype));
-		binom_board.update();
-	}
-};*/
-
 var binom_calc_button = binom_board.create('button', [7, -0.8, 'Calculate',
 	function () {
 
+		binom_board.suspendUpdate();
+
 		if(binom_n != Number(binom_n_input.rendNodeInput.value)) {
-		
+			
 			for(var i = 0; i <= binom_n; i++) {
-				binom_board.removeObject(binom_shadeleft.bars[i].rect);
+				if(typeof(binom_shadeleft.bars[i]) != 'undefined') {
+					binom_board.removeObject(binom_shadeleft.bars[i].rect);
+				}
 			}
 			
 			binom_n = Number(binom_n_input.rendNodeInput.value);
 			binom_p = Number(binom_p_input.rendNodeInput.value);
+			
+			var binom_ymax = jStat.binomial.pdf(round(binom_n * binom_p, 0), binom_n, binom_p) * 1.5;
 			binom_xmax = binom_n + 1;
+			var binom_bounds = JSXGetBounds(binom_board);
+			binom_bounds.ymax = binom_ymax;
+			binom_bounds.ymin = -binom_ymax;
+			binom_bounds.xmax = binom_xmax;
 
-			JSXSetBounds(binom_board, { xmxax: binom_xmax });
-			binom_updateAxis();
+			JSXSetBounds(binom_board, binom_bounds);
+			binom_updateAxis(binom_ymax);
 
 			if(binom_x1_input.rendNodeInput.value > binom_xmax) {
 				binom_x1_input.rendNodeInput.value = 0;
@@ -3217,7 +3225,7 @@ var binom_calc_button = binom_board.create('button', [7, -0.8, 'Calculate',
 				binom_x2_input.rendNodeInput.value = binom_xmax - 1;
 			}
 						
-			binom_board.setBoundingBox([binom_xmin, binom_ymax, binom_xmax, binom_ymin]);
+			//binom_board.setBoundingBox([binom_xmin, binom_ymax, binom_xmax, binom_ymin]);
 			binom_mean = binom_n * binom_p;
 			binom_stdev = sqrt(binom_n * binom_p * (1 - binom_p));
 
@@ -3227,8 +3235,10 @@ var binom_calc_button = binom_board.create('button', [7, -0.8, 'Calculate',
 			binom_p1.moveTo([binom_x1, 0]);
 			binom_p2.moveTo([binom_x2, 0]);
 			
-			binom_shadeleft = new Histogram(binom_board, binom_pdf(), binom_getcolors(), [-0.5, 0], 1);
-			
+			if(binom_n <= 60) {	
+				binom_shadeleft = new Histogram(binom_board, binom_pdf(), binom_getcolors(), [-0.5, 0], 1);
+			}
+					
 		} else {
 			binom_n = Number(binom_n_input.rendNodeInput.value);
 			binom_p = Number(binom_p_input.rendNodeInput.value);
@@ -3249,9 +3259,11 @@ var binom_calc_button = binom_board.create('button', [7, -0.8, 'Calculate',
 
 		binom_prob_disp.setText(') = ' + binom_cprob(binom_x1, binom_x2, binom_n, binom_p, binom_ptype));
 
+		binom_board.unsuspendUpdate();
+
 	}], { frozen: true });
 
-function binom_updateAxis() {
+function binom_updateAxis(y_max) {
 
 	var step = 1;
 
@@ -3261,7 +3273,7 @@ function binom_updateAxis() {
 		step = 2;
 	} else if (binom_n > 50 && binom_n <= 100) {
 		step = 5;
-	} else if (binom_n >100 && binom_n <= 200) {
+	} else if (binom_n > 100 && binom_n <= 200) {
 		step = 10;
 	} else if (binom_n <= 300) {
 		step = 20;
@@ -3276,8 +3288,8 @@ function binom_updateAxis() {
 
 	if(step > 0) {
 		for(var i = 0; i <= (binom_n / step); i++) {
-			binom_labels[i] = binom_board.create('text', [(i * step)-0.05, -0.05, i * step], { fixed: true, highlight: false });
-			binom_ticks[i] = binom_board.create('segment', [[(i * step), .01], [(i * step), -0.01]], { color: 'grey', strokeWidth: 1, fixed: true, highlight: false });
+			binom_labels[i] = binom_board.create('text', [(i * step)- (0.05 * y_max), -(0.05 * y_max), i * step], { fixed: true, highlight: false });
+			binom_ticks[i] = binom_board.create('segment', [[(i * step), (.01 * y_max)], [(i * step), -(0.01 * y_max)]], { color: 'grey', strokeWidth: 1, fixed: true, highlight: false });	
 		}
 	}
 
