@@ -1884,11 +1884,13 @@ var normal_update = normal_board.create('button', [2.5, 0.22, 'Update',
 		var y_min = (-0.4 / normal_stdev) * 1.2;
 		var y_max = (0.4 / normal_stdev) * 1.2;
 		normal_board.setBoundingBox([x_min, y_max, x_max, y_min]);
-		normal_x1.moveTo([xValue(cur_z1), 0]);
-		normal_x2.moveTo([xValue(cur_z2), 0]);
-		normal_x1_input.rendNodeInput.value = xValue(cur_z1);
-		normal_x2_input.rendNodeInput.value = xValue(cur_z2);
-		normal_prob_input.rendNodeInput.value = normal_cprob(cur_z1, cur_z2);
+		var new_x1 = xValue(cur_z1);
+		var new_x2 = xValue(cur_z2);
+		normal_x1.moveTo([new_x1, 0]);
+		normal_x2.moveTo([new_x2, 0]);
+		normal_x1_input.rendNodeInput.value = new_x1;
+		normal_x2_input.rendNodeInput.value = new_x2;
+		normal_prob_input.rendNodeInput.value = normal_cprob(new_x1, new_x2);
 		normal_updateAxisLabels(y_max);
 	}
 
@@ -1982,7 +1984,7 @@ var normal_cb_right = JSXCheckbox(normal_board, -3.6, -0.22, 'P(x > a)', false,
 		} else {
 			normal_x1_input.setAttribute({ disabled: true });
 			normal_x2_input.setAttribute({ disabled: true });
-			nornam_prob_input.setAttribute({ disabled: false });
+			normal_prob_input.setAttribute({ disabled: false });
 		}
 
 	}, { fontSize: 18, frozen: true });
@@ -1997,7 +1999,14 @@ var normal_cb_area = JSXCheckbox(normal_board, 1, -0.1, 'Calculate Area', true,
 		normal_cb_right.setAttribute( { disabled: false, strokeColor: 'black', highlight: true  });
 
 		normal_prob_input.setAttribute( { disabled: true });
-		normal_x2_input.setAttribute( { disabled: false });
+		if(normal_cb_left.Value()) {
+			normal_x1_input.setAttribute( { disabled: true });
+			normal_x2_input.setAttribute( { disabled: false });
+		} else if(normal_cb_right.Value()) {
+			normal_x1_input.setAttribute( { disabled: false });
+			normal_x2_input.setAttribute( { disabled: true });
+		}
+		
 
 	}, { fontSize: 18, frozen: true });
 
@@ -2054,7 +2063,7 @@ normal_prob_input.rendNodeInput.onkeypress = function(e) {
 	}
 };
 
-var normal_calc = normal_board.create('button', [1.5, -0.42, 'Calculate', normal_docalc()], { frozen: true });
+var normal_calc = normal_board.create('button', [1.5, -0.42, 'Calculate', function() { normal_docalc() }], { frozen: true });
 
 function normal_docalc() {
 	if(isChecked(normal_cb_area)) {
