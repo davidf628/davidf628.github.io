@@ -2029,12 +2029,16 @@ var normal_cb_xvalue = JSXCheckbox(normal_board, 1, -0.16, 'Calculate x-Value', 
 		shadedregionright.setAttribute({ visible: false });
 		shadedregionbetween.setAttribute({ visible: false });
 
-		normal_x1_input.rendNodeInput.value = '-Infinity';
+		if(normal_cb_left.Value()) {
+			normal_x1_input.rendNodeInput.value = '-Infinity';
+			normal_x2_input.rendNodeInput.value = normal_x2.X().toFixed(2);
+		} else if(normal_cb_right.Value()) {
+			normal_x1_input.rendNodeInput.value = normal_x1.X().toFixed(2);	
+			normal_x2_input.rendNodeInput.value = 'Infinity';
+		}
+		
 		normal_x1_input.setAttribute({ disabled: true });
-
-		normal_x2_input.rendNodeInput.value = normal_x2.X().toFixed(2);
 		normal_x2_input.setAttribute({ disabled: true });
-
 		normal_prob_input.setAttribute({ disabled: false });
 
 		PTYPE = 'left';
