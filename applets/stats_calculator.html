@@ -5,9 +5,15 @@
 
 TODO:
 
-  - change all inputs and text to align correctly
+  - Update distributions to calculate from all input boxes
+  - Make all input boxes able to do input
+  - remove display texts in F and Chi-2 Distributions
+  - Update normal and t distribution to remove boxes for P( x < a ) and P (x > a)
+  - switch to math.eval() instead of Math.eval()
+
   - fix dropdown menus to show up below the menu bar
   - add extra output to confidence intervals
+  - Do error checking in all areas
 
 -->
 
@@ -262,6 +268,11 @@ document.getElementById("defaultOpen").click();
 		cssStyle: 'width: 100px',
 		frozen: true,
 		fixed: true,
+		anchorY: 'top'
+	}
+
+	var buttonParam = {
+		frozen: true,
 		anchorY: 'top'
 	}
 
@@ -637,35 +648,48 @@ var pint_board = JXG.JSXGraph.initBoard('prop-interval', {
 		}
     });
 
-var pint_x = pint_board.create('input', [0.5, 9, '', 'x = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
-var pint_n = pint_board.create('input', [0.5, 8, '', 'n = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
-var pint_c = pint_board.create('input', [0.5, 7, '', 'c = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var pint_x = pint_board.create('input', [0.5, 9, '', '<i>x</i> = '], inputParam);
+pint_x.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { pint_docalc(); } };
 
-var pint_interval = pint_board.create('text', [0.5, 3, ''],
-		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+var pint_n = pint_board.create('input', [0.5, 8, '', '<i>n</i> = '], inputParam);
+pint_n.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { pint_docalc(); } };
+
+var pint_c = pint_board.create('input', [0.5, 7, '', '<i>c</i> = '], inputParam);
+pint_c.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { pint_docalc(); } };
+
+var pint_interval = pint_board.create('text', [0.5, 6, ''], textParam);
 
 var pint_calculate = pint_board.create('button', [6, 8, 'Calculate',
+	function() { pint_docalc(); }], buttonParam);
 
-	function() {
+function pint_docalc() {
 
-		var c = Number(pint_c.rendNodeInput.value);
-		var x = Number(pint_x.rendNodeInput.value);
-		var n = Number(pint_n.rendNodeInput.value);
-		var p = x / n;
-		var q = 1 - p;
+	var c = evalstr(pint_c.rendNodeInput.value);
+	var x = evalstr(pint_x.rendNodeInput.value);
+	var n = evalstr(pint_n.rendNodeInput.value);
+	var p = x / n;
+	var q = 1 - p;
 
-		var z = Math.abs(jStat.normal.inv((1 - c) / 2, 0, 1));
-		var me = z * sqrt(p * q / n);
-		var lb = p - me;
-		var ub = p + me;
+	var z = Math.abs(jStat.normal.inv((1 - c) / 2, 0, 1));
+	var me = z * sqrt(p * q / n);
+	var lb = p - me;
+	var ub = p + me;
 
-		pint_interval.setText('(' + lb + ', ' + ub + ')');
+	if(n < x) {
+		pint_interval.setText('Oops! The sample size <i>n</i> must be larger than <i>x</i>.');
+	} else if ((c < 0) || (c > 1)) {
+		pint_interval.setText('Oops! The level of confidence, <i>c</i>, must be a<br/>&nbsp;&nbsp;&nbsp;value between 0 and 1 inclusive.');
+	} else if (isNaN(c) || isNaN(x) || isNaN(n)) {
+		pint_interval.setText('One or more input values is not a number,<br/>&nbsp;&nbsp;&nbsp;please check your input.');
+	} else {
+		pint_interval.setText(
+			'(' + round(lb, PRECISION)
+			+ ', ' + round(ub, PRECISION) + ')<br/>'
+			+ 'z<sub>c</sub> = ' + round(z, PRECISION) + '<br/><br/>'
+			+ 'p&#770; = ' + round(p, PRECISION) + '<br/>'
+			+ 'E = ' + round(me, PRECISION));
 	}
-
-], { frozen: true, anchorY: 'top' });
+}
 
 </script>
 
@@ -2281,7 +2305,6 @@ var t_mean = 0;
 var t_stdev = 1;
 var t_df = 10;
 
-
 function tScore(x) {
 	return (x - t_mean) / t_stdev;
 }
@@ -2777,9 +2800,9 @@ for (var i = 1; i < chi_n_ticks; i++) {
 
 // input variables
 
-var chi_df_input = chi_board.create('input', [15, 0.15, chi_df, 'df = '], { fontSize: 18, cssStyle: 'width: 100px', frozen: true, fixed: true });
-var chi_mean_disp = chi_board.create('text', [15, 0.125, function() { return '&mu; = ' + chi_mean; }], { fontSize: 18, frozen: true, highlight: false, fixed: true });
-var chi_stdev_disp = chi_board.create('text', [15, 0.1, function() { return '&sigma; = ' + chi_stdev.toFixed(4); }], { fontSize: 18, frozen: true, highlight: false, fixed: true });
+var chi_df_input = chi_board.create('input', [15, 0.15, chi_df, 'df = '], inputParam);
+var chi_mean_disp = chi_board.create('text', [15, 0.125, function() { return '&mu; = ' + chi_mean; }], textParam);
+var chi_stdev_disp = chi_board.create('text', [15, 0.1, function() { return '&sigma; = ' + chi_stdev.toFixed(4); }], textParam);
 
 var chi_shadeleft = chi_board.create('integral',
 	[[ 0 , function() { return chi_2.X(); }], chi_curve], shadeParam);
@@ -2792,20 +2815,17 @@ chi_shaderight.setAttribute({ visible: false });
 var chi_shadebetween = chi_board.create('integral',
 	[[ function() { return chi_1.X(); }, function() { return chi_2.X(); }], chi_curve], shadeParam);
 
-var chi_x1_input = chi_board.create('input', [2, -0.11, '2', 'P( '], { fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
+var chi_x1_input = chi_board.create('input', [2, -0.11, '2', 'P( '], inputParam);
 
-var chi_x2_input = chi_board.create('input', [9, -0.11, '10', ' < <i>X</i> < '],
-		{ fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
+var chi_x2_input = chi_board.create('input', [9, -0.11, '10', ' < <i>X</i> < '], inputParam);
 
-var chi_x2_disp = chi_board.create('text', [9, -0.11, '< <i>X</i> < 2'],
-		{ fontSize: 18, frozen: true, visible: false, fixed: true });
+var chi_x2_disp = chi_board.create('text', [9, -0.11, '< <i>X</i> < 2'], textParam);
+chi_x2_disp.setAttribute({ visible: false });
 
-var chi_prob_input = chi_board.create('input', [17, -0.11, '0.7950', ') = '],
-		{ fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
+var chi_prob_input = chi_board.create('input', [17, -0.11, '0.7950', ') = '], inputParam);
 chi_prob_input.setAttribute({ visible: false });
 
-var chi_prob_disp = chi_board.create('text', [17, -0.11, ') = 0.7950'],
-		{ fontSize: 18, frozen: true, fixed: true });
+var chi_prob_disp = chi_board.create('text', [17, -0.11, ') = 0.7950'], textParam);
 
 // Buttons
 
@@ -3644,21 +3664,17 @@ for (var i = 1; i < f_n_ticks; i++) {
 
 // input variables
 
-var f_df1_input = f_board.create('input', [2.5, 0.9, f_df1, 'df 1 = '],
-		{ fontSize: 18, cssStyle: 'width: 100px', frozen: true, fixed: true });
+var f_df1_input = f_board.create('input', [2.5, 0.9, f_df1, 'df 1 = '], inputParam);
 
-var f_df2_input = f_board.create('input', [2.5, 0.75, f_df2, 'df 2 = '],
-		{ fontSize: 18, cssStyle: 'width: 100px', frozen: true, fixed: true });
+var f_df2_input = f_board.create('input', [2.5, 0.75, f_df2, 'df 2 = '], inputParam);
 
 // display for the mean and standard deviation
 
 var f_mean_disp = f_board.create('text', [2.65, 0.6,
-		function() { return '&mu; = ' + f_mean.toFixed(4); }],
-		{ fontSize: 18, frozen: true, highlight: false, fixed: true });
+		function() { return '&mu; = ' + f_mean.toFixed(4); }], textParam);
 
 var f_stdev_disp = f_board.create('text', [2.65, 0.45,
-		function() { return '&sigma; = ' + f_stdev.toFixed(4); }],
-		{ fontSize: 18, frozen: true, highlight: false, fixed: true });
+		function() { return '&sigma; = ' + f_stdev.toFixed(4); }], textParam);
 
 var f_shadeleft = f_board.create('integral',
 		[[ function() { return 0; } , function() { return f_2.X(); }], f_curve], shadeParam);
@@ -3671,20 +3687,17 @@ f_shaderight.setAttribute({ visible: false });
 var f_shadebetween = f_board.create('integral',
 		[[ function() { return f_1.X(); }, function() { return f_2.X(); }], f_curve], shadeParam);
 
-var f_x1_input = f_board.create('input', [0.2, -0.6, f_1.X(), 'P( '], { fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
+var f_x1_input = f_board.create('input', [0.2, -0.6, f_1.X(), 'P( '], inputParam);
 
-var f_x2_input = f_board.create('input', [1.25, -0.6, f_2.X(), ' < <i>X</i> < '],
-		{ fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
+var f_x2_input = f_board.create('input', [1.25, -0.6, f_2.X(), ' < <i>X</i> < '], inputParam);
 
-var f_x2_disp = f_board.create('text', [1.25, -0.6, '< <i>X</i> < 2'],
-		{ fontSize: 18, frozen: true, visible: false, fixed: true });
+var f_x2_disp = f_board.create('text', [1.25, -0.6, '< <i>X</i> < 2'], textParam);
+f_x2_disp.setAttribute({ visible: false });
 
-var f_prob_input = f_board.create('input', [2.5, -0.6, current_f_probability(f_1.X(), f_2.X(), f_df1, f_df2), ') = '],
-		{ fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
+var f_prob_input = f_board.create('input', [2.5, -0.6, current_f_probability(f_1.X(), f_2.X(), f_df1, f_df2), ') = '], inputParam);
 f_prob_input.setAttribute({ visible: false });
 
-var f_prob_disp = f_board.create('text', [2.5, -0.6, ') = ' + current_f_probability(f_1.X(), f_2.X(), f_df1, f_df2)],
-		{ fontSize: 18, frozen: true, fixed: true });
+var f_prob_disp = f_board.create('text', [2.5, -0.6, ') = ' + current_f_probability(f_1.X(), f_2.X(), f_df1, f_df2)], textParam);
 
 // Buttons
 

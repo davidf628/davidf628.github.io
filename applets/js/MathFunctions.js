@@ -45,6 +45,19 @@ function swap(a, b) { return [b, a]; }
 function sort(list) { return list.sort(function(a, b) { return a - b; }); }
 function round(x, a=0) { return Math.round(x * Math.pow(10, a)) / Math.pow(10, a); }
 
+function evalstr(expr) {
+	try {
+		if (expr == '') {
+			return Number.NaN;
+		} else {
+			var v = eval(expr);
+			return v;
+		}
+	} catch (SyntaxError) {
+		return Number.NaN;
+	}
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 //  Displays the value of a number to a fixed number of decimal places, if
@@ -92,21 +105,6 @@ function randomInteger(a, b) {
 
 function randomFloat(a, b) {
 	return Math.random() * (b - a + 2) + a - 1;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-//
-//  Rounds a number to a given number of decimal places.
-//
-//		@param num - the number to round (float)
-//		@param dec - the number of decimals to round to
-//
-///////////////////////////////////////////////////////////////////////////////
-
-function round(num, dec)
-{
-	var factor = Math.pow(10,dec);
-	return Math.round(num * factor) / factor;
 }
 
 /*
@@ -1843,7 +1841,7 @@ class Histogram {
 			this.bars[i].setColor(colors[i]);
 		}
 	}
-	
+
 	newBars(newbars, colors) {
 		//for(var i = 0; i < this.bars.length; i++) {
 		//	this.board.removeChild(this.bars[i].rect);
