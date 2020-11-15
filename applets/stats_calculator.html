@@ -5,10 +5,6 @@
 
 TODO:
 
-  - impplement binomial distribution
-  - consider allowing binomial to be calculated from each input boxes
-
-  - update t-dist and normal to use jstat
   - change all inputs and text to align correctly
   - fix dropdown menus to show up below the menu bar
   - add extra output to confidence intervals
@@ -257,6 +253,7 @@ document.getElementById("defaultOpen").click();
 		fontSize: 18,
 		frozen: true,
 		fixed: true,
+		highlight: false,
 		anchorY: 'top'
 	};
 
@@ -410,20 +407,28 @@ var zint_board = JXG.JSXGraph.initBoard('z-interval', {
 		}
     });
 
-var zint_std = zint_board.create('input', [0.5, 9, '', '&sigma; = '],
+var zint_mean = zint_board.create('input', [0.5, 9, '', 'x&#772; = '],
 		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
-var zint_mean = zint_board.create('input', [0.5, 8, '', 'x&#772; = '],
+zint_mean.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { zint_docalc(); } };
+
+var zint_std = zint_board.create('input', [0.5, 8, '', '&sigma; = '],
 		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+zint_std.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { zint_docalc(); } };
+
 var zint_n = zint_board.create('input', [0.5, 7, '', 'n = '],
 		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+zint_n.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { zint_docalc(); } };
+
 var zint_list = zint_board.create('input', [0.5, 6, 'L1', 'List: '],
 		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18, strokeColor: 'lightgray' });
 zint_list.setAttribute({ disabled: true });
+zint_list.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { zint_docalc(); } };
+
 var zint_c = zint_board.create('input', [0.5, 5, '', 'c = '],
 		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+zint_c.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { zint_docalc(); } };
 
-var zint_interval = zint_board.create('text', [0.5, 3, ''],
-		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+var zint_interval = zint_board.create('text', [0.5, 4, ''], textParam);
 
 var zint_cb_stats = JSXCheckbox(zint_board, 6, 8, 'Input from Stats', true,
 	function() {
@@ -444,32 +449,49 @@ var zint_cb_data = JSXCheckbox(zint_board, 6, 7, 'Input from Data', false,
 	}, { fontSize: 18, anchorY: 'top', frozen: true });
 
 var zint_calculate = zint_board.create('button', [6, 6, 'Calculate',
+	function() { zint_docalc(); }], { frozen: true, anchorY: 'top' });
 
-	function() {
+function zint_docalc() {
 
-		var c = Number(zint_c.rendNodeInput.value);
-		var std = Number(zint_std.rendNodeInput.value);
-		var n, mean = 0;
+	var c = Number(zint_c.rendNodeInput.value);
+	var std = Number(zint_std.rendNodeInput.value);
+	var n, mean = 0;
 
-		if(zint_cb_stats.Value()) {
-			n = Number(zint_n.rendNodeInput.value);
-			mean = Number(zint_mean.rendNodeInput.value);
-		} else {
-			var list = zint_list.rendNodeInput.value;
-			var xdata = getRawData(list);
+	if(zint_cb_stats.Value()) {
+		n = Number(zint_n.rendNodeInput.value);
+		mean = Number(zint_mean.rendNodeInput.value);
+	} else {
+		var list = zint_list.rendNodeInput.value;
+		if (list.includes(',')) {
+			var xdata = getRawData(list1_data);
+			var fdata = getRawData(list2_data);
 			n = xdata.length;
+			mean = stats.wmean(xdata, fdata);
+		} else {
+			if (list == "L2" || list == "l2") {
+				xdata = getRawData(list2_data);
+			} else {
+				xdata = getRawData(list1_data);
+			}
 			mean = stats.mean(xdata);
+			n = xdata.length
 		}
-
-		var z = Math.abs(jStat.normal.inv((1 - c) / 2, 0, 1));
-		var me = z * std / sqrt(n);
-		var lb = mean - me;
-		var ub = mean + me;
-
-		zint_interval.setText('(' + lb + ', ' + ub + ')');
 	}
 
-], { frozen: true, anchorY: 'top' });
+	var z = Math.abs(jStat.normal.inv((1 - c) / 2, 0, 1));
+	var me = z * std / sqrt(n);
+	var lb = mean - me;
+	var ub = mean + me;
+
+	zint_interval.setText(
+		'(' + round(lb, PRECISION) + ', '
+		+ round(ub, PRECISION) + ')<br/>'
+		+ 'z<sub>c</sub> = ' + round(z, PRECISION) + '<br/>'
+		+ 'E = ' + round(me, PRECISION) + '<br/><br/>'
+		+ 'x&#772; = ' + round(mean, PRECISION) + '<br/>'
+		+ '&sigma; = ' + round(std, PRECISION) + '<br/>'
+		+ 'n = ' + n);
+}
 
 </script>
 
@@ -498,20 +520,28 @@ var tint_board = JXG.JSXGraph.initBoard('t-interval', {
 		}
     });
 
-var tint_std = tint_board.create('input', [0.5, 9, '', 's = '],
+var tint_mean = tint_board.create('input', [0.5, 9, '', 'x&#772; = '],
 		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
-var tint_mean = tint_board.create('input', [0.5, 8, '', 'x&#772; = '],
+tint_mean.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { tint_docalc(); } };
+
+var tint_std = tint_board.create('input', [0.5, 8, '', 's = '],
 		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+tint_std.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { tint_docalc(); } };
+
 var tint_n = tint_board.create('input', [0.5, 7, '', 'n = '],
 		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+tint_n.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { tint_docalc(); } };
+
 var tint_list = tint_board.create('input', [0.5, 6, 'L1', 'List: '],
 		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18, strokeColor: 'lightgray' });
 tint_list.setAttribute({ disabled: true });
+tint_list.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { tint_docalc(); } };
+
 var tint_c = tint_board.create('input', [0.5, 5, '', 'c = '],
 		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+tint_c.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { tint_docalc(); } };
 
-var tint_interval = tint_board.create('text', [0.5, 3, ''],
-		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+var tint_interval = tint_board.create('text', [0.5, 4, ''], textParam);
 
 var tint_cb_stats = JSXCheckbox(tint_board, 6, 8, 'Input from Stats', true,
 	function() {
@@ -533,35 +563,52 @@ var tint_cb_data = JSXCheckbox(tint_board, 6, 7, 'Input from Data', false,
 		tint_std.setAttribute({ disabled: true, strokeColor: 'lightgray' });
 	}, { fontSize: 18, anchorY: 'top', frozen: true });
 
-var tint_calculate = tint_board.create('button', [6, 6, 'Calculate',
+var tint_calculate_button = tint_board.create('button', [6, 6, 'Calculate',
+	function() { tint_docalc(); }], { frozen: true, anchorY: 'top' });
 
-	function() {
+function tint_docalc() {
 
-		var c = Number(tint_c.rendNodeInput.value);
-		var n, std, mean = 0;
+	var c = Number(tint_c.rendNodeInput.value);
+	var n, std, mean = 0;
 
-		if(tint_cb_stats.Value()) {
-			n = Number(tint_n.rendNodeInput.value);
-			mean = Number(tint_mean.rendNodeInput.value);
-			std = Number(tint_std.rendNodeInput.value);
-		} else {
-			var list = tint_list.rendNodeInput.value;
-			var xdata = getRawData(list);
+	if(tint_cb_stats.Value()) {
+		n = Number(tint_n.rendNodeInput.value);
+		mean = Number(tint_mean.rendNodeInput.value);
+		std = Number(tint_std.rendNodeInput.value);
+	} else {
+		var list = tint_list.rendNodeInput.value;
+		if (list.includes(',')) {
+			var xdata = getRawData(list1_data);
+			var fdata = getRawData(list2_data);
 			n = xdata.length;
+			mean = stats.wmean(xdata, fdata);
+			std = stats.wstdev(xdata, fdata);
+		} else {
+			if (list == "L2" || list == "l2") {
+				xdata = getRawData(list2_data);
+			} else {
+				xdata = getRawData(list1_data);
+			}
 			mean = stats.mean(xdata);
 			std = stats.stdev(xdata);
+			n = xdata.length
 		}
-
-		var t = Math.abs(jStat.studentt.inv((1 - c) / 2, n - 1));
-		var me = t * std / sqrt(n);
-		var lb = mean - me;
-		var ub = mean + me;
-
-		tint_interval.setText('(' + lb + ', ' + ub + ')');
 	}
 
-], { frozen: true, anchorY: 'top' });
+	var t = Math.abs(jStat.studentt.inv((1 - c) / 2, n - 1));
+	var me = t * std / sqrt(n);
+	var lb = mean - me;
+	var ub = mean + me;
 
+	tint_interval.setText(
+		'(' + round(lb, PRECISION) + ', '
+		+ round(ub, PRECISION) + ')<br/>'
+		+ 't<sub>c</sub> = ' + round(t, PRECISION) + '<br/>'
+		+ 'E = ' + round(me, PRECISION) + '<br/><br/>'
+		+ 'x&#772; = ' + round(mean, PRECISION) + '<br/>'
+		+ 's = ' + round(std, PRECISION) + '<br/>'
+		+ 'n = ' + n);
+}
 
 </script>
 
@@ -1083,8 +1130,11 @@ var ttest_board = JXG.JSXGraph.initBoard('t-test', {
 
 var ttest_mu = ttest_board.create('input', [0.5, 9, '', 'Null Hypothesis: &mu; = '],
 		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+ttest_mu.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ttest_docalc(); } };
+
 var ttest_alt = ttest_board.create('text', [0.5, 8, 'Alternative Hypothesis:'],
 		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+
 var ttest_cb_ne = JSXCheckbox(ttest_board, 4, 8, '&ne;', true,
 	function() {
 		setCheckbox(ttest_cb_ne, true);
@@ -1104,15 +1154,22 @@ var ttest_cb_gt = JSXCheckbox(ttest_board, 6, 8, '&gt;', false,
 		setCheckbox(ttest_cb_gt, true);
 	}, { fontSize: 18, frozen: true, anchorY: 'top'});
 
-var ttest_std = ttest_board.create('input', [0.5, 7, '', 's = '],
+var ttest_mean = ttest_board.create('input', [0.5, 7, '', 'x&#772; = '],
 		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
-var ttest_mean = ttest_board.create('input', [0.5, 6, '', 'x&#772; = '],
+ttest_mean.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ttest_docalc(); } };
+
+var ttest_std = ttest_board.create('input', [0.5, 6, '', 's = '],
 		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+ttest_std.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ttest_docalc(); } };
+
 var ttest_n = ttest_board.create('input', [0.5, 5, '', 'n = '],
 		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+ttest_n.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ttest_docalc(); } };
+
 var ttest_list = ttest_board.create('input', [0.5, 4, 'L1', 'List: '],
 		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18, strokeColor: 'lightgray' });
 ttest_list.setAttribute({ disabled: true });
+ttest_list.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ttest_docalc(); } };
 
 var ttest_output = ttest_board.create('text', [0.5, 3, ''],
 		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
@@ -1124,6 +1181,7 @@ var ttest_cb_stats = JSXCheckbox(ttest_board, 6, 7, 'Input from Stats', true,
 		ttest_list.setAttribute({ disabled: true, strokeColor: 'lightgray' });
 		ttest_mean.setAttribute({ disabled: false, strokeColor: 'black' });
 		ttest_n.setAttribute({ disabled: false, strokeColor: 'black' });
+		ttest_std.setAttribute({ disabled: false, strokeColor: 'black' });
 	}, { fontSize: 18, frozen: true, anchorY: 'top'});
 
 var ttest_cb_data = JSXCheckbox(ttest_board, 6, 6, 'Input from Data', false,
@@ -1133,41 +1191,58 @@ var ttest_cb_data = JSXCheckbox(ttest_board, 6, 6, 'Input from Data', false,
 		ttest_list.setAttribute({ disabled: false, strokeColor: 'black' });
 		ttest_mean.setAttribute({ disabled: true, strokeColor: 'lightgray' });
 		ttest_n.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		ttest_std.setAttribute({ disabled: true, strokeColor: 'lightgray' });
 	}, { fontSize: 18, anchorY: 'top', frozen: true });
 
 var ttest_calculate = ttest_board.create('button', [6, 5, 'Calculate',
+	function() { ttest_docalc(); }], { frozen: true, anchorY: 'top' });
 
-	function() {
+function ttest_docalc() {
 
-		var mu = Number(ttest_mu.rendNodeInput.value);
-		var p, std, n, mean = 0;
+	var mu = Number(ttest_mu.rendNodeInput.value);
+	var p, std, n, mean = 0;
 
-		if(ttest_cb_stats.Value()) {
-			n = Number(ttest_n.rendNodeInput.value);
-			mean = Number(ttest_mean.rendNodeInput.value);
-			std = Number(ttest_std.rendNodeInput.value);
-		} else {
-			var list = ttest_list.rendNodeInput.value;
-			var xdata = getRawData(list);
+	if(ttest_cb_stats.Value()) {
+		n = Number(ttest_n.rendNodeInput.value);
+		mean = Number(ttest_mean.rendNodeInput.value);
+		std = Number(ttest_std.rendNodeInput.value);
+	} else {
+		var list = tint_list.rendNodeInput.value;
+		if (list.includes(',')) {
+			var xdata = getRawData(list1_data);
+			var fdata = getRawData(list2_data);
 			n = xdata.length;
+			mean = stats.wmean(xdata, fdata);
+			std = stats.wstdev(xdata, fdata);
+		} else {
+			if (list == "L2" || list == "l2") {
+				xdata = getRawData(list2_data);
+			} else {
+				xdata = getRawData(list1_data);
+			}
 			mean = stats.mean(xdata);
 			std = stats.stdev(xdata);
+			n = xdata.length
 		}
-
-		var t = (mean - mu) / (std / sqrt(n));
-
-		if(isChecked(ttest_cb_ne)) {
-			p = 2 * jStat.studentt.cdf(-Math.abs(t), n - 1);
-		} else if(isChecked(ttest_cb_lt)) {
-			p = jStat.studentt.cdf(t, n - 1);
-		} else {
-			p = 1 - jStat.studentt.cdf(t, n - 1);
-		}
-
-		ttest_output.setText('t = ' + t + '<br/>p = ' + p);
 	}
 
-], { frozen: true, anchorY: 'top' });
+	var t = (mean - mu) / (std / sqrt(n));
+
+	if(isChecked(ttest_cb_ne)) {
+		p = 2 * jStat.studentt.cdf(-Math.abs(t), n - 1);
+	} else if(isChecked(ttest_cb_lt)) {
+		p = jStat.studentt.cdf(t, n - 1);
+	} else {
+		p = 1 - jStat.studentt.cdf(t, n - 1);
+	}
+
+	ttest_output.setText('t = '
+		+ round(t, PRECISION) + '<br/>'
+		+ 'p = ' + round(p, PRECISION) + '<br/><br/>'
+		+ 'x&#772; = ' + round(mean, PRECISION) + '<br/>'
+		+ 's = ' + round(std, PRECISION) + '<br/>'
+		+ 'n = ' + n);
+}
 
 </script>
 
@@ -1198,6 +1273,8 @@ var ptest_board = JXG.JSXGraph.initBoard('prop-test', {
 
 var ptest_p = ptest_board.create('input', [0.5, 9, '', 'Null Hypothesis: p = '],
 		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+ptest_p.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ptest_docalc(); } };
+
 var ptest_alt = ptest_board.create('text', [0.5, 8, 'Alternative Hypothesis:'],
 		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
 var ptest_cb_ne = JSXCheckbox(ptest_board, 4, 8, '&ne;', true,
@@ -1221,37 +1298,46 @@ var ptest_cb_gt = JSXCheckbox(ptest_board, 6, 8, '&gt;', false,
 
 var ptest_x = ptest_board.create('input', [0.5, 7, '', 'x = '],
 		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+ptest_x.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ptest_docalc(); } };
+
 var ptest_n = ptest_board.create('input', [0.5, 6, '', 'n = '],
 		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+ptest_n.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ptest_docalc(); } };
 
 var ptest_output = ptest_board.create('text', [1, 4.5, ''],
 		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
 
 var ptest_calculate = ptest_board.create('button', [6, 6, 'Calculate',
+	function() { ptest_docalc(); }], { frozen: true, anchorY: 'top' });
 
-	function() {
+function ptest_docalc() {
 
-		var p0 = Number(ptest_p.rendNodeInput.value);
-		var x, n, pval = 0;
+	var p0 = Number(ptest_p.rendNodeInput.value);
+	var x, n, pval = 0;
 
-		n = Number(ptest_n.rendNodeInput.value);
-		x = Number(ptest_x.rendNodeInput.value);
-		phat = x / n;
+	n = Number(ptest_n.rendNodeInput.value);
+	x = Number(ptest_x.rendNodeInput.value);
+	phat = x / n;
 
-		var z = (phat - p0) / sqrt(p0 * (1 - p0) / n);
+	var z = (phat - p0) / sqrt(p0 * (1 - p0) / n);
 
-		if(isChecked(ptest_cb_ne)) {
-			pval = 2 * jStat.studentt.cdf(-Math.abs(z), n - 1);
-		} else if(isChecked(ptest_cb_lt)) {
-			pval = jStat.studentt.cdf(z, n - 1);
-		} else {
-			pval = 1 - jStat.studentt.cdf(z, n - 1);
-		}
-
-		ptest_output.setText('z = ' + z + '<br/>p&#770; = ' + phat + '<br/>p-value = ' + pval);
+	if(isChecked(ptest_cb_ne)) {
+		pval = 2 * jStat.normal.cdf(-Math.abs(z), 0, 1);
+	} else if(isChecked(ptest_cb_lt)) {
+		pval = jStat.normal.cdf(z, 0, 1);
+	} else {
+		pval = 1 - jStat.normal.cdf(z, 0, 1);
 	}
 
-], { frozen: true, anchorY: 'top' });
+	if(x > n) {
+		ptest_output.setText("Oops! n must be larger than x.");
+	} else {
+		ptest_output.setText(
+			'p&#770; = ' + round(phat, PRECISION) + '<br/><br/>'
+			+ 'z = ' + round(z, PRECISION) + '<br/>'
+			+ 'p-value = ' + round(pval, PRECISION));
+	}
+}
 
 </script>
 
@@ -1922,7 +2008,7 @@ var normal_cb_between = JSXCheckbox(normal_board, -3.6, -0.1, 'P(a < x < b)', tr
 		}
 
 		if(normal_cb_area.Value()) {
-		
+
 			normal_x1.setAttribute({ visible: true });
 			normal_x2.setAttribute({ visible: true });
 
@@ -1933,15 +2019,15 @@ var normal_cb_between = JSXCheckbox(normal_board, -3.6, -0.1, 'P(a < x < b)', tr
 			normal_x2_input.setAttribute({ disabled: false });
 
 			normal_prob_input.setAttribute({ disabled: true });
-			
+
 		} else if(normal_cb_xvalue.Value()) {
-		
+
 			normal_x1.setAttribute({ visible: false });
 			normal_x2.setAttribute({ visible: true });
 
 			var old_z = zScore(normal_x2.X());
 			var new_x = xValue(-old_z);
-	
+
 			normal_x1.moveTo([new_x, 0]);
 
 			normal_x1_input.rendNodeInput.value = new_x.toFixed(2);
@@ -1950,7 +2036,7 @@ var normal_cb_between = JSXCheckbox(normal_board, -3.6, -0.1, 'P(a < x < b)', tr
 			normal_x1_input.setAttribute({ disabled: true });
 			normal_x2_input.setAttribute({ disabled: true });
 			normal_prob_input.setAttribute({ disabled: false });
-			
+
 		}
 
 		PTYPE = 'between';
@@ -1993,7 +2079,7 @@ var normal_cb_left = JSXCheckbox(normal_board, -3.6, -0.16, 'P(x < b)', false,
 
 var normal_cb_right = JSXCheckbox(normal_board, -3.6, -0.22, 'P(x > a)', false,
 	function() {
-	
+
 		setCheckbox(normal_cb_right, true);
 		setCheckbox(normal_cb_between, false);
 		setCheckbox(normal_cb_left, false);
@@ -2005,14 +2091,14 @@ var normal_cb_right = JSXCheckbox(normal_board, -3.6, -0.22, 'P(x > a)', false,
 		if(typeof(normal_x1.X()) !== 'number') {
 			normal_x1.moveTo([xValue(-2), 0]);
 		}
-		
+
 		normal_x1.setAttribute({ visible: true });
 		normal_x2.setAttribute({ visible: false });
-		
+
 		normal_x1_input.rendNodeInput.value = normal_x1.X().toFixed(2);
 		normal_x2_input.rendNodeInput.value = 'Infinity';
 		PTYPE = 'right';
-		
+
 		if(normal_cb_area.Value()) {
 			normal_x1_input.setAttribute({ disabled: false });
 			normal_x2_input.setAttribute({ disabled: true });
@@ -2043,10 +2129,10 @@ var normal_cb_area = JSXCheckbox(normal_board, 1, -0.1, 'Calculate Area', true,
 			normal_x2_input.setAttribute( { disabled: true });
 		} else if(normal_cb_between.Value()) {
 			normal_x1_input.setAttribute( { disabled: false });
-			normal_x2_input.setAttribute( { disabled: false });	
+			normal_x2_input.setAttribute( { disabled: false });
 			normal_x1.setAttribute( { visible: true });
 		}
-		
+
 
 	}, { fontSize: 18, frozen: true });
 
@@ -2059,12 +2145,12 @@ var normal_cb_xvalue = JSXCheckbox(normal_board, 1, -0.16, 'Calculate x-Value', 
 			normal_x1_input.rendNodeInput.value = '-Infinity';
 			normal_x2_input.rendNodeInput.value = normal_x2.X().toFixed(2);
 		} else if(normal_cb_right.Value()) {
-			normal_x1_input.rendNodeInput.value = normal_x1.X().toFixed(2);	
+			normal_x1_input.rendNodeInput.value = normal_x1.X().toFixed(2);
 			normal_x2_input.rendNodeInput.value = 'Infinity';
 		} else if(normal_cb_between.Value()) {
 			normal_x1.setAttribute({ visible: false });
 		}
-		
+
 		normal_x1_input.setAttribute({ disabled: true });
 		normal_x2_input.setAttribute({ disabled: true });
 		normal_prob_input.setAttribute({ disabled: false });
@@ -2204,7 +2290,7 @@ function t_xval(t) {
 	return t_mean + t * t_stdev;
 }
 
-var t_curve = t_board.create('functiongraph', [function(x) { return tpdf(tScore(x), t_df); }],
+var t_curve = t_board.create('functiongraph', [function(x) { return jStat.studentt.pdf(tScore(x), t_df); }],
 	{ strokeWidth: 3, fixed: true, 	highlight: false });
 
 var t_axis = t_board.create('line', [[0, 0], [1, 0]], { strokeColor: 'black', strokeWidth: 1, highlight: false, fixed: true, frozen: true });
@@ -2213,9 +2299,7 @@ var t1 = t_board.create('glider', [-2, 0, t_axis], { withLabel: false, color: 'b
 t1.on('drag',
 	function() {
 		t_x1_input.rendNodeInput.value = t1.X().toFixed(2);
-		t_df = Number(t_df_input.rendNodeInput.value);
-		t_prob_input.rendNodeInput.value = currentTProbability(tScore(t1.X()), tScore(t2.X()), t_df);
-		t_prob_disp.setText(') = ' + currentTProbability(tScore(t1.X()), tScore(t2.X()), t_df));
+		t_prob_input.rendNodeInput.value = currentTProbability(t1.X(), t2.X(), t_df);
 	}
 );
 
@@ -2223,25 +2307,15 @@ var t2 = t_board.create('glider', [2, 0, t_axis], { withLabel: false, color: 'bl
 t2.on('drag',
 	function() {
 		t_x2_input.rendNodeInput.value = t2.X().toFixed(2);
-		t_x2_disp.setText('< <i>X</i> < ' + t2.X().toFixed(2));
-		t_df = Number(t_df_input.rendNodeInput.value);
-		t_prob_input.rendNodeInput.value = currentTProbability(tScore(t1.X()), tScore(t2.X()), t_df);
-		t_prob_disp.setText(') = ' + currentTProbability(tScore(t1.X()), tScore(t2.X()), t_df));
+		if (t_cb_xvalue.Value() && t_cb[BETWEEN].Value()) {
+			var old_t = tScore(t2.X());
+			var new_x = t_xval(-old_t);
+			t1.moveTo([new_x, 0]);
+			t_x1_input.rendNodeInput.value = new_x.toFixed(2);
+		}
+		t_prob_input.rendNodeInput.value = currentTProbability(t1.X(), t2.X(), t_df);
 	}
 );
-
-var t_ticks = [];
-var t_labels = [];
-for (var i = -3; i <= 3; i++) {
-	t_ticks[i + 3] = t_board.create('segment', [[i,.01], [i,-0.01]], { color: 'grey', strokeWidth: 1, fixed: true, highlight: false });
-	t_labels[i + 3] = t_board.create('text', [i-.05, -0.02, i], { fixed: true, highlight: false });
-}
-
-// input variables
-
-var t_df_input = t_board.create('input', [1.3, 0.45, t_df, 'df = '], { fontSize: 18, cssStyle: 'width: 100px', frozen: true, fixed: true });
-var t_mean_input = t_board.create('input', [1.3, 0.38, '0', '&mu; = '], { fontSize: 18, cssStyle: 'width: 100px', frozen: true, fixed: true });
-var t_stdev_input = t_board.create('input', [1.3, 0.3, '1', '&sigma; = '], { fontSize: 18, cssStyle: 'width: 100px', frozen: true, fixed: true });
 
 var t_shadeleft = t_board.create('integral',
 	[[ function() { return t_xval(-10000); }, function() { return t2.X(); }], t_curve], shadeParam);
@@ -2254,127 +2328,35 @@ t_shaderight.setAttribute({ visible: false });
 var t_shadebetween = t_board.create('integral',
 	[[ function() { return t1.X(); }, function() { return t2.X(); }], t_curve], shadeParam);
 
-var t_x1_input = t_board.create('input', [-3.5, -0.32, '-2', 'P( '], { fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
+var t_ticks = [];
+var t_labels = [];
+for (var i = -3; i <= 3; i++) {
+	t_ticks[i + 3] = t_board.create('segment', [[i,.01], [i,-0.01]], { color: 'grey', strokeWidth: 1, fixed: true, highlight: false });
+	t_labels[i + 3] = t_board.create('text', [i-.05, -0.02, i], { fixed: true, highlight: false });
+}
 
-var t_x2_input = t_board.create('input', [-1.3, -0.32, '2', ' < <i>X</i> < '],
-		{ fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
+// input variables
 
-var t_x2_disp = t_board.create('text', [-1.3, -0.32, '< <i>X</i> < 2'],
-		{ fontSize: 18, frozen: true, visible: false, fixed: true });
-
-var t_prob_input = t_board.create('input', [1.3, -0.32, '0.9500', ') = '],
-		{ fontSize: 18, cssStyle: 'width: 100px ', frozen: true, fixed: true });
-t_prob_input.setAttribute({ visible: false });
-
-var t_prob_disp = t_board.create('text', [1.3, -0.32, ') = 0.9500'],
-		{ fontSize: 18, frozen: true, fixed: true });
-
-t_board.update();
-
-// Buttons
-
-var t_calc_button = t_board.create('button', [1.5, -0.42, 'Calculate',
-	function () {
-
-		if(isChecked(t_cb_area)) {
-			if(!isNaN(t_x1_input.Value())) {
-				t1.moveTo([t_x1_input.Value(), 0]);
-			}
-
-			if(!isNaN(t_x2_input.Value())) {
-				t2.moveTo([t_x2_input.Value(), 0]);
-			}
-			t_df = Number(t_df_input.rendNodeInput.value);
-			t_prob_input.rendNodeInput.value = currentTProbability(tScore(t_x1_input.Value()), tScore(t_x2_input.Value()), t_df);
-			t_prob_disp.setText(') = ' + currentTProbability(tScore(t_x1_input.Value()), tScore(t_x2_input.Value()), t_df));
-
-		} else {
-			if(!isNaN(t_prob_input.Value())) {
-
-				t_df = Number(t_df_input.rendNodeInput.value);
-				var t = t_xval(tinv(t_prob_input.Value(), t_df));
-				t2.moveTo([t, 0]);
-				t_x2_input.rendNodeInput.value = t;
-				t_x2_disp.setText('< <i>X</i> < ' + t.toFixed(8));
-
-			}
-		}
-}], { frozen: true });
-
-var t_update = t_board.create('button', [2.5, 0.22, 'Update',
-
-	function() {
-		var cur_z1 = tScore(t1.X());
-		var cur_z2 = tScore(t2.X());
-		t_mean = Number(t_mean_input.Value());
-		t_stdev = Number(eval(t_stdev_input.Value()));
-		var x_min = t_xval(-4);
-		var x_max = t_xval(4);
-		t_board.setBoundingBox([x_min, 0.5, x_max, -0.5]);
-		t1.moveTo([t_xval(cur_z1), 0]);
-		t2.moveTo([t_xval(cur_z2), 0]);
-		t_x1_input.rendNodeInput.value = t_xval(cur_z1);
-		t_x2_input.rendNodeInput.value = t_xval(cur_z2);
-		t_x2_disp.setText('< <i>X</i> < ' + t_xval(cur_z2).toFixed(8));
-		t_df = Number(t_df_input.rendNodeInput.value);
-		t_prob_input.rendNodeInput.value = currentTProbability(cur_z1, cur_z2, t_df);
-		updateTAxisLabels();
-
+var t_df_input = t_board.create('input', [1.3, 0.45, t_df, 'df = '], inputParam);
+t_df_input.rendNodeInput.onkeypress = function(e) {
+	if(e.which == 13) {
+		t_docalc();
 	}
+};
+var t_mean_input = t_board.create('input', [1.3, 0.38, t_mean, '&mu; = '], inputParam);
+t_mean_input.rendNodeInput.onkeypress = function(e) {
+	if(e.which == 13) {
+		t_docalc();
+	}
+};
+var t_stdev_input = t_board.create('input', [1.3, 0.3, t_stdev, '&sigma; = '], inputParam);
+t_stdev_input.rendNodeInput.onkeypress = function(e) {
+	if(e.which == 13) {
+		t_docalc();
+	}
+};
 
-], { frozen: true });
-
-// Checkboxes
-
-var t_cb_area = JSXCheckbox(t_board, 1, -0.1, 'Calculate Area', true,
-	function() {
-		setCheckbox(t_cb_area, true);
-		setCheckbox(t_cb_xvalue, false);
-
-		t_cb[BETWEEN].setAttribute( { disabled: false, strokeColor: 'black', highlight: true  });
-		t_cb[LEFT].setAttribute( { disabled: false });
-		t_cb[RIGHT].setAttribute( { disabled: false, strokeColor: 'black', highlight: true  });
-
-		t_prob_input.setAttribute( { visible: false });
-		t_prob_disp.setAttribute( { visible: true });
-
-		t_x2_input.setAttribute( { disabled: false });
-		t_x2_input.setAttribute( { visible: true });
-		t_x2_disp.setAttribute({ visible: false });
-
-
-	}, { fontSize: 18, frozen: true });
-
-var t_cb_xvalue = JSXCheckbox(t_board, 1, -0.16, 'Calculate x-Value', false,
-	function() {
-		setCheckbox(t_cb_xvalue, true);
-		setCheckbox(t_cb_area, false);
-
-		t_cb[BETWEEN].setAttribute( { disabled: true, strokeColor: 'lightgray', highlight: false });
-		t_cb[LEFT].setAttribute( { disabled: false });
-		t_cb[RIGHT].setAttribute( { disabled: true, strokeColor: 'lightgray', highlight: false });
-		set_t_cbtrue(LEFT);
-
-		t1.setAttribute({ visible: false });
-		t2.setAttribute({ visible: true });
-
-		t_shadeleft.setAttribute({ visible: true });
-		t_shaderight.setAttribute({ visible: false });
-		t_shadebetween.setAttribute({ visible: false });
-
-		t_x1_input.rendNodeInput.value = '-Infinity';
-		t_x1_input.setAttribute({ disabled: true });
-
-		t_x2_input.rendNodeInput.value = t2.X().toFixed(2);
-		t_x2_input.setAttribute({ visible: false });
-		t_x2_disp.setAttribute({ visible: true });
-
-		t_prob_input.setAttribute({ visible: true });
-		t_prob_disp.setAttribute({ visible: false });
-
-		t2.moveTo([t_x2_input.rendNodeInput.value, 0]);
-
-	}, { fontSize: 18, frozen: true });
+var t_update_button = t_board.create('button', [2.5, 0.22, 'Update', function() { t_docalc(); } ], { frozen: true });
 
 var t_cb = [];
 
@@ -2389,16 +2371,22 @@ t_cb[BETWEEN] = JSXCheckbox(t_board, -3.6, -0.1, 'P(a < x < b)', true,
 		t1.setAttribute({ visible: true });
 		t2.setAttribute({ visible: true });
 
+		if (t_cb_area.Value()) {
+			t_x1_input.setAttribute({ disabled: false });
+			t_x2_input.setAttribute({ disabled: false });
+			t_prob_input.setAttribute({ disabled: true });
+		} else if(t_cb_xvalue.Value()) {
+			t_x1_input.setAttribute({ disabled: true });
+			t_x2_input.setAttribute({ disabled: true });
+			t_prob_input.setAttribute({ disabled: false });
+			t1.setAttribute({ visible: false });
+		}
+
+		// Replace with full update function
 		t_x1_input.rendNodeInput.value = t1.X().toFixed(2);
-		t_x1_input.setAttribute({ disabled: false });
-
 		t_x2_input.rendNodeInput.value = t2.X().toFixed(2);
-		t_x2_input.setAttribute({ visible: true });
-		t_x2_input.setAttribute({ disabled: false });
-		t_x2_disp.setAttribute({ visible: false });
+		t_prob_input.rendNodeInput.value = currentTProbability(t1.X(), t2.X(), t_df);
 
-		t_prob_input.setAttribute({ visible: false });
-		t_prob_disp.setAttribute({ visible: true });
 
 	}, { fontSize: 18, frozen: true });
 
@@ -2406,23 +2394,26 @@ t_cb[LEFT] = JSXCheckbox(t_board, -3.6, -0.16, 'P(x < b)', false,
 	function() {
 		set_t_cbtrue(LEFT);
 
-		t1.setAttribute({ visible: false });
-		t2.setAttribute({ visible: true });
-
 		t_shadeleft.setAttribute({ visible: true });
 		t_shaderight.setAttribute({ visible: false });
 		t_shadebetween.setAttribute({ visible: false });
 
+		t1.setAttribute({ visible: false });
+		t2.setAttribute({ visible: true });
+
+		if (t_cb_area.Value()) {
+			t_x1_input.setAttribute({ disabled: true });
+			t_x2_input.setAttribute({ disabled: false });
+			t_prob_input.setAttribute({ disabled: true });
+		} else if(t_cb_xvalue.Value()) {
+			t_x1_input.setAttribute({ disabled: true });
+			t_x2_input.setAttribute({ disabled: true });
+			t_prob_input.setAttribute({ disabled: false });
+		}
+
 		t_x1_input.rendNodeInput.value = '-Infinity';
-		t_x1_input.setAttribute({ disabled: true });
-
 		t_x2_input.rendNodeInput.value = t2.X().toFixed(2);
-		t_x2_input.setAttribute({ visible: true });
-		t_x2_input.setAttribute({ disabled: false });
-		t_x2_disp.setAttribute({ visible: false });
-
-		t_prob_input.setAttribute({ visible: false });
-		t_prob_disp.setAttribute({ visible: true });
+		t_prob_input.rendNodeInput.value = currentTProbability(Number.NEGATIVE_INFINITY, t2.X(), t_df);
 
 	}, { fontSize: 18, frozen: true });
 
@@ -2430,25 +2421,211 @@ t_cb[RIGHT] = JSXCheckbox(t_board, -3.6, -0.22, 'P(x > a)', false,
 	function() {
 		set_t_cbtrue(RIGHT);
 
-		t1.setAttribute({ visible: true });
-		t2.setAttribute({ visible: false });
-
 		t_shadeleft.setAttribute({ visible: false });
 		t_shaderight.setAttribute({ visible: true });
 		t_shadebetween.setAttribute({ visible: false });
 
+		t1.setAttribute({ visible: true });
+		t2.setAttribute({ visible: false });
+
+		if (t_cb_area.Value()) {
+			t_x1_input.setAttribute({ disabled: false });
+			t_x2_input.setAttribute({ disabled: true });
+			t_prob_input.setAttribute({ disabled: true });
+		} else if(t_cb_xvalue.Value()) {
+			t_x1_input.setAttribute({ disabled: true });
+			t_x2_input.setAttribute({ disabled: true });
+			t_prob_input.setAttribute({ disabled: false });
+		}
+
 		t_x1_input.rendNodeInput.value = t1.X().toFixed(2);
-		t_x1_input.setAttribute({ disabled: false });
-
 		t_x2_input.rendNodeInput.value = 'Infinity';
-		t_x2_input.setAttribute({ visible: true });
-		t_x2_input.setAttribute({ disabled: true });
-		t_x2_disp.setAttribute({ visible: false });
-
-		t_prob_input.setAttribute({ visible: false });
-		t_prob_disp.setAttribute({ visible: true });
+		t_prob_input.rendNodeInput.value = currentTProbability(t1.X(), Number.POSITIVE_INFINITY, t_df);
 
 	}, { fontSize: 18, frozen: true });
+
+var t_cb_area = JSXCheckbox(t_board, 1, -0.1, 'Calculate Area', true,
+	function() {
+		setCheckbox(t_cb_area, true);
+		setCheckbox(t_cb_xvalue, false);
+
+		t1.setAttribute({ visible: true });
+
+		if (t_cb[BETWEEN].Value()) {
+
+			t_x1_input.setAttribute({ disabled: false });
+			t_x2_input.setAttribute({ disabled: false });
+			t_prob_input.setAttribute({ disabled: true });
+
+			t_x1_input.rendNodeInput.value = t1.X().toFixed(2);
+			t_x2_input.rendNodeInput.value = t2.X().toFixed(2);
+			t_prob_input.rendNodeInput.value = currentTProbability(t1.X(), t2.X(), t_df);
+
+		} else if (t_cb[LEFT].Value()) {
+
+			t_x1_input.setAttribute({ disabled: true });
+			t_x2_input.setAttribute({ disabled: false });
+			t_prob_input.setAttribute({ disabled: true });
+
+			t_x1_input.rendNodeInput.value = '-Infinity';
+			t_x2_input.rendNodeInput.value = t2.X().toFixed(2);
+			t_prob_input.rendNodeInput.value = currentTProbability(Number.NEGATIVE_INFINITY, t2.X(), t_df);
+
+		} else if (t_cb[RIGHT].Value()) {
+
+			t_x1_input.setAttribute({ disabled: false });
+			t_x2_input.setAttribute({ disabled: true });
+			t_prob_input.setAttribute({ disabled: true });
+
+			t_x1_input.rendNodeInput.value = t1.X().toFixed(2);
+			t_x2_input.rendNodeInput.value = 'Infinity';
+			t_prob_input.rendNodeInput.value = currentTProbability(t1.X(), Number.POSITIVE_INFINITY, t_df);
+
+		}
+
+
+	}, { fontSize: 18, frozen: true });
+
+var t_cb_xvalue = JSXCheckbox(t_board, 1, -0.16, 'Calculate x-Value', false,
+	function() {
+		setCheckbox(t_cb_xvalue, true);
+		setCheckbox(t_cb_area, false);
+
+		t1.setAttribute({ visible: true });
+
+		if (t_cb[BETWEEN].Value()) {
+
+			t_x1_input.setAttribute({ disabled: true });
+			t_x2_input.setAttribute({ disabled: true });
+			t_prob_input.setAttribute({ disabled: false });
+			t1.setAttribute({ visible: false });
+
+			t_x1_input.rendNodeInput.value = t_xval(-tScore(t2.X())).toFixed(2);
+			t1.moveTo([t_xval(-tScore(t2.X())), 0]);
+			t_x2_input.rendNodeInput.value = t2.X().toFixed(2);
+			t_prob_input.rendNodeInput.value = currentTProbability(t1.X(), t2.X(), t_df);
+
+		} else if (t_cb[LEFT].Value()) {
+
+			t_x1_input.setAttribute({ disabled: true });
+			t_x2_input.setAttribute({ disabled: true });
+			t_prob_input.setAttribute({ disabled: false });
+
+			t_x1_input.rendNodeInput.value = '-Infinity';
+			t_x2_input.rendNodeInput.value = t2.X().toFixed(2);
+			t_prob_input.rendNodeInput.value = currentTProbability(Number.NEGATIVE_INFINITY, t2.X(), t_df);
+
+		} else if (t_cb[RIGHT].Value()) {
+
+			t_x1_input.setAttribute({ disabled: true });
+			t_x2_input.setAttribute({ disabled: true });
+			t_prob_input.setAttribute({ disabled: false });
+
+			t_x1_input.rendNodeInput.value = t1.X().toFixed(2);
+			t_x2_input.rendNodeInput.value = 'Infinity';
+			t_prob_input.rendNodeInput.value = currentTProbability(t1.X(), Number.POSITIVE_INFINITY, t_df);
+
+		}
+
+		t_board.update();
+
+	}, { fontSize: 18, frozen: true });
+
+var t_x1_input = t_board.create('input', [-3.5, -0.32, '-2', 'P( '], inputParam);
+t_x1_input.rendNodeInput.onkeypress = function(e) {
+	if(e.which == 13) {
+		t_docalc();
+	}
+};
+
+var t_x2_input = t_board.create('input', [-1.3, -0.32, '2', ' < <i>X</i> < '], inputParam);
+t_x2_input.rendNodeInput.onkeypress = function(e) {
+	if(e.which == 13) {
+		t_docalc();
+	}
+};
+
+var t_prob_input = t_board.create('input', [1.3, -0.32, '0.9500', ') = '], inputParam);
+t_prob_input.setAttribute({ disabled: true });
+t_prob_input.rendNodeInput.onkeypress = function(e) {
+	if(e.which == 13) {
+		t_docalc();
+	}
+};
+
+// Buttons
+
+var t_calc_button = t_board.create('button', [1.5, -0.42, 'Calculate', function() { t_docalc(); }], { frozen: true });
+
+function t_docalc() {
+
+	// Check to see if updates to the distribution need to be made first
+	if ((t_df_input.Value() != t_df) || (t_mean_input.Value() != t_mean) || (t_stdev_input.Value() != t_stdev)) {
+
+		// Preserve current positions of the input points on the x-axis
+		var cur_z1 = tScore(t1.X());
+		var cur_z2 = tScore(t2.X());
+
+		// Retreive new mean, stdev, df
+		t_mean = Number(t_mean_input.Value());
+		t_stdev = Number(eval(t_stdev_input.Value()));
+		t_df = Number(t_df_input.rendNodeInput.value);
+
+		// Reset board bounds
+		var x_min = t_xval(-4);
+		var x_max = t_xval(4);
+		t_board.setBoundingBox([x_min, 0.5, x_max, -0.5]);
+
+		// Reposition the points
+		var new_t1 = t_xval(cur_z1);
+		var new_t2 = t_xval(cur_z2);
+		t1.moveTo([new_t1, 0]);
+		t2.moveTo([new_t2, 0]);
+
+		t_x1_input.rendNodeInput.value = new_t1;
+		t_x2_input.rendNodeInput.value = new_t2;
+
+		t_prob_input.rendNodeInput.value = currentTProbability(new_t1, new_t2, t_df);
+		updateTAxisLabels();
+
+	}
+
+	if(t_cb_area.Value()) {
+		if(!isNaN(t_x1_input.Value())) {
+			t1.moveTo([t_x1_input.Value(), 0]);
+		}
+
+		if(!isNaN(t_x2_input.Value())) {
+			t2.moveTo([t_x2_input.Value(), 0]);
+		}
+
+		t_prob_input.rendNodeInput.value = currentTProbability(t_x1_input.Value(), t_x2_input.Value(), t_df);
+
+	} else if (t_cb_xvalue.Value()) {
+
+		if(!isNaN(t_prob_input.Value())) {
+
+			if (t_cb[LEFT].Value()) {
+				var x = t_xval(jStat.studentt.inv(t_prob_input.Value(), t_df));
+				t2.moveTo([x, 0]);
+				t_x2_input.rendNodeInput.value = x;
+			} else if (t_cb[RIGHT].Value()) {
+				var x = t_xval(jStat.studentt.inv(1 - t_prob_input.Value(), t_df));
+				t1.moveTo([x, 0]);
+				t_x1_input.rendNodeInput.value = x;
+			} else if (t_cb[BETWEEN].Value()) {
+				var t = jStat.studentt.inv((1 - t_prob_input.Value()) / 2, t_df);
+				t1.moveTo([t_xval(t), 0]);
+				t_x1_input.rendNodeInput.value = t_xval(t);
+				t2.moveTo([t_xval(-t), 0]);
+				t_x2_input.rendNodeInput.value = t_xval(-t);
+			}
+		}
+
+	}
+
+	t_board.update();
+}
 
 function updateTAxisLabels() {
 
@@ -2474,11 +2651,11 @@ function currentTProbability(x1, x2, df) {
 	}
 
 	if(t_cb[BETWEEN].Value()) {
-		return Math.abs(tcdf(x2, df) - tcdf(x1, df)).toFixed(4);
+		return Math.abs(jStat.studentt.cdf(tScore(x2), df) - jStat.studentt.cdf(tScore(x1), df)).toFixed(PRECISION);
 	} else if(t_cb[LEFT].Value()) {
-		return tcdf(x2, df).toFixed(4);
+		return jStat.studentt.cdf(tScore(x2), df).toFixed(PRECISION);
 	} else if(t_cb[RIGHT].Value()) {
-		return (1 - tcdf(x1, df)).toFixed(4);
+		return (1 - jStat.studentt.cdf(tScore(x1), df)).toFixed(PRECISION);
 	}
 
 }
@@ -3039,7 +3216,7 @@ function binom_pdf() {
 
 function binom_getcolors() {
 	var colors = [];
-	
+
 	if (binom_cb[EQUAL].Value()) {
 		for (var i = 0; i <= binom_n; i++) {
 			colors[i] = i == binom_p2.X() ? 'blue' : 'white';
@@ -3059,7 +3236,7 @@ function binom_getcolors() {
 			colors[i] = i < p1 || i > p2 ? 'white' : 'blue';
 		}
 	}
-	
+
 	return colors;
 }
 
@@ -3067,7 +3244,7 @@ function binom_update_colors() {
 
 	binom_board.suspendUpdate();
 	var colors = binom_getcolors();
-	
+
 	for (var i = 0; i <= binom_n; i++) {
 		if(typeof(binom_shadeleft.bars[i]) != 'undefined') {
 			binom_shadeleft.bars[i].rect.setAttribute({ fillColor: colors[i] });
@@ -3244,16 +3421,16 @@ var binom_calc_button = binom_board.create('button', [7, -0.8, 'Calculate',
 		binom_board.suspendUpdate();
 
 		if(binom_n != Number(binom_n_input.rendNodeInput.value)) {
-			
+
 			for(var i = 0; i <= binom_n; i++) {
 				if(typeof(binom_shadeleft.bars[i]) != 'undefined') {
 					binom_board.removeObject(binom_shadeleft.bars[i].rect);
 				}
 			}
-			
+
 			binom_n = Number(binom_n_input.rendNodeInput.value);
 			binom_p = Number(binom_p_input.rendNodeInput.value);
-			
+
 			var binom_ymax = jStat.binomial.pdf(round(binom_n * binom_p, 0), binom_n, binom_p) * 1.5;
 			binom_xmax = binom_n + 1;
 			var binom_bounds = JSXGetBounds(binom_board);
@@ -3271,7 +3448,7 @@ var binom_calc_button = binom_board.create('button', [7, -0.8, 'Calculate',
 			if(binom_x2_input.rendNodeInput.value > binom_xmax) {
 				binom_x2_input.rendNodeInput.value = binom_xmax - 1;
 			}
-						
+
 			//binom_board.setBoundingBox([binom_xmin, binom_ymax, binom_xmax, binom_ymin]);
 			binom_mean = binom_n * binom_p;
 			binom_stdev = sqrt(binom_n * binom_p * (1 - binom_p));
@@ -3281,15 +3458,15 @@ var binom_calc_button = binom_board.create('button', [7, -0.8, 'Calculate',
 
 			binom_p1.moveTo([binom_x1, 0]);
 			binom_p2.moveTo([binom_x2, 0]);
-			
-			if(binom_n <= 60) {	
+
+			if(binom_n <= 60) {
 				binom_shadeleft = new Histogram(binom_board, binom_pdf(), binom_getcolors(), [-0.5, 0], 1);
 			}
-					
+
 		} else {
 			binom_n = Number(binom_n_input.rendNodeInput.value);
 			binom_p = Number(binom_p_input.rendNodeInput.value);
-	
+
 			binom_mean = binom_n * binom_p;
 			binom_stdev = sqrt(binom_n * binom_p * (1 - binom_p));
 
@@ -3298,10 +3475,10 @@ var binom_calc_button = binom_board.create('button', [7, -0.8, 'Calculate',
 
 			binom_p1.moveTo([binom_x1, 0]);
 			binom_p2.moveTo([binom_x2, 0]);
-			
+
 			binom_update_colors();
 			binom_shadeleft.setBarHeights(binom_pdf(), 0);
-			
+
 		}
 
 		binom_prob_disp.setText(') = ' + binom_cprob(binom_x1, binom_x2, binom_n, binom_p, binom_ptype));
@@ -3336,7 +3513,7 @@ function binom_updateAxis(y_max) {
 	if(step > 0) {
 		for(var i = 0; i <= (binom_n / step); i++) {
 			binom_labels[i] = binom_board.create('text', [(i * step)- (0.05 * y_max), -(0.05 * y_max), i * step], { fixed: true, highlight: false });
-			binom_ticks[i] = binom_board.create('segment', [[(i * step), (.01 * y_max)], [(i * step), -(0.01 * y_max)]], { color: 'grey', strokeWidth: 1, fixed: true, highlight: false });	
+			binom_ticks[i] = binom_board.create('segment', [[(i * step), (.01 * y_max)], [(i * step), -(0.01 * y_max)]], { color: 'grey', strokeWidth: 1, fixed: true, highlight: false });
 		}
 	}
 
