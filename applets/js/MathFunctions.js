@@ -1,3 +1,8 @@
+// Dependencies:
+//
+//  - jsxgraph is required for any jsx functions
+//  - math.js is required for evaluations and drawing graphs
+
 // Useful constants
 
 PI        = 3.14159265358979323846;
