@@ -321,7 +321,8 @@ var list_board = JXG.JSXGraph.initBoard('list-editor', {
     });
 
 var list_title1 = list_board.create('text', [1.5, 9.5, 'L1'], { fixed: true, fontSize: 18 });
-var list_title2 = list_board.create('text', [5.5, 9.5, 'L2'], { fixed: true, fontSize: 18 });
+var list_title2 = list_board.create('text', [3.5, 9.5, 'L2'], { fixed: true, fontSize: 18 });
+var list_title2 = list_board.create('text', [5.5, 9.5, 'L3'], { fixed: true, fontSize: 18 });
 
 var list_clear_button1 = list_board.create('button', [7.5, 8, 'Clear L1',
 	function() {
@@ -330,21 +331,28 @@ var list_clear_button1 = list_board.create('button', [7.5, 8, 'Clear L1',
 		}
 	}]);
 
-var list_clear_button2 = list_board.create('button', [7.5, 7, 'Clear L2',
+var list_clear_button2 = list_board.create('button', [7.5, 7.5, 'Clear L2',
 	function() {
 		for(var i = 0; i < list2_data.length; i++) {
 			list2_data[i].rendNodeInput.value = '';
 		}
 	}]);
 
-var list_formula = list_board.create('input', [7.5, 6, '', ''], { fontSize: 18, cssStyle: 'width: 100px', frozen: true, fixed: true });
+var list_clear_button2 = list_board.create('button', [7.5, 7, 'Clear L3',
+	function() {
+		for(var i = 0; i < list2_data.length; i++) {
+			list3_data[i].rendNodeInput.value = '';
+		}
+	}]);
+
+var list_formula = list_board.create('input', [7.5, 5.5, '', ''], { fontSize: 18, cssStyle: 'width: 100px', fixed: true });
 list_formula.rendNodeInput.onkeypress = function(e) {
 	if(e.which == 13) {
 		list_calculate();
 	}
 };
 
-var list_calculate_button = list_board.create('button', [7.5, 5, 'Apply Formula', function() { list_calculate(); }], { frozen: true, fixed : true });
+var list_calculate_button = list_board.create('button', [7.5, 4.5, 'Apply Formula', function() { list_calculate(); }], { fixed : true });
 
 function list_calculate() {
 
@@ -355,8 +363,9 @@ function list_calculate() {
 		var parts = formula.split('=');
 		for(var i = 0; i < list1_data.length; i++) {
 			if (list2_data[i].rendNodeInput.value !== '') {
-				var val = Number(list2_data[i].rendNodeInput.value);
-				var scope = { l2: val };
+				var val2 = evalstr(list2_data[i].rendNodeInput.value);
+				var val3 = evalstr(list3_data[i].rendNodeInput.value);
+				var scope = { l2: val2, l3: val3 };
 				list1_data[i].rendNodeInput.value = round(math.eval(formula, scope), PRECISION);
 			}
 		}
@@ -366,29 +375,47 @@ function list_calculate() {
 		var parts = formula.split('=');
 		for(var i = 0; i < list2_data.length; i++) {
 			if (list1_data[i].rendNodeInput.value !== '') {
-				var val = Number(list1_data[i].rendNodeInput.value);
-				var scope = { l1: val };
+				var val1 = evalstr(list1_data[i].rendNodeInput.value);
+				var val3 = evalstr(list3_data[i].rendNodeInput.value);
+				var scope = { l1: val1, l3: val3 };
 				list2_data[i].rendNodeInput.value = round(math.eval(formula, scope), PRECISION);
+			}
+		} 
+	} else if (formula.startsWith('l3')) {
+
+		var parts = formula.split('=');
+		for(var i = 0; i < list3_data.length; i++) {
+			if (list1_data[i].rendNodeInput.value !== '') {
+				var val1 = evalstr(list1_data[i].rendNodeInput.value);
+				var val2 = evalstr(list2_data[i].rendNodeInput.value);
+				var scope = { l1: val1, l2: val2 };
+				list3_data[i].rendNodeInput.value = round(math.eval(formula, scope), PRECISION);
 			}
 		}
 
 	} else {
-		alert('Error in list formula. The formula must begin with L1 = or L2 = ');
+		alert('Error in list formula. The formula must begin with L1=, L2=, or L3= ');
 	}
 
 }
 
 var list1_data = [];
 var list2_data = [];
+var list3_data = [];
 
-// These are done in two groups to make the tab order more sensible
+// These are done in groups to make the tab order more sensible
 for (var i = 0; i < MAXLISTSIZE; i++) {
 	list1_data[i] = list_board.create('input', [0.5, 9 - i * 0.5, '', ''],
 			{ cssStyle: 'width: 100px', fixed: true, fontSize: 18 });
 }
 
 for(var i = 0; i < MAXLISTSIZE; i++) {
-	list2_data[i] = list_board.create('input', [4.5, 9 - i * 0.5, '', ''],
+	list2_data[i] = list_board.create('input', [2.5, 9 - i * 0.5, '', ''],
+			{ cssStyle: 'width: 100px', fixed: true, fontSize: 18 });
+}
+
+for(var i = 0; i < MAXLISTSIZE; i++) {
+	list3_data[i] = list_board.create('input', [4.5, 9 - i * 0.5, '', ''],
 			{ cssStyle: 'width: 100px', fixed: true, fontSize: 18 });
 }
 
@@ -470,22 +497,17 @@ function zint_docalc() {
 	} else {
 		var list = zint_list.rendNodeInput.value;
 		if (list.includes(',')) {
-			var xdata = getRawData(list1_data);
-			var fdata = getRawData(list2_data);
+			var lists = list.split(',');
+			var xdata = getRawData(getListByName(lists[0]));
+			var fdata = getRawData(getListByName(lists[1]));
 			n = xdata.length;
 			mean = stats.wmean(xdata, fdata);
 		} else {
-			if (list == "L2" || list == "l2") {
-				xdata = getRawData(list2_data);
-			} else {
-				xdata = getRawData(list1_data);
-			}
+			xdata = getRawData(getListByName(list));
 			mean = stats.mean(xdata);
 			n = xdata.length
 		}
 	}
-
-	console.log('c == ' + c);
 
 	if (isNaN(c) || isNaN(n) || isNaN(mean) || isNaN(stdev)) {
 		zint_interval.setText('Oops! All inupt values must be either numeric or<br/>'
@@ -594,17 +616,14 @@ function tint_docalc() {
 	} else {
 		var list = tint_list.rendNodeInput.value;
 		if (list.includes(',')) {
-			var xdata = getRawData(list1_data);
-			var fdata = getRawData(list2_data);
+			var lists = list.split(',');
+			var xdata = getRawData(getListByName(lists[0]));
+			var fdata = getRawData(getListByName(lists[1]));
 			n = xdata.length;
 			mean = stats.wmean(xdata, fdata);
 			std = stats.wstdev(xdata, fdata);
 		} else {
-			if (list == "L2" || list == "l2") {
-				xdata = getRawData(list2_data);
-			} else {
-				xdata = getRawData(list1_data);
-			}
+			xdata = getRawData(getListByName(list));
 			mean = stats.mean(xdata);
 			stdev = stats.stdev(xdata);
 			n = xdata.length
@@ -735,38 +754,38 @@ var zint2_board = JXG.JSXGraph.initBoard('z-int_2samp', {
 		}
     });
 
-var zint2_std1 = zint2_board.create('input', [0.5, 9, '', '&sigma;<sub>1</sub> = '], inputParam);
-zint2_std1.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { zint2_docalc(); } };
-
-var zint2_mean1 = zint2_board.create('input', [0.5, 8, '', 'x&#772;<sub>1</sub> = '], inputParam);
+var zint2_mean1 = zint2_board.create('input', [0.5, 9, '', '<i>x&#772;<sub>1</sub></i> = '], inputParam);
 zint2_mean1.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { zint2_docalc(); } };
 
-var zint2_n1 = zint2_board.create('input', [0.5, 7, '', 'n<sub>1</sub> = '], inputParam);
+var zint2_std1 = zint2_board.create('input', [0.5, 8, '', '<i>&sigma;<sub>1</sub></i> = '], inputParam);
+zint2_std1.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { zint2_docalc(); } };
+
+var zint2_n1 = zint2_board.create('input', [0.5, 7, '', '<i>n<sub>1</sub></i> = '], inputParam);
 zint2_n1.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { zint2_docalc(); } };
 
-var zint2_list1 = zint2_board.create('input', [0.5, 6, 'L1', 'List<sub>1</sub>: '], inputParam);
+var zint2_list1 = zint2_board.create('input', [0.5, 6, 'L1', '<i>List<sub>1</sub></i>: '], inputParam);
 zint2_list1.setAttribute({ disabled: true, strokeColor: 'lightgray' });
 zint2_list1.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { zint2_docalc(); } };
 
-var zint2_std2 = zint2_board.create('input', [5, 9, '', '&sigma;<sub>2</sub> = '], inputParam);
-zint2_std2.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { zint2_docalc(); } };
-
-var zint2_mean2 = zint2_board.create('input', [5, 8, '', 'x&#772;<sub>2</sub> = '], inputParam);
+var zint2_mean2 = zint2_board.create('input', [4, 9, '', '<i>x&#772;<sub>2</sub></i> = '], inputParam);
 zint2_mean2.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { zint2_docalc(); } };
 
-var zint2_n2 = zint2_board.create('input', [5, 7, '', 'n<sub>2</sub> = '], inputParam);
+var zint2_std2 = zint2_board.create('input', [4, 8, '', '<i>&sigma;<sub>2</sub></i> = '], inputParam);
+zint2_std2.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { zint2_docalc(); } };
+
+var zint2_n2 = zint2_board.create('input', [4, 7, '', '<i>n<sub>2</sub></i> = '], inputParam);
 zint2_n2.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { zint2_docalc(); } };
 
-var zint2_list2 = zint2_board.create('input', [5, 6, 'L2', 'List<sub>2</sub>: '], inputParam);
+var zint2_list2 = zint2_board.create('input', [4, 6, 'L2', '<i>List<sub>2</sub></i>: '], inputParam);
 zint2_list2.setAttribute({ disabled: true, strokeColor: 'lightgray' });
-zint2_list2.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { zint2docalc(); } };
+zint2_list2.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { zint2_docalc(); } };
 
-var zint2_c = zint2_board.create('input', [0.5, 5, '', 'c = '], inputParam);
+var zint2_c = zint2_board.create('input', [0.5, 5, '', '<i>c</i> = '], inputParam);
 zint2_c.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { zint2_docalc(); } };
 
-var zint2_interval = zint2_board.create('text', [0.5, 3, ''], textParam);
+var zint2_interval = zint2_board.create('text', [0.5, 4, ''], textParam);
 
-var zint2_cb_stats = JSXCheckbox(zint2_board, 0.5, 4, 'Input from Stats', true,
+var zint2_cb_stats = JSXCheckbox(zint2_board, 7.5, 8.5, 'Statistics', true,
 	function() {
 		setCheckbox(zint2_cb_stats, true);
 		setCheckbox(zint2_cb_data, false);
@@ -778,7 +797,7 @@ var zint2_cb_stats = JSXCheckbox(zint2_board, 0.5, 4, 'Input from Stats', true,
 		zint2_n2.setAttribute({ disabled: false, strokeColor: 'black' });
 	}, { fontSize: 18, frozen: true, anchorY: 'top'});
 
-var zint2_cb_data = JSXCheckbox(zint2_board, 5, 4, 'Input from Data', false,
+var zint2_cb_data = JSXCheckbox(zint2_board, 7.5, 8, 'Data', false,
 	function() {
 		setCheckbox(zint2_cb_stats, false);
 		setCheckbox(zint2_cb_data, true);
@@ -790,7 +809,7 @@ var zint2_cb_data = JSXCheckbox(zint2_board, 5, 4, 'Input from Data', false,
 		zint2_n2.setAttribute({ disabled: true, strokeColor: 'lightgray' });
 	}, { fontSize: 18, anchorY: 'top', frozen: true });
 
-var zint2_calculate = zint2_board.create('button', [6, 4.8, 'Calculate',
+var zint2_calculate = zint2_board.create('button', [7.5, 7, 'Calculate',
 	function() { zint2_docalc(); }], buttonParam);
 
 function zint2_docalc() {
@@ -816,6 +835,7 @@ function zint2_docalc() {
 			n2 = xdata2.length;
 			mean1 = stats.mean(xdata1);
 			mean2 = stats.mean(xdata2);
+		} else {
 			listerror = true;
 		}
 	}
@@ -841,7 +861,7 @@ function zint2_docalc() {
 
 		zint2_interval.setText(
 			'(' + round(lb, PRECISION) + ', '
-			+ round(ub, PRECISION) + ')<br/>'
+			+ round(ub, PRECISION) + ')<br/><br/>'
 			+ 'z<sub>c</sub> = ' + round(z, PRECISION) + '<br/>'
 			+ 'E = ' + round(me, PRECISION) + '<br/><br/>'
 			+ '<table>'
@@ -854,19 +874,13 @@ function zint2_docalc() {
 			+ '<td><i>x&#772;<sub>2</sub></i> = ' + round(mean2, PRECISION) + '</td>'
 			+ '<td><i>&sigma;<sub>2</sub></i> = ' + round(std2, PRECISION) + '</td>'
 			+ '<td><i>n<sub>2</sub></i> = ' + n2 + '</td>'
-
+			+ '</tr>'
+			+ '<tr>'
+			+ '<td><i>x&#772;<sub>1</sub></i> - <i>x&#772;<sub>2</sub></i> = ' + round(center, PRECISION) + '</td>'
 			+ '</tr>'
 			+ '</table>'
 		);
 	}
-}
-
-function getListByName(listname) {
-	if(listname == "L1" || listname == "l1") {
-		return list1_data;
-	} else if(listname == "L2" || listname == "l2") {
-		return list2_data;
-	} else return undefined;
 }
 
 </script>
@@ -896,104 +910,136 @@ var tint2_board = JXG.JSXGraph.initBoard('t-int_2samp', {
 		}
     });
 
-var tint2_std1 = tint2_board.create('input', [0.5, 9, '', 's<sub>1</sub> = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
-var tint2_mean1 = tint2_board.create('input', [0.5, 8, '', 'x&#772;<sub>1</sub> = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
-var tint2_n1 = tint2_board.create('input', [0.5, 7, '', 'n<sub>1</sub> = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
-var tint2_list1 = tint2_board.create('input', [0.5, 6, 'L1', 'List<sub>1</sub>: '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18, strokeColor: 'lightgray' });
-tint2_list1.setAttribute({ disabled: true });
 
-var tint2_std2 = tint2_board.create('input', [5, 9, '', 's<sub>2</sub> = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
-var tint2_mean2 = tint2_board.create('input', [5, 8, '', 'x&#772;<sub>2</sub> = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
-var tint2_n2 = tint2_board.create('input', [5, 7, '', 'n<sub>2</sub> = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
-var tint2_list2 = tint2_board.create('input', [5, 6, 'L2', 'List<sub>2</sub>: '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18, strokeColor: 'lightgray' });
-tint2_list2.setAttribute({ disabled: true });
+var tint2_mean1 = tint2_board.create('input', [0.5, 9, '', '<i>x&#772;<sub>1</sub></i> = '], inputParam);
+tint2_mean1.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { tint2_docalc(); } };
 
-var tint2_c = tint2_board.create('input', [0.5, 5, '', 'c = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var tint2_std1 = tint2_board.create('input', [0.5, 8, '', '<i>s<sub>1</sub></i> = '], inputParam);
+tint2_std1.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { tint2_docalc(); } };
 
-var tint2_interval = tint2_board.create('text', [0.5, 2, ''],
-		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+var tint2_n1 = tint2_board.create('input', [0.5, 7, '', '<i>n<sub>1</sub></i> = '], inputParam);
+tint2_n1.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { tint2_docalc(); } };
 
-var tint2_cb_pooled = JSXCheckbox(tint2_board, 0.5, 4, 'Pooled Variance', false,
+var tint2_list1 = tint2_board.create('input', [0.5, 6, 'L1', '<i>List<sub>1</sub></i>: '], inputParam);
+tint2_list1.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+tint2_list1.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { tint2_docalc(); } };
+
+var tint2_mean2 = tint2_board.create('input', [4, 9, '', '<i>x&#772;<sub>2</sub></i> = '], inputParam);
+tint2_mean2.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { tint2_docalc(); } };
+
+var tint2_std2 = tint2_board.create('input', [4, 8, '', '<i>s<sub>2</sub></i> = '], inputParam);
+tint2_std2.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { tint2_docalc(); } };
+
+var tint2_n2 = tint2_board.create('input', [4, 7, '', '<i>n<sub>2</sub></i> = '], inputParam);
+tint2_n2.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { tint2_docalc(); } };
+
+var tint2_list2 = tint2_board.create('input', [4, 6, 'L2', '<i>List<sub>2</sub></i>: '], inputParam);
+tint2_list2.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+tint2_list2.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { tint2_docalc(); } };
+
+var tint2_c = tint2_board.create('input', [0.5, 5, '', '<i>c</i> = '], inputParam);
+tint2_c.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { tint2_docalc(); } };
+
+var tint2_interval = tint2_board.create('text', [0.5, 4, ''], textParam);
+
+var tint2_cb_pooled = JSXCheckbox(tint2_board, 4, 5, 'Pooled Variance', false,
 	function() {
 		toggleCheckbox(tint2_cb_pooled);
 	}, { fontSize: 18, frozen: true, anchorY: 'top'});
 
-var tint2_cb_stats = JSXCheckbox(tint2_board, 0.5, 3, 'Input from Stats', true,
+var tint2_cb_stats = JSXCheckbox(tint2_board, 7.5, 8.5, 'Statistics', true,
 	function() {
 		setCheckbox(tint2_cb_stats, true);
 		setCheckbox(tint2_cb_data, false);
+
 		tint2_list1.setAttribute({ disabled: true, strokeColor: 'lightgray' });
-		tint2_mean1.setAttribute({ disabled: false, strokeColor: 'black' });
-		tint2_n1.setAttribute({ disabled: false, strokeColor: 'black' });
-		tint2_std1.setAttribute({ disabled: false, strokeColor: 'black' });
 		tint2_list2.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+
+		tint2_mean1.setAttribute({ disabled: false, strokeColor: 'black' });
+		tint2_std1.setAttribute({ disabled: false, strokeColor: 'black' });
+		tint2_n1.setAttribute({ disabled: false, strokeColor: 'black' });
+
 		tint2_mean2.setAttribute({ disabled: false, strokeColor: 'black' });
-		tint2_n2.setAttribute({ disabled: false, strokeColor: 'black' });
 		tint2_std2.setAttribute({ disabled: false, strokeColor: 'black' });
+		tint2_n2.setAttribute({ disabled: false, strokeColor: 'black' });
 	}, { fontSize: 18, frozen: true, anchorY: 'top'});
 
-var tint2_cb_data = JSXCheckbox(tint2_board, 5, 3, 'Input from Data', false,
+var tint2_cb_data = JSXCheckbox(tint2_board, 7.5, 8, 'Data', false,
 	function() {
 		setCheckbox(tint2_cb_stats, false);
 		setCheckbox(tint2_cb_data, true);
+
 		tint2_list1.setAttribute({ disabled: false, strokeColor: 'black' });
-		tint2_mean1.setAttribute({ disabled: true, strokeColor: 'lightgray' });
-		tint2_n1.setAttribute({ disabled: true, strokeColor: 'lightgray' });
-		tint2_std1.setAttribute({ disabled: true, strokeColor: 'lightgray' });
 		tint2_list2.setAttribute({ disabled: false, strokeColor: 'black' });
+
+		tint2_mean1.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		tint2_std1.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		tint2_n1.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+
 		tint2_mean2.setAttribute({ disabled: true, strokeColor: 'lightgray' });
-		tint2_n2.setAttribute({ disabled: true, strokeColor: 'lightgray' });
 		tint2_std2.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+		tint2_n2.setAttribute({ disabled: true, strokeColor: 'lightgray' });
 	}, { fontSize: 18, anchorY: 'top', frozen: true });
 
-var tint2_calculate = tint2_board.create('button', [6, 4.8, 'Calculate',
+var tint2_calculate = tint2_board.create('button', [7.5, 7, 'Calculate',
+	function() { tint2_docalc(); }], { frozen: true, anchorY: 'top' });
 
-	function() {
+function tint2_docalc() {
 
-		var c = Number(tint2_c.rendNodeInput.value);
-		var n1, n2, std1, std2, mean1, mean2 = 0;
+	var c = evalstr(tint2_c.rendNodeInput.value);
+	var mean1 = NaN, std1 = NaN, n1 = NaN;
+	var mean2 = NaN, std2 = NaN, n2 = NaN;
+	var listerror = false;
 
-		if(tint2_cb_stats.Value()) {
-			n1 = Number(tint2_n1.rendNodeInput.value);
-			mean1 = Number(tint2_mean1.rendNodeInput.value);
-			std1 = Number(tint2_std1.rendNodeInput.value);
-			n2 = Number(tint2_n2.rendNodeInput.value);
-			mean2 = Number(tint2_mean2.rendNodeInput.value);
-			std2 = Number(tint2_std2.rendNodeInput.value);
-		} else {
-			var list1 = tint2_list1.rendNodeInput.value;
-			var list2 = tint2_list2.rendNodeInput.value;
-			var xdata1 = getRawData(getListByName(list1));
-			var xdata2 = getRawData(getListByName(list2));
+	if(tint2_cb_stats.Value()) {
+		mean1 = evalstr(tint2_mean1.rendNodeInput.value);
+		std1 = evalstr(tint2_std1.rendNodeInput.value);
+		n1 = evalstr(tint2_n1.rendNodeInput.value);
+		mean2 = evalstr(tint2_mean2.rendNodeInput.value);
+		std2 = evalstr(tint2_std2.rendNodeInput.value);
+		n2 = evalstr(tint2_n2.rendNodeInput.value);
+	} else {
+		var list1 = tint2_list1.rendNodeInput.value;
+		var list2 = tint2_list2.rendNodeInput.value;
+		var xdata1 = getRawData(getListByName(list1));
+		var xdata2 = getRawData(getListByName(list2));
+		if((xdata1 !== undefined) && (xdata2 !== undefined)) {
 			n1 = xdata1.length;
 			n2 = xdata2.length;
 			mean1 = stats.mean(xdata1);
 			mean2 = stats.mean(xdata2);
 			std1 = stats.stdev(xdata1);
 			std2 = stats.stdev(xdata2);
-		}
-
-		var serr, df = 0;
-		if (isChecked(tint2_cb_pooled)) {
-			df = n1 + n2 - 2;
-			var pooledsd = sqrt( ((n1 - 1) * sqr(std1) + (n2 - 1) * sqr(std2)) / df);
-			serr = sqrt( sqr(pooledsd) / n1 + sqr(pooledsd) / n2);
 		} else {
-			serr = sqrt( sqr(std1) / n1 + sqr(std2) / n2);
-			var num = sqr( sqr(std1) / n1 + sqr(std2) / n2 );
-			var denom1 = (1 / (n1 - 1)) * sqr( sqr(std1) / n1 );
-			var denom2 = (1 / (n2 - 1)) * sqr( sqr(std2) / n2 );
-			df = num / (denom1 + denom2);
+			listerror = true;
 		}
+	}
+
+	var serr, df = 0;
+	if (isChecked(tint2_cb_pooled)) {
+		df = n1 + n2 - 2;
+		var pooledsd = sqrt( ((n1 - 1) * sqr(std1) + (n2 - 1) * sqr(std2)) / df);
+		serr = sqrt( sqr(pooledsd) / n1 + sqr(pooledsd) / n2);
+	} else {
+		serr = sqrt( sqr(std1) / n1 + sqr(std2) / n2);
+		var num = sqr( sqr(std1) / n1 + sqr(std2) / n2 );
+		var denom1 = (1 / (n1 - 1)) * sqr( sqr(std1) / n1 );
+		var denom2 = (1 / (n2 - 1)) * sqr( sqr(std2) / n2 );
+		df = num / (denom1 + denom2);
+	}
+
+	if(isNaN(c) || isNaN(std1) || isNaN(std2) || isNaN(n1) || isNaN(n2) || isNaN(mean1) || isNaN(mean2) || isNaN(df) || isNaN(serr)) {
+		if(listerror) {
+			tint2_interval.setText('One of your lists was not found,<br/>&nbsp;&nbsp;&nbsp;try using L1 or L2 as the name of your lists.');
+		} else {
+			tint2_interval.setText('One or more input variables is blank or invalid.<br/>&nbsp;&nbsp;&nbsp;Please check your input.');
+		}
+	} else if (n1 <= 1 || n2 <= 1) {
+		tint2_interval.setText('Oops! The sample sizes must be greater than or equal to one.');
+	} else if (c < 0 || c >= 1) {
+		tint2_interval.setText('Oops! The level of confidence, <i>c</i>, must be a value<br/>'
+			+ '&nbsp;&nbsp;&nbsp; greater than or equal to zero and less than one.');
+	} else {
 
 		var t = Math.abs(jStat.studentt.inv((1 - c) / 2, df));
 		var me = t * serr;
@@ -1001,10 +1047,30 @@ var tint2_calculate = tint2_board.create('button', [6, 4.8, 'Calculate',
 		var lb = center - me;
 		var ub = center + me;
 
-		tint2_interval.setText('(' + lb + ', ' + ub + ')');
+		tint2_interval.setText(
+			'(' + round(lb, PRECISION) + ', '
+			+ round(ub, PRECISION) + ')<br/><br/>'
+			+ '<i>t<sub>c</sub></i> = ' + round(t, PRECISION) + '&nbsp;&nbsp;&nbsp;&nbsp;' 
+			+ '<i>df</i> = ' + round(df, PRECISION)	+ '<br/>'
+			+ '<i>E</i> = ' + round(me, PRECISION) + '<br/><br/>'
+			+ '<table>'
+			+ '<tr>'
+			+ '<td style="width:160px"><i>x&#772;<sub>1</sub></i> = ' + round(mean1, PRECISION) + '</td>'
+			+ '<td style="width:160px"><i>s<sub>1</sub></i> = ' + round(std1, PRECISION) + '</td>'
+			+ '<td><i>n<sub>1</sub></i> = ' + n1 + '</td>'
+			+ '</tr>'
+			+ '<tr>'
+			+ '<td><i>x&#772;<sub>2</sub></i> = ' + round(mean2, PRECISION) + '</td>'
+			+ '<td><i>s<sub>2</sub></i> = ' + round(std2, PRECISION) + '</td>'
+			+ '<td><i>n<sub>2</sub></i> = ' + n2 + '</td>'
+			+ '</tr>'
+			+ '<td><i>x&#772;<sub>1</sub></i> - <i>x&#772;<sub>2</sub></i> = ' + round(center, PRECISION) + '</td>' 
+			+ '<tr>'
+			+ '</table>'
+		);
 	}
 
-], { frozen: true, anchorY: 'top' });
+}
 
 </script>
 
@@ -1033,36 +1099,48 @@ var pint2_board = JXG.JSXGraph.initBoard('prop-int_2samp', {
 		}
     });
 
-var pint2_x1 = pint2_board.create('input', [0.5, 8, '', 'x<sub>1</sub> = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
-var pint2_n1 = pint2_board.create('input', [0.5, 7, '', 'n<sub>1</sub> = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var pint2_x1 = pint2_board.create('input', [0.5, 8, '', 'x<sub>1</sub> = '], inputParam);
+pint2_x1.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { pint2_docalc(); } };
 
-var pint2_x2 = pint2_board.create('input', [5, 8, '', 'x<sub>2</sub> = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
-var pint2_n2 = pint2_board.create('input', [5, 7, '', 'n<sub>2</sub> = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var pint2_n1 = pint2_board.create('input', [0.5, 7, '', 'n<sub>1</sub> = '], inputParam);
+pint2_n1.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { pint2_docalc(); } };
 
-var pint2_c = pint2_board.create('input', [0.5, 5, '', 'c = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var pint2_x2 = pint2_board.create('input', [5, 8, '', 'x<sub>2</sub> = '], inputParam);
+pint2_x2.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { pint2_docalc(); } };
 
-var pint2_interval = pint2_board.create('text', [0.5, 4, ''],
-		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+var pint2_n2 = pint2_board.create('input', [5, 7, '', 'n<sub>2</sub> = '], inputParam);
+pint2_n2.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { pint2_docalc(); } };
 
-var pint2_calculate = pint2_board.create('button', [6, 4.8, 'Calculate',
+var pint2_c = pint2_board.create('input', [0.5, 6, '', 'c = '], inputParam);
+pint2_c.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { pint2_docalc(); } };
 
-	function() {
+var pint2_interval = pint2_board.create('text', [0.5, 5, ''], textParam);
 
-		var c = Number(pint2_c.rendNodeInput.value);
+var pint2_calculate = pint2_board.create('button', [6, 5.8, 'Calculate',
+	function() { pint2_docalc(); }], { frozen: true, anchorY: 'top' });
 
-		var x1 = Number(pint2_x1.rendNodeInput.value);
-		var n1 = Number(pint2_n1.rendNodeInput.value);
-		var x2 = Number(pint2_x2.rendNodeInput.value);
-		var n2 = Number(pint2_n2.rendNodeInput.value);
+function pint2_docalc() {
+
+	var c = evalstr(pint2_c.rendNodeInput.value);
+
+	var x1 = evalstr(pint2_x1.rendNodeInput.value);
+	var n1 = evalstr(pint2_n1.rendNodeInput.value);
+	var x2 = evalstr(pint2_x2.rendNodeInput.value);
+	var n2 = evalstr(pint2_n2.rendNodeInput.value);
+	
+	if (isNaN(c) || isNaN(x1) || isNaN(n1) || isNaN(x2) || isNaN(n2)) {
+		pint2_interval.setText('One or more input variables is blank or invalid.<br/>&nbsp;&nbsp;&nbsp;Please check your input.');
+	} else if (n1 < x1 || n2 < x2) {
+		pint2_interval.setText('Oops! The sample size, <i>n</i>, must be greater than<br/>&nbsp;&nbsp;&nbsp;or equal to <i>x</i>.');
+	} else if (n1 <= 0 || n2 <= 0) {
+		pint2_interval.setText('Oops! The sample size, <i>n</i>, must be larger than zero.');
+	} else if (x1 < 0 || x2 < 0) {
+		pint2_interval.setText('Oops! The value of <i>x</i>, must be between 0 and <i>n</i>.');
+	} else {
+	
 		var p1 = x1 / n1;
 		var p2 = x2 / n2;
 
-		//var p = (x1 + x2) / (n1 + n2);
 		var serr = sqrt( p1 * (1 - p1) / n1 + p2 * (1 - p2) / n2 );
 
 		var z = Math.abs(jStat.normal.inv((1 - c) / 2, 0, 1));
@@ -1071,10 +1149,16 @@ var pint2_calculate = pint2_board.create('button', [6, 4.8, 'Calculate',
 		var lb = center - me;
 		var ub = center + me;
 
-		pint2_interval.setText('(' + lb + ', ' + ub + ')');
+		pint2_interval.setText(
+			'(' + round(lb, PRECISION)
+			+ ', ' + round(ub, PRECISION) + ')<br/>'
+			+ 'z<sub>c</sub> = ' + round(z, PRECISION) + '<br/><br/>'
+			+ 'p&#770;<sub>1</sub> = ' + round(x1 / n1, PRECISION) + '<br/>'
+			+ 'p&#770;<sub>2</sub> = ' + round(x2 / n2, PRECISION) + '<br/><br/>'
+			+ 'p&#770;<sub>1</sub> - p&#770;<sub>2</sub> = ' + round(center, PRECISION) + '<br/>'
+			+ 'E = ' + round(me, PRECISION));
 	}
-
-], { frozen: true, anchorY: 'top' });
+}
 
 </script>
 
@@ -1863,11 +1947,17 @@ function calc_calculate() {
 
 	// check to see if we are doing some statistics
 	if (expression.includes('1-var_stats')) {
+		expression = expression.replace('1-var_stats', '');
+		expression = expression.replace('(', '');
+		expression = expression.replace(')', '');
+		expression = expression.replace(/ /g, '');
+		exression = expression.trim();
 		// Determine if we are in weighted mode or not
 		if (expression.includes(',')) {
 			weightedstats = true;
-			var xdata = getRawData(list1_data);
-			var fdata = getRawData(list2_data);
+			var lists = expression.split(',');
+			var xdata = getRawData(getListByName(lists[0]));
+			var fdata = getRawData(getListByName(lists[1]));
 			var n = stats.wn(xdata, fdata);
 			var mean = round(stats.wmean(xdata, fdata), PRECISION);
 			var s = round(stats.wstdev(xdata, fdata), PRECISION);
@@ -1884,13 +1974,7 @@ function calc_calculate() {
 				sumofsqr + '<br>Minimum = ' + min + '<br>Q1 = ' + q1 + '<br>Median = ' + median +
 				'<br>Q3 = ' + q3 + '<br>Maximum = ' + max);
 		} else {
-			if (expression.includes('L1') || expression.includes('l1')) {
-				var xdata = getRawData(list1_data);
-			} else if (expression.includes('L2') || expression.includes('l2')) {
-				var xdata = getRawData(list2_data);
-			} else {
-				return NaN;
-			}
+			var xdata = getRawData(getListByName(expression));
 			var n = xdata.length;
 			var mean = round(stats.mean(xdata), PRECISION);
 			var s = round(stats.stdev(xdata), PRECISION);
@@ -1908,8 +1992,14 @@ function calc_calculate() {
 				'<br>Q3 = ' + q3 + '<br>Maximum = ' + max);
 		}
 	} else if (expression.includes('lin_reg')) {
-		var xdata = getRawData(list1_data);
-		var ydata = getRawData(list2_data);
+		expression = expression.replace('lin_reg', '');
+		expression = expression.replace('(', '');
+		expression = expression.replace(')', '');
+		expression = expression.replace(/ /g, '');
+		exression = expression.trim();
+		var lists = expression.split(',');
+		var xdata = getRawData(getListByName(lists[0]));
+		var ydata = getRawData(getListByName(lists[1]));
 		var r = round(stats.correlation(xdata, ydata), PRECISION);
 		var rsqr = round(sqr(r), PRECISION);
 		var reg = stats.linreg(xdata, ydata);
@@ -1952,6 +2042,18 @@ var calc_1varstats = calc_board.create('button', [7, 2.5, 'Factorial',
 		function() {
 			calc_input.rendNodeInput.value = calc_input.rendNodeInput.value + '!';
 		}], { frozen: true, fixed: true });
+
+function getListByName(listname) {
+	listname = listname.trim();
+	listname = listname.toLowerCase();
+	if(listname == "l1") {
+		return list1_data;
+	} else if(listname == "l2") {
+		return list2_data;
+	} else if(listname == "l3") {
+		return list3_data;
+	} else return undefined;
+}
 
 function getRawData(list_data) {
 	if(list_data == undefined) {
