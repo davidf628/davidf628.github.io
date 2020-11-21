@@ -380,7 +380,7 @@ function list_calculate() {
 				var scope = { l1: val1, l3: val3 };
 				list2_data[i].rendNodeInput.value = round(math.eval(formula, scope), PRECISION);
 			}
-		} 
+		}
 	} else if (formula.startsWith('l3')) {
 
 		var parts = formula.split('=');
@@ -1050,7 +1050,7 @@ function tint2_docalc() {
 		tint2_interval.setText(
 			'(' + round(lb, PRECISION) + ', '
 			+ round(ub, PRECISION) + ')<br/><br/>'
-			+ '<i>t<sub>c</sub></i> = ' + round(t, PRECISION) + '&nbsp;&nbsp;&nbsp;&nbsp;' 
+			+ '<i>t<sub>c</sub></i> = ' + round(t, PRECISION) + '&nbsp;&nbsp;&nbsp;&nbsp;'
 			+ '<i>df</i> = ' + round(df, PRECISION)	+ '<br/>'
 			+ '<i>E</i> = ' + round(me, PRECISION) + '<br/><br/>'
 			+ '<table>'
@@ -1064,7 +1064,7 @@ function tint2_docalc() {
 			+ '<td><i>s<sub>2</sub></i> = ' + round(std2, PRECISION) + '</td>'
 			+ '<td><i>n<sub>2</sub></i> = ' + n2 + '</td>'
 			+ '</tr>'
-			+ '<td><i>x&#772;<sub>1</sub></i> - <i>x&#772;<sub>2</sub></i> = ' + round(center, PRECISION) + '</td>' 
+			+ '<td><i>x&#772;<sub>1</sub></i> - <i>x&#772;<sub>2</sub></i> = ' + round(center, PRECISION) + '</td>'
 			+ '<tr>'
 			+ '</table>'
 		);
@@ -1127,7 +1127,7 @@ function pint2_docalc() {
 	var n1 = evalstr(pint2_n1.rendNodeInput.value);
 	var x2 = evalstr(pint2_x2.rendNodeInput.value);
 	var n2 = evalstr(pint2_n2.rendNodeInput.value);
-	
+
 	if (isNaN(c) || isNaN(x1) || isNaN(n1) || isNaN(x2) || isNaN(n2)) {
 		pint2_interval.setText('One or more input variables is blank or invalid.<br/>&nbsp;&nbsp;&nbsp;Please check your input.');
 	} else if (n1 < x1 || n2 < x2) {
@@ -1137,7 +1137,7 @@ function pint2_docalc() {
 	} else if (x1 < 0 || x2 < 0) {
 		pint2_interval.setText('Oops! The value of <i>x</i>, must be between 0 and <i>n</i>.');
 	} else {
-	
+
 		var p1 = x1 / n1;
 		var p2 = x2 / n2;
 
@@ -1264,7 +1264,7 @@ function ztest_docalc() {
 	}
 
 	if(isNaN(mu) || isNaN(mean) || isNaN(std) || isNaN(n)) {
-		ztest_output.setText('One or more input variables is blank or invalid.<br/>&nbsp;&nbsp;&nbsp;Please check your input.');		
+		ztest_output.setText('One or more input variables is blank or invalid.<br/>&nbsp;&nbsp;&nbsp;Please check your input.');
 	} else if (n <= 0) {
 		ztest_output.setText('Oops! The sample size, <i>n</i> must be greater than zero.');
 	} else {
@@ -1278,7 +1278,7 @@ function ztest_docalc() {
 		} else {
 			p = 1 - jStat.normal.cdf(z, 0, 1);
 		}
-	
+
 		ztest_output.setText(
 			'<i>z</i> = ' + round(z, PRECISION) + '<br/>'
 			+ '<i>p</i> = ' + round(p, PRECISION) + '<br/><br/>'
@@ -1404,7 +1404,7 @@ function ttest_docalc() {
 	}
 
 	if (isNaN(mu) || isNaN(mean) || isNaN(std) || isNaN(n)) {
-		ttest_output.setText('One or more input variables is blank or invalid.<br/>&nbsp;&nbsp;&nbsp;Please check your input.');		
+		ttest_output.setText('One or more input variables is blank or invalid.<br/>&nbsp;&nbsp;&nbsp;Please check your input.');
 	} else if (n <= 1) {
 		ttest_output.setText('Oops! The sample size, <i>n</i> must be greater than one.');
 	} else {
@@ -1497,13 +1497,13 @@ function ptest_docalc() {
 
 	n = evalstr(ptest_n.rendNodeInput.value);
 	x = evalstr(ptest_x.rendNodeInput.value);
-	
+
 	if(isNaN(p0) || isNaN(x) || isNaN(n)) {
-		ptest_output.setText('One or more input variables is blank or invalid.<br/>&nbsp;&nbsp;&nbsp;Please check your input.');	
+		ptest_output.setText('One or more input variables is blank or invalid.<br/>&nbsp;&nbsp;&nbsp;Please check your input.');
 	} else if(x > n) {
 		ptest_output.setText("Oops! The sample size, <i>n</i>, must be larger than <i>x</i>.");
 	} else {
-	
+
 		phat = x / n;
 
 		var z = (phat - p0) / sqrt(p0 * (1 - p0) / n);
@@ -1970,9 +1970,9 @@ function calc_calculate() {
 			var xdata = getRawData(getListByName(lists[0]));
 			var fdata = getRawData(getListByName(lists[1]));
 			var n = stats.wn(xdata, fdata);
-			var mean = round(stats.wmean(xdata, fdata), PRECISION);
-			var s = round(stats.wstdev(xdata, fdata), PRECISION);
-			var sigma = round(stats.wstdevp(xdata, fdata), PRECISION);
+			var mean = stats.wmean(xdata, fdata);
+			var s = stats.wstdev(xdata, fdata);
+			var sigma = stats.wstdevp(xdata, fdata);
 			var sum = stats.wsum(xdata, fdata);
 			var sumofsqr = stats.wsumofsqr(xdata, fdata);
 			var min = stats.wmin(xdata, fdata);
@@ -1980,16 +1980,24 @@ function calc_calculate() {
 			var median = stats.wmedian(xdata, fdata);
 			var q3 = stats.wq3(xdata, fdata);
 			var max = stats.wmax(xdata, fdata);
-			calc_output.setText('n = ' + n + '<br>x&#772; = ' + mean + '<br>s = ' + s +
-				'<br>&sigma; = ' + sigma + '<br>&Sigma;x = ' + sum + '<br>&Sigma;x<sup>2</sup> = ' +
-				sumofsqr + '<br>Minimum = ' + min + '<br>Q1 = ' + q1 + '<br>Median = ' + median +
-				'<br>Q3 = ' + q3 + '<br>Maximum = ' + max);
+			calc_output.setText(
+				'<i>n</i> = ' + round(n, PRECISION) + '<br/>'
+				+ '<i>x&#772;</i> = ' + round(mean, PRECISION) + '<br/>'
+				+ '<i>s</i> = ' + round(s, PRECISION) + '<br/>'
+				+ '<i>&sigma;</i> = ' + round(sigma, PRECISION) + '<br/>'
+				+ '&Sigma;<i>x</i> = ' + round(sum, PRECISION) + '<br/>'
+				+ '&Sigma;<i>x<sup>2</sup></i> = ' + round(sumofsqr, PRECISION) + '<br/>'
+				+ 'Minimum = ' + round(min, PRECISION) + '<br/>'
+				+ '<i>Q<sub>1</sub></i> = ' + round(q1, PRECISION) + '<br>'
+				+ 'Median = ' + round(median, PRECISION) + '<br/>'
+				+ '<i>Q<sub>3</sub></i> = ' + round(q3, PRECISION) + '<br>'
+				+ 'Maximum = ' + round(max, PRECISION));
 		} else {
 			var xdata = getRawData(getListByName(expression));
 			var n = xdata.length;
-			var mean = round(stats.mean(xdata), PRECISION);
-			var s = round(stats.stdev(xdata), PRECISION);
-			var sigma = round(stats.stdevp(xdata), PRECISION);
+			var mean = stats.mean(xdata);
+			var s = stats.stdev(xdata);
+			var sigma = stats.stdevp(xdata);
 			var sum = stats.sum(xdata);
 			var sumofsqr = stats.sumofsqr(xdata);
 			var min = stats.min(xdata);
@@ -1997,10 +2005,18 @@ function calc_calculate() {
 			var median = stats.median(xdata);
 			var q3 = stats.q3(xdata);
 			var max = stats.max(xdata);
-			calc_output.setText('n = ' + n + '<br>x&#772; = ' + mean + '<br>s = ' + s +
-				'<br>&sigma; = ' + sigma + '<br>&Sigma;x = ' + sum + '<br>&Sigma;x<sup>2</sup> = ' +
-				sumofsqr + '<br>Minimum = ' + min + '<br>Q1 = ' + q1 + '<br>Median = ' + median +
-				'<br>Q3 = ' + q3 + '<br>Maximum = ' + max);
+			calc_output.setText(
+				'<i>n</i> = ' + round(n, PRECISION) + '<br/>'
+				+ '<i>x&#772;</i> = ' + round(mean, PRECISION) + '<br/>'
+				+ '<i>s</i> = ' + round(s, PRECISION) + '<br/>'
+				+ '<i>&sigma;</i> = ' + round(sigma, PRECISION) + '<br/>'
+				+ '&Sigma;<i>x</i> = ' + round(sum, PRECISION) + '<br/>'
+				+ '&Sigma;<i>x<sup>2</sup></i> = ' + round(sumofsqr, PRECISION) + '<br/>'
+				+ 'Minimum = ' + round(min, PRECISION) + '<br/>'
+				+ '<i>Q<sub>1</sub></i> = ' + round(q1, PRECISION) + '<br>'
+				+ 'Median = ' + round(median, PRECISION) + '<br/>'
+				+ '<i>Q<sub>3</sub></i> = ' + round(q3, PRECISION) + '<br>'
+				+ 'Maximum = ' + round(max, PRECISION));
 		}
 	} else if (expression.includes('lin_reg')) {
 		expression = expression.replace('lin_reg', '');
@@ -2011,16 +2027,16 @@ function calc_calculate() {
 		var lists = expression.split(',');
 		var xdata = getRawData(getListByName(lists[0]));
 		var ydata = getRawData(getListByName(lists[1]));
-		var r = round(stats.correlation(xdata, ydata), PRECISION);
-		var rsqr = round(sqr(r), PRECISION);
+		var r = stats.correlation(xdata, ydata);
+		var rsqr = sqr(r);
 		var reg = stats.linreg(xdata, ydata);
-		var m = round(reg[0], PRECISION);
-		var b = round(reg[1], PRECISION);
+		var m = reg[0];
+		var b = reg[1];
 			calc_output.setText(
-				'a = ' + m +
-				'<br>b = ' + b +
-				'<br>r<sup>2</sup> = ' + rsqr +
-				'<br>r = ' + r);
+				'<i>a</i> = ' + round(m, PRECISION) + '<br/>'
+				+ '<i>b</i> = ' + round(b, PRECISION) + '<br/>'
+				+ '<i>r<sup>2</sup></i> = ' + round(rsqr, PRECISION) + '<br/>'
+				+ '<i>r</i> = ' + round(r, PRECISION));
 	} else {
 		// If not, just evaluate the expression
 		var v = round(math.eval(expression), PRECISION);
