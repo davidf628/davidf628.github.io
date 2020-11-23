@@ -489,7 +489,8 @@ function zint_docalc() {
 
 	var c = evalstr(zint_c.rendNodeInput.value);
 	var stdev = evalstr(zint_stdev.rendNodeInput.value);
-	var n = 0, mean = 0;
+	var n = NaN, mean = NaN;
+	var listerror = false;
 
 	if(zint_cb_stats.Value()) {
 		n = evalstr(zint_n.rendNodeInput.value);
@@ -500,19 +501,31 @@ function zint_docalc() {
 			var lists = list.split(',');
 			var xdata = getRawData(getListByName(lists[0]));
 			var fdata = getRawData(getListByName(lists[1]));
-			n = xdata.length;
-			mean = stats.wmean(xdata, fdata);
+			if (xdata !== undefined && fdata !== undefined) {
+				n = xdata.length;
+				mean = stats.wmean(xdata, fdata);
+			} else {
+				listerror = true;
+			}
 		} else {
 			xdata = getRawData(getListByName(list));
-			mean = stats.mean(xdata);
-			n = xdata.length
+			if (xdata !== undefined) {
+				mean = stats.mean(xdata);
+				n = xdata.length;
+			} else {
+				listerror = true;
+			}
 		}
 	}
 
 	if (isNaN(c) || isNaN(n) || isNaN(mean) || isNaN(stdev)) {
-		zint_interval.setText('Oops! All inupt values must be either numeric or<br/>'
-			+ '&nbsp;&nbsp;&nbsp;mathematical expressions that evalaute to numbers.<br/><br/>'
-			+ 'One or more value is either missing or invalid.');
+		if (listerror) {
+			zint_interval.setText('One of your lists was not found,<br/>&nbsp;&nbsp;&nbsp;try using L1 or L2 as the name of your lists.');
+		} else {
+			zint_interval.setText('Oops! All inupt values must be either numeric or<br/>'
+				+ '&nbsp;&nbsp;&nbsp;mathematical expressions that evalaute to numbers.<br/><br/>'
+				+ 'One or more value is either missing or invalid.');
+		}
 	} else if (n <= 0) {
 		zint_interval.setText('Oops! The sample size, <i>n</i>, must be greater than zero.');
 	} else if ((c < 0) || (c >= 1)) {
@@ -607,7 +620,8 @@ var tint_calculate_button = tint_board.create('button', [6, 6, 'Calculate',
 function tint_docalc() {
 
 	var c = evalstr(tint_c.rendNodeInput.value);
-	var n = 0, stdev = 0, mean = 0;
+	var n = NaN, stdev = NaN, mean = NaN;
+	var listerror = false;
 
 	if(tint_cb_stats.Value()) {
 		n = evalstr(tint_n.rendNodeInput.value);
@@ -619,21 +633,33 @@ function tint_docalc() {
 			var lists = list.split(',');
 			var xdata = getRawData(getListByName(lists[0]));
 			var fdata = getRawData(getListByName(lists[1]));
-			n = xdata.length;
-			mean = stats.wmean(xdata, fdata);
-			std = stats.wstdev(xdata, fdata);
+			if (xdata !== undefined && fdata !== undefined) {
+				n = xdata.length;
+				mean = stats.wmean(xdata, fdata);
+				stdev = stats.wstdev(xdata, fdata);
+			} else {
+				listerror = true;
+			}
 		} else {
 			xdata = getRawData(getListByName(list));
-			mean = stats.mean(xdata);
-			stdev = stats.stdev(xdata);
-			n = xdata.length
+			if (xdata !== undefined) {
+				mean = stats.mean(xdata);
+				stdev = stats.stdev(xdata);
+				n = xdata.length;
+			} else {
+				listerror = true;
+			}
 		}
 	}
 
 	if(isNaN(c) || isNaN(n) || isNaN(mean) || isNaN(stdev)) {
-		tint_interval.setText('Oops! All inupt values must be either numeric or<br/>'
-			+ '&nbsp;&nbsp;&nbsp;mathematical expressions that evalaute to numbers.<br/><br/>'
-			+ 'One or more value is either missing or invalid.');
+		if (listerror) {
+			tint_interval.setText('One of your lists was not found,<br/>&nbsp;&nbsp;&nbsp;try using L1 or L2 as the name of your lists.');
+		} else {
+			tint_interval.setText('Oops! All inupt values must be either numeric or<br/>'
+				+ '&nbsp;&nbsp;&nbsp;mathematical expressions that evalaute to numbers.<br/><br/>'
+				+ 'One or more value is either missing or invalid.');
+			}
 	} else if (n <= 0) {
 		tint_interval.setText('Oops! The sample size, <i>n</i>, must be greater than zero.');
 	} else if ((c < 0) || (c >= 1)) {
@@ -1252,19 +1278,40 @@ function ztest_docalc() {
 	var std = evalstr(ztest_std.rendNodeInput.value);
 	var mu = evalstr(ztest_mu.rendNodeInput.value);
 	var p = NaN, n = NaN, mean = NaN;
+	var listerror = false;
 
 	if(ztest_cb_stats.Value()) {
 		n = evalstr(ztest_n.rendNodeInput.value);
 		mean = evalstr(ztest_mean.rendNodeInput.value);
 	} else {
 		var list = ztest_list.rendNodeInput.value;
-		var xdata = getRawData(getListByName(list));
-		n = xdata.length;
-		mean = stats.mean(xdata);
+		if (list.includes(',')) {
+			var lists = list.split(',');
+			var xdata = getRawData(getListByName(lists[0]));
+			var fdata = getRawData(getListByName(lists[1]));
+			if (xdata !== undefined && fdata !== undefined) {
+				n = xdata.length;
+				mean = stats.wmean(xdata, fdata);
+			} else {
+				listerror = true;
+			}
+		} else {
+			xdata = getRawData(getListByName(list));
+			if (xdata !== undefined) {
+				mean = stats.mean(xdata);
+				n = xdata.length;
+			} else {
+				listerror = true;
+			}
+		}
 	}
 
 	if(isNaN(mu) || isNaN(mean) || isNaN(std) || isNaN(n)) {
-		ztest_output.setText('One or more input variables is blank or invalid.<br/>&nbsp;&nbsp;&nbsp;Please check your input.');
+		if (listerror) {
+			ztest_output.setText('One of your lists was not found,<br/>&nbsp;&nbsp;&nbsp;try using L1 or L2 as the name of your lists.');
+		} else {
+			ztest_output.setText('One or more input variables is blank or invalid.<br/>&nbsp;&nbsp;&nbsp;Please check your input.');
+		}
 	} else if (n <= 0) {
 		ztest_output.setText('Oops! The sample size, <i>n</i> must be greater than zero.');
 	} else {
@@ -1381,30 +1428,43 @@ function ttest_docalc() {
 
 	var mu = evalstr(ttest_mu.rendNodeInput.value);
 	var p = NaN, std = NaN, n = NaN, mean = NaN;
+	var listerror = false;
 
 	if(ttest_cb_stats.Value()) {
 		n = evalstr(ttest_n.rendNodeInput.value);
 		mean = evalstr(ttest_mean.rendNodeInput.value);
 		std = evalstr(ttest_std.rendNodeInput.value);
 	} else {
-		var list = tint_list.rendNodeInput.value;
+		var list = ttest_list.rendNodeInput.value;
 		if (list.includes(',')) {
 			var lists = list.split(',');
 			var xdata = getRawData(getListByName(lists[0]));
 			var fdata = getRawData(getListByName(lists[1]));
-			n = xdata.length;
-			mean = stats.wmean(xdata, fdata);
-			std = stats.wstdev(xdata, fdata);
+			if (xdata !== undefined && fdata !== undefined) {
+				n = xdata.length;
+				mean = stats.wmean(xdata, fdata);
+				std = stats.wstdev(xdata, fdata);
+			} else {
+				listerror = true;
+			}
 		} else {
 			xdata = getRawData(getListByName(list));
-			mean = stats.mean(xdata);
-			std = stats.stdev(xdata);
-			n = xdata.length
+			if (xdata !== undefined) {
+				mean = stats.mean(xdata);
+				std = stats.stdev(xdata);
+				n = xdata.length;
+			} else {
+				listerror = true;
+			}
 		}
 	}
 
 	if (isNaN(mu) || isNaN(mean) || isNaN(std) || isNaN(n)) {
-		ttest_output.setText('One or more input variables is blank or invalid.<br/>&nbsp;&nbsp;&nbsp;Please check your input.');
+		if (listerror) {
+			ttest_output.setText('One of your lists was not found,<br/>&nbsp;&nbsp;&nbsp;try using L1 or L2 as the name of your lists.');
+		} else {
+			ttest_output.setText('One or more input variables is blank or invalid.<br/>&nbsp;&nbsp;&nbsp;Please check your input.');
+		}
 	} else if (n <= 1) {
 		ttest_output.setText('Oops! The sample size, <i>n</i> must be greater than one.');
 	} else {
@@ -1571,28 +1631,33 @@ var ztest2_cb_gt = JSXCheckbox(ztest2_board, 6, 9, '&gt;', false,
 		setCheckbox(ztest2_cb_gt, true);
 	}, { fontSize: 18, frozen: true, anchorY: 'top'});
 
-var ztest2_std1 = ztest2_board.create('input', [0.5, 8, '', '&sigma;<sub>1</sub> = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
-var ztest2_mean1 = ztest2_board.create('input', [0.5, 7, '', 'x&#772;<sub>1</sub> = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
-var ztest2_n1 = ztest2_board.create('input', [0.5, 6, '', 'n<sub>1</sub> = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
-var ztest2_list1 = ztest2_board.create('input', [0.5, 5, 'L1', 'List<sub>1</sub>: '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18, strokeColor: 'lightgray' });
-ztest2_list1.setAttribute({ disabled: true });
+var ztest2_mean1 = ztest2_board.create('input', [0.5, 8, '', '<i>x&#772;<sub>1</sub></i> = '], inputParam);
+ztest2_mean1.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ztest2_docalc(); } };
 
-var ztest2_std2 = ztest2_board.create('input', [5.5, 8, '', '&sigma;<sub>2</sub> = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
-var ztest2_mean2 = ztest2_board.create('input', [5.5, 7, '', 'x&#772;<sub>2</sub> = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
-var ztest2_n2 = ztest2_board.create('input', [5.5, 6, '', 'n<sub>2</sub> = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
-var ztest2_list2 = ztest2_board.create('input', [5.5, 5, 'L2', 'List<sub>2</sub>: '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18, strokeColor: 'lightgray' });
-ztest2_list2.setAttribute({ disabled: true });
+var ztest2_std1 = ztest2_board.create('input', [0.5, 7, '', '<i>&sigma;<sub>1</sub></i> = '], inputParam);
+ztest2_std1.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ztest2_docalc(); } };
 
-var ztest2_output = ztest2_board.create('text', [1, 3, ''],
-		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+var ztest2_n1 = ztest2_board.create('input', [0.5, 6, '', '<i>n<sub>1</sub></i> = '], inputParam);
+ztest2_n1.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ztest2_docalc(); } };
+
+var ztest2_list1 = ztest2_board.create('input', [0.5, 5, 'L1', 'List<sub>1</sub>: '], inputParam);
+ztest2_list1.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+ztest2_list1.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ztest2_docalc(); } };
+
+var ztest2_mean2 = ztest2_board.create('input', [5.5, 8, '', '<i>x&#772;<sub>2</sub></i> = '], inputParam);
+ztest2_mean2.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ztest2_docalc(); } };
+
+var ztest2_std2 = ztest2_board.create('input', [5.5, 7, '', '<i>&sigma;<sub>2</sub></i> = '], inputParam);
+ztest2_std2.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ztest2_docalc(); } };
+
+var ztest2_n2 = ztest2_board.create('input', [5.5, 6, '', '<i>n<sub>2</sub></i> = '], inputParam);
+ztest2_n2.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ztest2_docalc(); } };
+
+var ztest2_list2 = ztest2_board.create('input', [5.5, 5, 'L2', 'List<sub>2</sub>: '], inputParam);
+ztest2_list2.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+ztest2_list2.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ztest2_docalc(); } };
+
+var ztest2_output = ztest2_board.create('text', [1, 3, ''], textParam);
 
 var ztest2_cb_stats = JSXCheckbox(ztest2_board, 0.5, 4, 'Input from Stats', true,
 	function() {
@@ -1619,28 +1684,43 @@ var ztest2_cb_data = JSXCheckbox(ztest2_board, 5, 4, 'Input from Data', false,
 	}, { fontSize: 18, anchorY: 'top', frozen: true });
 
 var ztest2_calculate = ztest2_board.create('button', [7, 3, 'Calculate',
+	function() { ztest2_docalc(); }], buttonParam);
 
-	function() {
+function ztest2_docalc() {
 
-		var std1 = Number(ztest2_std1.rendNodeInput.value);
-		var std2 = Number(ztest2_std2.rendNodeInput.value);
-		var mean1, mean2, n1, n2 = 0;
+	var std1 = evalstr(ztest2_std1.rendNodeInput.value);
+	var std2 = evalstr(ztest2_std2.rendNodeInput.value);
+	var mean1 = NaN, mean2 = NaN, n1 = NaN, n2 = NaN;
 
-		if(ztest2_cb_stats.Value()) {
-			n1 = Number(ztest2_n1.rendNodeInput.value);
-			n2 = Number(ztest2_n2.rendNodeInput.value);
-			mean1 = Number(ztest2_mean1.rendNodeInput.value);
-			mean2 = Number(ztest2_mean2.rendNodeInput.value);
-		} else {
-			var list1 = ztest2_list1.rendNodeInput.value;
-			var list2 = ztest2_list2.rendNodeInput.value;
-			var xdata1 = getRawData(list1);
-			var xdata2 = getRawData(list2);
+	if(ztest2_cb_stats.Value()) {
+		n1 = evalstr(ztest2_n1.rendNodeInput.value);
+		n2 = evalstr(ztest2_n2.rendNodeInput.value);
+		mean1 = evalstr(ztest2_mean1.rendNodeInput.value);
+		mean2 = evalstr(ztest2_mean2.rendNodeInput.value);
+	} else {
+		var list1 = ztest2_list1.rendNodeInput.value;
+		var list2 = ztest2_list2.rendNodeInput.value;
+		var xdata1 = getRawData(getListByName(list1));
+		var xdata2 = getRawData(getListByName(list2));
+		if((xdata1 !== undefined) && (xdata2 !== undefined)) {
 			n1 = xdata1.length;
 			n2 = xdata2.length;
 			mean1 = stats.mean(xdata1);
 			mean2 = stats.mean(xdata2);
+		} else {
+			listerror = true;
 		}
+	}
+
+	if (isNaN(mean1) || isNaN(std1) || isNaN(n1) || isNaN(mean2) || isNaN(std2) || isNaN(n2)) {
+		if(listerror) {
+			ztest2_output.setText('One of your lists was not found,<br/>&nbsp;&nbsp;&nbsp;try using L1 or L2 as the name of your lists.');
+		} else {
+			ztest2_output.setText('One or more input variables is blank or invalid.<br/>&nbsp;&nbsp;&nbsp;Please check your input.');
+		}
+	} else if (n1 < 0 || n2 < 0) {
+		ztest2_interval.setText('Oops! The sample sizes must be positive numbers.');
+	} else {
 
 		var z = (mean1 - mean2) / sqrt( sqr(std1) / n1 + sqr(std2 / n2) );
 
@@ -1652,11 +1732,26 @@ var ztest2_calculate = ztest2_board.create('button', [7, 3, 'Calculate',
 			p = 1 - jStat.normal.cdf(z, 0, 1);
 		}
 
-		ztest2_output.setText('z = ' + z + '<br/>p-value = ' + p);
-
+		ztest2_output.setText(
+			'z = ' + round(z, PRECISION) + '<br/>'
+			+ 'p = ' + round(p, PRECISION) + '<br/><br/>'
+			+ '<table>'
+			+ '<tr>'
+			+ '<td style="width:160px"><i>x&#772;<sub>1</sub></i> = ' + round(mean1, PRECISION) + '</td>'
+			+ '<td style="width:160px"><i>&sigma;<sub>1</sub></i> = ' + round(std1, PRECISION) + '</td>'
+			+ '<td><i>n<sub>1</sub></i> = ' + n1 + '</td>'
+			+ '</tr>'
+			+ '<tr>'
+			+ '<td><i>x&#772;<sub>2</sub></i> = ' + round(mean2, PRECISION) + '</td>'
+			+ '<td><i>&sigma;<sub>2</sub></i> = ' + round(std2, PRECISION) + '</td>'
+			+ '<td><i>n<sub>2</sub></i> = ' + n2 + '</td>'
+			+ '</tr>'
+			+ '</table>'
+		);
+	
 	}
 
-], { frozen: true, anchorY: 'top' });
+}
 
 </script>
 
@@ -1706,35 +1801,40 @@ var ttest2_cb_gt = JSXCheckbox(ttest2_board, 6, 9, '&gt;', false,
 		setCheckbox(ttest2_cb_gt, true);
 	}, { fontSize: 18, frozen: true, anchorY: 'top'});
 
-var ttest2_std1 = ttest2_board.create('input', [0.5, 8, '', 's<sub>1</sub> = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
-var ttest2_mean1 = ttest2_board.create('input', [0.5, 7, '', 'x&#772;<sub>1</sub> = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
-var ttest2_n1 = ttest2_board.create('input', [0.5, 6, '', 'n<sub>1</sub> = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
-var ttest2_list1 = ttest2_board.create('input', [0.5, 5, 'L1', 'List<sub>1</sub>: '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18, strokeColor: 'lightgray' });
-ttest2_list1.setAttribute({ disabled: true });
+var ttest2_mean1 = ttest2_board.create('input', [0.5, 8, '', '<i>x&#772;<sub>1</sub></i> = '], inputParam);
+ttest2_mean1.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ttest2_docalc(); } };
 
-var ttest2_std2 = ttest2_board.create('input', [5.5, 8, '', 's<sub>2</sub> = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
-var ttest2_mean2 = ttest2_board.create('input', [5.5, 7, '', 'x&#772;<sub>2</sub> = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
-var ttest2_n2 = ttest2_board.create('input', [5.5, 6, '', 'n<sub>2</sub> = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
-var ttest2_list2 = ttest2_board.create('input', [5.5, 5, 'L2', 'List<sub>2</sub>: '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18, strokeColor: 'lightgray' });
-ttest2_list2.setAttribute({ disabled: true });
+var ttest2_std1 = ttest2_board.create('input', [0.5, 7, '', '<i>s<sub>1</sub></i> = '], inputParam);
+ttest2_std1.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ttest2_docalc(); } };
 
-var ttest2_cb_pooled = JSXCheckbox(ttest2_board, 0.5, 3, 'Pooled Variance', false,
+var ttest2_n1 = ttest2_board.create('input', [0.5, 6, '', '<i>n<sub>1</sub></i> = '], inputParam);
+ttest2_n1.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ttest2_docalc(); } };
+
+var ttest2_list1 = ttest2_board.create('input', [0.5, 5, 'L1', 'List<sub>1</sub>: '], inputParam);
+ttest2_list1.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+ttest2_list1.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ttest2_docalc(); } };
+
+var ttest2_mean2 = ttest2_board.create('input', [4, 8, '', '<i>x&#772;<sub>2</sub></i> = '], inputParam);
+ttest2_mean2.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ttest2_docalc(); } };
+
+var ttest2_std2 = ttest2_board.create('input', [4, 7, '', '<i>s<sub>2</sub></i> = '], inputParam);
+ttest2_std2.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ttest2_docalc(); } };
+
+var ttest2_n2 = ttest2_board.create('input', [4, 6, '', '<i>n<sub>2</sub></i> = '], inputParam);
+ttest2_n2.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ttest2_docalc(); } };
+
+var ttest2_list2 = ttest2_board.create('input', [4, 5, 'L2', 'List<sub>2</sub>: '], inputParam);
+ttest2_list2.setAttribute({ disabled: true, strokeColor: 'lightgray' });
+ttest2_list2.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ttest2_docalc(); } };
+
+var ttest2_cb_pooled = JSXCheckbox(ttest2_board, 0.5, 4, 'Pooled Variance', false,
 	function() {
 		toggleCheckbox(ttest2_cb_pooled);
 	}, { fontSize: 18, frozen: true, anchorY: 'top'});
 
-var ttest2_output = ttest2_board.create('text', [1, 2, ''],
-		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+var ttest2_output = ttest2_board.create('text', [0.5, 3, ''], textParam);
 
-var ttest2_cb_stats = JSXCheckbox(ttest2_board, 0.5, 4, 'Input from Stats', true,
+var ttest2_cb_stats = JSXCheckbox(ttest2_board, 7.5, 7.5, 'Statistics', true,
 	function() {
 		setCheckbox(ttest2_cb_stats, true);
 		setCheckbox(ttest2_cb_data, false);
@@ -1748,7 +1848,7 @@ var ttest2_cb_stats = JSXCheckbox(ttest2_board, 0.5, 4, 'Input from Stats', true
 		ttest2_std2.setAttribute({ disabled: false, strokeColor: 'black' });
 	}, { fontSize: 18, frozen: true, anchorY: 'top'});
 
-var ttest2_cb_data = JSXCheckbox(ttest2_board, 5, 4, 'Input from Data', false,
+var ttest2_cb_data = JSXCheckbox(ttest2_board, 7.5, 7, 'Data', false,
 	function() {
 		setCheckbox(ttest2_cb_stats, false);
 		setCheckbox(ttest2_cb_data, true);
@@ -1762,33 +1862,50 @@ var ttest2_cb_data = JSXCheckbox(ttest2_board, 5, 4, 'Input from Data', false,
 		ttest2_std2.setAttribute({ disabled: true, strokeColor: 'lightgray' });
 	}, { fontSize: 18, anchorY: 'top', frozen: true });
 
-var ttest2_calculate = ttest2_board.create('button', [7, 3, 'Calculate',
+var ttest2_calculate = ttest2_board.create('button', [7.5, 6, 'Calculate',
+	function() { ttest2_docalc(); }], { frozen: true, anchorY: 'top' });
+	
+function ttest2_docalc() {
 
-	function() {
+	var mean1 = NaN, std1 = NaN, n1 = NaN;
+	var mean2 = NaN, std2 = NaN, n2 = NaN;
+	var listerror = false;
 
-		var pval, mean1, mean2, n1, n2, std1, std2 = 0;
-
-		if(ttest2_cb_stats.Value()) {
-			n1 = Number(ttest2_n1.rendNodeInput.value);
-			n2 = Number(ttest2_n2.rendNodeInput.value);
-			mean1 = Number(ttest2_mean1.rendNodeInput.value);
-			mean2 = Number(ttest2_mean2.rendNodeInput.value);
-			std1 = Number(ttest2_std1.rendNodeInput.value);
-			std2 = Number(ttest2_std2.rendNodeInput.value);
-		} else {
-			var list1 = ttest2_list1.rendNodeInput.value;
-			var list2 = ttest2_list2.rendNodeInput.value;
-			var xdata1 = getRawData(getListByName(list1));
-			var xdata2 = getRawData(getListByName(list2));
+	if (ttest2_cb_stats.Value()) {
+		n1 = evalstr(ttest2_n1.rendNodeInput.value);
+		n2 = evalstr(ttest2_n2.rendNodeInput.value);
+		mean1 = evalstr(ttest2_mean1.rendNodeInput.value);
+		mean2 = evalstr(ttest2_mean2.rendNodeInput.value);
+		std1 = evalstr(ttest2_std1.rendNodeInput.value);
+		std2 = evalstr(ttest2_std2.rendNodeInput.value);
+	} else if (ttest2_cb_data.Value()) {
+		var list1 = ttest2_list1.rendNodeInput.value;
+		var list2 = ttest2_list2.rendNodeInput.value;
+		var xdata1 = getRawData(getListByName(list1));
+		var xdata2 = getRawData(getListByName(list2));
+		if ((xdata1 !== undefined) && (xdata2 !== undefined)) {
 			n1 = xdata1.length;
 			n2 = xdata2.length;
 			mean1 = stats.mean(xdata1);
 			mean2 = stats.mean(xdata2);
 			std1 = stats.stdev(xdata1);
 			std2 = stats.stdev(xdata2);
+		} else {
+			listerror = true;
 		}
+	}
 
-		var serr, df = 0;
+	if (isNaN(mean1) || isNaN(std1) || isNaN(n1) || isNaN(mean2) || isNaN(std2) || isNaN(n2)) {
+		if(listerror) {
+			ttest2_output.setText('One of your lists was not found,<br/>&nbsp;&nbsp;&nbsp;try using L1 or L2 as the name of your lists.');
+		} else {
+			ttest2_output.setText('One or more input variables is blank or invalid.<br/>&nbsp;&nbsp;&nbsp;Please check your input.');
+		}
+	} else if (n1 <= 1 || n2 <= 1) {
+		ttest2_interval.setText('Oops! The sample sizes must be<br/>&nbsp;&nbsp;&nbsp;greater than or equal to one.');
+	} else {
+
+		var serr = 0, p = 0, df = 0;
 		if (isChecked(ttest2_cb_pooled)) {
 			df = n1 + n2 - 2;
 			var pooledsd = sqrt( ((n1 - 1) * sqr(std1) + (n2 - 1) * sqr(std2)) / df);
@@ -1804,18 +1921,34 @@ var ttest2_calculate = ttest2_board.create('button', [7, 3, 'Calculate',
 		var t = (mean1 - mean2) / serr;
 
 		if(isChecked(ttest2_cb_ne)) {
-			pval = 2 * jStat.studentt.cdf(-Math.abs(t), df);
+			p = 2 * jStat.studentt.cdf(-Math.abs(t), df);
 		} else if(isChecked(ttest2_cb_lt)) {
-			pval = jStat.studentt.cdf(t, df);
+			p = jStat.studentt.cdf(t, df);
 		} else {
-			pval = 1 - jStat.studentt.cdf(t, df);
+			p = 1 - jStat.studentt.cdf(t, df);
 		}
 
-		ttest2_output.setText('df = ' + df + '<br/>t = ' + t + '<br/>p-value = ' + pval);
+		ttest2_output.setText(
+			'<i>t</i> = ' + round(t, PRECISION) + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+			+ '<i>df</i> = ' + round(df, PRECISION) + '<br/>'
+			+ '<i>p</i> = ' + round(p, PRECISION) + '<br/><br/>'
+			+ '<table>'
+			+ '<tr>'
+			+ '<td style="width:160px"><i>x&#772;<sub>1</sub></i> = ' + round(mean1, PRECISION) + '</td>'
+			+ '<td style="width:160px"><i>&sigma;<sub>1</sub></i> = ' + round(std1, PRECISION) + '</td>'
+			+ '<td><i>n<sub>1</sub></i> = ' + n1 + '</td>'
+			+ '</tr>'
+			+ '<tr>'
+			+ '<td><i>x&#772;<sub>2</sub></i> = ' + round(mean2, PRECISION) + '</td>'
+			+ '<td><i>&sigma;<sub>2</sub></i> = ' + round(std2, PRECISION) + '</td>'
+			+ '<td><i>n<sub>2</sub></i> = ' + n2 + '</td>'
+			+ '</tr>'
+			+ '</table>'
+		);
 
 	}
-
-], { frozen: true, anchorY: 'top' });
+	
+}
 
 </script>
 
@@ -1844,20 +1977,22 @@ var ptest2_board = JXG.JSXGraph.initBoard('prop-test_2samp', {
 		}
     });
 
-var ptest2_alt = ptest2_board.create('text', [0.5, 9, 'Alternative Hypothesis:'],
-		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+var ptest2_alt = ptest2_board.create('text', [0.5, 9, 'Alternative Hypothesis:'], textParam);
+
 var ptest2_cb_ne = JSXCheckbox(ptest2_board, 4, 9, '&ne;', true,
 	function() {
 		setCheckbox(ptest2_cb_ne, true);
 		setCheckbox(ptest2_cb_lt, false);
 		setCheckbox(ptest2_cb_gt, false);
 	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+	
 var ptest2_cb_lt = JSXCheckbox(ptest2_board, 5, 9, '&lt;', false,
 	function() {
 		setCheckbox(ptest2_cb_ne, false);
 		setCheckbox(ptest2_cb_lt, true);
 		setCheckbox(ptest2_cb_gt, false);
 	}, { fontSize: 18, frozen: true, anchorY: 'top'});
+	
 var ptest2_cb_gt = JSXCheckbox(ptest2_board, 6, 9, '&gt;', false,
 	function() {
 		setCheckbox(ptest2_cb_ne, false);
@@ -1865,27 +2000,38 @@ var ptest2_cb_gt = JSXCheckbox(ptest2_board, 6, 9, '&gt;', false,
 		setCheckbox(ptest2_cb_gt, true);
 	}, { fontSize: 18, frozen: true, anchorY: 'top'});
 
-var ptest2_x1 = ptest2_board.create('input', [0.5, 8, '', 'x<sub>1</sub> = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
-var ptest2_n1 = ptest2_board.create('input', [0.5, 7, '', 'n<sub>1</sub> = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var ptest2_x1 = ptest2_board.create('input', [0.5, 8, '', '<i>x<sub>1</sub></i> = '], inputParam);
+ptest2_x1.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ptest2_docalc(); } };
 
-var ptest2_x2 = ptest2_board.create('input', [5.5, 8, '', 'x<sub>2</sub> = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
-var ptest2_n2 = ptest2_board.create('input', [5.5, 7, '', 'n<sub>2</sub> = '],
-		{ cssStyle: 'width: 100px', fixed: true, anchorY: 'top', frozen: true, fontSize: 18 });
+var ptest2_n1 = ptest2_board.create('input', [0.5, 7, '', '<i>n<sub>1</sub></i> = '], inputParam);
+ptest2_n1.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ptest2_docalc(); } };
 
-var ptest2_output = ptest2_board.create('text', [1, 3, ''],
-		{ fixed :true, frozen: true, anchorY: 'top', fontSize: 18 });
+var ptest2_x2 = ptest2_board.create('input', [5.5, 8, '', '<i>x<sub>2</sub></i> = '], inputParam);
+ptest2_x2.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ptest2_docalc(); } };
 
-var ptest2_calculate = ptest2_board.create('button', [7, 3, 'Calculate',
+var ptest2_n2 = ptest2_board.create('input', [5.5, 7, '', '<i>n<sub>2</sub></i> = '], inputParam);
+ptest2_n2.rendNodeInput.onkeypress = function(e) { if(e.which == 13) { ptest2_docalc(); } };
 
-	function() {
+var ptest2_output = ptest2_board.create('text', [1, 5, ''], textParam);
 
-		var x1 = Number(ptest2_x1.rendNodeInput.value);
-		var n1 = Number(ptest2_n1.rendNodeInput.value);
-		var x2 = Number(ptest2_x2.rendNodeInput.value);
-		var n2 = Number(ptest2_n2.rendNodeInput.value);
+var ptest2_calculate = ptest2_board.create('button', [7, 6, 'Calculate',
+	function() { ptest2_docalc(); }], buttonParam);
+
+function ptest2_docalc() {
+
+	var x1 = evalstr(ptest2_x1.rendNodeInput.value);
+	var n1 = evalstr(ptest2_n1.rendNodeInput.value);
+	var x2 = evalstr(ptest2_x2.rendNodeInput.value);
+	var n2 = evalstr(ptest2_n2.rendNodeInput.value);
+	
+	if (isNaN(x1) || isNaN(n1) || isNaN(x2) || isNaN(n2)) {
+		ptest2_output.setText('One or more input variables is blank or invalid.<br/>&nbsp;&nbsp;&nbsp;Please check your input.');
+	} else if (n1 < 0 || n2 < 0) {
+		ptest2_output.setText('Oops! The sample sizes must be<br/>&nbsp;&nbsp;&nbsp;greater than or equal to zero.');
+	} else if (x1 > n1 || x2 > n2) {
+		ptest2_output.setText('Oops! The sample sizes must be<br/>&nbsp;&nbsp;&nbsp;greater than or equal<br/>&nbsp;&nbsp;&nbsp;to the values of <i>x</i>.');
+	} else {
+	
 		var p1 = x1 / n1;
 		var p2 = x2 / n2;
 
@@ -1896,15 +2042,16 @@ var ptest2_calculate = ptest2_board.create('button', [7, 3, 'Calculate',
 			p = 2 * jStat.normal.cdf(-Math.abs(z), 0, 1);
 		} else if(isChecked(ptest2_cb_lt)) {
 			p = jStat.normal.cdf(z, 0, 1);
-		} else {
+		} else if(ptest2_cb_gt.Value()) {
 			p = 1 - jStat.normal.cdf(z, 0, 1);
 		}
 
-		ptest2_output.setText('z = ' + z + '<br/>p-value = ' + p);
-
+		ptest2_output.setText(
+			'<i>z</i> = ' + round(z, PRECISION)
+			+ '<br/><i>p</i> = ' + round(p, PRECISION));
 	}
 
-], { frozen: true, anchorY: 'top' });
+}
 
 </script>
 
