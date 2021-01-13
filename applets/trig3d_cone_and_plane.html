@@ -39,6 +39,7 @@ var window_param = {
 	xzgrid: false,
 	polargrid: false,
 	labels: false,
+	bgcolor: 0xffffff,
 	activecamera: 'Perspective',
 	updateWindow: function() { redrawScene(); },
 };
@@ -50,17 +51,17 @@ var z = 0;
 var plane;
 
 var gui = new dat.GUI();
-	
+
 gui.add(this, 'y').min(-18).max(18).step(1).name('Translate Y: ').onChange(
 	function() {
 		plane.position.y = y;
 	});
-	
+
 gui.add(this, 'z').min(-18).max(18).step(1).name('Translate Z: ').onChange(
 	function() {
 		plane.position.z = z;
 	});
-	
+
 gui.add(this, 't').min(-90).max(90).step(5).name('Theta: ').onChange(
 	function() {
 		plane.rotation.x = t * Math.PI / 180;
@@ -68,13 +69,13 @@ gui.add(this, 't').min(-90).max(90).step(5).name('Theta: ').onChange(
 
 init();
 animate();
-			
+
 function createScene() {
 
 	var uppercone = new Surface('sqrt(x^2 + y^2)', { color: new THREE.Color('red') });
 	var lowercone = new Surface('-sqrt(x^2 + y^2)', { color: new THREE.Color('red') });
 	plane = Plane(0, 0, 1, 0);
-	
+
 	addToScene(scene, uppercone);
 	addToScene(scene, lowercone);
 	scene.add(plane);
@@ -97,18 +98,18 @@ function animate() {
 
 function redrawScene() {
 
-	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl,
 							window_param.ymin, window_param.ymax, window_param.yscl,
 							window_param.zmin, window_param.zmax, window_param.zscl);
-	
+
 	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
-	
+
 	for(var i = 0; i < objectlist.length; i++) {
 		scene.remove(objectlist[i].getObject());
 		objectlist[i].redraw();
 		scene.add(objectlist[i].getObject());
 	}
-	
+
 }
 
 </script>
