@@ -1,0 +1,125 @@
+<meta charset="utf-8"></meta>
+
+<html>
+	<head>
+		<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
+	    <script src='./js/jsxgraphcore.js' type='text/javascript'></script>
+	    <script src='./js/MathFunctions.js' type='text/javascript'></script>
+	    <script src='./js/math.min.js' type='text/javascript'></script>
+	    <script src='./js/helpers.js' type='text/javascript'></script>
+	</head>
+
+<!--
+
+-->
+
+<body>
+
+<h1>Horizontal and Vertical Line Test</h1>
+
+f(x) = <input type="text" id="input_function" value="-3 (-4,-1]; 1 (-1,2]">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<input type="button" value="Update" onClick="do_plot()">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<input type="button" value="Toggle Vertical Line" onClick="toggle_vlt()">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<input type="button" value="Toggle Horizontal Line" onClick="toggle_hlt()">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+</br></br>
+
+<div id="jxgbox" class="jxgbox" style="width:1000px; height:720px; float:left; resize: both"></div>
+
+<script type='text/javascript'>
+
+	board = JXG.JSXGraph.initBoard('jxgbox', {
+		axis: true,
+		boundingbox: [-5,5,5,-5],
+		showCopyright: false,
+      	showNavigation: true,
+		keepaspectratio: false,
+      	zoom: {
+            factorX: 1.25,
+            factorY: 1.25,
+            wheel: true,
+            needshift: false,
+            eps: 0.1
+        }
+	});
+
+	let totalCurves = 2;
+
+	// Initialize curve so that we have something we can update
+	curves = [];
+	for(var i = 0; i < totalCurves; i++) {
+		curves[i] = board.create('curve', [0, 0], 0, 0, { visible: false });
+	}
+
+	// Initialize endpoints so we have values we can update
+	endpoints = [];
+	for(var i = 0; i < totalCurves*3; i++) {
+		endpoints[i] = board.create('point', [0, 0], { size: 3, withLabel: false, visible: false, fixed: true });
+	}
+
+	var horiz_line = board.create('line', [[1, 0], [2, 0]], { strokeWidth: 3, dash: 2, color: 'pink' });
+	var vert_line = board.create('line', [[0, 1], [0, 2]], { strokeWidth: 3, dash: 2, color: 'lightgreen' });
+
+	function do_plot() {
+
+		var width = document.getElementById('jxgbox').clientWidth;
+		var height = document.getElementById('jxgbox').clientHeight;
+
+		board.resizeContainer(width, height);
+
+		for (var i = 0; i < curves.length; i++) {
+			curves[i].setAttribute({ visible: false });
+		}
+
+		for(var i = 0; i < endpoints.length; i++) {
+			endpoints[i].setAttribute({ visible: false });
+		}
+
+		var f = document.getElementById('input_function').value;
+		var fs = f.split(";");
+
+		start_x = board.getBoundingBox()[0];
+		end_x = board.getBoundingBox()[2];
+
+
+		var tmpendpoints = [];
+		nCurves = fs.length;
+		for(var i = 0; i < fs.length; i++) {
+			var interval = getInterval(fs[i]);
+			if(interval != '') {
+				fs[i] = removeInterval(fs[i]);
+			}
+
+			plot(curves[i], fs[i], start_x, end_x, {
+					lowerendpoint: endpoints[2*i],
+					upperendpoint: endpoints[2*i+1],
+					interval: interval,
+					width: 3
+				});
+
+			curves[i].setAttribute({ visible: true });
+
+        }
+  		board.update();
+	}
+
+
+	function toggle_vlt() {
+		vert_line.setAttribute( { visible: !vert_line.getAttribute('visible') });
+	}
+
+	function toggle_hlt() {
+		horiz_line.setAttribute( { visible: !horiz_line.getAttribute('visible') });
+	}
+
+	do_plot();
+
+</script>
+
+</body>
+
+</html>
