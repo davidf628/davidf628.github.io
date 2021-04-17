@@ -96,7 +96,7 @@ function formatNumber(val, dec) {
 ///////////////////////////////////////////////////////////////////////////////
 
 function randomInteger(a, b) {
-	 return Math.floor((b-a+1) * Math.random()) + a;
+	return Math.floor((b-a+1) * Math.random()) + a;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -112,6 +112,33 @@ function randomFloat(a, b) {
 	return Math.random() * (b - a + 2) + a - 1;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//
+//  Shuffles an array. Uses the Fisher-Yates (aka Knuth) Shuffle algorithm
+//
+//	@param array - the array to re-order the elements of
+//
+///////////////////////////////////////////////////////////////////////////////
+
+function shuffle(array) {
+  var currentIndex = array.length, temporaryValue, randomIndex;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
+}
+
 /*
 		Returns the factorial of n if 0 <= n <= 170 and n is an integer,
 		or else 0 is returned.
@@ -120,16 +147,16 @@ function randomFloat(a, b) {
 */
 function factorial (n) {
 
-		var i, fact = 1;
+	var i, fact = 1;
 
-		if((n <= MAXFACT) && (n >= 0)) {
-				for(i = n; i >= 1; i--) {
-						fact *= i;
-				}
+	if ((n <= MAXFACT) && (n >= 0)) {
+		for(i = n; i >= 1; i--) {
+			fact *= i;
 		}
-		else fact = 0;
+	}
+	else fact = 0;
 
-		return fact;
+	return fact;
 }
 
 /*
@@ -1908,8 +1935,8 @@ function JSXHistogram(board, x_labels, y_data) {
 
 function JSXFrequencyDistribution (dataset, nClasses, decimals = 0) {
 
-	var xmin = min(dataset);
-	var xmax = max(dataset);
+	var xmin = stats.min(dataset);
+	var xmax = stats.max(dataset);
 	var range = xmax - xmin;
 
 	var power = pow(10, decimals);
