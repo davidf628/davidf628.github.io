@@ -9,6 +9,7 @@
 		<script src='./js/jsxgraphcore.js' type='text/javascript'></script>
 		<script src='./js/MathFunctions.js' type='text/javascript'></script>
 		<script src='./js/helpers.js' type='text/javascript'></script>
+		<script src='https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js' type='text/javascript'></script>
 	</meta>
 </head>
 
@@ -23,14 +24,18 @@
 <script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
 
 <h1>Central Limit Theorem</h1>
-Sample Size: <input type="text" id="sample_size" value="32">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-n Samples: <input type="text" id="samples" value="1">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="button" value="Add a Sample" onClick="process()">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Sample Size: <input type="text" id="sample_size" value="32"> &emsp;&emsp;
+n Samples: <input type="text" id="samples" value="1"> &emsp;&emsp;
+<input type="button" value="Add a Sample" onClick="process()"> &emsp;&emsp;
+<label for="dist">Population Distribution:&ensp;</label>
+  <select name="dist" id="dist_type">
+    <option value="uniform">Uniform</option>
+    <option value="normal">Normal</option>
+    <option value="leftskew">Skewed Left</option>
+    <option value="rightskew">Skewed Right</option>
+  </select> &emsp;&emsp;&emsp;&emsp;
 <input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
-</br></br>
+<br/><br/>
 
 <div>
 	<div id="jxgbox" class="jxgbox" style="width:720px; height:640px; float:left; resize: both"></div>
@@ -84,9 +89,19 @@ var samplehistogramboard = JXG.JSXGraph.initBoard('samplehistogram', {
 		}
     });
 
-MAXROWS = 50;
-MAXCOLUMNS = 108;
-VERTICALSPACING = 0.2;
+/// GLOBAL CONSTANTS
+
+const MAXROWS = 50;
+const MAXCOLUMNS = 108;
+const VERTICALSPACING = 0.2;
+
+/// GLOBAL VARIABLES
+
+let sampleSize = 0;
+
+let population = [];
+let populationData = [];  // Individual data items in the population
+let populationBins = [];  // Frequencies of each population item
 
 JXG.Options.board.minimizeReflow = 'all';
 
@@ -95,26 +110,21 @@ initialize();
 function initialize() {
 
 	sampleSize = document.getElementById('sample_size').value;
+	let populationType = document.getElementById('dist_type').value;
 
-	population = [];
-	populationdata = [];
 	texts = [];
-	populationbins = [];
-	for(var i = 0; i < 10; i++) {
-		populationbins[i] = 0;
-	}
 
-	for(var j = 0; j < MAXROWS; j++) {
-		var line = '';
-		for(var i = 0; i < MAXCOLUMNS; i++) {
-			var rnd = randomInteger(0, 9);
-			line += rnd;
-			populationdata.push(rnd);
-			populationbins[rnd] += 1;
+	populationData = createPopulation(populationType);
+	populationBins = calculateFrequencies(populationData);
+
+	for(let r = 0; r < MAXROWS; r++) {
+		let textline = '';
+		for(let c = 0; c < MAXCOLUMNS; c++) {
+			textline += populationData[r * MAXCOLUMNS + c];
 		}
-		var y = 9.9 - VERTICALSPACING * j;
-		texts.push(board.create('text', [0, y, line], { highlight: false, fixed: true } ));
-		population.push(line);
+		let y = 9.9 - VERTICALSPACING * r;
+		texts.push(board.create('text', [0, y, textline], { highlight: false, fixed: true } ));
+		population.push(textline);
 	}
 
 	samples = [];
@@ -122,13 +132,16 @@ function initialize() {
 
 	meanOutput = textoutputboard.create('text', [1, 9, 'Sample Means: ']);
 	populationMeanOutput = textoutputboard.create('text', [6, 2, function() { return '$\\mu_{ \\bar{x} }=$' }], { fontSize: 18, fixed: true });
-	population_txt = textoutputboard.create('text', [1, 2, function() { return '$\\mu=$ ' + formatNumber(mean(populationdata), 4); }], { fontSize: 18, fixed: true });
+	population_txt = textoutputboard.create('text', [1, 2, function() { return '$\\mu=$ ' + formatNumber(stats.mean(populationData), 4); }], { fontSize: 18, fixed: true });
 	populationstdev = textoutputboard.create('text', [6, 1.25, function() { return '$\\sigma_{ \\bar{x} } =$ '; }], { fontSize: 18 });
 
-	popdivsqrtn = textoutputboard.create('text', [0.5, 1.25, function() { return '$ \\frac{\\sigma}{\\sqrt{' + sampleSize + '}}=$ ' + formatNumber(stdevp(populationdata) / sqrt(sampleSize), 4); }], { fontSize: 18, fixed: true });
+	popdivsqrtn = textoutputboard.create('text', [0.5, 1.25, function() { return '$ \\frac{\\sigma}{\\sqrt{' + sampleSize + '}}=$ ' + formatNumber(stats.stdevp(populationData) / sqrt(sampleSize), 4); }], { fontSize: 18, fixed: true });
 	nSamples = textoutputboard.create('text', [1, 0.5, 'Number of Samples: 0']);
 
-	poplulationhistogram = JSXHistogram(histogramboard, [0], populationbins);
+	poplulationhistogram = JSXHistogram(histogramboard, [0], populationBins);
+	let bounds = JSXGetBounds(histogramboard);
+	bounds.ymax = 1.2 * stats.max(populationBins);
+	JSXSetBounds(histogramboard, bounds);
 
 }
 
@@ -152,10 +165,10 @@ function process() {
 	histogramboard.unsuspendUpdate();
 	samplehistogramboard.unsuspendUpdate();
 
-	populationMeanOutput.setText(function() { return '$ \\mu_{ \\bar{x} } = $ ' + formatNumber(mean(samplemeans), 4); });
-	populationstdev.setText(function() { return '$\\sigma_{ \\bar{x} } =$ ' + formatNumber(stdevp(samplemeans), 4); });
+	populationMeanOutput.setText(function() { return '$ \\mu_{ \\bar{x} } = $ ' + formatNumber(stats.mean(samplemeans), 4); });
+	populationstdev.setText(function() { return '$\\sigma_{ \\bar{x} } =$ ' + formatNumber(stats.stdevp(samplemeans), 4); });
 
-	popdivsqrtn.setText(function() { return '$ \\frac{\\sigma}{\\sqrt{' + sampleSize + '}} =$ ' + formatNumber(stdevp(populationdata) / sqrt(sampleSize), 4); });
+	popdivsqrtn.setText(function() { return '$ \\frac{\\sigma}{\\sqrt{' + sampleSize + '}} =$ ' + formatNumber(stats.stdevp(populationData) / sqrt(sampleSize), 4); });
 
 	nSamples.setText('Number of Samples: ' + samples.length);
 
@@ -176,11 +189,11 @@ function process() {
 
 	// Check to see if the histogram bars are now too tall and adjust the
 	// window settings if they are
-	var maxfreq = max(freq);
+	var maxfreq = stats.max(freq);
 	var bounds = JSXGetBounds(samplehistogramboard);
 
 	if(maxfreq > bounds.ymax) {
-		bounds.ymax = maxfreq + 10;
+		bounds.ymax = 1.2 * maxfreq;
 		//samplehistogramboard.setBoundingBox([bounds[0], bounds[2], bounds[3], bounds[1]], false);
 		JSXSetBounds(samplehistogramboard, bounds, false);
 	}
@@ -239,13 +252,67 @@ function addSample(highlightValues) {
 	}
 	samples.push(sample);
 
-	var mean_value = mean(sample);
+	var mean_value = stats.mean(sample);
 	samplemeans.push(mean_value);
 	meanOutput.setText(meanOutput.plaintext + ' ' + formatNumber(mean_value, 4) + ',');
 
 }
 
+function createPopulation(populationType) {
 
+	let population = [];
+	let n = MAXROWS * MAXCOLUMNS;
+
+	if (populationType == 'uniform') {
+		let nValues = n / 10;
+		for (let k = 0; k < 10; k++) {
+			for (let i = 0; i < nValues; i++) {
+				population[k * nValues + i] = k;
+			}
+		}
+	} else {
+
+		let p = 0;
+
+		if (populationType == 'normal') {
+			p = 0.5;
+		} else if (populationType == 'leftskew') {
+			p = 0.22;
+		} else if (populationType == 'rightskew') {
+			p = 0.78;
+		}
+
+		let total = 0;
+		for (let k = 0; k < 10; k++) {
+			let nValues = round(n * jStat.binomial.pdf(k, 9, p));
+			total += nValues;
+			for (let i = 0; i < nValues; i++) {
+				population.push(k);
+			}
+		}
+		if (total < n) {
+			for (let i = total; i < n; i++) {
+				population.push(round(10 * p));
+			}
+		}
+	}
+
+	return shuffle(population);
+
+}
+
+function calculateFrequencies(populationData) {
+
+	let bins = new Array(10).fill(0);
+	let n = MAXROWS * MAXCOLUMNS;
+
+	for(var i = 0; i < n; i++) {
+		bins[populationData[i]] += 1;
+	}
+
+	return bins;
+
+}
 </script>
 </body>
 </html>
