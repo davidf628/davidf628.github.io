@@ -49,20 +49,24 @@ var gui = new dat.GUI();
 // initialization
 init();
 
-// animation loop 
+// animation loop
 animate();
-					
+
 
 function createScene() {
 
-	u = new Vector( { end: [-11, 12, 14], color: 'black' } );
-	v = new Vector( { end: [-5, 5, 10 ], color: 'black' });
-	
-	p = new Vector( { end: [-8.5, 8.5, 17 ] });
-	
-	x1 = new Point([-11, 12, 14]);
-	x2 = new Point([-8.5, 8.5, 17]);
+	u = new Vector( { end: [ -15, 7, 11 ], color: 'black' } );
+	v = new Vector( { end: [ -10, -15, 8 ], color: 'black' });
+
+	p = new Vector( { end: [ -3, -4.5, 2.4 ] });
+	o = new Vector( { end: [ -12, 11.5, 8.6 ] });
+
+	x1 = new Point([ -15, 7, 11 ]);
+	x2 = new Point([ -3, -4.5, 2.4 ]);
+	x3 = new Point([ -12, 11.5, 8.6 ]);
+
 	l = new Segment(x1, x2, { dashed: true });
+	m = new Segment(x1, x3, { dashed: true });
 
 }
 
@@ -83,20 +87,20 @@ function animate() {
 
 function redrawScene() {
 
-	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl,
 							window_param.ymin, window_param.ymax, window_param.yscl,
 							window_param.zmin, window_param.zmax, window_param.zscl);
-	
+
 	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
-	
+
 	scene.remove(axes.getObject());
 	axes.redraw();
 	scene.add(axes.getObject());
-	
+
 	for(var i = 0; i < objectlist.length; i++) {
 		objectlist[i].redraw();
 	}
-	
+
 }
 
 </script>
