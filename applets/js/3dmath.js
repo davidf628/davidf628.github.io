@@ -1,3 +1,11 @@
+/*
+
+	3dmath.js by David Flenner
+
+	version 0.8
+
+*/
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -16,62 +24,62 @@
 
 
 /* class BaseClass {
-	
+
 	constructor(args) {
-	
+
 		if(args === undefined) {
 			args = {};
 		}
-	
+
 		this.name = 'baseclass';
-	
+
 		this.color = args.color ? initColor(color) : new THREE.Color('black');
-	
+
 		var geometry = this.createGeometry();
 		this.object = createMesh(geometry, material);
-	
+
 		this.object.visible = this.visible;
-	
+
 	}
-	
+
 	setVisible(visible) {
 		this.visible = visible;
 		this.object.visible = this.visible;
 	}
-	
+
 	toggleVisible() {
 		this.visible = !this.visible;
 		this.object.visible = this.visible;
 	}
-	
+
 	isVisible() {
 		return this.visible;
 	}
-	
+
 	redraw() {
 	}
-	
+
 	getObject() {
 		return this.object;
 	}
-	
+
 	getGeometry() {
 		return this.object.geometry();
 	}
-	
+
 	createGeometry() {
 		// Main drawing code
 	}
-	
+
 	createMaterial() {
 	}
-	
+
 	disposeGeometry() {
 	}
-	
+
 	disposeMaterial() {
 	}
-	
+
 } */
 
 
@@ -85,15 +93,19 @@
 
 // Ability to intersect a surface with horizontal or vertical planes
 
+// New Object: CylindricalSurface(2-var func)
+// New Object: QuadricSurface(3-var func)
+
+
 ///////////////////////////////////////////////////////////////////////////////
 
 
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-//  Notes: 
+//  Notes:
 //
-//   - The camera is set to an initial viewing window of -20 .. 20 units on the 
+//   - The camera is set to an initial viewing window of -20 .. 20 units on the
 //     x, y, and z axes. If you see the value 40 throughout, that just the
 //     linear distance of the original camera view.
 //
@@ -103,13 +115,13 @@ var container, scene, camera, renderer, controls, stats, axes;
 
 function init() {
 
-	// SCENE 	
+	// SCENE
 	scene = new THREE.Scene();
 
-	// CAMERA 	
-	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;	
+	// CAMERA
+	var SCREEN_WIDTH = window.innerWidth, SCREEN_HEIGHT = window.innerHeight;
 	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
-	
+
 	perspectivecamera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
 	perspectivecamera.position.set(40,40,10);
 	perspectivecamera.up.set(0, 0, 1);  // make sure z-axis is facing up
@@ -117,48 +129,48 @@ function init() {
 
 	orthographiccamera = new THREE.OrthographicCamera(-50, 50, 30, -30, NEAR, FAR);
 	orthographiccamera.position.set(40,40,10);
-	orthographiccamera.up.set(0, 0, 1);  // make sure z-axis is facing up	
+	orthographiccamera.up.set(0, 0, 1);  // make sure z-axis is facing up
 	scene.add(orthographiccamera);
-		
+
 	// Set up a light that follows the camera
 	var light = new THREE.DirectionalLight(0xffffff, 0.5);
     light.position.set(0,0,1);
-	
+
 	perspectivecamera.add(light);
 	orthographiccamera.add(light);
-	
+
 	scene.add(new THREE.AmbientLight( 0xffffff ));
-	
-	perspectivecamera.lookAt(scene.position);	
-	
-	// RENDERER 	
+
+	perspectivecamera.lookAt(scene.position);
+
+	// RENDERER
 	renderer = new THREE.WebGLRenderer( { antialias:true, alpha: true } );
-	
+
 	// Set background color as white
-	renderer.setClearColor( window_param.bgcolor ); 
+	renderer.setClearColor( window_param.bgcolor );
 	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 	renderer.sortObjects = false;
 	renderer.localClippingEnabled = true;
-	
+
 	// attach div element to variable to contain the renderer
 	container = document.getElementById( 'ThreeJS' );
 	container.appendChild( renderer.domElement );
-	
-	// EVENTS 	
+
+	// EVENTS
 	THREEx.WindowResize(renderer, perspectivecamera);
 	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
-	
-	// CONTROLS 
+
+	// CONTROLS
 	perspectivecontrols = new THREE.OrbitControls( perspectivecamera, renderer.domElement );
 	orthographiccontrols = new THREE.OrbitControls( orthographiccamera, renderer.domElement );
-	
-	// STATS 	
+
+	// STATS
 	stats = new Stats();
 	stats.domElement.style.position = 'absolute';
 	stats.domElement.style.bottom = '0px';
 	stats.domElement.style.zIndex = 100;
 	container.appendChild( stats.domElement );
-		
+
 	// GUI
 
 	var window_menu = gui.addFolder('Window Settings');
@@ -179,21 +191,21 @@ function init() {
 	window_menu.addColor(window_param, 'bgcolor').name('Background').onChange(function() { renderer.setClearColor(window_param.bgcolor); });
 	window_menu.add(window_param, 'activecamera', ['Perspective', 'Orthographic']).name('Camera Type');
 	window_menu.add(window_param, 'updateWindow').name('Update Window');
-	
-	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl,
 							window_param.ymin, window_param.ymax, window_param.yscl,
 							window_param.zmin, window_param.zmax, window_param.zscl);
-	
-	axes = new Axes({ 
-	   labels: window_param.labels, 
-	   xygrid: window_param.xygrid, 
-	   xzgrid: window_param.xzgrid, 
-	   yzgrid: window_param.yzgrid, 
-	   polargrid: window_param.polargrid 
+
+	axes = new Axes({
+	   labels: window_param.labels,
+	   xygrid: window_param.xygrid,
+	   xzgrid: window_param.xzgrid,
+	   yzgrid: window_param.yzgrid,
+	   polargrid: window_param.polargrid
 	});
-	
+
 	scene.add(axes.getObject());
-	
+
 	createScene();
 }
 
@@ -210,22 +222,22 @@ function init() {
 // variable has effects on others
 
 var viewingWindow = {
-	
+
 		// These are the bounds of the viewing window
-		
+
 		xMin: -20, xMax: 20, xStep: 5,
 		yMin: -20, yMax: 20, yStep: 5,
 		zMin: -20, zMax: 20, zStep: 5,
-		
+
 		// These are affine transformations of the viewing window
 
 		xScale: 1.0, yScale: 1.0, zScale: 1.0,
 		xShift: 0.0, yShift: 0.0, zShift: 0.0,
-		
+
 		xRange: function() { return this.xMax - this.xMin; },
 		yRange: function() { return this.yMax - this.yMin; },
 		zRange: function() { return this.zMax - this.zMin; },
-		
+
 		setScale: function(xRatio, yRatio, zRatio) {
 
 			this.xScale = xRatio;
@@ -234,7 +246,7 @@ var viewingWindow = {
 
 			this.xMin /= xRatio;
 			this.xMax /= xRatio;
-			
+
 			this.yMin /= yRatio;
 			this.yMax /= yRatio;
 
@@ -242,7 +254,7 @@ var viewingWindow = {
 			this.zMax /= zRatio;
 
 		},
-		
+
 		setBounds: function(xMin, xMax, xStep, yMin, yMax, yStep, zMin, zMax, zStep) {
 
 		    //this.xShift = this.xMin - xMin;
@@ -265,9 +277,9 @@ var viewingWindow = {
 			this.zStep = zStep < 0.1 ? 0.1 : zStep;
 			this.zScale = 40 / (zMax - zMin);
 			//this.zShift = (Math.abs(zMin) - Math.abs(zMax)) * this.zScale;
-			
-		}	
-		
+
+		}
+
 	}
 
 function getXMin() { return viewingWindow.xMin; }
@@ -295,7 +307,7 @@ var objectlist = [];
 class Axes {
 
 	constructor (args) {
-		
+
 		if(args === undefined) {
 			args = {};
 		}
@@ -308,16 +320,16 @@ class Axes {
 		this.xzgrid = (args.xzgrid === undefined) ? false : args.xzgrid;
 		this.polargrid = (args.polargrid === undefined) ? false : args.polargrid;
 		this.labels = (args.labels === undefined) ? true : args.labels;
-		
+
 		this.xaxiscolor = new THREE.Color('red');
 		this.yaxiscolor = new THREE.Color('green');
 		this.zaxiscolor = new THREE.Color('blue');
 		this.gridcolor = new THREE.Color(0xe0e0e0);
 
 		this.draw();
-			
+
 	}
-	
+
 	setParameters(args) {
 
 		this.zaxis = (args.zaxis === undefined) ? this.zaxis : args.zaxis;
@@ -328,34 +340,34 @@ class Axes {
 		this.labels = (args.labels === undefined) ? this.labels : args.labels;
 
 	}
-	
+
 	redraw() {
-		
+
 		while(this.axes.children.length > 0) {
 			this.axes.remove(this.axes.children[0]);
 		}
-		
-		this.draw(); 
-		
+
+		this.draw();
+
 	}
-	
+
 	getObject() {
 		return this.axes;
 	}
-	
+
 	draw() {
 		this.axes = new THREE.Object3D();
-	
+
 		var origin = sCoord(0, 0, 0);
 		var gridmaterial_noclip = new THREE.LineBasicMaterial( { color: this.gridcolor, linewidth: 1 });
 		var gridmaterial = new THREE.LineBasicMaterial( { color: this.gridcolor, linewidth: 1, clippingPlanes: getClippingPlanes() });
 		var gridgeometry = new THREE.Geometry();
-	
+
 		var xWidth = viewingWindow.xRange / viewingWindow.xStep;
 		var yWidth = viewingWindow.yRange / viewingWindow.yStep;
-		
+
 		// Draw Axes
-		
+
 		this.axes.add(this.buildAxis(origin, sCoord(viewingWindow.xMax, 0, 0), this.xaxiscolor, false)); // +X
 		this.axes.add(this.buildAxis(origin, sCoord(viewingWindow.xMin, 0, 0), this.xaxiscolor, true));  // -X
 		this.axes.add(this.buildAxisCone(this.xaxiscolor, xCoord(viewingWindow.xMax), yCoord(0), zCoord(0), "x")); // x-axis cone
@@ -364,7 +376,7 @@ class Axes {
 			xlabel.position.set(xCoord(viewingWindow.xMax)+1, yCoord(0), zCoord(0));
 			this.axes.add(xlabel);
 		}
-		
+
 		this.axes.add(this.buildAxis(origin, sCoord(0, viewingWindow.yMax, 0), this.yaxiscolor, false));   // +Y
 		this.axes.add(this.buildAxis(origin, sCoord(0, viewingWindow.yMin, 0), this.yaxiscolor, true));    // -Y
 		this.axes.add(this.buildAxisCone(this.yaxiscolor, xCoord(0), yCoord(viewingWindow.yMax), zCoord(0), "y")); // y-axis cone
@@ -373,7 +385,7 @@ class Axes {
 			ylabel.position.set(xCoord(0), yCoord(viewingWindow.yMax)+1, zCoord(0));
 			this.axes.add(ylabel);
 		}
-		
+
 		if(this.zaxis) {
 			this.axes.add(this.buildAxis(origin, sCoord(0, 0, viewingWindow.zMax), this.zaxiscolor, false));  // +Z
 			this.axes.add(this.buildAxis(origin, sCoord(0, 0, viewingWindow.zMin), this.zaxiscolor, true));   // -Z
@@ -384,9 +396,9 @@ class Axes {
 				this.axes.add(zlabel);
 			}
 		}
-    
+
 		// Draw the x-y gridlines
-	
+
 		for(var i = viewingWindow.xMin; i <= viewingWindow.xMax; i += viewingWindow.xStep) {
 			if(Math.abs(i) > 0.0001) { // Don't draw a gridline at zero, this covers the axis
 				if(this.xygrid) {
@@ -402,7 +414,7 @@ class Axes {
 				}
 			}
 		}
-	
+
 		for(var i = viewingWindow.yMin; i <= viewingWindow.yMax; i += viewingWindow.yStep) {
 			if(Math.abs(i) > 0.0001) {
 				if(this.xygrid) {
@@ -413,9 +425,9 @@ class Axes {
 				}
 			}
 		}
-	
+
 		// x-z Gridlines
-	
+
 		for(var i = viewingWindow.zMin; i <= viewingWindow.zMax; i += viewingWindow.zStep) {
 			if(Math.abs(i) > 0.0001) { // Don't draw a gridline at zero, this covers the axis
 				if(this.xzgrid) {
@@ -431,7 +443,7 @@ class Axes {
 				}
 			}
 		}
-	
+
 		for(var i = viewingWindow.xMin; i <= viewingWindow.xMax; i += viewingWindow.xStep) {
 			if(Math.abs(i) > 0.0001) {
 				if(this.xzgrid) {
@@ -442,9 +454,9 @@ class Axes {
 				}
 			}
 		}
-	
+
 		// y-z Gridlines
-	
+
 		for(var i = viewingWindow.yMin; i <= viewingWindow.yMax; i += viewingWindow.yStep) {
 			if(Math.abs(i) > 0.0001) {
 				if(this.yzgrid) {
@@ -460,7 +472,7 @@ class Axes {
 				}
 			}
 		}
-	
+
 		for(var i = viewingWindow.zMin; i <= viewingWindow.zMax; i += viewingWindow.zStep) {
 			if(Math.abs(i) > 0.0001) { // Don't draw a gridline at zero, this covers the axis
 				if(this.yzgrid) {
@@ -471,14 +483,14 @@ class Axes {
 				}
 			}
 		}
-	
+
 		// Draw a Polar Grid in the x-y plane
 		if(this.polargrid) {
-		
-			var nCircles = Math.max(Math.abs(viewingWindow.xMin), Math.abs(viewingWindow.xMax), Math.abs(viewingWindow.yMin), Math.abs(viewingWindow.yMax)) / viewingWindow.xStep; 
-		
+
+			var nCircles = Math.max(Math.abs(viewingWindow.xMin), Math.abs(viewingWindow.xMax), Math.abs(viewingWindow.yMin), Math.abs(viewingWindow.yMax)) / viewingWindow.xStep;
+
 			// Draw the circles
-			
+
 			for(var i = 1; i <= nCircles; i += viewingWindow.xStep) {
 				var curve = new THREE.EllipseCurve(
 					0,  0,            // ax, aY
@@ -495,81 +507,81 @@ class Axes {
 				var ellipse = new THREE.Line( geometry, gridmaterial );
 				this.axes.add(ellipse);
 			}
-		
+
 			// Draw the lines for each 15 degree increment of theta
-		
+
 			var x_15 = nCircles * xCoord(Math.sqrt(2 + Math.sqrt(3)) / 2);
 			var x_30 = nCircles * xCoord(Math.sqrt(3) / 2);
 			var x_45 = nCircles * xCoord(1 / Math.sqrt(2));
 			var x_60 = nCircles * xCoord(1/2);
 			var x_75 = nCircles * xCoord((Math.sqrt(6) - Math.sqrt(2)) / 4);
-		
+
 			var y_15 = nCircles * yCoord(Math.sqrt(2 - Math.sqrt(3)) / 2);
 			var y_30 = nCircles * yCoord(1/2);
 			var y_45 = nCircles * yCoord(1 / Math.sqrt(2));
 			var y_60 = nCircles * yCoord(Math.sqrt(3)/2);
 			var y_75 = nCircles * yCoord((Math.sqrt(6) + Math.sqrt(2)) / 4);
-		
+
 			gridgeometry = new THREE.Geometry();
-		
+
 			gridgeometry.vertices.push(new THREE.Vector3(-x_15, -y_15, 0));
 			gridgeometry.vertices.push(new THREE.Vector3(x_15, y_15, 0));
 			this.axes.add(new THREE.Line(gridgeometry, gridmaterial));
-		
+
 			gridgeometry = new THREE.Geometry();
 			gridgeometry.vertices.push(new THREE.Vector3(-x_30, -y_30, 0));
 			gridgeometry.vertices.push(new THREE.Vector3(x_30, y_30, 0));
 			this.axes.add(new THREE.Line(gridgeometry, gridmaterial));
-		
+
 			gridgeometry = new THREE.Geometry();
 			gridgeometry.vertices.push(new THREE.Vector3(-x_45, -y_45, 0));
 			gridgeometry.vertices.push(new THREE.Vector3(x_45, y_45, 0));
 			this.axes.add(new THREE.Line(gridgeometry, gridmaterial));
-				
+
 			gridgeometry = new THREE.Geometry();
 			gridgeometry.vertices.push(new THREE.Vector3(-x_60, -y_60, 0));
 			gridgeometry.vertices.push(new THREE.Vector3(x_60, y_60, 0));
 			this.axes.add(new THREE.Line(gridgeometry, gridmaterial));
-		
+
 			gridgeometry = new THREE.Geometry();
 			gridgeometry.vertices.push(new THREE.Vector3(-x_75, -y_75, 0));
 			gridgeometry.vertices.push(new THREE.Vector3(x_75, y_75, 0));
 			this.axes.add(new THREE.Line(gridgeometry, gridmaterial));
-		
+
 			gridgeometry = new THREE.Geometry();
 			gridgeometry.vertices.push(new THREE.Vector3(-x_45, y_45, 0));
 			gridgeometry.vertices.push(new THREE.Vector3(x_45, -y_45, 0));
 			this.axes.add(new THREE.Line(gridgeometry, gridmaterial));
-		
+
 			gridgeometry = new THREE.Geometry();
 			gridgeometry.vertices.push(new THREE.Vector3(-x_30, y_30, 0));
 			gridgeometry.vertices.push(new THREE.Vector3(x_30, -y_30, 0));
 			this.axes.add(new THREE.Line(gridgeometry, gridmaterial));
-		
+
 			gridgeometry = new THREE.Geometry();
 			gridgeometry.vertices.push(new THREE.Vector3(-x_60, y_60, 0));
 			gridgeometry.vertices.push(new THREE.Vector3(x_60, -y_60, 0));
 			this.axes.add(new THREE.Line(gridgeometry, gridmaterial));
-		
+
 			gridgeometry = new THREE.Geometry();
 			gridgeometry.vertices.push(new THREE.Vector3(-x_15, y_15, 0));
 			gridgeometry.vertices.push(new THREE.Vector3(x_15, -y_15, 0));
 			this.axes.add(new THREE.Line(gridgeometry, gridmaterial));
-		
+
 			gridgeometry = new THREE.Geometry();
 			gridgeometry.vertices.push(new THREE.Vector3(-x_75, y_75, 0));
 			gridgeometry.vertices.push(new THREE.Vector3(x_75, -y_75, 0));
 			this.axes.add(new THREE.Line(gridgeometry, gridmaterial));
-		
+
 		}
 
-	
+
 	}
-	
-	buildAxis(src, dst, color, dashed) { 
+
+	buildAxis(src, dst, color, dashed) {
 
 		var geometry = new THREE.Geometry(), material;
-	
+
 		if(dashed) {
 			material = new THREE.LineDashedMaterial( { linewidth: 2, color: color, dashSize: 0.5, gapSize: 0.5 } );
 		} else {
@@ -577,20 +589,20 @@ class Axes {
 		}
 		geometry.vertices.push(src.clone());
 		geometry.vertices.push(dst.clone());
-		
-		var axis = new THREE.Line(geometry, material, THREE.LineSegments);	
+
+		var axis = new THREE.Line(geometry, material, THREE.LineSegments);
 		axis.computeLineDistances();
-	
+
 		return axis;
-	}	
+	}
 
 	buildAxisCone(color, posX, posY, posZ, axis) {
-	
+
 		var geometry = new THREE.CylinderGeometry(0, 0.2, 0.4, 20, 5, false) ;
 		var material = new THREE.MeshBasicMaterial( { color: color } );
 		var cone = new THREE.Mesh( geometry, material );
 		cone.position.set(posX, posY, posZ);
-	
+
 		if(axis == "x") {
 			geometry.applyMatrix( new THREE.Matrix4().makeRotationZ( -Math.PI / 2));
 		} else if(axis == "y") {
@@ -598,10 +610,10 @@ class Axes {
 		} else if(axis == "z") {
 			geometry.applyMatrix( new THREE.Matrix4().makeRotationX( Math.PI / 2));
 		}
-	
+
 		return cone;
 	}
-	
+
 	makeTextSprite(message, opts) {
 		var parameters = opts || {};
 		var fontface = parameters.fontface || 'Helvetica';
@@ -628,42 +640,44 @@ class Axes {
 		sprite.scale.set(1.5, 1.5, 1.0);
 		return sprite;
 	}
-	
+
 }
 
 
 class Point {
 
 	constructor (coords, args) {
-		
+
 		if(coords === undefined) {
 			console.warn('The coordinates of where to create the point must be specified');
 			return;
-		}		
-		
+		}
+
 		if(args === undefined) {
 			args = {};
 		}
-		
+
 		this.name = 'point';
-				
+
 		this.coords = coords;
 		this.radius = args.radius ? args.radius : 0.2;
-		this.color = args.color ? initColor(args.color) : 'black';
+		this.color = args.color ? initColor(args.color) : 'blue';
 		this.visible = (args.visible !== undefined) ? args.visible : true;
-	
+
 		var geometry = new THREE.SphereGeometry(this.radius);
 		var material = new THREE.MeshBasicMaterial( { color: this.color } );
 		this.sphere = new THREE.Mesh(geometry, material);
-	
+
 		this.sphere.position.x = xCoord(this.coords[0]);
 		this.sphere.position.y = yCoord(this.coords[1]);
 		this.sphere.position.z = zCoord(this.coords[2]);
-		
+
 		this.sphere.visible = this.visible;
-			
+
+		addToScene(scene, this);
+
 	}
-	
+
 	moveTo(p) {
 		this.coords[0] = p[0];
 		this.coords[1] = p[1];
@@ -672,22 +686,22 @@ class Point {
 		this.sphere.position.y = yCoord(p[1]);
 		this.sphere.position.z = zCoord(p[2]);
 	}
-	
+
 	traceTo(scene, p) {
-	
+
 		var geometry = new THREE.SphereGeometry(this.radius);
 		var material = new THREE.MeshBasicMaterial( { color: this.color } );
 		var s = new THREE.Mesh(geometry, material);
 		s.position.x = xCoord(this.coords[0]);
 		s.position.y = yCoord(this.coords[1]);
 		s.position.z = zCoord(this.coords[2]);
-		
+
 		scene.add(s);
-		
+
 		this.moveTo(p);
 
 	}
-	
+
 	getObject() { return this.sphere; }
 	getCoords() { return this.coords; }
 	X() { return this.coords[0]; }
@@ -696,17 +710,17 @@ class Point {
 	getColor() { return this.color; }
 	getRadius() { return this.radius; }
 	getVisible() { return this.visible; }
-	
+
 	setVisible(b) {
 		this.visible = b;
 		this.sphere.visible = b;
 	}
-	
+
 	toggleVisible() {
 		this.visible = !this.visible;
 		this.sphere.visible = this.visible;
 	}
-	
+
 	setColor(c) {
 		this.color = c;
 		this.sphere.material.color = c;
@@ -718,180 +732,182 @@ class Point {
         var geometry = new THREE.SphereGeometry(this.radius);
         var material = new THREE.MeshBasicMaterial( { color: this.color } );
         this.sphere = new THREE.Mesh(geometry, material);
-		
+
 		this.sphere.position.x = xCoord(this.coords[0]);
 		this.sphere.position.y = yCoord(this.coords[1]);
 		this.sphere.position.z = zCoord(this.coords[2]);
-		
+
         scene.add(this.sphere);
 	}
-	
+
 	redraw() {
 		this.moveTo(this.coords);
 	}
 
-	
+
 }
 
 class Path {
 
 	constructor (points, args) {
-		
+
 		if(points === undefined) {
 			console.warn('The points for the path must be specified.');
 			return;
-		}		
-		
+		}
+
 		if(args === undefined) {
 			args = {};
 		}
-		
+
 		this.name = 'path';
-				
+
 		this.points = points;
 		this.type = args.type ? args.type : 'linear';
 		this.color = args.color ? initColor(args.color) : 'black';
 		this.visible = (args.visible !== undefined) ? args.visible : true;
-	
+
 		var geometry = new THREE.Geometry();
 		for(var i = 0; i < this.points.length; i++) {
 			geometry.vertices.push(sCoordV(this.points[i]));
 		}
-		
+
 		var material = new THREE.LineBasicMaterial( { color: this.color } );
 		this.path = new THREE.Line(geometry, material);
-		
+
 		this.path.visible = this.visible;
-			
-	}	
+
+		addToScene(scene, this);
+
+	}
 
 	getObject() {
 		return this.path;
 	}
 
 	getVisible() { return this.visible; }
-	
+
 	setVisible(b) {
 		this.visible = b;
 		this.sphere.visible = b;
 	}
-	
+
 	toggleVisible() {
 		this.visible = !this.visible;
 		this.sphere.visible = this.visible;
 	}
-	
+
 	redraw() {
 		// TOOD: write up re-draw code
 	}
 
-	
+
 }
 
 class Sphere {
 
 	constructor (args) {
-		
+
 		this.name = 'sphere';
-		
-		this.coords = [0, 0, 0];
+
+		this.center = [0, 0, 0];
 		this.radius = 0.2;
-		this.color = new THREE.Color('black');
 		this.visible = true;
-		
+
 		if(args !== undefined) {
-			this.coords = args.coords ? args.coords : this.coords;
+			this.center = args.center ? args.center : this.center;
 			this.radius = args.radius ? args.radius : this.radius;
-			this.color = args.color ? initColor(args.color) : this.color;
 			this.visible = (args.visible == undefined) ? this.visible : args.visible;
-		}	
-	
+		}
+
 		var geometry = new THREE.SphereGeometry(xCoord(this.radius), 32, 32);
 		this.sphere = createNormalMesh(geometry);
-	
-		this.sphere.position.x = xCoord(this.coords[0]);
-		this.sphere.position.y = yCoord(this.coords[1]);
-		this.sphere.position.z = zCoord(this.coords[2]);
-		
+
+		this.sphere.position.x = xCoord(this.center[0]);
+		this.sphere.position.y = yCoord(this.center[1]);
+		this.sphere.position.z = zCoord(this.center[2]);
+
 		this.sphere.visible = this.visible;
-			
+
+		addToScene(scene, this);
+
 	}
-	
+
 	getObject() { return this.sphere; }
-	getCoords() { return this.coords; }
-	getX() { return this.coords[0]; }
-	getY() { return this.coords[1]; }
-	getZ() { return this.coords[2]; }
+	getCoords() { return this.center; }
+	getX() { return this.center[0]; }
+	getY() { return this.center[1]; }
+	getZ() { return this.center[2]; }
 	getColor() { return this.color; }
 	getRadius() { return this.radius; }
 	getVisible() { return this.visible; }
-	
+
 	setVisible(b) {
 		this.visible = b;
 		this.sphere.visible = b;
 	}
-	
+
 	toggleVisible() {
 		this.visible = !this.visible;
 		this.sphere.visible = this.visible;
 	}
-	
+
 	setCenter(p) {
-		this.coords[0] = p[0];
-		this.coords[1] = p[1];
-		this.coords[2] = p[2];
+		this.center[0] = p[0];
+		this.center[1] = p[1];
+		this.center[2] = p[2];
 		this.sphere.position.x = xCoord(p[0]);
 		this.sphere.position.y = yCoord(p[1]);
 		this.sphere.position.z = zCoord(p[2]);
 	}
-	
+
 	setRadius(scene, r) {
 		this.radius = r;
 		scene.remove(this.sphere);
         var geometry = new THREE.SphereGeometry(this.radius);
         var material = new THREE.MeshBasicMaterial( { color: this.color } );
         this.sphere = new THREE.Mesh(geometry, material);
-		
-		this.sphere.position.x = xCoord(this.coords[0]);
-		this.sphere.position.y = yCoord(this.coords[1]);
-		this.sphere.position.z = zCoord(this.coords[2]);
-		
+
+		this.sphere.position.x = xCoord(this.center[0]);
+		this.sphere.position.y = yCoord(this.center[1]);
+		this.sphere.position.z = zCoord(this.center[2]);
+
         scene.add(this.sphere);
 	}
-	
+
 	redraw() {
-		this.setCenter(this.coords);
+		this.setCenter(this.center);
 	}
-	
+
 }
 
 class Lathe {
 
 	constructor (xfunc, yfunc, tmin, tmax, axis, args) {
-		
+
 		if(args === undefined) {
 			args = {};
 		}
-		
+
 		this.name = 'lathe';
-		
+
 		this.angle = args.angle ? args.angle : 0.0001;
 		this.dt = args.dt ? args.dt : 0.25;
 		this.color = args.color ? initColor(args.color) : new THREE.Color('green');
 		this.visible = (args.visible !== undefined) ? args.visible : true;
 		this.connect = args.connect ? args.connect : 'none';
 		this.skin = args.skin ? args.skin : 'transparent';
-	
+
 		this.xfunc = xfunc;
 		this.yfunc = yfunc;
 		this.tmin = tmin;
 		this.tmax = tmax;
 		this.axis = axis;
-	
-		var geometry = this.makeGeometry(); 
-		
+
+		var geometry = this.makeGeometry();
+
 		if(this.skin == 'transparent') {
-			this.lathe = createTransparentMesh(geometry, this.color); 	
+			this.lathe = createTransparentMesh(geometry, this.color);
 		} else if(this.skin == 'normal') {
 			this.lathe = createNormalMesh(geometry);
 		} else if(this.skin == 'shaded') {
@@ -904,17 +920,19 @@ class Lathe {
 			this.lathe = createRainbowMesh(geometry);
 		} else if(this.skin == 'depth') {
 			this.lathe = createDepthMesh(geometry, this.color);
-		}	
-		
+		}
+
 		this.lathe.visible = this.visible;
-			
+
+		addToScene(scene, this);
+
 	}
-	
-	makeGeometry() {		
-	
+
+	makeGeometry() {
+
 		var geometry;
 		this.points = [];
-		
+
 		// Set up first point to contact axis, this makes the object look solid
 		if(this.connect == 'x') {
 			if(this.axis == 'x') {
@@ -929,7 +947,7 @@ class Lathe {
 				this.points.push(new THREE.Vector2(xCoord(this.tmin), yCoord(0)));
 			}
 		}
-		
+
 		for(var t = this.tmin; t <= this.tmax; t += this.dt ) {
 			var x = math.eval(this.xfunc, { t: t });
 			var y = math.eval(this.yfunc, { t: t });
@@ -939,7 +957,7 @@ class Lathe {
 				this.points.push(new THREE.Vector2(xCoord(x), yCoord(y)));
 			}
 		}
-		
+
 		var x = math.eval(this.xfunc, { t: this.tmax });
 		var y = math.eval(this.yfunc, { t: this.tmax });
 		if(this.axis == 'x') {
@@ -947,7 +965,7 @@ class Lathe {
 		} else if(this.axis == 'y') {
 			this.points.push(new THREE.Vector2(xCoord(x), yCoord(y)));
 		}
-		
+
 		if(this.connect == 'x') {
 			if(this.axis == 'x') {
 				this.points.push(new THREE.Vector2(xCoord(0), yCoord(this.tmax)));
@@ -973,9 +991,9 @@ class Lathe {
 		return geometry;
 
 	}
-	
+
 	getObject() { return this.lathe; }
-	getGeometry() { 
+	getGeometry() {
 		if(this.skin == 'transparent') {
 			return this.lathe.children[0].geometry;
 		} else {
@@ -984,17 +1002,17 @@ class Lathe {
 	}
 
 	getVisible() { return this.visible; }
-	
+
 	setVisible(b) {
 		this.visible = b;
 		this.lathe.visible = b;
 	}
-	
+
 	toggleVisible() {
 		this.visible = !this.visible;
 		this.lathe.visible = this.visible;
 	}
-	
+
 	setFunction(xfunc, yfunc, tmin, tmax, dt) {
 		this.disposeGeometry();
 		this.disposeMaterial();
@@ -1006,7 +1024,7 @@ class Lathe {
 		this.assignGeometry(this.makeGeometry());
 		this.assignMaterial();
 	}
-	
+
 	setAxisOfRotation(axis) {
 		this.disposeGeometry();
 		this.disposeMaterial();
@@ -1014,7 +1032,7 @@ class Lathe {
 		this.assignGeometry(this.makeGeometry());
 		this.assignMaterial();
 	}
-	
+
 	setConnect(connect) {
 		this.disposeGeometry();
 		this.disposeMaterial();
@@ -1022,45 +1040,45 @@ class Lathe {
 		this.assignGeometry(this.makeGeometry());
 		this.assignMaterial();
 	}
-	
+
 	setAngle(angle) {
 		this.disposeGeometry();
 		this.disposeMaterial();
 		this.angle = angle;
 		this.assignGeometry(this.makeGeometry());
 		this.assignMaterial();
-		
+
 	}
-	
+
 	redraw() {
 		this.disposeGeometry();
 		this.assignGeometry(this.makeGeometry());
 	}
-	
+
 	disposeGeometry() {
 		if(this.skin == 'transparent') {
 			this.lathe.children[0].geometry.dispose();
 			this.lathe.children[1].geometry.dispose();
 		} else {
 			this.lathe.geometry.dispose();
-		}	
-	}	
-	
-	disposeMaterial() {	
+		}
+	}
+
+	disposeMaterial() {
 		if(this.skin == 'rainbow' || this.skin == 'depth') {
 			this.lathe.material.dispose();
-		} 
+		}
 	}
-	
+
 	assignGeometry(geometry) {
 		if(this.skin == 'transparent') {
 			this.lathe.children[0].geometry = geometry;
 			this.lathe.children[1].geometry = geometry;
 		} else {
 			this.lathe.geometry = geometry;
-		}	
+		}
 	}
-	
+
 	assignMaterial() {
 		if(this.skin == 'rainbow') {
 			this.lathe.material = createRainbowMaterial(this.lathe.geometry);
@@ -1068,11 +1086,11 @@ class Lathe {
 			this.lathe.material = createDepthMaterial(this.lathe.geometry, this.color);
 		}
 	}
-	
+
 }
 
 class Vector {
-	
+
 	constructor (args) {
 
 		if(args === undefined) {
@@ -1081,26 +1099,35 @@ class Vector {
 
 		this.name = 'vector';
 
+		if(args.start && args.start.name === 'point') {
+			args.start = args.start.getCoords();
+		}
+		if(args.end && args.end.name === 'point') {
+			args.end = args.end.getCoords();
+		}
+
 		this.start = args.start ? args.start : [0, 0, 0];
-		this.end = args.end ? args.end : [1, 1, 1];	
+		this.end = args.end ? args.end : [1, 1, 1];
 		var from = sCoord(this.start[0], this.start[1], this.start[2]);
 		var to = sCoord(this.end[0], this.end[1], this.end[2]);
 		this.direction = to.clone().sub(from);
 		this.length = args.length ? args.length : this.direction.length();
-			
+
 		this.color = args.color ? initColor(args.color) : new THREE.Color('red');
 		this.visible = (args.visible !== undefined) ? args.visible : true;
-			
+
 		this.headLengh = args.headLength ? args.headLength : 1;
 		this.headWidth = args.headWidth ? args.headWidth : 0.5;
-				
+
 		this.vector = new THREE.ArrowHelper(this.direction.normalize(), from, this.length, this.color, this.headLength, this.headWidth );
 		this.vector.visible = this.visible;
 
+		addToScene(scene, this);
+
 	}
-	
+
 	// Getters //
-	
+
 	getObject() { return this.vector; }
 	getVisible() { return this.visible;	}
 	getColor() { return this.color;	}
@@ -1108,47 +1135,47 @@ class Vector {
 	getEndPoint() {	return end;	}
 	getHeadLength() { return headLength; }
 	getHeadWidth() { return headWidth; }
-	
-	
+
+
 	// Setters //
-	
+
 	setVisible(b) {
 		this.visible = b;
 		this.vector.visible = b;
 	}
-	
+
 	toggleVisible() {
 		this.visible = !this.visible;
 		this.vector.visible = this.visible;
 	}
-	
+
 	setColor(c) {
 		this.color = c;
 		this.vector.setColor(c);
 	}
-	
+
 	setEndPoint(coords) {
-		
+
 		this.end[0] = coords[0];
 		this.end[1] = coords[1];
 		this.end[2] = coords[2];
-		
+
 		var from = sCoord(this.start[0], this.start[1], this.start[2]);
 		var to = sCoord(this.end[0], this.end[1], this.end[2]);
 		var direction = to.clone().sub(from);
-		
+
 		this.length = direction.length();
 		this.vector.setLength(this.length, this.headLength, this.headWidth);
 		this.vector.setDirection(direction.normalize());
 
 	}
-	
+
 	setStartPoint(coords) {
-		
+
 		this.start[0] = coords[0];
 		this.start[1] = coords[1];
 		this.start[2] = coords[2];
-		
+
 		this.vector.position.x = xCoord(coords[0]);
 		this.vector.position.y = yCoord(coords[1]);
 		this.vector.position.z = zCoord(coords[2]);
@@ -1159,56 +1186,75 @@ class Vector {
 		this.setEndPoint(this.end);
 		this.setStartPoint(this.start);
 	}
-	
+
 }
 
-class Line {
-	
-	constructor(args) {
-		
+class Segment {
+
+	constructor(p1, p2, args) {
+
+		if(p1 === undefined || p2 === undefined) {
+			console.error('Segment must provide two [x, y, z] coordinate arrays to defined the points to draw between.');
+		}
+
 		if(args === undefined) {
 			args = {};
 		}
-		
-		this.name = 'line';
-		
+
+		this.name = 'segment';
+
 		this.color = args.color ? initColor(args.color) : new THREE.Color('black');
-		this.start = args.start ? args.start : [0, 0, 0];
-		this.end = args.end ? args.end : [1, 1, 1];
+
+		if(p1.name === 'point') {
+			this.start = p1.getCoords();
+		} else {
+			this.start = p1;
+		}
+
+		if(p2.name === 'point') {
+			this.end = p2.getCoords();
+		} else {
+			this.end = p2;
+		}
+
 		this.dashed = args.dashed === undefined ? false : args.dashed;
 		this.visible = (args.visible == undefined) ? true : args.visible;
-		
+
 		var geometry = new THREE.Geometry();
 		geometry.vertices.push(sCoordV(this.start));
 		geometry.vertices.push(sCoordV(this.end));
-		
+
 		var material;
 		if(this.dashed) {
 			material = new THREE.LineDashedMaterial( { color: this.color, scale: 1, dashSize: 0.5, gapSize: 0.5 });
-		} else {			
+		} else {
 			material = new THREE.LineBasicMaterial( { color: this.color } );
 		}
-		
+
 		this.line = new THREE.Line(geometry, material);
 		if(this.dashed) {
 			this.line.computeLineDistances();
 		}
 		this.line.visible = this.visible;
-		
+
+		addToScene(scene, this);
+
 	}
-	
+
 	getObject() {
 		return this.line;
 	}
-	
+
 	toggleVisible() {
 		this.visible = !this.visible;
 		this.line.visible = this.visible;
 	}
-	
-	updateEndPoint(coords) {
-		this.end = coords;
-		this.line.geometry.vertices[1].set(xCoord(coords[0]), yCoord(coords[1]), zCoord(coords[2]));
+
+	setEndPoints(p1, p2) {
+		this.start = p1;
+		this.end = p2;
+		this.line.geometry.vertices[0].set(xCoord(p1[0]), yCoord(p1[1]), zCoord(p1[2]));
+		this.line.geometry.vertices[1].set(xCoord(p2[0]), yCoord(p2[1]), zCoord(p2[2]));
 		this.line.geometry.verticesNeedUpdate = true;
 		if(this.dashed) {
 			this.line.computeLineDistances();
@@ -1216,73 +1262,69 @@ class Line {
 		}
 	}
 
-	updateStartPoint(coords) {
-		this.start = coords;
-		this.line.geometry.vertices[0].set(xCoord(coords[0]), yCoord(coords[1]), zCoord(coords[2]));
-		this.line.geometry.verticesNeedUpdate = true;
-		if(this.dashed) {
-			this.line.computeLineDistances();
-			this.line.geometry.lineDistancesNeedUpdate = true;
-		}
+	getEndPoints() {
+		return [ this.start, this.end ];
 	}
 
 }
 
 class Box {
-	
+
 	constructor(args) {
-		
+
 		if(args === undefined) {
 			args = {};
 		}
-		
+
 		this.name = 'box';
-		
+
 		this.color = args.color ? initColor(args.color) : new THREE.Color('green');
 		this.position = args.position ? args.position : [0, 0, 0];
 		this.width = args.width ? args.width : 1;       // x dimension
 		this.height = args.height ? args.height : 1;    // y dimension
 		this.depth = args.depth ? args.depth : 1;       // z dimension
 		this.visible = (args.visible == undefined) ? true : args.visible;
-		
+
 		var geometry = new THREE.BoxGeometry(xCoord(this.width), yCoord(this.height), zCoord(this.depth), 1, 1, 1);
-		
+
 		this.box = createTransparentMesh(geometry, this.color);
 		this.box.translateX(xCoord(this.position[0]) + xCoord(this.width) / 2);
 		this.box.translateY(yCoord(this.position[1]) + yCoord(this.height) / 2);
 		this.box.translateZ(zCoord(this.position[2]) + zCoord(this.depth) / 2);
 
 		this.box.visible = this.visible;
-		
+
+		addToScene(scene, this);
+
 	}
-	
+
 	getObject() {
 		return this.box;
 	}
-	
+
 	toggleVisible() {
 		this.visible = !this.visible;
 		this.box.visible = this.visible;
 	}
-	
+
 	setwidth(width) {
-	
+
 	}
-	
+
 	setHeight(height) {
 	}
-	
+
 	setDepth(depth) {
 	}
-	
+
 	setDimensions (length, height, depth) {
 		setWidth(length);
 		setHeight(height);
 		setDepth(depth);
 	}
-	
+
 	setPosition(coords) {
-		
+
 	}
 
 }
@@ -1303,35 +1345,42 @@ class Box {
 **     - color: eg 'green', '#00ff00', 0x00ff00
 **     - visible: true/false
 **
-************************************************************/ 
+************************************************************/
 
 class Quadrilateral {
-	
+
 	constructor(p1, p2, p3, p4, args) {
-		
+
 		if(args === undefined) {
 			args = {};
 		}
-		
+
 		this.name = 'quadrilateral';
-		
+
+		p1.name === 'point' ? p1 = p1.getCoords() : null ;
+		p2.name === 'point' ? p2 = p2.getCoords() : null ;
+		p3.name === 'point' ? p3 = p3.getCoords() : null ;
+		p4.name === 'point' ? p4 = p4.getCoords() : null ;
+
 		this.color = args.color ? initColor(args.color) : new THREE.Color('green');
 		this.visible = (args.visible == undefined) ? true : args.visible;
-		
+
 		var geometry = new THREE.Geometry();
 		geometry.vertices = [ sCoordV(p1), sCoordV(p2), sCoordV(p3), sCoordV(p4) ];
 		geometry.faces = [ new THREE.Face3(2, 0, 1), new THREE.Face3(3, 0, 2) ];
-	
+
 		this.quad = createTransparentMesh(geometry, this.color);
 
 		this.quad.visible = this.visible;
-		
+
+		addToScene(scene, this);
+
 	}
-	
+
 	getObject() {
 		return this.quad;
 	}
-	
+
 	toggleVisible() {
 		this.visible = !this.visible;
 		this.quad.visible = this.visible;
@@ -1349,11 +1398,11 @@ class Surface {
 	//   - depth: shaded based on height of function
 	//   - solid: single color, non-transparent, not very useful
 
-   	// slices — The count of slices to use for the parametric function 
+   	// slices — The count of slices to use for the parametric function
 	// stacks — The count of stacks to use for the parametric function
 
 	constructor(f, args) {
-		
+
 		if(args === undefined) {
 			args = {};
 		}
@@ -1361,21 +1410,23 @@ class Surface {
 		this.name = 'surface';
 
 		// Set default parameters
-		this.color = args.color ? initColor(args.color) : new THREE.Color('red');	
-		this.func = f;	
-		this.skin = args.skin ? args.skin : 'transparent';	
+		this.color = args.color ? initColor(args.color) : new THREE.Color('red');
+		this.func = f;
+		this.skin = args.skin ? args.skin : 'transparent';
 		this.visible = (args.visible !== undefined) ? args.visible : true;
-		
+
 		this.slices = args.slices ? args.slices : 60;
 		this.stacks = args.stacks ? args.stacks : 60;
-	
+
     	this.draw();  // create the surface mesh
 		this.surface.visible = this.visible;
-		
+
+		addToScene(scene, this);
+
 	}
 
 	getObject() { return this.surface; }
-	
+
 	getGeometry() {
 		if(this.skin == 'transparent') {
 			return this.surface.children[0].geometry;
@@ -1383,23 +1434,23 @@ class Surface {
 			return this.surface.geometry;
 		}
 	}
-	
+
 	getFunction() { return this.func; }
-	
+
 	setVisible(b) {
 		this.visible = b;
 		this.surface.visible = b;
 	}
-	
+
 	toggleVisible() {
 		this.visible = !this.visible;
 		this.surface.visible = this.visible;
 	}
-	
+
 	setFunction(f) {
-	
+
 		this.func = f;
-	
+
 		if(this.skin == 'transparent') {
 			// Transparent skin objects combine two surfaces
 			this.surface.children[0].geometry.dispose();
@@ -1420,14 +1471,14 @@ class Surface {
 			this.surface.material.dispose();
 			this.surface.material = createDepthMaterial(this.surface.geometry, this.color);
 		}
-		
+
 	}
-	
+
 	draw() {
-		var geometry = createSurfaceGeometry(this.func, this.slices, this.stacks); 
-		
+		var geometry = createSurfaceGeometry(this.func, this.slices, this.stacks);
+
 		if(this.skin == 'transparent') {
-			this.surface = createTransparentMesh(geometry, this.color); 	
+			this.surface = createTransparentMesh(geometry, this.color);
 		} else if(this.skin == 'normal') {
 			this.surface = createNormalMesh(geometry);
 		} else if(this.skin == 'shaded') {
@@ -1440,22 +1491,22 @@ class Surface {
 			this.surface = createRainbowMesh(geometry);
 		} else if(this.skin == 'depth') {
 			this.surface = createDepthMesh(geometry, this.color);
-		}	
+		}
 	}
-	
+
 	redraw() {
 		this.setFunction(this.func);
 	}
-	
+
 
 }
 
 function createSurfaceGeometry(f, slices, stacks) {
-	
+
 	var f_z = Parser.parse(f).toJSFunction(['x', 'y']);
-	
+
 	var zFunc = function (u, v, target) {
-      
+
         var x = viewingWindow.xRange() * u + viewingWindow.xMin;
         var y = viewingWindow.yRange() * v + viewingWindow.yMin;
 		var z = f_z(x, y);
@@ -1465,27 +1516,29 @@ function createSurfaceGeometry(f, slices, stacks) {
 
 	return new THREE.ParametricGeometry(zFunc, slices, stacks);
 
-}		
+}
 
 class ThreeJSWireframe {
 
 	constructor(geometry, args) {
-	
+
 		if(args === undefined) {
 			args = {};
 		}
-		
+
 		this.name = 'threejswireframe';
-		
+
 		this.geometry = geometry;
 		this.color = args.color ? initColor(args.color) : new THREE.Color('black');
 		this.visible = (args.visible !== undefined) ? args.visible : true;
-		
+
 		var wf = new THREE.WireframeGeometry(this.geometry);
 		this.wireframe = new THREE.LineSegments(wf, new THREE.LineBasicMaterial({ color: this.color }));
-		
+
 		this.wireframe.visible = this.visible;
-	
+
+		addToScene(scene, this);
+
 	}
 
 	getObject() {
@@ -1496,18 +1549,18 @@ class ThreeJSWireframe {
 		this.visible = b;
 		this.wireframe.visible = b;
 	}
-	
+
 	toggleVisible() {
 		this.visible = !this.visible;
 		this.wireframe.visible = this.visible;
 	}
-	
+
 	setGeometry(geometry) {
 		this.geometry = geometry;
 		this.wireframe.geometry.dispose();
 		this.wireframe.geometry = this.geometry;
 	}
-	
+
 	redraw() {
 		this.setGeometry(this.geometry);
 	}
@@ -1515,49 +1568,51 @@ class ThreeJSWireframe {
 }
 
 class Wireframe {
-	
+
 	constructor(f, args) {
-	
+
 		if(args === undefined) {
 			args = {};
 		}
-		
+
 		this.name = 'wireframe';
-		
+
 		this.func = f;
-		
+
 		this.color = args.color ? initColor(args.color) : new THREE.Color('black');
-		this.type = args.type ? args.type : 'basic';		
+		this.type = args.type ? args.type : 'basic';
 		this.dx = args.dx ? args.dx : 1;
 		this.dy = args.dy ? args.dy : this.dx;
 		this.visible = (args.visible !== undefined) ? args.visible : true;
-		
+
 		this.wireframe = this.createWireframe();
 
 		this.wireframe.visible = this.visible;
-	
+
+		addToScene(scene, this);
+
 	}
-	
+
 	setVisible(visible) {
 		this.visible = visible;
 		this.wireframe.visible = this.visible;
 	}
-	
+
 	toggleVisible() {
 		this.visible = !this.visible;
 		this.wireframe.visible = this.visible;
 	}
-	
+
 	isVisible() {
 		return this.visible;
 	}
-	
+
 	redraw() {
 		//scene.remove(this.wireframe);
 		this.wireframe = this.createWireframe();
 		//scene.add(this.wireframe);
 	}
-	
+
 	setFunction(scene, f) {
 		if(scene instanceof THREE.Scene) {
 			scene.remove(this.wireframe);
@@ -1568,20 +1623,20 @@ class Wireframe {
 			console.warn('Two parameters expected for addToScene. First must be "scene"!');
 		}
 	}
-	
+
 	getObject() {
 		return this.wireframe;
 	}
-	
+
 	getGeometry() {
 		return this.wireframe.geometry();
 	}
-	
+
 	createWireframe() {
-		
+
 		var wireframe = new THREE.Object3D();
 		var material = new THREE.LineBasicMaterial({ color: this.color, clippingPlanes: getClippingPlanes() });
-	
+
 		if(this.type == 'basic') {
 			var geometry = new THREE.Geometry();
 			var zFunc = Parser.parse(this.func).toJSFunction(['x', 'y']);
@@ -1596,7 +1651,7 @@ class Wireframe {
 					wireframe.add(new THREE.Line(geometry, material));
 				}
 			}
-	
+
 			for(var j = viewingWindow.yMin; j <= viewingWindow.yMax; j += this.dy) {
 				geometry = new THREE.Geometry();
 				for(var i = viewingWindow.xMin; i <= viewingWindow.xMax; i += this.dy) {
@@ -1607,7 +1662,7 @@ class Wireframe {
 					wireframe.add(new THREE.Line(geometry, material));
 				}
 			}
-	
+
 		} else if(this.type == 'advanced') {
 			for(var k = viewingWindow.xMin; k <= viewingWindow.xMax; k += this.dx) {
 				var xstr = k.toString();
@@ -1621,16 +1676,16 @@ class Wireframe {
 				wireframe.add(new THREE.Line(this.makeProjection(xstr, ystr, this.func,viewingWindow.xMin, viewingWindow.xMax, this.dx), material));
 			}
 		}
-		
+
 		return wireframe;
 	}
-	
+
 	makeProjection(xFunc, yFunc, zFunc, tMin, tMax, density) {
 		var geometry = new THREE.Geometry();
 		var xFunc = Parser.parse(xFunc).toJSFunction( ['t'] );
 		var yFunc = Parser.parse(yFunc).toJSFunction( ['t'] );
-		var zFunc = Parser.parse(zFunc).toJSFunction( ['x', 'y'] );	
-		
+		var zFunc = Parser.parse(zFunc).toJSFunction( ['x', 'y'] );
+
 		for(var t = tMin; t <= tMax; t += density) {
 			var x = xFunc(t);
 			var y = yFunc(t);
@@ -1641,62 +1696,64 @@ class Wireframe {
 		var ymax = yFunc(tMax);
 		var zmax = zFunc(xmax, ymax);
 		geometry.vertices.push(sCoord(xmax, ymax, zmax));
-		
+
 		return geometry;
 	}
-	
+
 	disposeGeometry() {
 		this.wireframe.geometry.dispose();
 	}
-	
+
 }
-	
-class ParametricGraph {
-	
+
+class SpaceCurve {
+
 	constructor (xFuncText, yFuncText, zFuncText, tMin, tMax, args) {
-	
+
 		if(args === undefined) {
 			args = {};
 		}
 			
-		this.name = 'parametricgraph';
-			
+		this.name = 'spacecurve';
+
 		this.color = args.color ? initColor(args.color) : new THREE.Color('black');
 		this.visible = (args.visible !== undefined) ? args.visible : true;
 		this.segments = args.segments ? args.segments : 200;
 		this.radius = args.radius ? args.radius : 0.1;
 		this.radialsegments = args.radialsegments ? args.radialsegments : 8;
 		this.density = args.density ? args.density : 0.1;
-		
+
 		this.xFuncText = xFuncText;
 		this.yFuncText = yFuncText;
 		this.zFuncText = zFuncText;
 		this.tMin = tMin;
 		this.tMax = tMax;
-	
-		this.draw();	
+
+		this.draw();
 		this.graph.visible = this.visible;
 
+		addToScene(scene, this);
+
 	}
-	
-	draw() {	
+
+	draw() {
 		var geometry = this.makeGeometry();
 		var material = new THREE.LineBasicMaterial( { color: this.color, clippingPlanes: getClippingPlanes() });
 		this.graph = new THREE.Line(geometry, material);
 	}
-	
+
 	redraw() {
 		this.graph.geometry.dispose();
 		this.graph.geometry = this.makeGeometry();
 	}
-	
+
 	getObject() { return this.graph; }
 
 	setVisible(b) {
 		this.visible = b;
 		this.graph.visible = b;
 	}
-	
+
 	toggleVisible() {
 		this.visible = !this.visible;
 		this.graph.visible = this.visible;
@@ -1706,7 +1763,7 @@ class ParametricGraph {
 		var geometry = new THREE.Geometry();
 		var xFunc = Parser.parse(this.xFuncText).toJSFunction( ['t'] );
 		var yFunc = Parser.parse(this.yFuncText).toJSFunction( ['t'] );
-		var zFunc = Parser.parse(this.zFuncText).toJSFunction( ['t'] );		
+		var zFunc = Parser.parse(this.zFuncText).toJSFunction( ['t'] );
 		for(var t = this.tMin; t <= this.tMax; t += this.density) {
 			geometry.vertices.push(sCoord(xFunc(t), yFunc(t), zFunc(t)));
 		}
@@ -1714,65 +1771,67 @@ class ParametricGraph {
 		return geometry;
 	}
 
-}	
+}
 
-class ParametricProjection {
+class ParametricPathProjection {
 
 	constructor(xFuncText, yFuncText, zFuncText, tMin, tMax, args) {
-	
+
 		if(args === undefined) {
 			args = {};
 		}
-			
-		this.name = 'parametricprojection';
-			
+
+		this.name = 'parametricpathprojection';
+
 		this.color = args.color ? initColor(args.color) : new THREE.Color('black');
 		this.visible = (args.visible !== undefined) ? args.visible : true;
 		this.segments = args.segments ? args.segments : 200;
 		this.radius = args.radius ? args.radius : 0.1;
 		this.radialsegments = args.radialsegments ? args.radialsegments : 8;
 		this.density = args.density ? args.density : 0.1;
-		
+
 		this.xFuncText = xFuncText;
 		this.yFuncText = yFuncText;
 		this.zFuncText = zFuncText;
 		this.tMin = tMin;
 		this.tMax = tMax;
-	
+
 		this.draw();
 		this.graph.visible = this.visible;
 
+		addToScene(scene, this);
+
 	}
-	
+
 	getObject() { return this.graph; }
 
 	setVisible(b) {
 		this.visible = b;
 		this.graph.visible = b;
 	}
-	
+
 	toggleVisible() {
 		this.visible = !this.visible;
 		this.graph.visible = this.visible;
 	}
-	
+
 	draw() {
 		var geometry = this.makeGeometry();
 		var material = new THREE.LineBasicMaterial( { color: this.color, clippingPlanes: getClippingPlanes() });
 		this.graph = new THREE.Line(geometry, material);
 	}
-	
+
 	redraw() {
 		this.graph.geometry.dispose();
 		this.graph.geometry = this.makeGeometry();
 	}
-	
+
 	makeGeometry() {
 		var geometry = new THREE.Geometry();
 		var xFunc = Parser.parse(this.xFuncText).toJSFunction( ['t'] );
 		var yFunc = Parser.parse(this.yFuncText).toJSFunction( ['t'] );
-		var zFunc = Parser.parse(this.zFuncText).toJSFunction( ['x', 'y'] );	
-		
+		var zFunc = Parser.parse(this.zFuncText).toJSFunction( ['x', 'y'] );
+
 		for(var t = this.tMin; t <= this.tMax; t += this.density) {
 			var x = xFunc(t);
 			var y = yFunc(t);
@@ -1783,15 +1842,15 @@ class ParametricProjection {
 		var ymax = yFunc(this.tMax);
 		var zmax = zFunc(xmax, ymax);
 		geometry.vertices.push(sCoord(xmax, ymax, zmax));
-		
+
 		return geometry;
 	}
-	
+
 		/*	var tRange = this.tMax - this.tMin;
 		var xFunc = Parser.parse(this.xFuncText).toJSFunction( ['t'] );
 		var yFunc = Parser.parse(this.yFuncText).toJSFunction( ['t'] );
 		var zFunc = Parser.parse(this.zFuncText).toJSFunction( ['x', 'y'] );
-		
+
 		function CustomCurve( scale ) {
 
 			THREE.Curve.call( this );
@@ -1816,30 +1875,30 @@ class ParametricProjection {
 		var path = new CustomCurve( 1 );
 		var geometry = new THREE.TubeGeometry( path, this.segments, this.radius, this.radialsegements, false );
 		this.graph = createParametricMesh(geometry, this.color);
-	
+
 		this.graph.visible = this.visible;*/
-	
+
 }
 
-class PathProjection {
+class ParametricSurfaceProjection {
 
 	constructor(xFuncText, yFuncText, zFuncText, tMin, tMax, tStep, args) {
-	
+
 		if(args === undefined) {
 			args = {};
 		}
-		
-		this.name = 'pathprojection';
-		
+
+		this.name = 'parametricsurfaceprojection';
+
 		this.color = args.color ? initColor(args.color) : new THREE.Color('black');
 		this.visible = (args.visible !== undefined) ? args.visible : true;
-		
+
 		this.xFuncText = xFuncText;
 		this.yFuncText = yFuncText;
 		this.zFuncText = zFuncText;
 		this.tMin = tMin;
 		this.tMax = tMax;
-	
+
 		var xFunc = Parser.parse(xFuncText).toJSFunction( ['t'] );
 		var yFunc = Parser.parse(yFuncText).toJSFunction( ['t'] );
 		var zFunc = Parser.parse(zFuncText).toJSFunction( ['x', 'y'] );
@@ -1847,26 +1906,28 @@ class PathProjection {
 		this.path = new THREE.Object3D();
 
 		for(var t = tMin; t < tMax; t += tStep) {
-		
+
 			var x0 = xFunc(t);
 			var y0 = yFunc(t);
 			var z0 = zFunc(x0, y0);
-			
+
 			var x1 = xFunc(t + tStep);
 			var y1 = yFunc(t + tStep);
 			var z1 = zFunc(x1, y1);
-			
+
 			var quad = new Quadrilateral(
-							[x0, y0,  0], [x1, y1, 0], 
+							[x0, y0,  0], [x1, y1, 0],
 							[x1, y1, z1], [x0, y0, z0],
 							{ color: this.color, visible: this.visible } );
-			
+
 			this.path.add(quad.getObject());
-			
+
 		}
 
+		addToScene(scene, this);
+
 	}
-	
+
 	getObject() { return this.path; }
 
 	setVisible(b) {
@@ -1875,49 +1936,51 @@ class PathProjection {
 		}
 		this.visible = b;
 	}
-	
+
 	toggleVisible() {
 		this.visible = !this.visible;
 		this.setVisible(this.visible);
 	}
-	
+
 }
 
 class PlaneSurface {
-	
+
 	constructor(type, location, args) {
-		
+
 		if(args === undefined) {
 			args = {};
 		}
-		
+
 		this.name = 'planesurface';
-		
+
 		this.color = args.color ? initColor(args.color) : new THREE.Color('purple');
 		this.visible = (args.visible !== undefined) ? args.visible : true;
 		this.type = type;
 		this.location = location;
-		
+
 		this.redraw();
-		
+
+		addToScene(scene, this);
+
 	}
-	
+
 	getObject() { return this.plane; }
 
 	setVisible(b) {
 		this.visible = b;
 		this.plane.visible = b;
 	}
-	
+
 	toggleVisible() {
 		this.visible = !this.visible;
 		this.plane.visible = this.visible;
 	}
-	
+
 	setLocation(loc) {
-	
+
 		this.location = loc;
-	
+
 		if(this.type == 'xy') {
 			this.plane.position.z = zCoord(loc);
 		} else if(this.type == 'xz') {
@@ -1926,12 +1989,12 @@ class PlaneSurface {
 			this.plane.position.x = xCoord(loc);
 		}
 	}
-	
+
 	redraw() {
 		var geometry = new THREE.PlaneGeometry(100, 100);
 		this.plane = createTransparentMesh(geometry, this.color);
 		this.plane.visible = this.visible;
-		
+
 		if(this.type == 'xy') {
 			this.plane.lookAt(new THREE.Vector3(0, 0, 1));
 			this.plane.position.z = zCoord(this.location);
@@ -1943,7 +2006,7 @@ class PlaneSurface {
 			this.plane.position.x = xCoord(this.location);
 		}
 	}
-	
+
 }
 
 function Plane (a, b, c, d) {
@@ -1951,7 +2014,7 @@ function Plane (a, b, c, d) {
 	var dir = new THREE.Vector3(a, b, c);
 	var centroid = new THREE.Vector3(0, 3, 0);
 	var plane = new THREE.Plane();
-	
+
 	plane.setFromNormalAndCoplanarPoint(dir, centroid).normalize();
 
 	// Create a basic rectangle geometry
@@ -1970,36 +2033,36 @@ function Plane (a, b, c, d) {
 }
 
 function rotatePlane(plane, eqnArr) {
-	
+
 	if(Number(eqnArr[0]) === 0) {a = 1e-20} else {a =  eqnArr[0];}
 	if(Number(eqnArr[1]) === 0) {b = 1e-20} else {b =  eqnArr[1];}
-	if(Number(eqnArr[2]) === 0) {c = 1e-20} else {c =  eqnArr[2];}	  
-	if(Number(eqnArr[3]) === 0) {d = 1e-20} else {d =  eqnArr[3];}		
-	
+	if(Number(eqnArr[2]) === 0) {c = 1e-20} else {c =  eqnArr[2];}
+	if(Number(eqnArr[3]) === 0) {d = 1e-20} else {d =  eqnArr[3];}
+
 	var x = new THREE.Vector3(d/a, 0, 0);
 	var y = new THREE.Vector3(0, d/b, 0);
 	var z = new THREE.Vector3(0, 0, d/c);
 	var xy = new THREE.Vector3().subVectors(y, x);
 	var xz = new THREE.Vector3().subVectors(z, x);
 	var normal = new THREE.Vector3().crossVectors(xy, xz).normalize();
-	var distanceToPlane = x.dot(normal);  
-	
+	var distanceToPlane = x.dot(normal);
+
 	if (distanceToPlane < 0) {
 		distanceToPlane *= -1;
 		normal.multiplyScalar(-1);
 	}
-	
+
 	plane.position.copy(normal.clone().multiplyScalar(distanceToPlane));
-	plane.up.set( 0, 0, 1 );	  
-	plane.lookAt(normal);	  
-	
+	plane.up.set( 0, 0, 1 );
+	plane.lookAt(normal);
+
 }
 
 function createTransparentMaterial(color) {
-	
+
     var meshMaterial = new THREE.MeshLambertMaterial({
-		color: color, 
-		clippingPlanes: getClippingPlanes(), 
+		color: color,
+		clippingPlanes: getClippingPlanes(),
 		transparent: true,
 		side: THREE.DoubleSide,
 		opacity: .3
@@ -2013,27 +2076,27 @@ function createTransparentMaterial(color) {
 		depthTest: false,
 		opacity: 0.15
 	});
-		
+
 	return [meshMaterial, mesh2material];
 }
 
-function createTransparentMesh(geometry, color) {	
+function createTransparentMesh(geometry, color) {
 	return new THREE.SceneUtils.createMultiMaterialObject(geometry, createTransparentMaterial(color));
 }
 
 function createNormalMaterial() {
 
     var meshMaterial = new THREE.MeshNormalMaterial({
-		clippingPlanes: getClippingPlanes(), 
+		clippingPlanes: getClippingPlanes(),
 		side: THREE.DoubleSide,
 		transparent: true,
 		opacity: 0.8
 	});
-		
+
 	return meshMaterial;
 }
 
-function createNormalMesh(geometry) {		
+function createNormalMesh(geometry) {
 	return new THREE.Mesh(geometry, createNormalMaterial());
 }
 
@@ -2041,12 +2104,12 @@ function createSolidColorMaterial(color) {
 
     var meshMaterial = new THREE.MeshBasicMaterial({
 		color: color,
-		clippingPlanes: getClippingPlanes(), 
+		clippingPlanes: getClippingPlanes(),
 		side: THREE.DoubleSide,
 		transparent: false,
 		opacity: 1
 	});
-		
+
 	return  meshMaterial;
 }
 function createSolidColorMesh(geometry, color) {
@@ -2061,25 +2124,25 @@ function createBasicNoClipMaterial(color) {
 		transparent: false,
 		opacity: 1
 	});
-		
+
 	return meshMaterial;
 }
 
 function createBasicNoClipMesh(geometry, color) {
-		
+
 	return new THREE.Mesh(geometry, createBasicNoClipMaterial(color));
 }
 
 function createShadedMaterial(color) {
     var meshMaterial = new THREE.MeshPhongMaterial({
-		clippingPlanes: getClippingPlanes(), 
+		clippingPlanes: getClippingPlanes(),
 		side: THREE.DoubleSide,
 		specular: 0x080808,
 		//specular: 0x555555,
 		transparent: true,
 		opacity: 0.6,
 		color: color
-		//polygonOffset: true,  
+		//polygonOffset: true,
 		//polygonOffsetUnits: 1,
 		//polygonOffsetFactor: 1
 	});
@@ -2101,13 +2164,13 @@ function createBasicMesh(geometry) {
 
 function createParametricMaterial(color) {
     var meshMaterial = new THREE.MeshBasicMaterial({
-		color: color, 
+		color: color,
 		clippingPlanes: getClippingPlanes()
 	});
 
 }
 
-function createParametricMesh(geometry, color) {	
+function createParametricMesh(geometry, color) {
 	return new THREE.Mesh(geometry, createParametricMaterial(color));
 }
 
@@ -2124,16 +2187,16 @@ function createRainbowMaterial(geometry) {
 	///////////////////////////////////////////////
 	// calculate vertex colors based on Z values //
 	///////////////////////////////////////////////
-	
+
 	geometry.computeBoundingBox();
 	var zMin = Math.max(viewingWindow.zMin * viewingWindow.zScale + viewingWindow.zShift, geometry.boundingBox.min.z);
 	var zMax = Math.min(viewingWindow.zMax * viewingWindow.zScale + viewingWindow.zShift, geometry.boundingBox.max.z);
 	var zRange = zMax - zMin;
 	var color, point, face, numberOfSides, vertexIndex;
-	
+
 	// faces are indexed using characters
 	var faceIndices = [ 'a', 'b', 'c', 'd' ];
-	
+
 	// first, assign colors to vertices as desired
 	for (var i=0; i < geometry.vertices.length; i++) {
 		point = geometry.vertices[ i ];
@@ -2141,7 +2204,7 @@ function createRainbowMaterial(geometry) {
 		color.setHSL( 0.7 * (zMax - point.z) / zRange, 1, 0.5 );
 		geometry.colors[i] = color; // use this array for convenience
 	}
-	
+
 	// copy the colors as necessary to the face's vertexColors array.
 	for (var i=0; i < geometry.faces.length; i++) {
 		face = geometry.faces[i];
@@ -2151,11 +2214,11 @@ function createRainbowMaterial(geometry) {
 			face.vertexColors[j] = geometry.colors[vertexIndex];
 		}
 	}
-	
+
 	///////////////////////
 	// end vertex colors //
 	///////////////////////
-	
+
 	var rainbowMaterial = new THREE.MeshBasicMaterial({
 		vertexColors: THREE.VertexColors,
 		side: THREE.DoubleSide,
@@ -2163,12 +2226,12 @@ function createRainbowMaterial(geometry) {
 		opacity: 0.75,
 		clippingPlanes: getClippingPlanes()
 	});
-	
-	return rainbowMaterial;	
+
+	return rainbowMaterial;
 }
 
 function createRainbowMesh(geometry) {
-	return new THREE.Mesh(geometry, createRainbowMaterial(geometry));	
+	return new THREE.Mesh(geometry, createRainbowMaterial(geometry));
 }
 
 function createDepthMaterial(geometry, color) {
@@ -2176,17 +2239,17 @@ function createDepthMaterial(geometry, color) {
 	///////////////////////////////////////////////
 	// calculate vertex colors based on Z values //
 	///////////////////////////////////////////////
-	
+
 	geometry.computeBoundingBox();
 
 	var zMin = Math.max(viewingWindow.zMin * viewingWindow.zScale + viewingWindow.zShift, geometry.boundingBox.min.z);
 	var zMax = Math.min(viewingWindow.zMax * viewingWindow.zScale + viewingWindow.zShift, geometry.boundingBox.max.z);
 	var zRange = zMax - zMin;
 	var point, face, numberOfSides, vertexIndex;
-	
+
 	// faces are indexed using characters
 	var faceIndices = [ 'a', 'b', 'c', 'd' ];
-	
+
 	// first, assign colors to vertices as desired
 	for (var i=0; i < geometry.vertices.length; i++) {
 		point = geometry.vertices[i];
@@ -2197,7 +2260,7 @@ function createDepthMaterial(geometry, color) {
 		c.setRGB(r, g, b);
 		geometry.colors[i] = c; // use this array for convenience
 	}
-	
+
 	// copy the colors as necessary to the face's vertexColors array.
 	for (var i=0; i < geometry.faces.length; i++) {
 		face = geometry.faces[i];
@@ -2207,11 +2270,11 @@ function createDepthMaterial(geometry, color) {
 			face.vertexColors[j] = geometry.colors[vertexIndex];
 		}
 	}
-	
+
 	///////////////////////
 	// end vertex colors //
 	///////////////////////
-	
+
 	var depthMaterial = new THREE.MeshBasicMaterial({
 		vertexColors: THREE.VertexColors,
 		side: THREE.DoubleSide,
@@ -2220,15 +2283,15 @@ function createDepthMaterial(geometry, color) {
 		clippingPlanes: getClippingPlanes(),
 	});
 
-	return depthMaterial;	
+	return depthMaterial;
 }
 
-function createDepthMesh(geometry, color) {	
-	return new THREE.Mesh(geometry, createDepthMaterial(geometry, color));	
+function createDepthMesh(geometry, color) {
+	return new THREE.Mesh(geometry, createDepthMaterial(geometry, color));
 }
 
 function getClippingPlanes() {
-	
+
 	if(viewingWindow.xMin == 0) {
 		var upperXClip = new THREE.Plane(new THREE.Vector3( -1, 0, 0), xCoord(viewingWindow.xMax));
 		var lowerXClip = new THREE.Plane(new THREE.Vector3(  1, 0, 0), xCoord(viewingWindow.xMin));
@@ -2236,7 +2299,7 @@ function getClippingPlanes() {
 		var upperXClip = new THREE.Plane( sCoord(-viewingWindow.xMax, 0, 0), 1);
 		var lowerXClip = new THREE.Plane( sCoord(-viewingWindow.xMin, 0, 0), 1);
 	}
-	
+
 	if(viewingWindow.yMin == 0) {
 		var upperYClip = new THREE.Plane(new THREE.Vector3( 0, -1, 0), yCoord(viewingWindow.yMax));
 		var lowerYClip = new THREE.Plane(new THREE.Vector3( 0,  1, 0), yCoord(viewingWindow.yMin));
@@ -2244,7 +2307,7 @@ function getClippingPlanes() {
 		var upperYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMax, 0), 1);
 		var lowerYClip = new THREE.Plane( sCoord(0, -viewingWindow.yMin, 0), 1);
 	}
-	
+
 	if(viewingWindow.zMin == 0) {
 		var upperZClip = new THREE.Plane(new THREE.Vector3( 0, 0, -1), zCoord(viewingWindow.zMax));
 		var lowerZClip = new THREE.Plane(new THREE.Vector3( 0, 0,  1), zCoord(viewingWindow.zMin));
@@ -2252,7 +2315,7 @@ function getClippingPlanes() {
 		var upperZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMax), 1);
 		var lowerZClip = new THREE.Plane( sCoord(0, 0, -viewingWindow.zMin), 1);
 	}
-	 
+
 	return [lowerZClip, upperZClip, lowerXClip, upperXClip, lowerYClip, upperYClip];
 }
 
@@ -2260,18 +2323,20 @@ function getClippingPlanes() {
 class TextBox {
 
 	constructor(position, message, args) {
-	
+
 		if(args === undefined) {
 			args = {};
 		}
-	
+
 		this.location = position;
 		this.visible = args.hasOwnProperty("visible") ? args["visible"] : true;
-	
+
 		this.textbox = makeTextSprite(message, args);
 		this.textbox.position.set(xCoord(position[0]), yCoord(position[1]), zCoord(position[2]));
 		this.textbox.visible = this.visible;
-		
+
+		addToScene(scene, this);
+
 	}
 
 	getObject() { return this.textbox; }
@@ -2280,23 +2345,23 @@ class TextBox {
 		this.visible = b;
 		this.textbox.visible = b;
 	}
-	
+
 	toggleVisible() {
 		this.visible = !this.visible;
 		this.textbox.visible = this.visible;
 	}
-	
+
 	setLocation(loc) {
-	
+
 		this.location = loc;
 		this.textbox.position.set(xCoord(position[0]), yCoord(position[1]), zCoord(position[2]));
-	
+
 	}
 
 	getLocation() {
 		return this.location;
 	}
-	
+
 	redraw() {
 	};
 
@@ -2308,45 +2373,45 @@ class TextBox {
 function makeTextSprite( message, parameters )
 {
 	if ( parameters === undefined ) parameters = {};
-	
-	var fontface = parameters.hasOwnProperty("fontface") ? 
+
+	var fontface = parameters.hasOwnProperty("fontface") ?
 		parameters["fontface"] : "Arial";
-	
-	var fontsize = parameters.hasOwnProperty("fontsize") ? 
+
+	var fontsize = parameters.hasOwnProperty("fontsize") ?
 		parameters["fontsize"] : 18;
-	
-	var borderThickness = parameters.hasOwnProperty("borderThickness") ? 
+
+	var borderThickness = parameters.hasOwnProperty("borderThickness") ?
 		parameters["borderThickness"] : 4;
-	
+
 	var borderColor = parameters.hasOwnProperty("borderColor") ?
 		parameters["borderColor"] : { r: 0, g: 0, b: 0, a: 1.0 };
 	if(typeof borderColor === 'string' || borderColor instanceof String) {
 		borderColor = new THREE.Color(borderColor);
-	}		
-	
+	}
+
 	var backgroundColor = parameters.hasOwnProperty("backgroundColor") ?
 		parameters["backgroundColor"] : { r: 255, g: 255, b: 255, a: 0.8 };
 	if(typeof backgroundColor === 'string' || backgroundColor instanceof String) {
 		backgroundColor = new THREE.Color(backgroundColor);
-	}	
+	}
 
 	var textColor = parameters.hasOwnProperty("textColor") ?
 		parameters["textColor"] : { r: 0, g: 0, b: 0, a: 1.0 };
 	if(typeof textColor === 'string' || textColor instanceof String) {
 		textColor = new THREE.Color(textColor);
-	}	
+	}
 
 	var canvas = document.createElement('canvas');
 	canvas.width = 1000;
 	var context = canvas.getContext('2d');
 	context.font = "Bold " + fontsize + "px " + fontface;
-    
+
 	// get size data (height depends only on font size)
 	var metrics = context.measureText( message );
 	var textWidth = metrics.width;
-	
+
 	//canvas.width = textWidth;
-	
+
 	// background color - alpha channel: 1.0
 	context.fillStyle   = "rgba(" + backgroundColor.r + "," + backgroundColor.g + ","
 								  + backgroundColor.b + "," + backgroundColor.a  + ")";
@@ -2358,25 +2423,25 @@ function makeTextSprite( message, parameters )
 	context.lineWidth = borderThickness;
 	roundRect(context, borderThickness/2, borderThickness/2, textWidth + borderThickness, fontsize * 1.4 + borderThickness, 6);
 	// 1.4 is extra height factor for text below baseline: g,j,p,q.
-	
+
 	// text color - alpha channel: 1.0
 	context.fillStyle = "rgba(" + textColor.r + "," + textColor.g + ","
 								+ textColor.b + "," + textColor.a + ")";
 
 	context.fillText( message, borderThickness, fontsize + borderThickness);
-	
+
 	// canvas contents will be used for a texture
-	var texture = new THREE.Texture(canvas) 
+	var texture = new THREE.Texture(canvas)
 	texture.needsUpdate = true;
 
 	var spriteMaterial = new THREE.SpriteMaterial({ map: texture });
 	var sprite = new THREE.Sprite(spriteMaterial);
 	sprite.scale.set(50,10,1);
-	return sprite;	
+	return sprite;
 }
 
 // function for drawing rounded rectangles
-function roundRect(ctx, x, y, w, h, r) 
+function roundRect(ctx, x, y, w, h, r)
 {
     ctx.beginPath();
     ctx.moveTo(x+r, y);
@@ -2390,7 +2455,7 @@ function roundRect(ctx, x, y, w, h, r)
     ctx.quadraticCurveTo(x, y, x+r, y);
     ctx.closePath();
     ctx.fill();
-	ctx.stroke();   
+	ctx.stroke();
 }
 
 /***********************************************************
@@ -2402,7 +2467,7 @@ function roundRect(ctx, x, y, w, h, r)
 ** Warns the user that the scene has to be specified first
 ** in order for an object to be added to the scene.
 **
-************************************************************/ 
+************************************************************/
 
 function addToScene(scene, obj) {
 	if(scene instanceof THREE.Scene) {
@@ -2415,8 +2480,8 @@ function addToScene(scene, obj) {
 
 /***********************************************************
 **
-** Initializes a color object, allowing the user to 
-** specify the color either by a string: '#00FF00', by a 
+** Initializes a color object, allowing the user to
+** specify the color either by a string: '#00FF00', by a
 ** number: 0x00ff00, by the name of a color: 'green', or
 ** by a pre-defined THREE.Color object. If none of these
 ** fit, a default color of black is assigned.
@@ -2430,7 +2495,6 @@ function initColor(color) {
 		color = new THREE.Color(color);
 	} else if(!(color instanceof THREE.Color)) {
 		color = new THREE.Color(0x000000);
-	} 
+	}
 	return color;
 }
-
