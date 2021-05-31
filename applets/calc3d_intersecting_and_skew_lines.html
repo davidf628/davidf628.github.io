@@ -51,7 +51,7 @@ var parameters = {
 	togglel1: function() { l1.toggleVisible(); },
 	togglel2: function() { l2.toggleVisible(); },
 	togglel3: function() { l3.toggleVisible(); }
-	
+
 };
 
 // GUI
@@ -62,16 +62,12 @@ gui.add(parameters, 'togglel3').name('Toggle L3');
 
 init();
 animate();
-					
+
 function createScene() {
 
-	l1 = new ParametricGraph('1+3*t', '2-t', 't', -20, 20, { visible: true });
-	l2 = new ParametricGraph('-2+4*t', '3+t', '5+2*t', -20, 20, { visible: true });
-	l3 = new ParametricGraph('-8+2*t', '5+t', '-3-t', -20, 20, { visible: false });
-	
-	addToScene(scene, l1);	
-	addToScene(scene, l2);
-	addToScene(scene, l3);
+	l1 = new SpaceCurve('1+3*t', '2-t', 't', -20, 20, { visible: true });
+	l2 = new SpaceCurve('-2+4*t', '3+t', '5+2*t', -20, 20, { visible: true });
+	l3 = new SpaceCurve('-8+2*t', '5+t', '-3-t', -20, 20, { visible: false });
 
 }
 
@@ -92,20 +88,20 @@ function animate() {
 
 function redrawScene() {
 
-	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl,
 							window_param.ymin, window_param.ymax, window_param.yscl,
 							window_param.zmin, window_param.zmax, window_param.zscl);
-	
+
 	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
-	
+
 	scene.remove(axes.getObject());
 	axes.redraw();
 	scene.add(axes.getObject());
-	
+
 	for(var i = 0; i < objectlist.length; i++) {
 		objectlist[i].redraw();
 	}
-	
+
 }
 
 </script>

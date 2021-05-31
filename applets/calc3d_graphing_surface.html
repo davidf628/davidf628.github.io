@@ -53,45 +53,44 @@ var parameters = {
 	toggley: function() { y.toggleVisible(); },
 	togglez: function() { z.toggleVisible(); },
 	toggleplane: function() { plane.toggleVisible(); }
-	
+
 };
 
 var points = [];
 
 // GUI
-gui = new dat.GUI();	
+gui = new dat.GUI();
 gui.add(parameters, 'step1');
 gui.add(parameters, 'step2');
 gui.add(parameters, 'step3');
-gui.add(parameters, 'step4');	
+gui.add(parameters, 'step4');
 
 init();
 animate();
-					
+
 function createScene() {
 
 }
 
 function step1() {
-	
+
 	for(var i = -3; i <= 3; i += 0.25) {
 		for(var j = -3; j <= 3; j += 0.25) {
 			var p = new Point([i, j, 0]);
 			points.push(p);
-			scene.add(p.getObject());
 		}
 	}
 
 }
 
 function step2() {
-	
+
 	for(var i = 0; i < points.length; i++) {
-	
+
 		var x = points[i].X();
 		var y = points[i].Y();
 		var z = Math.sin( 0.5 * (x * x + y * y) );
-	
+
 		points[i].moveTo([x, y, z]);
 	}
 
@@ -99,12 +98,10 @@ function step2() {
 
 function step3() {
 	var wireframe = new Wireframe('sin(0.5 * (x^2 + y^2))', { dx: 0.25 });
-	scene.add(wireframe.getObject());
 }
 
 function step4() {
 	var surface = new Surface('sin(0.5*(x^2 + y^2))', { color: 'blue' });
-	scene.add(surface.getObject());
 }
 
 function animate() {
@@ -124,20 +121,20 @@ function animate() {
 
 function redrawScene() {
 
-	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl,
 							window_param.ymin, window_param.ymax, window_param.yscl,
 							window_param.zmin, window_param.zmax, window_param.zscl);
-	
+
 	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
-	
+
 	scene.remove(axes.getObject());
 	axes.redraw();
 	scene.add(axes.getObject());
-	
+
 	for(var i = 0; i < objectlist.length; i++) {
 		objectlist[i].redraw();
 	}
-	
+
 }
 
 </script>

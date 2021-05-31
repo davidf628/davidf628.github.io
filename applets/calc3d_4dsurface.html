@@ -52,7 +52,7 @@ var parameters = {
 	t: 0,
 	animate: false,
 	wireframevisible: true,
-	showtextbox: false	
+	showtextbox: false
 };
 
 // GUI
@@ -64,13 +64,13 @@ gui.add(parameters, 't').min(0).max(49).step(1).onChange(
 		surface.setFunction(funcs[parameters.t]);
 		wireframe.setFunction(scene, surface.getFunction());
 
-		textbox	= new TextBox([0, 2, 6], 
-			surface.getFunction(), { 
-				borderColor: {r:255, g:0, b:0, a:1.0}, 
-	  	  		backgroundColor: {r:255, g:100, b:100, a:0.8}, 
-	  	  	visible: parameters.showtextbox 
+		textbox	= new TextBox([0, 2, 6],
+			surface.getFunction(), {
+				borderColor: {r:255, g:0, b:0, a:1.0},
+	  	  		backgroundColor: {r:255, g:100, b:100, a:0.8},
+	  	  	visible: parameters.showtextbox
 		});
-		
+
 		scene.add(textbox.getObject());
 	}
 );
@@ -93,22 +93,22 @@ function createScene() {
 		func = ' 5 - x^2 / ' + c + ' * y^2 / ' + c;
 		funcs.push(func);
 	}
-	
+
 	surface = new Surface(funcs[0]);
-	addToScene(scene, surface);
+	//addToScene(scene, surface);
 
 	wireframe = new Wireframe(funcs[0], { type: 'advanced' });
 	wireframe.setVisible(parameters.wireframevisible);
-	addToScene(scene, wireframe);
-	
-	
-	textbox	= new TextBox([0, 2, 6], 
+	//addToScene(scene, wireframe);
+
+
+	textbox	= new TextBox([0, 2, 6],
 		funcs[0],
-		{ borderColor: {r:255, g:0, b:0, a:1.0}, 
-		  backgroundColor: {r:255, g:100, b:100, a:0.8}, 
-		  visible: parameters.showtextbox 
+		{ borderColor: {r:255, g:0, b:0, a:1.0},
+		  backgroundColor: {r:255, g:100, b:100, a:0.8},
+		  visible: parameters.showtextbox
 		});
-	addToScene(scene, textbox);
+	//addToScene(scene, textbox);
 }
 
 function animate() {
@@ -149,12 +149,12 @@ function animate() {
 
 function redrawScene() {
 
-	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl,
 							window_param.ymin, window_param.ymax, window_param.yscl,
 							window_param.zmin, window_param.zmax, window_param.zscl);
-	
+
 	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
-	
+
 	for(var i = 0; i < objectlist.length; i++) {
 		if((objectlist[i].name == 'wireframe') || (objectlist[i] == 'axes')) {
 			scene.remove(objectlist[i].getObject());
@@ -164,7 +164,7 @@ function redrawScene() {
 			objectlist[i].redraw();
 		}
 	}
-	
+
 }
 
 </script>

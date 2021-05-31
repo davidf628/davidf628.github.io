@@ -59,7 +59,7 @@ var parameters = {
 	zpoints: function() { showPoints(); },
 	fpoints: function() { showSurfacePoints(); },
 	boundarypoints: function() { showBoundaryPoints(); }
-	
+
 };
 
 // GUI
@@ -68,40 +68,40 @@ gui.add(parameters, 'region').name('Show Region');
 gui.add(parameters, 'critical').name('Show Critical Value');
 gui.add(parameters, 'zpoints').name('xy-Plane Points');
 gui.add(parameters, 'projection').name('Show Projection');
-gui.add(parameters, 'boundarypoints').name('Boundary POI');	
+gui.add(parameters, 'boundarypoints').name('Boundary POI');
 gui.add(parameters, 'fpoints').name('Surface Points');
 
 init();
 animate();
-					
+
 function createScene() {
 
 	surface = new Surface(parameters.zText);
-	addToScene(scene, surface);	
-	
-	path1 = new ParametricGraph('t', '2*t', '0', 0, 3, { visible: false });
-	path2 = new ParametricGraph('t', '6', '0', 0, 3, { visible: false });
-	path3 = new ParametricGraph('0', 't', '0', 0, 6, { visible: false });
-	
-	addToScene(scene, path1);
-	addToScene(scene, path2);
-	addToScene(scene, path3);	
-	
-	proj1 = new ParametricProjection('t', '2*t', parameters.zText, 0, 3, { visible: false });
-	proj2 = new ParametricProjection('t', '6', parameters.zText, 0, 3, { visible: false });
-	proj3 = new ParametricProjection('0', 't', parameters.zText, 0, 6, { visible: false });
-	
-	addToScene(scene, proj1);
-	addToScene(scene, proj2);
-	addToScene(scene, proj3);
-	
+	//addToScene(scene, surface);
+
+	path1 = new SpaceCurve('t', '2*t', '0', 0, 3, { visible: false });
+	path2 = new SpaceCurve('t', '6', '0', 0, 3, { visible: false });
+	path3 = new SpaceCurve('0', 't', '0', 0, 6, { visible: false });
+
+	//addToScene(scene, path1);
+	//addToScene(scene, path2);
+	//addToScene(scene, path3);
+
+	proj1 = new ParametricPathProjection('t', '2*t', parameters.zText, 0, 3, { visible: false });
+	proj2 = new ParametricPathProjection('t', '6', parameters.zText, 0, 3, { visible: false });
+	proj3 = new ParametricPathProjection('0', 't', parameters.zText, 0, 6, { visible: false });
+
+	//addToScene(scene, proj1);
+	//addToScene(scene, proj2);
+	//addToScene(scene, proj3);
+
 	p1 = new Point([0, 0, 0], { color: 'blue', visible: false });
 	p2 = new Point([3, 6, 0], { color: 'blue', visible: false });
 	p3 = new Point([0, 6, 0], { color: 'blue', visible: false });
 	p4 = new Point([1, 2, 0], { color: 'blue', visible: false });
 	p5 = new Point([1, 6, 0], { color: 'blue', visible: false });
 	p6 = new Point([0, 2, 0], { color: 'blue', visible: false });
-	
+
 	q1 = new Point([3, 6, 19], { color: 'green', visible: false });
 	q2 = new Point([0, 6, 13], { color: 'green', visible: false });
 	q3 = new Point([0, 0, 0], { color: 'green', visible: false });
@@ -109,29 +109,29 @@ function createScene() {
 	q5 = new Point([1, 6, 11], { color: 'green', visible: false });
 	q6 = new Point([0, 2, -3], { color: 'green', visible: false });
 
-	addToScene(scene, p1);
-	addToScene(scene, p2);
-	addToScene(scene, p3);
-	addToScene(scene, p4);
-	addToScene(scene, p5);
-	addToScene(scene, p6);
-	
-	addToScene(scene, q1);
-	addToScene(scene, q2);
-	addToScene(scene, q3);
-	addToScene(scene, q4);
-	addToScene(scene, q5);
-	addToScene(scene, q6);
+	//addToScene(scene, p1);
+	//addToScene(scene, p2);
+	//addToScene(scene, p3);
+	//addToScene(scene, p4);
+	//addToScene(scene, p5);
+	//addToScene(scene, p6);
+
+	//addToScene(scene, q1);
+	//addToScene(scene, q2);
+	//addToScene(scene, q3);
+	//addToScene(scene, q4);
+	//addToScene(scene, q5);
+	//addToScene(scene, q6);
 
 }
 
 function showCriticalValue() {
-	
+
 	p4.toggleVisible();
 }
 
 function showRegion() {
-	
+
 	path1.toggleVisible();
 	path2.toggleVisible();
 	path3.toggleVisible();
@@ -139,7 +139,7 @@ function showRegion() {
 }
 
 function showProjection() {
-	
+
 	proj1.toggleVisible();
 	proj2.toggleVisible();
 	proj3.toggleVisible();
@@ -149,7 +149,7 @@ function showProjection() {
 function showPoints() {
 	p1.toggleVisible();
 	p2.toggleVisible();
-	p3.toggleVisible();	
+	p3.toggleVisible();
 }
 
 function showSurfacePoints() {
@@ -169,7 +169,7 @@ function showBoundaryPoints() {
 
 function animate() {
     requestAnimationFrame( animate );
-	render();		
+	render();
 	update();
 }
 
@@ -191,20 +191,20 @@ function animate() {
 
 function redrawScene() {
 
-	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl,
 							window_param.ymin, window_param.ymax, window_param.yscl,
 							window_param.zmin, window_param.zmax, window_param.zscl);
-	
+
 	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
-	
+
 	scene.remove(axes.getObject());
 	axes.redraw();
 	scene.add(axes.getObject());
-	
+
 	for(var i = 0; i < objectlist.length; i++) {
 		objectlist[i].redraw();
 	}
-	
+
 }
 
 </script>

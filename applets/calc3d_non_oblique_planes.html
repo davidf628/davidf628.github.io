@@ -57,20 +57,20 @@ var parameters = {
 	yzvisible: false,
 	xyvisible: false,
 	update: function() { updateGraph(); }
-	
+
 };
 
 // GUI
 gui = new dat.GUI();
-gui.add(parameters, 'xzvisible').name("View xz-plane").onChange( 
+gui.add(parameters, 'xzvisible').name("View xz-plane").onChange(
 	function() {
 		xzplane.toggleVisible();
 	});
-gui.add(parameters, 'xzvisible').name("View yz-plane").onChange( 
+gui.add(parameters, 'xzvisible').name("View yz-plane").onChange(
 	function() {
 		yzplane.toggleVisible();
 	});
-gui.add(parameters, 'xyvisible').name("View xy-plane").onChange( 
+gui.add(parameters, 'xyvisible').name("View xy-plane").onChange(
 	function() {
 		xyplane.toggleVisible();
 	});
@@ -83,7 +83,7 @@ gui.add(parameters, 'yzpos').min(window_param.xmin).max(window_param.xmax).step(
 );
 gui.add(parameters, 'xzpos').min(window_param.ymin).max(window_param.ymax).step(0.01).name('y = ').onChange(
     function() {
-		xzplane.setLocation(parameters.xzpos);	
+		xzplane.setLocation(parameters.xzpos);
     }
 );
 gui.add(parameters, 'xypos').min(window_param.zmin).max(window_param.zmax).step(0.01).name('z = ').onChange(
@@ -93,18 +93,13 @@ gui.add(parameters, 'xypos').min(window_param.zmin).max(window_param.zmax).step(
 );
 
 init();
-animate();	
-				
+animate();
+
 function createScene() {
-	
-	xzplane = new PlaneSurface('xz', parameters.xzpos, { color: 'red', visible: parameters.xzvisible });
-	addToScene(scene, xzplane);
-	
+
+	xzplane = new PlaneSurface('xz', parameters.xzpos, { color: 'red', visible: parameters.xzvisible });	
 	yzplane = new PlaneSurface('yz', parameters.yzpos, { color: 'green', visible: parameters.yzvisible });
-	addToScene(scene, yzplane);
-	
 	xyplane = new PlaneSurface('xy', parameters.xypos, { color: 'blue', visible: parameters.xyvisible });
-	addToScene(scene, xyplane);
 
 }
 
@@ -130,26 +125,26 @@ function animate() {
 
 function redrawScene() {
 
-	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl,
 							window_param.ymin, window_param.ymax, window_param.yscl,
 							window_param.zmin, window_param.zmax, window_param.zscl);
-	
+
 	axes.setParameters({
-	   labels: window_param.labels, 
-	   xygrid: window_param.xygrid, 
-	   xzgrid: window_param.xzgrid, 
-	   yzgrid: window_param.yzgrid, 
-	   polargrid: window_param.polargrid 
+	   labels: window_param.labels,
+	   xygrid: window_param.xygrid,
+	   xzgrid: window_param.xzgrid,
+	   yzgrid: window_param.yzgrid,
+	   polargrid: window_param.polargrid
     });
-	
+
 	scene.remove(axes.getObject());
 	axes.redraw();
 	scene.add(axes.getObject());
-	
+
 	//for(var i = 0; i < objectlist.length; i++) {
 	//	objectlist[i].redraw();
 	//}
-	
+
 }
 
 </script>

@@ -84,7 +84,7 @@ var parameters = {
 	z_text: '2*t',
 	update: function() { updategraph(); },
 	t: 0
-	
+
 };
 
 x_1 = math.derivative(parameters.x_text, 't').toString();
@@ -102,52 +102,47 @@ gui.add(parameters, 'z_text').name('z(t):');
 gui.add(parameters, 'update').name('Update Function:');
 gui.add(parameters, 't').min(-30).max(30).step(0.01).name('t = ').onChange(
 	function() {
-		
+
 		var x_func = math.compile(parameters.x_text);
 		var x = x_func.eval({ t: parameters.t });
 		x_func = math.compile(x_1);
 		var x1 = x_func.eval({ t: parameters.t });
 		x_func = math.compile(x_2);
-		var x2 = x_func.eval({ t: parameters.t });			
-			
+		var x2 = x_func.eval({ t: parameters.t });
+
 		var y_func = math.compile(parameters.y_text);
 		var y = y_func.eval({ t: parameters.t });
 		y_func = math.compile(y_1);
 		var y1 = y_func.eval({ t: parameters.t });
 		y_func = math.compile(y_2);
 		var y2 = y_func.eval({ t: parameters.t });
-			
+
 		var z_func = math.compile(parameters.z_text);
 		var z = z_func.eval({ t: parameters.t });
 		z_func = math.compile(z_1);
 		var z1 = z_func.eval({ t: parameters.t });
 		z_func = math.compile(z_2);
 		var z2 = z_func.eval({ t: parameters.t });
-			
+
 		p.moveTo([x, y, z]);
 
 		v1.setStartPoint([x, y, z]);
 		v1.setEndPoint([x + x1, y + y1, z + z1]);
-			
+
 		v2.setStartPoint([x, y, z]);
 		v2.setEndPoint([x + x2, y + y2, z + z2]);
-			
+
 	});
 
 init();
 animate();
 
 function createScene() {
-	
+
 	p = new Point({ coords: [0, 0, 0], radius: 0.4, color: 'blue' });
-	vgraph = new ParametricGraph(parameters.x_text, parameters.y_text, parameters.z_text, -20, 20);
+	vgraph = new SpaceCurve(parameters.x_text, parameters.y_text, parameters.z_text, -20, 20);
 	v1 = new Vector({ end: [0, 0, 0] });
 	v2 = new Vector({ end: [0, 0, 0] });
-
-	addToScene(scene, p);
-	addToScene(scene, vgraph);
-	addToScene(scene, v1);
-	addToScene(scene, v2);
 
 }
 
@@ -155,14 +150,14 @@ function updategraph() {
 	scene.remove(vgraph.getObject());
 	vgraph = new ParametricGraph(parameters.x_text, parameters.y_text, parameters.z_text, -20, 20);
 	scene.add(vgraph.getObject());
-	
+
 	x_1 = math.derivative(parameters.x_text, 't').toString();
 	x_2 = math.derivative(x_1, 't').toString();
 	y_1 = math.derivative(parameters.y_text, 't').toString();
 	y_2 = math.derivative(y_1, 't').toString();
 	z_1 = math.derivative(parameters.z_text, 't').toString();
 	z_2 = math.derivative(z_1, 't').toString();
-	
+
 }
 
 function animate() {
@@ -182,20 +177,20 @@ function animate() {
 
 function redrawScene() {
 
-	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl,
 							window_param.ymin, window_param.ymax, window_param.yscl,
 							window_param.zmin, window_param.zmax, window_param.zscl);
-	
+
 	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
-	
+
 	scene.remove(axes.getObject());
 	axes.redraw();
 	scene.add(axes.getObject());
-	
+
 	for(var i = 0; i < objectlist.length; i++) {
 		objectlist[i].redraw();
 	}
-	
+
 }
 
 </script>

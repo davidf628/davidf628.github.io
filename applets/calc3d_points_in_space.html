@@ -55,16 +55,16 @@ var parameters = {
 	zpos: 0,
 	pointvisible: true,
 	linesvisible: true
-	
+
 };
 
 // GUI
 gui = new dat.GUI();
-gui.add(parameters, 'pointvisible').name("Show Point").onChange( 
+gui.add(parameters, 'pointvisible').name("Show Point").onChange(
 	function() {
 		p.toggleVisible();
 	});
-gui.add(parameters, 'linesvisible').name("Show Lines").onChange( 
+gui.add(parameters, 'linesvisible').name("Show Lines").onChange(
 	function() {
 		xLine.toggleVisible();
 		yLine.toggleVisible();
@@ -74,53 +74,40 @@ gui.add(parameters, 'linesvisible').name("Show Lines").onChange(
 gui.add(parameters, 'xpos').min(window_param.xmin).max(window_param.xmax).step(0.01).name('x = ').onChange(
     function() {
 		p.moveTo([parameters.xpos, parameters.ypos, parameters.zpos]);
-		xLine.updateStartPoint([parameters.xpos, 0, 0]);
-		xLine.updateEndPoint([parameters.xpos, parameters.ypos, 0]);
-		yLine.updateStartPoint([0, parameters.ypos, 0]);
-		yLine.updateEndPoint([parameters.xpos, parameters.ypos, 0]);
-		zLine.updateStartPoint([parameters.xpos, parameters.ypos, 0]);
-		zLine.updateEndPoint([parameters.xpos, parameters.ypos, parameters.zpos]);
+		xLine.setEndPoints([parameters.xpos, 0, 0], [parameters.xpos, parameters.ypos, 0]);
+		yLine.setEndPoints([0, parameters.ypos, 0], [parameters.xpos, parameters.ypos, 0]);
+		zLine.setEndPoints([parameters.xpos, parameters.ypos, 0], [parameters.xpos, parameters.ypos, parameters.zpos]);
     }
 );
 gui.add(parameters, 'ypos').min(window_param.ymin).max(window_param.ymax).step(0.01).name('y = ').onChange(
     function() {
-		p.moveTo([parameters.xpos, parameters.ypos, parameters.zpos]);	
-		xLine.updateStartPoint([parameters.xpos, 0, 0]);
-		xLine.updateEndPoint([parameters.xpos, parameters.ypos, 0]);
-		yLine.updateStartPoint([0, parameters.ypos, 0]);
-		yLine.updateEndPoint([parameters.xpos, parameters.ypos, 0]);
-		zLine.updateStartPoint([parameters.xpos, parameters.ypos, 0]);
-		zLine.updateEndPoint([parameters.xpos, parameters.ypos, parameters.zpos]);
+		p.moveTo([parameters.xpos, parameters.ypos, parameters.zpos]);
+		xLine.setEndPoints([parameters.xpos, 0, 0], [parameters.xpos, parameters.ypos, 0]);
+		yLine.setEndPoints([0, parameters.ypos, 0], [parameters.xpos, parameters.ypos, 0]);
+		zLine.setEndPoints([parameters.xpos, parameters.ypos, 0], [parameters.xpos, parameters.ypos, parameters.zpos]);
     }
 );
 gui.add(parameters, 'zpos').min(window_param.zmin).max(window_param.zmax).step(0.01).name('z = ').onChange(
 	function() {
 		p.moveTo([parameters.xpos, parameters.ypos, parameters.zpos]);
-		xLine.updateStartPoint([parameters.xpos, 0, 0]);
-		xLine.updateEndPoint([parameters.xpos, parameters.ypos, 0]);
-		yLine.updateStartPoint([0, parameters.ypos, 0]);
-		yLine.updateEndPoint([parameters.xpos, parameters.ypos, 0]);
-		zLine.updateStartPoint([parameters.xpos, parameters.ypos, 0]);
-		zLine.updateEndPoint([parameters.xpos, parameters.ypos, parameters.zpos]);
+		xLine.setEndPoints([parameters.xpos, 0, 0], [parameters.xpos, parameters.ypos, 0]);
+		yLine.setEndPoints([0, parameters.ypos, 0], [parameters.xpos, parameters.ypos, 0]);
+		zLine.setEndPoints([parameters.xpos, parameters.ypos, 0], [parameters.xpos, parameters.ypos, parameters.zpos]);
 	}
 );
 
 init();
-animate();	
-				
+animate();
+
 function createScene() {
-	
+
 	p = new Point([parameters.xpos, parameters.ypos, parameters.zpos], { visible: parameters.pointvisible });
-	addToScene(scene, p);
-	
-	xLine = new Line({ start: [parameters.xpos, 0, 0], end: [parameters.xpos, parameters.ypos, 0], dashed: true, visible: parameters.linesvisible });
-	addToScene(scene, xLine);
-	
-	yLine = new Line({ start: [0, parameters.ypos, 0], end: [parameters.xpos, parameters.ypos, 0], dashed: true, visible: parameters.linesvisible });
-	addToScene(scene, yLine);
-	
-	zLine = new Line({ start: [parameters.xpos, parameters.ypos, 0], end: [parameters.xpos, parameters.ypos, parameters.zpos], dashed: true, visible: parameters.linesvisible });
-	addToScene(scene, zLine);
+
+	xLine = new Segment([parameters.xpos, 0, 0], [parameters.xpos, parameters.ypos, 0], { dashed: true, visible: parameters.linesvisible });
+
+	yLine = new Segment([0, parameters.ypos, 0], [parameters.xpos, parameters.ypos, 0], { dashed: true, visible: parameters.linesvisible });
+
+	zLine = new Segment([parameters.xpos, parameters.ypos, 0], [parameters.xpos, parameters.ypos, parameters.zpos], { dashed: true, visible: parameters.linesvisible });
 
 }
 
@@ -146,26 +133,26 @@ function animate() {
 
 function redrawScene() {
 
-	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl,
 							window_param.ymin, window_param.ymax, window_param.yscl,
 							window_param.zmin, window_param.zmax, window_param.zscl);
-	
+
 	axes.setParameters({
-	   labels: window_param.labels, 
-	   xygrid: window_param.xygrid, 
-	   xzgrid: window_param.xzgrid, 
-	   yzgrid: window_param.yzgrid, 
-	   polargrid: window_param.polargrid 
+	   labels: window_param.labels,
+	   xygrid: window_param.xygrid,
+	   xzgrid: window_param.xzgrid,
+	   yzgrid: window_param.yzgrid,
+	   polargrid: window_param.polargrid
     });
-	
+
 	scene.remove(axes.getObject());
 	axes.redraw();
 	scene.add(axes.getObject());
-	
+
 	for(var i = 0; i < objectlist.length; i++) {
 		objectlist[i].redraw();
 	}
-	
+
 }
 
 </script>

@@ -92,7 +92,7 @@ var parameters = {
 	toggleplane2: function() { plane2.toggleVisible(); },
 	toggleplane3: function() { plane3.toggleVisible(); },
 	toggleintersection: function() { intersection.toggleVisible(); }
-	
+
 };
 
 // GUI CONTROLLER
@@ -100,22 +100,17 @@ var gui = new dat.GUI();
 gui.add(parameters, 'toggleplane1').name('Toggle Plane 1');
 gui.add(parameters, 'toggleplane2').name('Toggle Plane 2');
 gui.add(parameters, 'toggleplane3').name('Toggle Plane 3');
-gui.add(parameters, 'toggleintersection').name('Toggle Intersection');	
+gui.add(parameters, 'toggleintersection').name('Toggle Intersection');
 
 init();
 animate();
-					
+
 function createScene() {
 
 	plane1 = new Surface('-x+y-1', { color: new THREE.Color('green'), visible: false });
 	plane2 = new Surface('(y + 4*x - 5)/2', { color: new THREE.Color('red'), visible: false });
 	plane3 = new Surface('(16-3*x-3*y)/4', { color: new THREE.Color('blue'), visible: false });
 	intersection = new Point([1, 3, 1], { visible: false } );
-	
-	addToScene(scene, plane1);
-	addToScene(scene, plane2);
-	addToScene(scene, plane3);
-	addToScene(scene, intersection);
 
 }
 
@@ -136,20 +131,20 @@ function animate() {
 
 function redrawScene() {
 
-	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl,
 							window_param.ymin, window_param.ymax, window_param.yscl,
 							window_param.zmin, window_param.zmax, window_param.zscl);
-	
+
 	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
-	
+
 	scene.remove(axes.getObject());
 	axes.redraw();
 	scene.add(axes.getObject());
-	
+
 	for(var i = 0; i < objectlist.length; i++) {
 		objectlist[i].redraw();
 	}
-	
+
 }
 
 </script>

@@ -86,10 +86,10 @@ var parameters = {
 	togglegraph: function() { vgraph.toggleVisible(); },
 	togglevector: function() { v.toggleVisible(); },
 	trace: function() { traceon = !traceon; }
-	
+
 };
 
-		
+
 // GUI CONTROLLER
 var gui = new dat.GUI();
 gui.add(parameters, 'x_text').name('x(t):');
@@ -119,21 +119,16 @@ init();
 animate();
 
 function createScene() {
-	
+
 	p = new Point([0,0,0], { radius: 0.3, color: 'blue' });
-	vgraph = new ParametricGraph(parameters.x_text, parameters.y_text, parameters.z_text, -20, 20, { visible: false });
+	vgraph = new SpaceCurve(parameters.x_text, parameters.y_text, parameters.z_text, -20, 20, { visible: false });
 	v = new Vector({ end: [0, 0, 0] });
-	
-	addToScene(scene, p);
-	addToScene(scene, vgraph);
-	addToScene(scene, v);
 
 }
 
 function updategraph() {
 	scene.remove(vgraph.getObject());
-	vgraph = new ParametricGraph(parameters.x_text, parameters.y_text, parameters.z_text, -20, 20, { visible: false });
-	scene.add(vgraph.getObject());
+	vgraph = new SpaceCurve(parameters.x_text, parameters.y_text, parameters.z_text, -20, 20, { visible: false });
 }
 
 function animate() {
@@ -153,20 +148,20 @@ function animate() {
 
 function redrawScene() {
 
-	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl,
 							window_param.ymin, window_param.ymax, window_param.yscl,
 							window_param.zmin, window_param.zmax, window_param.zscl);
-	
+
 	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
-	
+
 	scene.remove(axes.getObject());
 	axes.redraw();
 	scene.add(axes.getObject());
-	
+
 	for(var i = 0; i < objectlist.length; i++) {
 		objectlist[i].redraw();
 	}
-	
+
 }
 
 </script>

@@ -53,47 +53,37 @@ var parameters = {
 	togglep4: function() { p4.toggleVisible(); },
 	togglep5: function() { p5.toggleVisible(); },
 	togglep6: function() { p6.toggleVisible(); }
-	
+
 };
 
 // GUI
-gui = new dat.GUI();	
+gui = new dat.GUI();
 gui.add(parameters, 'toggles').name('Toggle Surface');
 gui.add(parameters, 'togglep1').name('Toggle x=0');
 gui.add(parameters, 'togglep2').name('Toggle y=0');
 gui.add(parameters, 'togglep3').name('Toggle y=x');
 gui.add(parameters, 'togglep4').name('Toggle y=x^2');
 gui.add(parameters, 'togglep5').name('Toggle abs(x)');
-gui.add(parameters, 'togglep6').name('Toggle sin(x)');	
+gui.add(parameters, 'togglep6').name('Toggle sin(x)');
 
 init();
 animate();
-					
+
 function createScene() {
 
-
 	s = new Surface('(x^2-y^2)/(x^2+y^2)', { color: 'green', visible: false });
-	addToScene(scene, s);
-	
-	p1 = new ParametricGraph('0','t','-1', -20, 20, { visible: false });
-	addToScene(scene, p1);
-	
-	p2 = new ParametricGraph('t','0','1', -20, 20, { visible: false });
-	addToScene(scene, p2);
-	
-	p3 = new ParametricProjection('t','t','(x^2-y^2)/(x^2+y^2)', -10, 10, { visible: false });
-	addToScene(scene, p3);
-	
-	p4 = new ParametricProjection('t','t^2','(x^2-y^2)/(x^2+y^2)', -5, 5, { visible: false });
-	addToScene(scene, p4);
-	
-	p5 = new ParametricProjection('t','abs(t)','(x^2-y^2)/(x^2+y^2)', -10, 10, { visible: false });
-	addToScene(scene, p5); 
-	
-	p6 = new ParametricProjection('t','sin(t)','(x^2-y^2)/(x^2+y^2)', -10, 10, { visible: false });
-	addToScene(scene, p6);
 
+	p1 = new SpaceCurve('0','t','-1', -20, 20, { visible: false });
 
+	p2 = new SpaceCurve('t','0','1', -20, 20, { visible: false });
+
+	p3 = new ParametricPathProjection('t','t','(x^2-y^2)/(x^2+y^2)', -10, 10, { visible: false });
+
+	p4 = new ParametricPathProjection('t','t^2','(x^2-y^2)/(x^2+y^2)', -5, 5, { visible: false });
+
+	p5 = new ParametricPathProjection('t','abs(t)','(x^2-y^2)/(x^2+y^2)', -10, 10, { visible: false });
+
+	p6 = new ParametricPathProjection('t','sin(t)','(x^2-y^2)/(x^2+y^2)', -10, 10, { visible: false });
 
 }
 
@@ -114,20 +104,20 @@ function animate() {
 
 function redrawScene() {
 
-	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl,
 							window_param.ymin, window_param.ymax, window_param.yscl,
 							window_param.zmin, window_param.zmax, window_param.zscl);
-	
+
 	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
-	
+
 	scene.remove(axes.getObject());
 	axes.redraw();
 	scene.add(axes.getObject());
-	
+
 	for(var i = 0; i < objectlist.length; i++) {
 		objectlist[i].redraw();
 	}
-	
+
 }
 
 </script>

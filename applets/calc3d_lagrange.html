@@ -49,31 +49,27 @@ var plane, sphere;
 var parameters = {
 
 	radius: 0
-	
+
 };
 
-		
+
 // GUI
 var gui = new dat.GUI();
 gui.add(parameters, 'radius').min(0).max(10).step(0.01).name('Radius').onChange(
 	function() {
 		scene.remove(sphere.getObject());
 		sphere = new Sphere({ coords: [0, 0, 0], radius: parameters.radius });
-		addToScene(scene, sphere);
 	}
-);	
+);
 
 init();
 animate();
-					
+
 function createScene() {
 
-	sphere = new Sphere({ coords: [0, 0, 0], radius: parameters.radius });
-	addToScene(scene, sphere);
-	
+	sphere = new Sphere({ coords: [0, 0, 0], radius: parameters.radius });	
 	plane = new Surface('2*x + y - 5', { color: 'green' });
-	addToScene(scene, plane);
-	
+
 }
 
 function animate() {
@@ -93,20 +89,20 @@ function animate() {
 
 function redrawScene() {
 
-	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl,
 							window_param.ymin, window_param.ymax, window_param.yscl,
 							window_param.zmin, window_param.zmax, window_param.zscl);
-	
+
 	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
-	
+
 	scene.remove(axes.getObject());
 	axes.redraw();
 	scene.add(axes.getObject());
-	
+
 	for(var i = 0; i < objectlist.length; i++) {
 		objectlist[i].redraw();
 	}
-	
+
 }
 
 </script>

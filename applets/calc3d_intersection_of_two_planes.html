@@ -91,14 +91,14 @@ var parameters = {
 
 	toggleplane1: function() { plane1.toggleVisible(); },
 	toggleplane2: function() { plane2.toggleVisible(); },
-	toggleintersection: function() { intersection.toggleVisible(); }, 
-	toggledirectionvectors: 
-		function() { 
+	toggleintersection: function() { intersection.toggleVisible(); },
+	toggledirectionvectors:
+		function() {
 			vector1.toggleVisible();
 			vector2.toggleVisible();
 			crossproduct.toggleVisible();
 		}
-	
+
 };
 
 // GUI CONTROLLER
@@ -110,25 +110,16 @@ gui.add(parameters, 'toggledirectionvectors').name('Toggle Vectors');
 
 init();
 animate();
-					
+
 function createScene() {
-	
+
 	plane1 = new Surface('x-y+2', { color: new THREE.Color('green'), visible: false });
 	plane2 = new Surface('3*x+2*y-4', { color: new THREE.Color('blue'), visible: false });
-	intersection = new ParametricGraph('3/5*t', '2-2/5*t', 't', -20, 20, { visible: false });
+	intersection = new SpaceCurve('3/5*t', '2-2/5*t', 't', -20, 20, { visible: false });
 	vector1 = new Vector( { end: [1, -1, -1], visible: false } );
 	vector2 = new Vector( { end: [3,  2, -1], visible: false } );
 	crossproduct = new Vector( { end: [3, -2, 5], visible: false });
 	
-
-	addToScene(scene, plane1);
-	addToScene(scene, plane2);
-	addToScene(scene, intersection);
-	
-	addToScene(scene, vector1);
-	addToScene(scene, vector2);
-	addToScene(scene, crossproduct);
-
 }
 
 function animate() {
@@ -148,20 +139,20 @@ function animate() {
 
 function redrawScene() {
 
-	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl,
 							window_param.ymin, window_param.ymax, window_param.yscl,
 							window_param.zmin, window_param.zmax, window_param.zscl);
-	
+
 	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
-	
+
 	scene.remove(axes.getObject());
 	axes.redraw();
 	scene.add(axes.getObject());
-	
+
 	for(var i = 0; i < objectlist.length; i++) {
 		objectlist[i].redraw();
 	}
-	
+
 }
 
 </script>

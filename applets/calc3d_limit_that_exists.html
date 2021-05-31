@@ -61,13 +61,13 @@ var parameters = {
 	togglez6: function() { z6.toggleVisible(); },
 	togglep7: function() { p7.toggleVisible(); },
 	togglez7: function() { z7.toggleVisible(); }
-	
+
 };
 
 var f, surface, p, z, p1, z1, p2, z2, p3, z3, p4, z4, p5, z5, p6, z6, p7, z7;
 
 // GUI
-gui = new dat.GUI();	
+gui = new dat.GUI();
 gui.add(parameters, 'togglep').name('Show xy Limit');
 gui.add(parameters, 'togglez').name('Show projection');
 gui.add(parameters, 'togglelimit').name('Show z Limit');
@@ -87,78 +87,61 @@ gui.add(parameters, 'togglez7').name('Show y=sin(x) proj');
 
 init();
 animate();
-					
+
 function createScene() {
 
 	f = '(3*x^2-y^2+5)/(x^2+y^2+2)';
 	var visible = false;
 
 	// var surface = addToScene(scene, new Surface('(3*x^2-y^2+5)/(x^2+y^2+2)', { color: 'red', wireframe: true, dx: 0.5 }));
-	
+
 	surface = new Surface(f, { color: 'green', wireframe: true, dx: 0.5 });
-	addToScene(scene, surface);
-	
+
 	p = new Point([0, 0, 0], { color: 'black', radius: 0.15, visible: visible });
-	addToScene(scene, p);
-	
+
 	z = new Point([0, 0, 2.5], { color: 'blue', radius: 0.25, visible: visible });
-	addToScene(scene, z);
-	
+
 	// Circle
-	
-	p1 = new ParametricGraph('sin(t)', 'cos(t)', '0', 0, 6.28, { visible: visible });
-	addToScene(scene, p1);
-	
-	z1 = new ParametricProjection('sin(t)', 'cos(t)', f, 0, 6.28, { visible: visible });
-	addToScene(scene, z1);
-	
+
+	p1 = new SpaceCurve('sin(t)', 'cos(t)', '0', 0, 6.28, { visible: visible });
+
+	z1 = new ParametricPathProjection('sin(t)', 'cos(t)', f, 0, 6.28, { visible: visible });
+
 	// x-axis
-	
-	p2 = new ParametricGraph('t', '0', '0', -10, 10, { visible: visible });
-	addToScene(scene, p2);
-	
-	z2 = new ParametricProjection('t', '0', f, -10, 10, { visible: visible });
-	addToScene(scene, z2);
-	
+
+	p2 = new SpaceCurve('t', '0', '0', -10, 10, { visible: visible });
+
+	z2 = new ParametricPathProjection('t', '0', f, -10, 10, { visible: visible });
+
 	// y-axis
-	
-	p3 = new ParametricGraph('0', 't', '0', -10, 10, { visible: visible });
-	addToScene(scene, p3);
-	
-	z3 = new ParametricProjection('0', 't', f, -10, 10, { visible: visible });
-	addToScene(scene, z3);
-	
+
+	p3 = new SpaceCurve('0', 't', '0', -10, 10, { visible: visible });
+
+	z3 = new ParametricPathProjection('0', 't', f, -10, 10, { visible: visible });
+
 	// y = x
-	
-	p4 = new ParametricGraph('t', 't', '0', -10, 10, { visible: visible });
-	addToScene(scene, p4);
-	
-	z4 = new ParametricProjection('t', 't', f, -10, 10, { visible: visible });
-	addToScene(scene, z4);
-	
+
+	p4 = new SpaceCurve('t', 't', '0', -10, 10, { visible: visible });
+
+	z4 = new ParametricPathProjection('t', 't', f, -10, 10, { visible: visible });
+
 	// y = x^2
-	
-	p5 = new ParametricGraph('t', 't^2', '0', -10, 10, { visible: visible });
-	addToScene(scene, p5);
-		
-	z5 = new ParametricProjection('t', 't^2', f, -5, 5, { visible: visible });
-	addToScene(scene, z5);
-	
+
+	p5 = new SpaceCurve('t', 't^2', '0', -10, 10, { visible: visible });
+
+	z5 = new ParametricPathProjection('t', 't^2', f, -5, 5, { visible: visible });
+
 	// y = abs(x)
-	
-	p6 = new ParametricGraph('t', 'abs(t)', '0', -10, 10, { visible: visible });
-	addToScene(scene, p6);
-	
-	z6 = new ParametricProjection('t', 'abs(t)', f , -10, 10, { visible: visible });
-	addToScene(scene, z6); 
-	
+
+	p6 = new SpaceCurve('t', 'abs(t)', '0', -10, 10, { visible: visible });
+
+	z6 = new ParametricPathProjection('t', 'abs(t)', f , -10, 10, { visible: visible });
+
 	// y = sin(x)
-	
-	p7 = new ParametricGraph('t', 'sin(t)', '0', -10, 10, { visible: visible });
-	addToScene(scene, p7);
-		
-	z7 = new ParametricProjection('t', 'sin(t)', f, -10, 10, { visible: visible });
-	addToScene(scene, z7);
+
+	p7 = new SpaceCurve('t', 'sin(t)', '0', -10, 10, { visible: visible });
+
+	z7 = new ParametricPathProjection('t', 'sin(t)', f, -10, 10, { visible: visible });
 
 }
 
@@ -179,20 +162,20 @@ function animate() {
 
 function redrawScene() {
 
-	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl,
 							window_param.ymin, window_param.ymax, window_param.yscl,
 							window_param.zmin, window_param.zmax, window_param.zscl);
-	
+
 	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
-	
+
 	scene.remove(axes.getObject());
 	axes.redraw();
 	scene.add(axes.getObject());
-	
+
 	for(var i = 0; i < objectlist.length; i++) {
 		objectlist[i].redraw();
 	}
-	
+
 }
 
 </script>

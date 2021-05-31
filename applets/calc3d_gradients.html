@@ -76,7 +76,7 @@ var parameters = {
 	gradientvisible: false,
 	wireframevisible: false,
 	update: function() { updateGraph(); }
-	
+
 };
 
 var zFunc = Parser.parse(parameters.zText).toJSFunction(['x', 'y']);
@@ -90,48 +90,48 @@ var zyFunc = Parser.parse(zy).toJSFunction(['x', 'y']);
 // GUI
 gui = new dat.GUI();
 function_menu = gui.addFolder('Function Menu');
-function_menu.add(parameters, 'zText').name('z = ');	
-function_menu.add(parameters, 'xzvisible').name("View xz-plane").onChange( 
+function_menu.add(parameters, 'zText').name('z = ');
+function_menu.add(parameters, 'xzvisible').name("View xz-plane").onChange(
 	function() {
 		xzplane.toggleVisible();
 	});
-function_menu.add(parameters, 'xzvisible').name("View yz-plane").onChange( 
+function_menu.add(parameters, 'xzvisible').name("View yz-plane").onChange(
 	function() {
 		yzplane.toggleVisible();
 	});
-function_menu.add(parameters, 'xyvisible').name("View xy-plane").onChange( 
+function_menu.add(parameters, 'xyvisible').name("View xy-plane").onChange(
 	function() {
 		xyplane.toggleVisible();
 	});
-function_menu.add(parameters, 'pvisible').name("View point-P").onChange( 
+function_menu.add(parameters, 'pvisible').name("View point-P").onChange(
 	function() {
 		p.toggleVisible();
 	});
-function_menu.add(parameters, 'fxvisible').name("View dz/dx").onChange( 
+function_menu.add(parameters, 'fxvisible').name("View dz/dx").onChange(
 	function() {
 		fx.toggleVisible();
 	});
-function_menu.add(parameters, 'fyvisible').name("View dz/dy").onChange( 
+function_menu.add(parameters, 'fyvisible').name("View dz/dy").onChange(
 	function() {
 		fy.toggleVisible();
 	});
-function_menu.add(parameters, 'fxsurfacevisible').name("View Zx-Surface").onChange( 
+function_menu.add(parameters, 'fxsurfacevisible').name("View Zx-Surface").onChange(
 	function() {
 		fxsurface.toggleVisible();
 	});
-function_menu.add(parameters, 'fysurfacevisible').name("View Zy-Surface").onChange( 
+function_menu.add(parameters, 'fysurfacevisible').name("View Zy-Surface").onChange(
 	function() {
 		fysurface.toggleVisible();
 	});
-function_menu.add(parameters, 'xztracevisible').name("View xz-trace").onChange( 
+function_menu.add(parameters, 'xztracevisible').name("View xz-trace").onChange(
 	function() {
 		xztrace.toggleVisible();
 	});
-function_menu.add(parameters, 'yztracevisible').name("View yz-trace").onChange( 
+function_menu.add(parameters, 'yztracevisible').name("View yz-trace").onChange(
 	function() {
 		yztrace.toggleVisible();
 	});
-function_menu.add(parameters, 'zxvectorsvisible').name("View zx-vectors").onChange( 
+function_menu.add(parameters, 'zxvectorsvisible').name("View zx-vectors").onChange(
 	function() {
 		for(var i = 0; i < zxvectors.length; i++) {
 			if(zxvectors[i].start[2] <= viewingWindow.zMax && zxvectors[i].start[2] >= viewingWindow.zMin) {
@@ -139,7 +139,7 @@ function_menu.add(parameters, 'zxvectorsvisible').name("View zx-vectors").onChan
 			}
 		}
 	});
-function_menu.add(parameters, 'zyvectorsvisible').name("View zy-vectors").onChange( 
+function_menu.add(parameters, 'zyvectorsvisible').name("View zy-vectors").onChange(
 	function() {
 		for(var i = 0; i < zyvectors.length; i++) {
 			if(zyvectors[i].start[2] <= viewingWindow.zMax && zyvectors[i].start[2] >= viewingWindow.zMin) {
@@ -147,7 +147,7 @@ function_menu.add(parameters, 'zyvectorsvisible').name("View zy-vectors").onChan
 			}
 		}
 	});
-function_menu.add(parameters, 'dirderivvisible').name("Directional Deriv").onChange( 
+function_menu.add(parameters, 'dirderivvisible').name("Directional Deriv").onChange(
 	function() {
 		dirderiv.toggleVisible();
 		dirderivtextbox.toggleVisible();
@@ -155,14 +155,14 @@ function_menu.add(parameters, 'dirderivvisible').name("Directional Deriv").onCha
 
 function_menu.add(parameters, 'direction').min(0).max(360).step(1).name('direction = ').onChange(
     function() {
-		updateDirectionalDerivative();	    
+		updateDirectionalDerivative();
     }
 );
-function_menu.add(parameters, 'tangentplanevisible').name("Tangent Plane").onChange( 
+function_menu.add(parameters, 'tangentplanevisible').name("Tangent Plane").onChange(
 	function() {
 		tangentplane.toggleVisible();
 	});
-function_menu.add(parameters, 'gradientvisible').name("View Gradient").onChange( 
+function_menu.add(parameters, 'gradientvisible').name("View Gradient").onChange(
 	function() {
 		for(var i = 0; i < gradient.length; i++) {
 			if(gradient[i].start[2] <= viewingWindow.zMax && gradient[i].start[2] >= viewingWindow.zMin) {
@@ -171,7 +171,7 @@ function_menu.add(parameters, 'gradientvisible').name("View Gradient").onChange(
 		}
 	});
 
-function_menu.add(parameters, 'wireframevisible').name("View wireframe").onChange( 
+function_menu.add(parameters, 'wireframevisible').name("View wireframe").onChange(
 	function() {
 		wireframe.toggleVisible();
 	});
@@ -179,50 +179,44 @@ function_menu.add(parameters, 'xzpos').min(window_param.ymin).max(window_param.y
     function() {
 		xzplane.setLocation(parameters.xzpos);
 		p.moveTo([parameters.yzpos, parameters.xzpos, zFunc(parameters.yzpos, parameters.xzpos)]);
-		
+
 		scene.remove(fx.getObject());
-		fx = new ParametricGraph(parameters.yzpos + ' + t', parameters.xzpos + ' ', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zxFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'red', visible: parameters.fxvisible });
-		addToScene(scene, fx);
-		
+		fx = new SpaceCurve(parameters.yzpos + ' + t', parameters.xzpos + ' ', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zxFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'red', visible: parameters.fxvisible });
+
 		scene.remove(fy.getObject());
-		fy = new ParametricGraph(parameters.yzpos + ' ', parameters.xzpos + ' + t', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zyFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'green', visible: parameters.fyvisible });
-		addToScene(scene, fy);
-		
+		fy = new SpaceCurve(parameters.yzpos + ' ', parameters.xzpos + ' + t', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zyFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'green', visible: parameters.fyvisible });
+
 		scene.remove(xztrace.getObject());
-		xztrace = new ParametricProjection(parameters.yzpos + ' + t', parameters.xzpos + ' ', parameters.zText, -5, 5, { visible: parameters.xztracevisible });
-		addToScene(scene, xztrace);
-		
+		xztrace = new ParametricPathProjection(parameters.yzpos + ' + t', parameters.xzpos + ' ', parameters.zText, -5, 5, { visible: parameters.xztracevisible });
+
 		updateDirectionalDerivative();
-		
+
 		scene.remove(tangentplane.getObject());
 		updateTangentPlane();
 		scene.add(tangentplane.getObject());
-		
+
     }
 );
 function_menu.add(parameters, 'yzpos').min(window_param.xmin).max(window_param.xmax).step(0.01).name('yz-position = ').onChange(
     function() {
 		yzplane.setLocation(parameters.yzpos);
 		p.moveTo([parameters.yzpos, parameters.xzpos, zFunc(parameters.yzpos, parameters.xzpos)]);
-		
+
 		scene.remove(fx.getObject());
-		fx = new ParametricGraph(parameters.yzpos + ' + t', parameters.xzpos + ' ', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zxFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'red', visible: parameters.fxvisible });
-		addToScene(scene, fx);
-		
+		fx = new SpaceCurve(parameters.yzpos + ' + t', parameters.xzpos + ' ', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zxFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'red', visible: parameters.fxvisible });
+
 		scene.remove(fy.getObject());
-		fy = new ParametricGraph(parameters.yzpos + ' ', parameters.xzpos + ' + t', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zyFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'green', visible: parameters.fyvisible });
-		addToScene(scene, fy);
-		
+		fy = new SpaceCurve(parameters.yzpos + ' ', parameters.xzpos + ' + t', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zyFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'green', visible: parameters.fyvisible });
+
 		scene.remove(yztrace.getObject());
-		yztrace = new ParametricProjection(parameters.yzpos + ' ', parameters.xzpos + ' + t ', parameters.zText, -5, 5, { visible: parameters.yztracevisible });
-		addToScene(scene, yztrace);
-		
+		yztrace = new ParametricPathProjection(parameters.yzpos + ' ', parameters.xzpos + ' + t ', parameters.zText, -5, 5, { visible: parameters.yztracevisible });
+
 		updateDirectionalDerivative();
-		
+
 		scene.remove(tangentplane.getObject());
 		updateTangentPlane();
 		scene.add(tangentplane.getObject());
-	
+
     }
 );
 function_menu.add(parameters, 'xypos').min(window_param.zmin).max(window_param.zmax).step(0.01).name('z-position = ').onChange(
@@ -233,135 +227,121 @@ function_menu.add(parameters, 'xypos').min(window_param.zmin).max(window_param.z
 function_menu.add(parameters, 'update').name('Update Graph');
 
 init();
-animate();	
-				
+animate();
+
 function createScene() {
 
 	surface = new Surface(parameters.zText, { dx: 0.25, color: 'teal' });
 	wireframe = new Wireframe(parameters.zText, { visible: parameters.wireframevisible, type: 'advanced' });
-	addToScene(scene, surface);
-	addToScene(scene, wireframe);
-	
+
 	xzplane = new PlaneSurface('xz', parameters.xzpos, { color: 'red', visible: parameters.xzvisible });
-	addToScene(scene, xzplane);
-	
+
 	yzplane = new PlaneSurface('yz', parameters.yzpos, { color: 'green', visible: parameters.yzvisible });
-	addToScene(scene, yzplane);
-	
+
 	xyplane = new PlaneSurface('xy', parameters.xypos, { color: 'blue', visible: parameters.xyvisible });
-	addToScene(scene, xyplane);
 
 	p = new Point([parameters.yzpos, parameters.xzpos, zFunc(parameters.yzpos, parameters.xzpos)], { visible: parameters.pvisible, color: 'blue', radius: 0.4 });
-	addToScene(scene, p);
-	
-	fx = new ParametricGraph(parameters.yzpos + ' + t', parameters.xzpos + ' ', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zxFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'red', visible: parameters.fxvisible });
-	addToScene(scene, fx); 
 
-	fy = new ParametricGraph(parameters.yzpos + ' ', parameters.xzpos + ' + t', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zyFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'green', visible: parameters.fyvisible });
-	addToScene(scene, fy); 
+	fx = new SpaceCurve(parameters.yzpos + ' + t', parameters.xzpos + ' ', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zxFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'red', visible: parameters.fxvisible });
+
+	fy = new SpaceCurve(parameters.yzpos + ' ', parameters.xzpos + ' + t', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zyFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'green', visible: parameters.fyvisible });
 
 	fxsurface = new Surface(zx, { color: 'red', visible: parameters.fxsurfacevisible });
-	addToScene(scene, fxsurface);
-	
+
 	fysurface = new Surface(zy, { color: 'green', visible: parameters.fysurfacevisible });
-	addToScene(scene, fysurface);
-	
-	xztrace = new ParametricProjection(parameters.yzpos + ' + t', parameters.xzpos + ' ', parameters.zText, -10, 10, { visible: parameters.xztracevisible });
-	addToScene(scene, xztrace);
-	
-	yztrace = new ParametricProjection(parameters.yzpos + ' ', parameters.xzpos + ' + t ', parameters.zText, -10, 10, { visible: parameters.yztracevisible });
-	addToScene(scene, yztrace);
-	
+
+	xztrace = new ParametricPathProjection(parameters.yzpos + ' + t', parameters.xzpos + ' ', parameters.zText, -10, 10, { visible: parameters.xztracevisible });
+
+	yztrace = new ParametricPathProjection(parameters.yzpos + ' ', parameters.xzpos + ' + t ', parameters.zText, -10, 10, { visible: parameters.yztracevisible });
+
 	// Set up the directional derivative
-	
+
 	var x0 = parameters.yzpos, y0 = parameters.xzpos, z0 = zFunc(x0, y0);
 	var dir = parameters.direction * Math.PI / 180;
 	var xdir = Math.cos(dir), ydir = Math.sin(dir);
 	var zslope = zxFunc(x0, y0) * xdir + zyFunc(x0, y0) * ydir;
 	var len = Math.sqrt(xdir * xdir + ydir * ydir + zslope * zslope);
 	if(len == 0) { len = 1e-20; }
-	
-	dirderiv = new Vector( { start: [x0, y0, z0], end: [x0 + xdir / len, y0 + ydir / len, z0 + zslope / len ], color: 'blue', visible: parameters.dirderivvisible }); 
-	addToScene(scene, dirderiv);
-	
-	dirderivtextbox = new TextBox([0, 2, 0.75], 
-		"   angle = " + parameters.direction + "       slope = " + zslope, 
-		{ fontSize: 18, 
-		  borderColor: {r:255, g:0, b:0, a:1.0}, 
-		  backgroundColor: {r:255, g:100, b:100, a:0.8}, 
-		  visible: parameters.dirderivvisible 
+
+	dirderiv = new Vector( { start: [x0, y0, z0], end: [x0 + xdir / len, y0 + ydir / len, z0 + zslope / len ], color: 'blue', visible: parameters.dirderivvisible });
+
+	dirderivtextbox = new TextBox([0, 2, 0.75],
+		"   angle = " + parameters.direction + "       slope = " + zslope,
+		{ fontSize: 18,
+		  borderColor: {r:255, g:0, b:0, a:1.0},
+		  backgroundColor: {r:255, g:100, b:100, a:0.8},
+		  visible: parameters.dirderivvisible
 		});
 	scene.add(dirderivtextbox.getObject());
-	
+
 	// Make the tangent plane
 
 	tangentplane = new Surface('0', { color: 'purple', visible: parameters.tangentplanevisible });
-	addToScene(scene, tangentplane);
+
 	updateTangentPlane();
 	// Calculate the slopes of fx and fy
-	
+
 	for(var i = viewingWindow.xMin; i < viewingWindow.xMax; i++) {
 		for(var j = viewingWindow.yMin; j < viewingWindow.yMax; j++) {
-		
+
 			var x0 = i;
 			var y0 = j;
 			var z0 = zFunc(x0, y0);
-			
+
 			var a = 1;
 			var b = 0;
 			var c = zxFunc(x0, y0);
-			
+
 			var len = Math.sqrt(a * a + b * b + c * c);
-			
+
 			var vector = new Vector({ start: [x0, y0, z0], end: [x0 + a / len, y0 + b / len, z0 + c / len], visible: parameters.zxvectorsvisible });
 
 			zxvectors.push(vector);
-			addToScene(scene, vector);
+
 		}
 	}
-	
+
 	for(var i = viewingWindow.xMin; i < viewingWindow.xMax; i++) {
 		for(var j = viewingWindow.yMin; j < viewingWindow.yMax; j++) {
-		
+
 			var x0 = i;
 			var y0 = j;
 			var z0 = zFunc(x0, y0);
-			
+
 			var a = 0;
 			var b = 1;
 			var c = zyFunc(x0, y0);
-			
+
 			var len = Math.sqrt(a * a + b * b + c * c);
-			
+
 			var vector = new Vector({ start: [x0, y0, z0], end: [x0 + a / len, y0 + b / len, z0 + c / len], visible: parameters.zyvectorsvisible, color: 'green' });
-			
+
 			zyvectors.push(vector);
-			addToScene(scene, vector);
+
 		}
 	}
-	
+
 	// Find the gradient vectors
-	
+
 	for(var i = viewingWindow.xMin; i < viewingWindow.xMax; i++) {
 		for(var j = viewingWindow.yMin; j < viewingWindow.yMax; j++) {
-		
+
 			var x0 = i;
 			var y0 = j;
 			var z0 = zFunc(x0, y0);
-			
+
 			var a = zxFunc(x0, y0);
 			var b = zyFunc(x0, y0);
-			
+
 			var len = Math.sqrt(a * a + b * b);
-			
+
 			var vector = new Vector({ start: [x0, y0, z0], end: [x0 + a / len, y0 + b / len, z0 ], visible: parameters.gradientvisible, color: 'purple' });
-			
+
 			gradient.push(vector);
-			addToScene(scene, vector);
-					
+
 		}
 	}
-	
+
 
 }
 
@@ -374,113 +354,104 @@ function updateGraph() {
 
 	zxFunc = Parser.parse(zx).toJSFunction(['x', 'y']);
 	zyFunc = Parser.parse(zy).toJSFunction(['x', 'y']);
-	
+
 	scene.remove(surface.getObject());
-	
+
 	surface = new Surface(parameters.zText, { wireframevisible: parameters.wireframevisible, dx: 0.25, color: 'teal' });
-	addToScene(scene, surface);
-	
+
 	scene.remove(wireframe.getObject());
 	wireframe = new Wireframe(parameters.zText, { visible: parameters.wireframevisible, type: 'advanced' });
-	addToScene(scene, wireframe);
-	
+
 	p.moveTo([parameters.yzpos, parameters.xzpos, zFunc(parameters.yzpos, parameters.xzpos)]);
-			
+
 	scene.remove(fx.getObject());
-	fx = new ParametricGraph(parameters.yzpos + ' + t', parameters.xzpos + ' ', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zxFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'red', visible: parameters.fxvisible });
-	addToScene(scene, fx);
-			
+	fx = new SpaceCurve(parameters.yzpos + ' + t', parameters.xzpos + ' ', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zxFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'red', visible: parameters.fxvisible });
+
 	scene.remove(fy.getObject());
-	fy = new ParametricGraph(parameters.yzpos + ' ', parameters.xzpos + ' + t', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zyFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'green', visible: parameters.fyvisible });
-	addToScene(scene, fy);
-	
+	fy = new SpaceCurve(parameters.yzpos + ' ', parameters.xzpos + ' + t', zFunc(parameters.yzpos, parameters.xzpos) + ' + ' + zyFunc(parameters.yzpos, parameters.xzpos) + ' *t ', -20, 20, { color: 'green', visible: parameters.fyvisible });
+
 	scene.remove(fxsurface.getObject());
 	fxsurface = new Surface(zx, { color: 'red', visible: parameters.fxsurfacevisible });
-	addToScene(scene, fxsurface);
-	
+
 	scene.remove(fysurface.getObject());
 	fysurface = new Surface(zy, { color: 'green', visible: parameters.fysurfacevisible });
-	addToScene(scene, fysurface);
 
 	scene.remove(xztrace.getObject());
-	xztrace = new ParametricProjection(parameters.yzpos + ' + t', parameters.xzpos + ' ', parameters.zText, -10, 10, { visible: parameters.xztracevisible });
-	addToScene(scene, xztrace);
+	xztrace = new ParametricPathProjection(parameters.yzpos + ' + t', parameters.xzpos + ' ', parameters.zText, -10, 10, { visible: parameters.xztracevisible });
 
 	scene.remove(yztrace.getObject());
-	yztrace = new ParametricProjection(parameters.yzpos + ' ', parameters.xzpos + ' + t ', parameters.zText, -10, 10, { visible: parameters.yztracevisible });
-	addToScene(scene, yztrace);
-	
+	yztrace = new ParametricPathProjection(parameters.yzpos + ' ', parameters.xzpos + ' + t ', parameters.zText, -10, 10, { visible: parameters.yztracevisible });
+
 	updateDirectionalDerivative();
-	
+
 	for(var i = 0; i < zxvectors.length; i++) {
 		scene.remove(zxvectors[i].getObject());
 	}
-	
+
 	for(var i = 0; i < zyvectors.length; i++) {
 		scene.remove(zyvectors[i].getObject());
 	}
-	
+
 	for(var i = 0; i < gradient.length; i++) {
 		scene.remove(gradient[i].getObject());
 	}
-	
+
 	for(var i = viewingWindow.xMin; i < viewingWindow.xMax; i++) {
 		for(var j = viewingWindow.yMin; j < viewingWindow.yMax; j++) {
-		
+
 			var x0 = i;
 			var y0 = j;
 			var z0 = zFunc(x0, y0);
-			
+
 			var a = 1;
 			var b = 0;
 			var c = zxFunc(x0, y0);
-			
+
 			var len = Math.sqrt(a * a + b * b + c * c);
-			
+
 			var vector = new Vector({ start: [x0, y0, z0], end: [x0 + a / len, y0 + b / len, z0 + c / len], visible: parameters.zxvectorsvisible });
-			
+
 			zxvectors.push(vector);
-			addToScene(scene, vector);
-		}
-	}
-	
-	for(var i = viewingWindow.xMin; i < viewingWindow.xMax; i++) {
-		for(var j = viewingWindow.yMin; j < viewingWindow.yMax; j++) {
-		
-			var x0 = i;
-			var y0 = j;
-			var z0 = zFunc(x0, y0);
-			
-			var a = 0;
-			var b = 1;
-			var c = zyFunc(x0, y0);
-			
-			var len = Math.sqrt(a * a + b * b + c * c);
-			
-			var vector = new Vector({ start: [x0, y0, z0], end: [x0 + a / len, y0 + b / len, z0 + c / len], visible: parameters.zyvectorsvisible });
-			
-			zyvectors.push(vector);
-			addToScene(scene, vector);
+
 		}
 	}
 
 	for(var i = viewingWindow.xMin; i < viewingWindow.xMax; i++) {
 		for(var j = viewingWindow.yMin; j < viewingWindow.yMax; j++) {
-		
+
 			var x0 = i;
 			var y0 = j;
 			var z0 = zFunc(x0, y0);
-			
+
+			var a = 0;
+			var b = 1;
+			var c = zyFunc(x0, y0);
+
+			var len = Math.sqrt(a * a + b * b + c * c);
+
+			var vector = new Vector({ start: [x0, y0, z0], end: [x0 + a / len, y0 + b / len, z0 + c / len], visible: parameters.zyvectorsvisible });
+
+			zyvectors.push(vector);
+
+		}
+	}
+
+	for(var i = viewingWindow.xMin; i < viewingWindow.xMax; i++) {
+		for(var j = viewingWindow.yMin; j < viewingWindow.yMax; j++) {
+
+			var x0 = i;
+			var y0 = j;
+			var z0 = zFunc(x0, y0);
+
 			var a = zxFunc(x0, y0);
 			var b = zyFunc(x0, y0);
-			
+
 			var len = Math.sqrt(a * a + b * b);
-			
+
 			var vector = new Vector({ start: [x0, y0, z0], end: [x0 + a / len, y0 + b / len, z0 ], visible: parameters.gradientvisible, color: 'purple' });
-			
+
 			gradient.push(vector);
-			addToScene(scene, vector);
-			
+
 		}
 	}
 
@@ -489,25 +460,25 @@ function updateGraph() {
 function updateDirectionalDerivative() {
 
 	scene.remove(dirderivtextbox.getObject());
-	
+
 	var x0 = parameters.yzpos, y0 = parameters.xzpos, z0 = zFunc(x0, y0);
 	var dir = parameters.direction * Math.PI / 180;
-	
+
 	var xdir = Math.cos(dir), ydir = Math.sin(dir);
 	var zdir = zxFunc(x0, y0) * xdir + zyFunc(x0, y0) * ydir;
-	
+
 	var len = Math.sqrt(xdir * xdir + ydir * ydir + zdir * zdir);
 	if(len == 0) { len = 1e-20; }
-	
+
 	dirderiv.setStartPoint([x0, y0, z0]);
 	dirderiv.setEndPoint([x0 + xdir / len, y0 + ydir / len, z0 + zdir / len]);
-	
-	dirderivtextbox = new TextBox([0, 2, 0.75], 
-		"   angle = " + parameters.direction + "       slope = " + zdir.toFixed(3), 
-		{ fontSize: 36, 
-		  borderColor: {r:255, g:0, b:0, a:1.0}, 
-		  backgroundColor: {r:255, g:100, b:100, a:0.8}, 
-		  visible: parameters.dirderivvisible 
+
+	dirderivtextbox = new TextBox([0, 2, 0.75],
+		"   angle = " + parameters.direction + "       slope = " + zdir.toFixed(3),
+		{ fontSize: 36,
+		  borderColor: {r:255, g:0, b:0, a:1.0},
+		  backgroundColor: {r:255, g:100, b:100, a:0.8},
+		  visible: parameters.dirderivvisible
 		});
 	scene.add(dirderivtextbox.getObject());
 
@@ -516,28 +487,28 @@ function updateDirectionalDerivative() {
 function updateTangentPlane() {
 
 	// Set up the tangent plane
-	
+
 	var vx = new THREE.Vector3(1, 0, zxFunc(parameters.yzpos, parameters.xzpos));
 	var vy = new THREE.Vector3(0, 1, zyFunc(parameters.yzpos, parameters.xzpos));
 	var v = vx.cross(vy);
 	var d = (v.x * parameters.yzpos + v.y * parameters.xzpos + v.z * zFunc(parameters.yzpos, parameters.xzpos)) / v.z;
 	var a = -(v.x / v.z);
 	var b = -(v.y / v.z);
-	var f = d + ' '; 
+	var f = d + ' ';
 
 	if(a < 0) {
 		f += a + ' * x ';
 	} else {
 		f += ' + ' + a + ' * x ';
 	}
-	
+
 	if(b < 0) {
 		f += b + ' * y ';
 	} else {
 		f += ' + ' + b + ' * y ';
 	}
 	tangentplane.setFunction(f);
-	
+
 }
 
 function animate() {
@@ -557,22 +528,22 @@ function animate() {
 
 function redrawScene() {
 
-	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl,
 							window_param.ymin, window_param.ymax, window_param.yscl,
 							window_param.zmin, window_param.zmax, window_param.zscl);
-	
+
 	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
-	
+
 	scene.remove(axes.getObject());
 	axes.redraw();
 	scene.add(axes.getObject());
-	
+
 	for(var i = 0; i < objectlist.length; i++) {
 		objectlist[i].redraw();
 	}
-	
+
 	//wireframe.setGeometry(surface.getGeometry());
-	
+
 }
 
 </script>

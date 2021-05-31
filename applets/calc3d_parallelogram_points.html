@@ -57,7 +57,7 @@ var parameters = {
 	togglebc: function() { bc.toggleVisible(); },
 	togglebd: function() { bd.toggleVisible(); },
 	togglecd: function() { cd.toggleVisible(); }
-	
+
 };
 
 // GUI
@@ -74,46 +74,27 @@ gui.add(parameters, 'togglecd').name('Toggle CD');
 
 init();
 animate();
-					
+
 function createScene() {
 
 	a = new Point([2,  9, 1], { color: 'blue' });
 	b = new Point([3, 11, 4], { color: 'blue' });
-	c = new Point([0, 10, 2], { color: 'blue' });	
+	c = new Point([0, 10, 2], { color: 'blue' });
 	d = new Point([1, 12, 5], { color: 'blue' });
-	
-	l1 = new Line({ start: a.getCoords(), end: b.getCoords(), dashed: true, visible: false });
-	l2 = new Line({ start: a.getCoords(), end: c.getCoords(), dashed: true, visible: false });
-	l3 = new Line({ start: b.getCoords(), end: d.getCoords(), dashed: true, visible: false });
-	l4 = new Line({ start: c.getCoords(), end: d.getCoords(), dashed: true, visible: false });
-	
-	ab = new Vector( { start: a.getCoords(), end: b.getCoords(), visible: false });
-	ac = new Vector( { start: a.getCoords(), end: c.getCoords(), visible: false });
-	ad = new Vector( { start: a.getCoords(), end: d.getCoords(), visible: false });
-	bc = new Vector( { start: b.getCoords(), end: c.getCoords(), visible: false });
-	bd = new Vector( { start: b.getCoords(), end: d.getCoords(), visible: false });
-	cd = new Vector( { start: c.getCoords(), end: d.getCoords(), visible: false });
-	
+
+	l1 = new Segment(a, b, { dashed: true, visible: false });
+	l2 = new Segment(a, c, { dashed: true, visible: false });
+	l3 = new Segment(b, d, { dashed: true, visible: false });
+	l4 = new Segment(c, d, { dashed: true, visible: false });
+
+	ab = new Vector( { start: a, end: b, visible: false });
+	ac = new Vector( { start: a, end: c, visible: false });
+	ad = new Vector( { start: a, end: d, visible: false });
+	bc = new Vector( { start: b, end: c, visible: false });
+	bd = new Vector( { start: b, end: d, visible: false });
+	cd = new Vector( { start: c, end: d, visible: false });
+
 	plane = new Surface('(1/5)*x + (7/5)*y - 12', { visible: false });
-	
-	addToScene(scene, a);
-	addToScene(scene, b);
-	addToScene(scene, c);
-	addToScene(scene, d);
-	
-	addToScene(scene, l1);	
-	addToScene(scene, l2);
-	addToScene(scene, l3);
-	addToScene(scene, l4);
-	
-	addToScene(scene, ab);	
-	addToScene(scene, ac);
-	addToScene(scene, ad);
-	addToScene(scene, bc);
-	addToScene(scene, bd);
-	addToScene(scene, cd);
-	
-	addToScene(scene, plane);
 
 }
 
@@ -134,20 +115,20 @@ function animate() {
 
 function redrawScene() {
 
-	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl, 
+	viewingWindow.setBounds(window_param.xmin, window_param.xmax, window_param.xscl,
 							window_param.ymin, window_param.ymax, window_param.yscl,
 							window_param.zmin, window_param.zmax, window_param.zscl);
-	
+
 	axes.setParameters( { labels: window_param.labels, xygrid: window_param.xygrid, xzgrid: window_param.xzgrid, yzgrid: window_param.yzgrid, polargrid: window_param.polargrid } );
-	
+
 	scene.remove(axes.getObject());
 	axes.redraw();
 	scene.add(axes.getObject());
-	
+
 	for(var i = 0; i < objectlist.length; i++) {
 		objectlist[i].redraw();
 	}
-	
+
 }
 
 </script>
