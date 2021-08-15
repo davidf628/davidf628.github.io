@@ -16,14 +16,20 @@
 -->
 
 <head>
-	
+
 	<title>Numerical Limits</title>
-	<meta charset="utf-8">  
-		
-	<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
-	<script src='./js/jsxgraphcore.js' type='text/javascript'></script>
-	<script src='./js/MathFunctions.js' type='text/javascript'></script>
+	
+	<meta charset="utf-8">
+	<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+
+	<!-- External libraries -->
+	<link href="https://cdn.jsdelivr.net/npm/jsxgraph@1.1.0/distrib/jsxgraph.css" rel="stylesheet" type="text/css" />
+	<script src="https://cdn.jsdelivr.net/npm/jsxgraph@1.1.0/distrib/jsxgraphcore.js" type="text/javascript" charset="UTF-8"></script>
 	<script src='./js/math.min.js' type='text/javascript'></script>
+	<!-- <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script> -->
+
+	<!-- My libraries -->
+	<script src='./js/MathFunctions.js' type='text/javascript'></script>
 	<script src='./js/helpers.js' type='text/javascript'></script>
 
 </head>
@@ -32,21 +38,16 @@
 
 <h1>Numerical Limits</h1>
 	
-	f(x) = <input type="text" id="input_function" value="">
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	x approaches:  <input type="text" id="limit_value" value="">
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<input type="button" value="Update" onClick="update()">
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
-	<br><br>
-	Set Left Limit: x = <input type="text" id="left_value" value="">
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	Set Right Limit: x = <input type="text" id="right_value" value="">
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<input type="button" value="Set Limit Values" onClick="setlimitvalues()">
-	<br><br>
-	Insert Asymptote: x = <input type="text" id="asymptote" value="">
+	f(x) = <input type="text" id="input_function" value="">&emsp;&emsp;
+	x approaches:  <input type="text" id="limit_value" value="">&emsp;&emsp;
+	<input type="button" value="Update" onClick="update()">&emsp;&emsp;
+	<input type="button" value="Toggle Fullscreen" onClick="fullscreen()"><br><br>
+
+	Set Left Limit: x = <input type="text" id="left_value" value="">&emsp;&emsp;
+	Set Right Limit: x = <input type="text" id="right_value" value="">&emsp;&emsp;
+	<input type="button" value="Set Limit Values" onClick="setlimitvalues()"><br><br>
+
+	Insert Asymptote: x = <input type="text" id="asymptote" value=""><br/><br/>
 
 <div>
 	<div id="jxgbox" class="jxgbox" style="width:720px; height:720px; float:left; resize: both"></div>
@@ -234,7 +235,32 @@ lline1 = board.create('segment', [lpoint_xaxis, lpoint_f], { color: 'red' });
 lline2 = board.create('segment', [lpoint_yaxis, lpoint_f], { color: 'red' });
 	
 lx_label = board.create('text', [0, 0, function() { return 'x = ' + displayNumber(lpoint_xaxis.X()); }], { anchor: lpoint_xaxis, color: 'red', fontSize: 18 });	
-ly_label = board.create('text', [0, 0, function() { return 'y = ' + displayNumber(lpoint_yaxis.Y()); }], { anchor: lpoint_yaxis, color: 'red', fontSize: 18 });	
+ly_label = board.create('text', [
+/*	function() { // x-location
+		if (lpoint_xaxis.X() < 0) { 
+			return board.getBoundingBox()[2] / 20;
+		} else {
+			return -(Math.max(100, this.size[0]) / board.unitX) - (board.getBoundingBox()[2] / 20);
+		}
+	}, 
+	function() { // y-location
+		if (lpoint_yaxis.Y() > (board.getBoundingBox()[1] - (this.size[1] / board.unitY))) {
+			return board.getBoundingBox()[1] - (this.size[1] / board.unitY);
+		} else if(lpoint_yaxis.Y() < (board.getBoundingBox()[3] + (this.size[1] / board.unitY))) {
+			return board.getBoundingBox()[3] + (this.size[1] / board.unitY);
+		} else {
+			return lpoint_yaxis.Y();
+		}
+	}, */
+	0, 0,
+	function() { 
+		return 'y = ' + displayNumber(lpoint_yaxis.Y()); 
+	}], 
+	{ 
+		anchor: lpoint_yaxis, 
+		color: 'red', 
+		fontSize: 18 
+	});	
 	
 rpoint_xaxis = board.create('glider', [0, 0, xaxis], { name: 'x', color: 'green', withLabel: false, showInfobox: false }); 
 rpoint_f = board.create('point', [
