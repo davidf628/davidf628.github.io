@@ -1,2 +1,2 @@
-progress_report.py:1.2.1
+progress_report.py:1.2.2
 videograder.py:2.0
