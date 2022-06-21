@@ -49,16 +49,14 @@ function floor(x) { return Math.floor(x); }
 function swap(a, b) { return [b, a]; }
 function sort(list) { return list.sort(function(a, b) { return a - b; }); }
 function round(x, a=0) { return Math.round(x * Math.pow(10, a)) / Math.pow(10, a); }
+function min(a, b) { return a <= b ? a : b; }
+function max(a, b) { return a >= b ? a : b; }
 
 function evalstr(expr) {
 	try {
-		if (expr == '') {
-			return Number.NaN;
-		} else {
-			var v = eval(expr);
-			return v;
-		}
-	} catch (SyntaxError) {
+		let v = math.evaluate(expr);
+		return isNaN(v) ? NaN : v;
+	} catch (Error) {
 		return Number.NaN;
 	}
 }
@@ -910,16 +908,6 @@ var stats = {
 ///////////////////////////////////////////////////////////////////////////////
 //  Deprecated functions
 ///////////////////////////////////////////////////////////////////////////////
-
-function min(list) {
-	console.warn('min is deprecated, use stats.min instead');
-	return stats.min(list);
-}
-
-function max(list) {
-	console.warn('max is deprecated, use stats.max instead');
-	return stats.max(list);
-}
 
 function sum(list) {
 	console.warn('sum is deprecated, use stats.sum instead');
@@ -1786,6 +1774,7 @@ class Rectangle2 {
 			fixed: true,
 			highlight: false,
 			borders: {
+				strokeColor: '#0000FF',
 				fixed: true,
 				highlight: false
 			}
