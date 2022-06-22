@@ -428,8 +428,8 @@ function normal_set_cb_right_active() {
     normal_x1.setAttribute({ visible: true });
     normal_x2.setAttribute({ visible: false });
 
-    normal_x1_input.rendNodeInput.value = normal.x1;
-    normal_x2_input.rendNodeInput.value = 'Infinity';
+    normal_x1_input.set(normal.x1);
+    normal_x2_input.set('Infinity');
 
     if (normal.functype == 'PROBABILITY') {
 
@@ -438,7 +438,7 @@ function normal_set_cb_right_active() {
         normal_prob_input.setAttribute({ disabled: true });
 
         normal.prob = normal_cprob();
-        normal_prob_input.rendNodeInput.value = normal.prob;
+        normal_prob_input.set(normal.prob);
 
     } else if (normal.functype == 'INVERSE') {
 
@@ -447,7 +447,7 @@ function normal_set_cb_right_active() {
         normal_prob_input.setAttribute({ disabled: false });
 
         normal.prob = normal_cprob();
-        normal_prob_input.rendNodeInput.value = normal.prob;
+        normal_prob_input.set(normal.prob);
 
     }
 
@@ -511,11 +511,11 @@ function normal_set_cb_inverse_active() {
         
         normal_x1.moveTo([normal.x1, 0]);
         
-        normal_x1_input.rendNodeInput.value = normal.x1;
-        normal_x2_input.rendNodeInput.value = normal.x2;
+        normal_x1_input.set(normal.x1);
+        normal_x2_input.set(normal.x2);
         
         normal.prob = normal_cprob();
-        normal_prob_input.rendNodeInput.value = normal.prob;
+        normal_prob_input.set(normal.prob);
 
     }
 
