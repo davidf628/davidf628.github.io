@@ -233,7 +233,7 @@ function normal_docalc() {
             normal_x1_input.set(normal.x1);
         } else if(normal.probtype == 'BETWEEN') {
             normal.x1 = jStat.normal.inv((1 - normal.prob) / 2, normal.mean, normal.stdev);
-            normal.x2 = jStat.normal.inv(normal.prob / 2, normal.mean, normal.stdev);
+            normal.x2 = jStat.normal.inv((1 + normal.prob) / 2, normal.mean, normal.stdev);
             normal_x1.moveTo([normal.x1, 0]);
             normal_x1_input.set(normal.x1);
             normal_x2.moveTo([normal.x2, 0]);
