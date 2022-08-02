@@ -2243,7 +2243,7 @@ function getLowerEndpoint(interval) {
 	if(l[0].includes('inf') || l[0].includes('-oo')) {
 		return NEGATIVE_INFINITY;
 	} else {
-		return math.eval(l[0]);
+		return evalstr(l[0]);
 	}
 }
 
@@ -2254,12 +2254,12 @@ function getUpperEndpoint(interval) {
 	if(l[1].includes('inf') || l[1].includes('oo')) {
 		return POSITIVE_INFINITY;
 	} else {
-		return math.eval(l[1]);
+		return evalstr(l[1]);
 	}
 }
 
 function getHoleValue(interval) {
-	return math.eval(interval.split('=')[1]);
+	return evalstr(interval.split('=')[1]);
 }
 
 /////////////////////////////////////////////////////////////////
@@ -2419,7 +2419,7 @@ function evaluate(f, x, args) {
 			return NaN;
 		} else return parseFloat(val);
 	} else {
-	 	return parseFloat(math.evaluate(f));
+	 	return parseFloat(evalstr(f));
  	}
 
 }
@@ -2481,8 +2481,8 @@ function plot_function(curve, relation, start_x, end_x, args) {
 		// Draw a point, but find out if it is open or closed
 		if (interval.search(regex_interval) != -1) {
 
-			var x = math.eval(getLowerEndpoint(interval));
-			var y = math.eval(getUpperEndpoint(interval));
+			var x = evalstr(getLowerEndpoint(interval));
+			var y = evalstr(getUpperEndpoint(interval));
 			var closed = upperBoundClosed(interval) || upperBoundClosed(interval);
 
 			lowerendpoint.moveTo([x, y]);
@@ -2538,7 +2538,7 @@ function plot_function(curve, relation, start_x, end_x, args) {
 				hole_val = getHoleValue(interval);
 				var parameter = {};
 				parameter[variable] = hole_val;
-				var y_val = evalstr(relation, parameter);//math.evaluate(relation, parameter);//expr.eval(parameter);
+				var y_val = evalstr(relation, parameter);
 				hole.moveTo([hole_val, y_val]);
 				hole.setAttribute( { visible: true, strokeColor: color, fillColor: 'white' });
 			}
@@ -2555,7 +2555,7 @@ function plot_function(curve, relation, start_x, end_x, args) {
 					start_x = lowerval;
 					var parameter = {};
 					parameter[variable] = lowerval;
-					var y_val = evalstr(relation, parameter);//math.evaluate(relation, parameter);//expr.eval(parameter);
+					var y_val = evalstr(relation, parameter);
 					lowerendpoint.moveTo([lowerval, y_val]);
 					lowerendpoint.setAttribute({ strokeColor: color, visible: true });
 					if(lowerBoundOpen(interval)) {
@@ -2569,7 +2569,7 @@ function plot_function(curve, relation, start_x, end_x, args) {
 					end_x = upperval;
 					var parameter = {};
 					parameter[variable] = upperval;
-					var y_val = evalstr(relation, parameter);//math.evaluate(relation, parameter);//expr.eval(parameter);
+					var y_val = evalstr(relation, parameter);
 					upperendpoint.moveTo([upperval, y_val]);
 					upperendpoint.setAttribute({ strokeColor: color, visible: true });
 					if(upperBoundOpen(interval)) {
@@ -2588,7 +2588,7 @@ function plot_function(curve, relation, start_x, end_x, args) {
 			function(x) {
 				var parameter = {};
 				parameter[variable] = x;
-				return evalstr(relation, parameter);//math.evaluate(relation, parameter);//expr.eval(parameter);
+				return evalstr(relation, parameter);
 			}
 		);
 
@@ -3565,8 +3565,8 @@ function plot(curve, relation, start_x, end_x, args) {
 		}
 
 
-		var x = math.eval(vals[0]);
-		var y = math.eval(vals[1]);
+		var x = evalstr(vals[0]);
+		var y = evalstr(vals[1]);
 
 		lowerendpoint.moveTo([x, y]);
 
@@ -3818,7 +3818,7 @@ function JSXSlopeField(board, derivative, args) {
 
 	for(var i = bounds.xmin; i <= bounds.xmax; i += density) {
 		for(var j = bounds.ymin; j <= bounds.ymax; j += density) {
-			var slope = math.eval(derivative, { x: i, y: j });
+			var slope = evalstr(derivative, { x: i, y: j });
 			var magnitude = Math.sqrt(1 + slope*slope);
 			var x1 = i + length / (2 * magnitude)  ;
 			var x2 = i - length / (2 * magnitude);

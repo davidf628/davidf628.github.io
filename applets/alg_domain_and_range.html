@@ -1,17 +1,30 @@
-<meta charset="utf-8"></meta>
+<!DOCTYPE html>
+<html lang="en-US">
 
-<html>
-	<head>
-		<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
-	    <script src='./js/jsxgraphcore.js' type='text/javascript'></script>
-	    <script src='./js/MathFunctions.js' type='text/javascript'></script>
-	    <script src='./js/math.min.js' type='text/javascript'></script>
-	    <script src='./js/helpers.js' type='text/javascript'></script>
-	</head>
+<head>
 
-<!--
-	
--->
+	<title>Domain and Range</title>
+	<meta charset="utf-8">  
+
+		<!-- JSX Graph -->
+		<script type="text/javascript" charset="UTF-8" src="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraphcore.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraph.css" />
+
+		<!-- Math.js -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.5.0/math.min.js"></script>
+
+		<!-- jStat.js -->
+		<script src="https://cdn.jsdelivr.net/npm/jstat@1.9.5/dist/jstat.min.js"></script>
+
+		<!-- ?? -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+		
+		<!-- Mine -->
+		<script src='./js/MathFunctions.js' type='text/javascript'></script>
+		<script src='./js/helpers.js' type='text/javascript'></script>
+
+	</meta>
+</head>
  
 <body>
 
@@ -177,7 +190,7 @@ f(x) = <input type="text" id="input_function" value="-3 (-4,-1]; 1 (-1,2]">
 				curves[j].dataY = newY;
 				orgY[j] = newY;
 		
-				curves[j].updateParametricCurve();
+				curves[j].updateCurve();
 				board.update();
 				count++;
 			}
@@ -218,7 +231,7 @@ f(x) = <input type="text" id="input_function" value="-3 (-4,-1]; 1 (-1,2]">
 				orgX[j] = newX;
 				curves[j].dataY = orgY[j];
 		
-				curves[j].updateParametricCurve();
+				curves[j].updateCurve();
 				board.update();
 				count++;
 			}
