@@ -52,9 +52,9 @@ function round(x, a=0) { return Math.round(x * Math.pow(10, a)) / Math.pow(10, a
 function min(a, b) { return a <= b ? a : b; }
 function max(a, b) { return a >= b ? a : b; }
 
-function evalstr(expr) {
+function evalstr(expr, scope={}) {
 	try {
-		let v = math.evaluate(expr);
+		let v = math.evaluate(expr, scope);
 		return isNaN(v) ? NaN : v;
 	} catch (Error) {
 		return Number.NaN;
@@ -2538,7 +2538,7 @@ function plot_function(curve, relation, start_x, end_x, args) {
 				hole_val = getHoleValue(interval);
 				var parameter = {};
 				parameter[variable] = hole_val;
-				var y_val = expr.eval(parameter);
+				var y_val = evalstr(relation, parameter);//math.evaluate(relation, parameter);//expr.eval(parameter);
 				hole.moveTo([hole_val, y_val]);
 				hole.setAttribute( { visible: true, strokeColor: color, fillColor: 'white' });
 			}
@@ -2555,7 +2555,7 @@ function plot_function(curve, relation, start_x, end_x, args) {
 					start_x = lowerval;
 					var parameter = {};
 					parameter[variable] = lowerval;
-					var y_val = expr.eval(parameter);
+					var y_val = evalstr(relation, parameter);//math.evaluate(relation, parameter);//expr.eval(parameter);
 					lowerendpoint.moveTo([lowerval, y_val]);
 					lowerendpoint.setAttribute({ strokeColor: color, visible: true });
 					if(lowerBoundOpen(interval)) {
@@ -2569,7 +2569,7 @@ function plot_function(curve, relation, start_x, end_x, args) {
 					end_x = upperval;
 					var parameter = {};
 					parameter[variable] = upperval;
-					var y_val = expr.eval(parameter);
+					var y_val = evalstr(relation, parameter);//math.evaluate(relation, parameter);//expr.eval(parameter);
 					upperendpoint.moveTo([upperval, y_val]);
 					upperendpoint.setAttribute({ strokeColor: color, visible: true });
 					if(upperBoundOpen(interval)) {
@@ -2588,7 +2588,7 @@ function plot_function(curve, relation, start_x, end_x, args) {
 			function(x) {
 				var parameter = {};
 				parameter[variable] = x;
-				return expr.eval(parameter);
+				return evalstr(relation, parameter);//math.evaluate(relation, parameter);//expr.eval(parameter);
 			}
 		);
 
@@ -2603,7 +2603,8 @@ function plot_function(curve, relation, start_x, end_x, args) {
 			}
 		}
 
-		curve.updateParametricCurve();
+		//curve.updateParametricCurve();
+		curve.updateCurve();
 	}
 }
 
