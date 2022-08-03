@@ -4,14 +4,23 @@
 	- Get shading of outer probabilities setup
 -->
 
-<html>
+
+<!DOCTYPE html>
+<html lang="en-US">
+
 <head>
+
+	<title></title>
 	<meta charset="utf-8">  
-		<link rel='stylesheet' type='text/css' href='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css' />
-		<script src='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraphcore.js' type='text/javascript'></script>
-		<script src='https://jsxgraph.uni-bayreuth.de/distrib/GeonextReader.js' type='text/javascript'></script>
+
+		<!-- JSX Graph -->
+		<script type="text/javascript" charset="UTF-8" src="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraphcore.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraph.css" />
+
+		<!-- Mine -->
 		<script src='./js/MathFunctions.js' type='text/javascript'></script>
 		<script src='./js/helpers.js' type='text/javascript'></script>
+
 	</meta>
 </head>
 
@@ -75,7 +84,8 @@ normal_curve = board.create('functiongraph', [
 	{ 
 		strokeWidth: 3, 
 		fixed: true, 
-		highlight: false 
+		highlight: false,
+		strokeColor: '#0000FF'
 	});
 	
 t_curve = board.create('functiongraph', [

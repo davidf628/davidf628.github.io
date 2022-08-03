@@ -1904,7 +1904,8 @@ function JSXRectangle(board, coords) {
 		  fillColor: '#0000ff',
 		  borders: {
 			fixed: true,
-			highlight: false
+			highlight: false,
+			strokeColor: '#0000FF'
 		  }
 		});
 
