@@ -1,18 +1,27 @@
-<html>
+<!DOCTYPE html>
+<html lang="en-US">
 
 <head>
-	<meta charset="utf-8">
-		<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
-		<script src='./js/jsxgraphcore.js' type='text/javascript'></script>
-		<script src='./js/MathFunctions.js' type='text/javascript'></script>
-		<script src='./js/math.min.js' type='text/javascript'></script>
-		<script src='./js/helpers.js' type='text/javascript'></script>
 
-		<!-- Libraries for MathJax to display math formulas on screen -->
+	<title>Mat 104 Grades</title>
+	<meta charset="utf-8">  
+
+		<!-- JSX Graph -->
+		<script type="text/javascript" charset="UTF-8" src="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraphcore.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraph.css" />
+
+		<!-- Math.js -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.5.0/math.min.js"></script>
+	
+		<!-- MathJax -->
 		<script type="text/x-mathjax-config">
 			MathJax.Hub.Config({ tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}, });
 		</script>
 		<script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+		
+		<!-- Mine -->
+		<script src='./js/MathFunctions.js' type='text/javascript'></script>
+		<script src='./js/helpers.js' type='text/javascript'></script>
 
 	</meta>
 </head>
@@ -64,7 +73,7 @@ var examf = board.create('input', [startx + 70 + 7 * padx, starty + 2 * pady + 1
 
 var grade_txt = board.create('text', [startx, starty + 3 * pady + 3 * newline, 'Final Grade: ']);
 
-var calc_button = board.create('button', [70, 20, 'Caculate Grade', function() { calculate_grade() }]);
+var calc_button = board.create('button', [70, 20, 'Caclulate Grade', function() { calculate_grade() }]);
 
 function calculate_grade() {
 
