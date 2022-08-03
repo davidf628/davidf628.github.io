@@ -1,18 +1,29 @@
-<meta charset="utf-8"> 
- 
-<html>
-  
-    <head>
-	      <script type="text/x-mathjax-config">
-                 MathJax.Hub.Config({
-                 tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]},
-             });
-         </script>
-	     <script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
-         <link rel='stylesheet' type='text/css' href='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css' />
-         <script src='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraphcore.js' type='text/javascript'></script>
-     </head>
-  
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+
+	<title>Graph of Cosine</title>
+	<meta charset="utf-8">  
+
+		<!-- JSX Graph -->
+		<script type="text/javascript" charset="UTF-8" src="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraphcore.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraph.css" />
+	
+		<!-- MathJax -->
+		<script type="text/x-mathjax-config">
+			MathJax.Hub.Config({ tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}, });
+		</script>
+		<script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+
+		<!-- Mine -->
+		<script src='./js/MathFunctions.js' type='text/javascript'></script>
+		<script src='./js/helpers.js' type='text/javascript'></script>
+
+	</meta>
+
+</head>
+
      <body>
    
          <p>
@@ -27,11 +38,11 @@
 		 
              board = JXG.JSXGraph.initBoard('box', {
 			     // -x, +y, +x, -y
-                 boundingbox:[-3.5,2,-1.5,-2], 
-                 axis:false, 
-                 showNavigation:false, 
-                 showCopyright:false,
-                 keepaspectratio:true 
+                 boundingbox: [-1,2,6.28,-2], 
+                 axis: false, 
+                 showNavigation: false, 
+                 showCopyright: false,
+                 keepaspectratio: true 
              });              
 			
 			 // Create y_axis grid:
@@ -94,16 +105,20 @@
 				 highlight: false
 			 });
 			 
-             toggle = board.create('checkbox', 	[6, 1.5, 'Show graph'], { fixed: true }); 
-			 
+             //toggle = board.create('checkbox', 	[6, 1.5, 'Show graph'], { fixed: true }); 
+			 toggle = JSXCheckbox(board, 6, 1.5, 'Show graph', false,
+			 	function() {
+					 let graphIsVisible = graph.getAttribute('visible');
+					 graph.setAttribute({ visible: !graphIsVisible })
+				 });
+
 	         graph = board.create('functiongraph', [
 			     function(x) { 
-				     if(toggle.Value()) {
 					     return Math.cos(x); 
-					 } else return -4;
 				 }, -10, 10], {
 				     strokeColor: 'black',
-				     strokeWidth: 1
+				     strokeWidth: 1,
+					 visible: false
 				 });
 
              			 
