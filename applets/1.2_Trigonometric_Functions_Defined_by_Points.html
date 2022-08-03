@@ -1,21 +1,28 @@
 <!DOCTYPE html>
-<html>
-  
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-      tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]},
-      });
-    </script>
-    <script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
-    <link rel='stylesheet' type='text/css' href='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css' />
-    <script src='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraphcore.js' type='text/javascript'></script>
-    <script src='https://jsxgraph.uni-bayreuth.de/distrib/GeonextReader.js' type='text/javascript'></script>
-  </head>
-  
+<html lang="en-US">
+
+<head>
+
+	<title>Trigonometric Functions Defined by Points</title>
+	<meta charset="utf-8">  
+
+		<!-- JSX Graph -->
+		<script type="text/javascript" charset="UTF-8" src="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraphcore.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraph.css" />
+		
+		<!-- MathJax -->
+		<script type="text/x-mathjax-config">
+			MathJax.Hub.Config({ tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}, });
+		</script>
+		<script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+		
+		<!-- Mine -->
+		<script src='./js/MathFunctions.js' type='text/javascript'></script>
+		<script src='./js/helpers.js' type='text/javascript'></script>
+
+	</meta>
+</head>
+ 
   <body>
    
     <p>
@@ -30,30 +37,38 @@
       JXG.Options.text.useMathJax = true;
       
 	  board = JXG.JSXGraph.initBoard('box1', {
-	    boundingbox:[-10,10,10,-10], 
-		axis:true, 
-		showNavigation:false, 
-		showCopyright:false,
-		keepaspectratio:true
+	    boundingbox: [-10,10,10,-10], 
+		axis: true, 
+		showNavigation: false, 
+		showCopyright: false,
+		keepaspectratio: true
 	  });
       	  
 	  dashboard = JXG.JSXGraph.initBoard('box2', { 
-	    boundingbox:[-5,5,5,-5], 
-		axis:false, 
-		showNavigation:false, 
-		showCopyright:false
+	    boundingbox: [-5,5,5,-5], 
+		axis: false, 
+		showNavigation: false, 
+		showCopyright: false
 	  });
       
-      showApprox = board.create('checkbox', [-9, 9, 'Show Approximations']);
-      showApprox.on('mouseup', function() { dashboard.fullUpdate(); });
-      
-      JXG.addEvent(showApprox.rendNodeCheckbox, 'change', function() {
+      //showApprox = board.create('checkbox', [-9, 9, 'Show Approximations']);
+      let showApprox = JSXCheckbox(board, -9, 9, 'Show Approximations', false,
+	  function() {
         if (this.Value()) {
           dashboard.fullUpdate();
         } else {
           dashboard.fullUpdate();
         }
-      }, showApprox);
+      }); 
+	  showApprox.on('mouseup', function() { dashboard.fullUpdate(); });
+      
+    //   JXG.addEvent(showApprox.rendNodeCheckbox, 'change', function() {
+    //     if (this.Value()) {
+    //       dashboard.fullUpdate();
+    //     } else {
+    //       dashboard.fullUpdate();
+    //     }
+    //   }, showApprox);
       
 	  P = board.create('point', [6, 5], { snapToGrid:true, name:'P' });  
       P.on('drag',function() { dashboard.fullUpdate(); });

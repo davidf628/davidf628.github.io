@@ -1,10 +1,17 @@
-<meta charset="utf-8">  
-<html>
-  
-  <head>
-    <link rel='stylesheet' type='text/css' href='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css' />
-    <script src='https://jsxgraph.uni-bayreuth.de/distrib/jsxgraphcore.js' type='text/javascript'></script>
-  </head>
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+
+	<title>Bearings</title>
+	<meta charset="utf-8">  
+
+		<!-- JSX Graph -->
+		<script type="text/javascript" charset="UTF-8" src="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraphcore.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraph.css" />
+
+	</meta>
+</head>
   
   <body>
    
@@ -140,22 +147,22 @@
           theta = JXG.Math.Geometry.trueAngle(E, O, P).toFixed(0);
           if((theta > 0) && (theta < 90)) {
               alpha = JXG.Math.Geometry.trueAngle(P, O, N).toFixed(0);
-              return 'N ' + alpha + '&deg; E';
+              return 'N ' + alpha + '&deg; W';
           } else if((theta > 90) && (theta < 180)) {
               alpha = JXG.Math.Geometry.trueAngle(N, O, P).toFixed(0);
-              return 'N ' + alpha + '&deg; W';
+              return 'N ' + alpha + '&deg; E';
           } else if((theta > 180) && (theta < 270)) {
               alpha = JXG.Math.Geometry.trueAngle(P, O, S).toFixed(0);
-              return 'S ' + alpha + '&deg; W';
+              return 'S ' + alpha + '&deg; E';
           } else if((theta > 270) && (theta < 360)) {
               alpha = JXG.Math.Geometry.trueAngle(S, O, P).toFixed(0);
-              return 'S ' + alpha + '&deg; E';
+              return 'S ' + alpha + '&deg; W';
           } else if((theta == 0) || (theta == 360)) {
-              return 'EAST'
+              return 'WEST'
           } else if(theta == 90) {
               return 'NORTH'
           } else if(theta == 180) {
-              return 'WEST'
+              return 'EAST'
           } else if(theta == 270) {
               return 'SOUTH'
           }
