@@ -3777,7 +3777,8 @@ function preprocessFunction (s) {
 	s = math.parse(s).toString({ implicit: 'show' });
 
 	// convert any constants 'e' or 'pi' to numbers
-	s = Parser.parse(s).simplify({ e: E, pi: PI }).toString();
+	//s = Parser.parse(s).simplify({ e: E, pi: PI }).toString();
+	s = math.simplify(s, { e: E, pi: PI }).toString();
 
 	return s;
 }
