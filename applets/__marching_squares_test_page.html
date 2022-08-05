@@ -1,11 +1,22 @@
-<html>
+<!DOCTYPE html>
+<html lang="en-US">
+
 <head>
+
+	<title>Marching Squares Test</title>
 	<meta charset="utf-8">  
-		<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
-		<script src='./js/jsxgraphcore.js' type='text/javascript'></script>
+
+		<!-- JSX Graph -->
+		<script type="text/javascript" charset="UTF-8" src="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraphcore.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraph.css" />
+
+		<!-- Math.js -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.5.0/math.min.js"></script>
+
+		<!-- Mine -->
 		<script src='./js/MathFunctions.js' type='text/javascript'></script>
-		<script src='./js/DAT.GUI.min.js' type='text/javascript'></script>
-		<script src='./js/math.min.js' type='text/javascript'></script>
+		<script src='./js/helpers.js' type='text/javascript'></script>
+
 	</meta>
 </head>
 
@@ -31,7 +42,6 @@ var board = JXG.JSXGraph.initBoard('jxgbox', {
     });
 	
 var relation = 'y^2 - x^3 + 2x - 1';
-//var relation = 'x^2 + y^2 - 25';
 var density = 0.1;
 
 var bounds = JSXGetBounds(board);
@@ -42,7 +52,7 @@ var nHorizPoints = (bounds.xmax - bounds.xmin) / density;
 var nVertCells = nVertPoints - 1;
 var nHorizCells = nHorizPoints - 1;
 
-var expr = math.compile(relation);
+//var expr = math.compile(relation);
 
 /*for(var x = bounds.xmin; x <= bounds.xmax; x += density) {
 	for(var y = bounds.ymin; y <= bounds.ymax; y += density) {
@@ -58,10 +68,10 @@ var segmentparams = { color: 'red', fixed: true, highlight: false };
 
 for(var x = bounds.xmin; x <= bounds.xmax - density; x += density) {
 	for(var y = bounds.ymin+density; y <= bounds.ymax; y += density) {
-	    var nw = expr.eval({x: x, y: y});
-		var ne = expr.eval({x: x + density, y: y});
-		var se = expr.eval({x: x + density, y: y - density});
-		var sw = expr.eval({x: x, y: y - density});
+	    var nw = evalstr(relation, {x: x, y: y});
+		var ne = evalstr(relation, {x: x + density, y: y});
+		var se = evalstr(relation, {x: x + density, y: y - density});
+		var sw = evalstr(relation, {x: x, y: y - density});
 		
 		var total = 0;
 		if(nw > 0) total += 8;

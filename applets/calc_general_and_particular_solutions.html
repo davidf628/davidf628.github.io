@@ -3,22 +3,30 @@
 
 <head>
 
-    <title>General Solutions and Particular Solutions</title>
-    <meta charset="utf-8">
+	<title>General and Particular Solutions</title>
+	<meta charset="utf-8">  
 
-    <link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
-    <script src='./js/jsxgraphcore.js' type='text/javascript'></script>
-    <script src='./js/math.min.js' type='text/javascript'></script>
-    <script src='./js/MathFunctions.js' type='text/javascript'></script>
-    <script src='./js/helpers.js' type='text/javascript'></script>
-   	<script src="./js/algebrite.bundle-for-browser.js"></script>
-	
-	<!-- Needed to initialize Mathjax -->
-	<script type="text/x-mathjax-config">
-		MathJax.Hub.Config({ tex2jax: { inlineMath: [["$","$"],["\\(","\\)"]] }, });
-    </script>
-    <script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+		<!-- JSX Graph -->
+		<script type="text/javascript" charset="UTF-8" src="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraphcore.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraph.css" />
 
+		<!-- Math.js -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.5.0/math.min.js"></script>
+		
+		<!-- MathJax -->
+		<script type="text/x-mathjax-config">
+			MathJax.Hub.Config({ tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}, });
+		</script>
+		<script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+
+		<!-- Algebrite -->
+	   	<script src="./js/algebrite.bundle-for-browser.js"></script>
+
+		<!-- Mine -->
+		<script src='./js/MathFunctions.js' type='text/javascript'></script>
+		<script src='./js/helpers.js' type='text/javascript'></script>
+
+	</meta>
 </head>
 
 <body>
@@ -170,8 +178,8 @@ function solveinitial() {
 	// split the string about the comma to get the numbers
 	var l = p_str.split(',');
 	
-	var x = math.eval(l[0].trim());
-	var y = math.eval(l[1].trim());
+	var x = evalstr(l[0].trim());
+	var y = evalstr(l[1].trim());
 	
 	point = board.create('point', [x, y], { withLabel :false, fixed: true });
 	

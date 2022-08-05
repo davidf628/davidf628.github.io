@@ -1,20 +1,28 @@
-<html>
+<!DOCTYPE html>
+<html lang="en-US">
 
 <head>
+
+	<title>Two-Dimensional Transformations</title>
 	<meta charset="utf-8">  
-		<title>Two-Dimensional Transformations</title>
-		<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
-		<script src='./js/jsxgraphcore.js' type='text/javascript'></script>
-		<script src='./js/MathFunctions.js' type='text/javascript'></script>
-		<script src='./js/math.min.js' type='text/javascript'></script>
-		<script src='./js/helpers.js' type='text/javascript'></script>
+
+		<!-- JSX Graph -->
+		<script type="text/javascript" charset="UTF-8" src="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraphcore.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraph.css" />
+
+		<!-- Math.js -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.5.0/math.min.js"></script>
 		
-		<!-- Libraries for MathJax to display math formulas on screen -->
+		<!-- MathJax -->
 		<script type="text/x-mathjax-config">
 			MathJax.Hub.Config({ tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}, });
 		</script>
 		<script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
-		
+
+		<!-- Mine -->
+		<script src='./js/MathFunctions.js' type='text/javascript'></script>
+		<script src='./js/helpers.js' type='text/javascript'></script>
+
 	</meta>
 </head>
 
@@ -67,16 +75,16 @@ init();
 var p = xyboard.create('point', [0, 0]);
 var q = uvboard.create('point', [
 	function() {
-		return u_func.eval({ x: p.X(), y: p.Y() });
+		return u_func.evaluate({ x: p.X(), y: p.Y() });
 	},
 	function() {
-		return v_func.eval({ x: p.X(), y: p.Y() });
+		return v_func.evaluate({ x: p.X(), y: p.Y() });
 	}], { trace: true });
 
 p.on('drag', 
 	function() {
-		var u = u_func.eval({ x: p.X(), y: p.Y() });
-		var v = v_func.eval({ x: p.X(), y: p.Y() });
+		var u = u_func.evaluate({ x: p.X(), y: p.Y() });
+		var v = v_func.evaluate({ x: p.X(), y: p.Y() });
 		q.moveTo(u, v);
 		uvboard.update();
 	});
