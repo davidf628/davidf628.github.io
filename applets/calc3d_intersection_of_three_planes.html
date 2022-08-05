@@ -1,12 +1,45 @@
-<!doctype html>
-<meta charset="utf-8">
+<!DOCTYPE html>
+<html lang="en-US">
 
-<html lang="en">
 <head>
+
 	<title>Intersection of Three Planes</title>
-	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" charset="utf-8">  
+
+		<!-- dat.GUI -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.9/dat.gui.min.js" ></script>
+		
+		<!-- Three.JS -->
+		<script src="./js/three.min.js"></script>
+		<script src="./js/SceneUtils.js"></script>
+		<script src="./js/OrbitControls.js"></script>
+		<script src="./js/DragControls.js"></script>
+		<script src="./js/THREEx.KeyboardState.js"></script>
+		<script src="./js/THREEx.FullScreen.js"></script>
+		<script src="./js/THREEx.WindowResize.js"></script>
+		<script src="./js/stats.js"></script>
+
+		<!-- MathJax -->
+		<script type="text/x-mathjax-config">
+			MathJax.Hub.Config({ tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}, });
+		</script>
+		<script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+
+		<!-- jQuery code to display an information button and box when clicked. -->
+		<script src="js/jquery-1.9.1.js"></script>
+		<script src="js/jquery-ui.js"></script>
+		<link rel=stylesheet href="css/jquery-ui.css" />
+		<link rel=stylesheet href="css/info.css"/>
+		<script src="js/info.js"></script>
+
+		<!-- Parser.js -->
+		<script src='./js/parser.js' type='text/javascript'></script>
+
+		<!-- Mine -->
+		<script src="./js/3dmath.js"></script>
+
+	</meta>
 </head>
-<body>
 
 <!-----------------------------------------------------------------------------
 -- This program shows the solution to the 3x3 system of equations:
@@ -19,34 +52,6 @@
 --
 ------------------------------------------------------------------------------>
 
-<script src="js/three.min.js"></script>
-<script src="js/SceneUtils.js"></script>
-<script src="js/stats.js"></script>
-<script src="js/OrbitControls.js"></script>
-<script src="js/DragControls.js"></script>
-<script src="js/parser.js"></script>
-<script src="js/THREEx.KeyboardState.js"></script>
-<script src="js/THREEx.FullScreen.js"></script>
-<script src="js/THREEx.WindowResize.js"></script>
-<script src="js/3dmath.js"></script>
-
-<!-- Library for the menuing system -->
-<script type='text/javascript' src='js/dat.gui.min.js'></script>
-
-<!-- Libraries for MathJax to display math formulas on screen -->
-<script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-      tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]},
-      });
-    </script>
-    <script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
-
-<!-- jQuery code to display an information button and box when clicked. -->
-<script src="js/jquery-1.9.1.js"></script>
-<script src="js/jquery-ui.js"></script>
-<link rel=stylesheet href="css/jquery-ui.css" />
-<link rel=stylesheet href="css/info.css"/>
-<script src="js/info.js"></script>
 <div id="infoButton"></div>
 <div id="infoBox" title="Intersection of Three Planes">
 	This program shows the solution in 3D of the 3x3 system of equations:</br></br>

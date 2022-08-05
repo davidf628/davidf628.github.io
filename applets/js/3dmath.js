@@ -949,8 +949,8 @@ class Lathe {
 		}
 
 		for(var t = this.tmin; t <= this.tmax; t += this.dt ) {
-			var x = math.eval(this.xfunc, { t: t });
-			var y = math.eval(this.yfunc, { t: t });
+			var x = math.evaluate(this.xfunc, { t: t });
+			var y = math.evaluate(this.yfunc, { t: t });
 			if(this.axis == 'x') {
 				this.points.push(new THREE.Vector2(xCoord(y), yCoord(x)));
 			} else if(this.axis == 'y') {
@@ -958,8 +958,8 @@ class Lathe {
 			}
 		}
 
-		var x = math.eval(this.xfunc, { t: this.tmax });
-		var y = math.eval(this.yfunc, { t: this.tmax });
+		var x = math.evaluate(this.xfunc, { t: this.tmax });
+		var y = math.evaluate(this.yfunc, { t: this.tmax });
 		if(this.axis == 'x') {
 			this.points.push(new THREE.Vector2(xCoord(y), yCoord(x)));
 		} else if(this.axis == 'y') {
@@ -976,7 +976,7 @@ class Lathe {
 			if(this.axis == 'x') {
 				this.points.push(new THREE.Vector2(xCoord(math.eval(this.yfunc, { t: this.tmax })), yCoord(0)));
 			} else if(this.axis == 'y') {
-				this.points.push(new THREE.Vector2(xCoord(0), yCoord(math.eval(this.yfunc, { t: this.tmax }))));
+				this.points.push(new THREE.Vector2(xCoord(0), yCoord(math.evaluate(this.yfunc, { t: this.tmax }))));
 			}
 		}
 
