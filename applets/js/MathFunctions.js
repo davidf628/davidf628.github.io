@@ -2775,17 +2775,17 @@ function plot_parametric(curve, x_t, y_t, tmin, tmax, args) {
 				function(x) {
 					var parameter = {};
 					parameter[variable] = x;
-					return xFunc.eval(parameter);
+					return xFunc.evaluate(parameter);
 				});
 
 		curve.dataY = tValues.map(
 				function(x) {
 					var parameter = {};
 					parameter[variable] = x;
-					return yFunc.eval(parameter);
+					return yFunc.evaluate(parameter);
 				});
 
-		curve.updateParametricCurve();
+		curve.updateCurve();
 
 	}
 
@@ -2807,9 +2807,9 @@ function plot_parametric(curve, x_t, y_t, tmin, tmax, args) {
 
 function implicit_plot(relation, args) {
 
-	var func = board.jc.snippet(relation, true, ['x', 'y'], false);
-	cv.func = func;
-	cv.update();
+	//var func = board.jc.snippet(relation, true, ['x', 'y'], false);
+	//cv.func = func;
+	//cv.update();
 
 /*	if(args === undefined) {
 		args = {};

@@ -1,17 +1,24 @@
-<html>
+<!DOCTYPE html>
+<html lang="en-US">
+
 <head>
+
+	<title></title>
 	<meta charset="utf-8">  
-		<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
-	    <script src='./js/jsxgraphcore.js' type='text/javascript'></script>
-	    <script src='./js/MathFunctions.js' type='text/javascript'></script>
-	    <script src='./js/math.min.js' type='text/javascript'></script>
-	    <script src='./js/helpers.js' type='text/javascript'></script>
+
+		<!-- JSX Graph -->
+		<script type="text/javascript" charset="UTF-8" src="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraphcore.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraph.css" />
+
+		<!-- Math.js -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.5.0/math.min.js"></script>
+
+		<!-- Mine -->
+		<script src='./js/MathFunctions.js' type='text/javascript'></script>
+		<script src='./js/helpers.js' type='text/javascript'></script>
+
 	</meta>
 </head>
-
-<!--
-	
--->
 
 <body>
 
@@ -85,10 +92,10 @@ var y_d2_func = math.compile(y_d2);
 
 var t = display.create('slider', [[1, 1], [9, 1], [-10, 0, 10]]);
 
-var p = board.create('point', [x_func.eval({ t: t.Value() }),
-							   y_func.eval({ t: t.Value() })], { name: 'P', fixed: true });
+var p = board.create('point', [x_func.evaluate({ t: t.Value() }),
+							   y_func.evaluate({ t: t.Value() })], { name: 'P', fixed: true });
 
-var s = board.create('arrow', [[0, 0], [x_func.eval({ t: t.Value() }), y_func.eval({ t: t.Value() })]], { strokeWidth: 4, strokeColor: 'black', opacity: 0.8 });
+var s = board.create('arrow', [[0, 0], [x_func.evaluate({ t: t.Value() }), y_func.evaluate({ t: t.Value() })]], { strokeWidth: 4, strokeColor: 'black', opacity: 0.8 });
 	
 var v = board.create('arrow', [[0, 0], [0, 0]], { strokeWidth: 4, strokeColor: 'green', opacity: 0.8 });
 var a = board.create('arrow', [[0, 0], [0, 0]], { strokeWidth: 4, strokeColor: 'red', opacity: 0.8 });
@@ -96,14 +103,14 @@ var a = board.create('arrow', [[0, 0], [0, 0]], { strokeWidth: 4, strokeColor: '
 	
 t.on('drag',
 	function() {
-		var xval = x_func.eval({ t: t.Value() });
-		var yval = y_func.eval({ t: t.Value() });
+		var xval = x_func.evaluate({ t: t.Value() });
+		var yval = y_func.evaluate({ t: t.Value() });
 		p.moveTo([xval, yval]);
 		s.point2.moveTo([xval, yval]);
 		v.point1.moveTo([xval, yval]);
-		v.point2.moveTo([xval + x_d1_func.eval({ t: t.Value() }), yval + y_d1_func.eval({ t: t.Value() })]);
+		v.point2.moveTo([xval + x_d1_func.evaluate({ t: t.Value() }), yval + y_d1_func.evaluate({ t: t.Value() })]);
 		a.point1.moveTo([xval, yval]);
-		a.point2.moveTo([xval + x_d2_func.eval({ t: t.Value() }), yval + y_d2_func.eval({ t: t.Value() })]);
+		a.point2.moveTo([xval + x_d2_func.evaluate({ t: t.Value() }), yval + y_d2_func.evaluate({ t: t.Value() })]);
 		
 		board.update();
 	});

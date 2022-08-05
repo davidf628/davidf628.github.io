@@ -1,33 +1,44 @@
-<html>
+<!DOCTYPE html>
+<html lang="en-US">
+
 <head>
-	<meta charset="utf-8">  
-		<link rel='stylesheet' type='text/css' href='./js/jsxgraph.css' />
-	    <script src='./js/jsxgraphcore.js' type='text/javascript'></script>
-	    <script src='./js/MathFunctions.js' type='text/javascript'></script>
-	    <script src='./js/math.min.js' type='text/javascript'></script>
-	    <script src='./js/dat.gui.min.js' type='text/javascript'></script>
-		<script src='./js/helpers.js' type='text/javascript'></script>	
-		<script src='./js/parser.js'></script>
-	</meta>
+
 	<title>Vector Fields</title>
+	<meta charset="utf-8">  
+
+		<!-- JSX Graph -->
+		<script type="text/javascript" charset="UTF-8" src="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraphcore.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraph.css" />
+
+		<!-- Math.js -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.5.0/math.min.js"></script>
+
+		<!-- dat.GUI -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.9/dat.gui.min.js" ></script>
+		
+		<!-- MathJax -->
+		<script type="text/x-mathjax-config">
+			MathJax.Hub.Config({ tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}, });
+		</script>
+		<script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+
+		<!-- Parser.js -->
+		<script src='./js/parser.js' type='text/javascript'></script>
+
+		<!-- jQuery code to display an information button and box when clicked. -->
+		<script src="js/jquery-1.9.1.js"></script>
+		<script src="js/jquery-ui.js"></script>
+		<link rel=stylesheet href="css/jquery-ui.css" />
+		<link rel=stylesheet href="css/info.css"/>
+		<script src="js/info.js"></script>
+
+		<!-- Mine -->
+		<script src='./js/MathFunctions.js' type='text/javascript'></script>
+		<script src='./js/helpers.js' type='text/javascript'></script>
+
+	</meta>
 </head>
 
-<body>
-
-<!-- Libraries for MathJax to display math formulas on screen -->
-<script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-      tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]},
-      });
-</script>
-<script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
-
-<!-- jQuery code to display an information button and box when clicked. -->
-<script src="js/jquery-1.9.1.js"></script>
-<script src="js/jquery-ui.js"></script>
-<link rel=stylesheet href="css/jquery-ui.css" />
-<link rel=stylesheet href="css/info.css"/>
-<script src="js/info.js"></script>
 <div id="infoButton"></div>
 <div id="infoBox" title="Slope Fields">
 	Put description here.
@@ -253,7 +264,7 @@ function update() {
 	
 	curlevaltext.setText( 
 		function() {
-			return '$ Curl \\textbf{ F}(' + formatNumber(p.X(),2) + ',' + formatNumber(p.Y(),2) + ') = ' + formatNumber(curlfunc.eval({ x: p.X(), y: p.Y() }), 2) + ' $';
+			return '$ Curl \\textbf{ F}(' + formatNumber(p.X(),2) + ',' + formatNumber(p.Y(),2) + ') = ' + formatNumber(curlfunc.evaluate({ x: p.X(), y: p.Y() }), 2) + ' $';
 		});	
 	
 	divtext.setText(
@@ -263,7 +274,7 @@ function update() {
 	
 	divevaltext.setText( 
 		function() {
-			return '$ Div \\textbf{ F}(' + formatNumber(p.X(),2) + ',' + formatNumber(p.Y(),2) + ') = ' + formatNumber(divfunc.eval({ x: p.X(), y: p.Y() }), 2) + ' $';
+			return '$ Div \\textbf{ F}(' + formatNumber(p.X(),2) + ',' + formatNumber(p.Y(),2) + ') = ' + formatNumber(divfunc.evaluate({ x: p.X(), y: p.Y() }), 2) + ' $';
 		});	
 	
 	var k = 0;
