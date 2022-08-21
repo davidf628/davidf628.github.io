@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+
+	<title>Bearings</title>
+	<meta charset="utf-8">  
+
+		<!-- JSX Graph -->
+		<script type="text/javascript" charset="UTF-8" src="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraphcore.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraph.css" />
+
+		<!-- Mine -->
+		<script src='./js/MathFunctions.js' type='text/javascript'></script>
+
+	</meta>
+</head>
+  
+<body>
+   
+<h1>Bearings</h1>
+
+<div id='jxgbox' class='jxgbox' style='width: 500px; height: 500px;'></div>
+	
+<script type='text/javascript'>
+
+let labeldefaults = { fontsize: 18, fixed: true }
+JXG.Options.axis.ticks.majorHeight = 10
+JXG.Options.axis.ticks.minorHeight = 10
+
+let board = JXG.JSXGraph.initBoard('jxgbox', {
+    boundingbox: [-10,10,10,-10], 
+    axis: true, 
+    showNavigation: false, 
+    showCopyright: false,
+    keepaspectratio: true
+});
+
+let cb_type1 = new JSXCheckBox(board, -9, 9, 'Type 1 Bearings', true,
+    function() { 
+        cb_type1.set(true);
+        cb_type2.set(false);
+        update();
+    });
+
+let cb_type2 = new JSXCheckBox(board, -9, 8, 'Type 2 Bearings', false,
+    function() {
+        cb_type1.set(false);
+        cb_type2.set(true);
+        update();
+    })
+
+let north = board.create('text', [1, 9.5, 'N'], labeldefaults);     
+let south = board.create('text', [0.5, -9.5, 'S'], labeldefaults);
+let east = board.create('text', [9, 0.5, 'E'], labeldefaults);
+let west = board.create('text', [-9.5, 0.5, 'W'], labeldefaults);
+
+let P = board.create('point', [6, 5], { name: 'P', showInfobox: false });
+let O = board.create('point', [0, 0], { visible: false });	      	    
+let N = board.create('point', [0, 5], { visible: false });
+let S = board.create('point', [0, -5], { visible: false });  
+let E = board.create('point', [5, 0], { visible: false });
+let W = board.create('point', [-5, 0], { visible: false });
+P.on('drag', function() { update(); });
+
+let ray = board.create('arrow', [O, P], { fixed: true });
+
+let angle = board.create('angle', [P, O, N], { radius: 3 });
+angle.label.setAttribute( { strokecolor: 'black', highlight: false });
+angle.label.setText(
+    function() {
+       theta = (angle.Value() * 180 / PI).toFixed(0);
+        return theta + "&deg;";
+    }   
+);
+
+let description = board.create('text', [3, 8, 'default'], { fontSize: 24, highlight: false, fixed: true });
+
+function update() {
+
+    let bearing = Number(JXG.Math.Geometry.trueAngle(P, O, N).toFixed(0));
+
+    if (cb_type1.isChecked()) {
+
+        setAngleToPoints(P, O, N);
+        description.setText(`Bearing:  ${bearing}&deg`);
+
+    } else if (cb_type2.isChecked()) {
+
+        if (bearing > 0 && bearing < 90) { // QUADRANT I
+            setAngleToPoints(P, O, N);
+            description.setText(`N ${bearing}&deg E`);
+        } else if (bearing > 90 && bearing < 180) { // QUADRANT II
+            setAngleToPoints(S, O, P);
+            let alpha = 180 - bearing;
+            description.setText(`S ${alpha}&deg E`);
+        } else if (bearing > 180 && bearing < 270) { // QUADRANT III
+            setAngleToPoints(P, O, S);
+            let alpha = bearing - 180;
+            description.setText(`S ${alpha}&deg W`);
+        } else if (bearing > 270 && bearing < 360) { // QUADRANT IV
+            setAngleToPoints(N, O, P);
+            let alpha = 360 - bearing;
+            description.setText(`N ${alpha}&deg W`);
+        } else if (bearing == 0 || bearing == 360) {
+            description.setText('DUE NORTH');
+        } else if (bearing == 90) {
+            description.setText('DUE EAST');
+        } else if (bearing == 180) {
+            description.setText('DUE SOUTH');
+        } else if (bearing == 270) {
+            description.setText('DUE WEST');
+        }
+
+    }
+
+    board.update();
+
+}
+
+function setAngleToPoints(point2, point1, point3) {
+    if (angle.point1 !== point1) {
+        angle.point1 = point1;
+    }
+    if (angle.point2 !== point2) {
+        angle.point2 = point2;
+    }
+    if (angle.point3 !== point3) {
+        angle.point3 = point3;
+    }
+}
+
+update();
+
+</script>
+
+</body>
+
+</html>
+
+
+
+
+       
+
+
+
