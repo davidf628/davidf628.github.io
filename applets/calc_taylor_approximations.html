@@ -11,7 +11,7 @@
 		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraph.css" />
 
 		<!-- Math.js -->
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.5.0/math.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.2.1/math.min.js"></script>
 		
 		<!-- MathJax -->
 		<script type="text/x-mathjax-config">
@@ -250,20 +250,30 @@ var polynomial = displayboard.create('text', [1, 3.5,
 board.on('boundingbox', 
 	function() { 
 		var window = JSXGetBounds(board);
-		if(currentFunction == 'freeinput') {
-			var func = document.getElementById('funcText').value;
-			plot(curve, func, window.xmin, window.xmax);
-		} else if(currentFunction == 'sine') {
-			plot(curve, 'sin(x)', window.xmin, window.xmax);
-		} else if(currentFunction == 'cosine') {
-			plot(curve, 'cos(x)', window.xmin, window.xmax);
-		} else if(currentFunction == 'arctangent') {
-			plot(curve, 'atan(x)', window.xmin, window.xmax);
-		} else if(currentFunction == 'exponential') {
-			plot(curve, 'e^x', window.xmin, window.xmax);
-		} else if(currentFunction == 'logarithm') {
-			plot(curve, 'log(x)', window.xmin, window.xmax);
+
+		switch(currentFunction) {
+			case 'freeinput':
+				let func = document.getElementById('funcText').value;
+				plot_function(curve, func, window.xmin, window.xmax);
+				break;
+			case 'sine':
+				plot_function(curve, 'sin(x)', window.xmin, window.xmax);
+				break;
+			case 'cosine':
+				plot_function(curve, 'cos(x)', window.xmin, window.xmax);
+				break;
+			case 'arctangent':
+				plot_function(curve, 'atan(x)', window.xmin, window.xmax);
+				break;
+			case 'exponential':
+				plot_function(curve, 'e^x', window.xmin, window.xmax);
+				break;
+			case 'logarithm':
+				plot_function(curve, 'log(x)', window.xmin, window.xmax);
+				break;
+			default:
 		}
+
 		board.update();
 	}
 );
@@ -290,22 +300,22 @@ function update() {
 	derivatives = getDerivatives(func, maxN);
 
 	if(currentFunction == 'sine') {
-		plot(curve, 'sin(x)', window.xmin, window.xmax);
+		plot_function(curve, 'sin(x)', window.xmin, window.xmax);
 		formulatext = textFormulas.sine;
 	} else if(currentFunction == 'cosine') {
-		plot(curve, 'cos(x)', window.xmin, window.xmax);
+		plot_function(curve, 'cos(x)', window.xmin, window.xmax);
 		formulatext = textFormulas.cosine;
 	} else if(currentFunction == 'arctangent') {
-		plot(curve, 'atan(x)', window.xmin, window.xmax);
+		plot_function(curve, 'atan(x)', window.xmin, window.xmax);
 		formulatext = textFormulas.arctangent;
 	} else if(currentFunction == 'exponential') {
-		plot(curve, 'e^x', window.xmin, window.xmax);
+		plot_function(curve, 'e^x', window.xmin, window.xmax);
 		formulatext = textFormulas.exponential;
 	} else if(currentFunction == 'logarithm') {
-		plot(curve, 'log(x)', window.xmin, window.xmax);
+		plot_function(curve, 'log(x)', window.xmin, window.xmax);
 		formulatext = textFormulas.logarithm;
 	} else if(currentFunction == 'freeinput') {
-		plot(curve, func, window.xmin, window.xmax);
+		plot_function(curve, func, window.xmin, window.xmax);
 		formulatext = textFormulas.blank;
 	}
 	
@@ -488,9 +498,10 @@ function setupDisplayBoard() {
 
 	var t = displayboard.create('text', [1, 9.5, 'Function:'], { fontSize: 18, fixed: true });
 
-	var cb_sine = JSXCheckbox(displayboard, 1.5, 9, 'Sine', true,
+	var cb_sine = new JSXCheckBox(displayboard, 1.5, 9, 'Sine', true,
 		function() {
-			setCheckbox(cb_sine, true);
+			cb_sine.set(true);
+			//setCheckbox(cb_sine, true);
 			setCheckbox(cb_cosine, false);
 			setCheckbox(cb_arctangent, false);
 			setCheckbox(cb_exponential, false);
@@ -503,7 +514,8 @@ function setupDisplayBoard() {
 
 	var cb_cosine = JSXCheckbox(displayboard, 6, 9, 'Cosine', false,
 		function() {
-			setCheckbox(cb_sine, false);
+			cb_sine.set(false);
+			//setCheckbox(cb_sine, false);
 			setCheckbox(cb_cosine, true);
 			setCheckbox(cb_arctangent, false);
 			setCheckbox(cb_exponential, false);
@@ -516,7 +528,8 @@ function setupDisplayBoard() {
 
 	var cb_arctangent = JSXCheckbox(displayboard, 1.5, 8.5, 'Arc Tangent', false,
 		function() {
-			setCheckbox(cb_sine, false);
+			cb_sine.set(false);
+			//setCheckbox(cb_sine, false);
 			setCheckbox(cb_cosine, false);
 			setCheckbox(cb_arctangent, true);
 			setCheckbox(cb_exponential, false);
@@ -529,7 +542,8 @@ function setupDisplayBoard() {
 
 	var cb_exponential = JSXCheckbox(displayboard, 6, 8.5, 'Exponential', false,
 		function() {
-			setCheckbox(cb_sine, false);
+			cb_sine.set(false);
+			//setCheckbox(cb_sine, false);
 			setCheckbox(cb_cosine, false);
 			setCheckbox(cb_arctangent, false);
 			setCheckbox(cb_exponential, true);
@@ -542,7 +556,8 @@ function setupDisplayBoard() {
 
 	var cb_logarithm = JSXCheckbox(displayboard, 1.5, 8, 'Logarithm', false,
 		function() {
-			setCheckbox(cb_sine, false);
+			cb_sine.set(false);
+			//setCheckbox(cb_sine, false);
 			setCheckbox(cb_cosine, false);
 			setCheckbox(cb_arctangent, false);
 			setCheckbox(cb_exponential, false);
@@ -554,7 +569,8 @@ function setupDisplayBoard() {
 		{ fontSize: 18, fixed: true });
 	var cb_freeinput = JSXCheckbox(displayboard, 6, 8, 'Free Input', false,
 		function() {
-			setCheckbox(cb_sine, false);
+			cb_sine.set(false);
+			//setCheckbox(cb_sine, false);
 			setCheckbox(cb_cosine, false);
 			setCheckbox(cb_arctangent, false);
 			setCheckbox(cb_exponential, false);

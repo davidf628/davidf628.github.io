@@ -2199,6 +2199,8 @@ function getFunctionName(expression) {
 
 function getVariables(expression) {
 
+	console.error('function getVariables doesn\'t correctly find all variables because of a change in how math.js works')
+
 	var variables = [];
 	var func = getFunctionName(expression);
 
@@ -2206,6 +2208,7 @@ function getVariables(expression) {
 
 	node.traverse(
 		function(node, path, parent) {
+			console.log(node.type + ": " + node.toString())
 			if(node.type == 'SymbolNode' && node.name != func) {
 				if(node.name != 'e' && node.name != 'pi' && node.name != 'i') {
 					if(variables.indexOf(node.name) == -1) {
