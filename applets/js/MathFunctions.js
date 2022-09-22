@@ -2199,8 +2199,15 @@ function getFunctionName(expression) {
 
 function getVariables(expression) {
 
-	console.error('function getVariables doesn\'t correctly find all variables because of a change in how math.js works')
+	// Gets a list of all variables within an expression - note that implicit multiplication doesn't work for two variables in a row
+	// So sin(xy) != sin(x*y) as far as math.js is concerned
 
+	let knownConstants = ['e', 'pi', 'i'];
+	let knownFunctions = ['abs', 'cbrt', 'ceil', 'cube', 'exp', 'expm1', 'fix', 'floor', 'gcd', 'lcm', 'log', 'log10', 'log1p', 'log2',
+		'norm', 'nthRoot', 'pow', 'round', 'sign', 'sqrt', 'square', 'factorial', 'gamma', 'combinations', 'factorial', 'permutations',
+		'cumsum', 'mad', 'max', 'mean', 'median', 'min', 'mode', 'prod', 'std', 'sum', 'variance', 'acos', 'acosh', 'acot', 'acoth', 
+		'acsc', 'acsch', 'asec', 'asech', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'cos', 'cosh', 'cot', 'coth', 'csc', 'csch', 'sec',
+		'sech', 'sin', 'sinh', 'tan', 'tanh'];
 	var variables = [];
 	var func = getFunctionName(expression);
 
@@ -2208,12 +2215,9 @@ function getVariables(expression) {
 
 	node.traverse(
 		function(node, path, parent) {
-			console.log(node.type + ": " + node.toString())
-			if(node.type == 'SymbolNode' && node.name != func) {
-				if(node.name != 'e' && node.name != 'pi' && node.name != 'i') {
-					if(variables.indexOf(node.name) == -1) {
-						variables.push(node.name);
-					}
+			if(node.type == 'SymbolNode') {
+				if(node.name != func && !knownConstants.includes(node.name) && !knownFunctions.includes(node.name) && !variables.includes(node.name)) {
+					variables.push(node.name);
 				}
 			}
 		}
