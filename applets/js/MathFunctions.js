@@ -1876,31 +1876,40 @@ class Histogram {
 
 }
 
-function JSXRectangle(board, coords) {
+function JSXRectangle(board, coords, args) {
 
 	// Make four invisible points to define the corners of the rectangle
 
+	if(args == undefined) {
+		args = {}
+	}
+
+	args.fixed = typeof(args.fixed) === "boolean" ? args.fixed : false;
+	args.frozen = typeof(args.frozen) === "boolean" ? args.frozen : false;
+
 	var p1 = board.create('point',
 		[coords[0], coords[1]],
-		{ visible: false });
+		{ visible: false, fixed: args.fixed, frozen: args.frozen });
 
 	var p2 = board.create('point',
 		[coords[0] + coords[2], coords[1]],
-		{ visible: false });
+		{ visible: false, fixed: args.fixed, frozen: args.frozen });
 
 	var p3 = board.create('point',
 		[coords[0] + coords[2], coords[1] + coords[3]],
-			{ visible: false });
+			{ visible: false, fixed: args.fixed, frozen: args.frozen });
 
 	var p4 = board.create('point',
 		[coords[0], coords[1] + coords[3]],
-		{ visible: false });
+		{ visible: false, fixed: args.fixed, frozen: args.frozen });
 
 	// Now draw the rectangle using a polygon
 
 	var rect = board.create('polygon', [p1, p2, p3, p4],
 		{ hasInnerPoints: false,
 		  fillColor: '#0000ff',
+		  fixed: args.fixed,
+		  frozen: args.frozen,
 		  borders: {
 			fixed: true,
 			highlight: false,

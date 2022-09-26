@@ -32,12 +32,11 @@
     <input type="button" value="Update" onClick="update()">
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+    &emsp;&emsp;
+    <input type="button" value="Toggle Zoom Panel" onClick="toggle_zoomPanel()">
     <br><br>
 
-<div>
-    <div id="jxgbox" class="jxgbox" style="width:720px; height:720px; float:left; resize: both"></div>
-    <div id="display" class="jxgbox" style="width:320px; height:720px; float:left"></div>
-</div>
+<div id="jxgbox" class="jxgbox" style="width:720px; height:720px; float:left; resize: both"></div>
 
 <script type='text/javascript'>
         
@@ -55,36 +54,9 @@ var board = JXG.JSXGraph.initBoard('jxgbox', {
             eps: 0.1
         }		
     });     
-    
-var displayboard = JXG.JSXGraph.initBoard('display', {
-        boundingbox: [0,10,12,0], 
-      	showCopyright: false, 
-      	showNavigation: false,
-        keepaspectratio: false,
-        axis: false,
-        pan: {
-            enabled: false
-        }
-    });    
-	
+
 // Set up x-zoom and y-zoom sliders
-
-changeScale = function(e) {
-    bounds = JSXGetBounds(board);
-    var midx = (bounds.xmax + bounds.xmin) / 2;
-    var midy = (bounds.ymax + bounds.ymin) / 2;
-    xExp = 100 * Math.pow(slider_horiz_zoom.Value(), -1.5);
-    yExp = 100 * Math.pow(slider_vert_zoom.Value(), -1.5);
-    board.setBoundingBox([ midx - xExp, midy + yExp, midx + xExp, midy - yExp], false);
-}	
-    
-slider_horiz_zoom = displayboard.create('slider', [[1, 1], [7, 1], [0.1, 9, 100]]);
-horiz_zoom_label = displayboard.create('text', [9, 1, 'x zoom'], { fixed: true });
-slider_horiz_zoom.on('drag', changeScale);
-
-slider_vert_zoom = displayboard.create('slider', [[1, 0.5], [7, 0.5], [0.1, 9, 100]]);
-vert_zoom_label = displayboard.create('text', [9, 0.5, 'y zoom'], { fixed: true });
-slider_vert_zoom.on('drag', changeScale);
+setupZoomPanel(board, { visible: false });
 
 // Initialize variables so that we have something we can update
 

@@ -31,12 +31,14 @@
 
 	<h1>Polynomial Graphs and Zeros</h1>
 
-	Enter new zero = <input type="text" id="new_zero" value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<input type="button" value="Add New Zero" onClick="add_new_zero()">	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+	Enter new zero = <input type="text" id="new_zero" value="">
+	&emsp;&emsp;<input type="button" value="Add New Zero" onClick="add_new_zero()">
+	&emsp;&emsp;<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
 	<br/><br/>
-	Enter constant multiplier: <input type="text" id="const_multiplier" value="1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<input type="button" value="Apply Constant" onClick="apply_constant()">
+	
+	Enter constant multiplier: <input type="text" id="const_multiplier" value="1">
+	&emsp;&emsp;<input type="button" value="Apply Constant" onClick="apply_constant()">
+    &emsp;&emsp;<input type="button" value="Toggle Zoom Panel" onClick="toggle_zoomPanel()">
 	<br/><br/>
 
 <div>
@@ -111,6 +113,9 @@
 		fixed: true,
 		highlight: false
 	};
+
+	// Set up x-zoom and y-zoom sliders
+	setupZoomPanel(board, { visible: false });
 
 	zero_list = [];
 	constant_multiplier = "1";

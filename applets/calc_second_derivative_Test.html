@@ -24,8 +24,8 @@
 
 <h1>Second Derivative Interpretation</h1>
 f(x) = <input type="text" id="input_function" value="">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="button" value="Update" onClick="update()">
+&emsp;&emsp;<input type="button" value="Update" onClick="update()">
+&emsp;&emsp;<input type="button" value="Toggle Zoom Panel" onClick="toggle_zoomPanel()">
 <br /> <br />
 <div>
 	<div id="jxgbox" class="jxgbox" style="width:720px; height:720px; float:left; resize: both"></div>
@@ -57,13 +57,19 @@ var controlboard = JXG.JSXGraph.initBoard('display', {
 		axis: false	
     });
 		
+
+// Set up x-zoom and y-zoom sliders
+setupZoomPanel(board, { visible: false });
+
 // Initialize variables so that we have something we can update
 curve = board.create('curve', [0, 0], 0, 0, { visible: false });
 derivative = board.create('curve', [0, 0], 0, 0, { visible: false });
 p = board.create('point', [0, 0], { visible: false, withLabel: false });
 glider = board.create('glider', [0, 0, curve], { visible: false, name: 'P' });
 
-cb_showderivative = controlboard.create('checkbox', [1, 9.5, 'Show Second Derivative']); 
+cb_showderivative = new JSXCheckBox(controlboard, 1, 9.5, 'Show Second Derivative', false,
+		function() { derivative.setAttribute( { visible: !derivative.getAttribute('visible') } )}
+	); 
 cb_traceaxis = controlboard.create('checkbox', [1, 9, 'Trace along x-axis']);
 
 function update() {
@@ -78,7 +84,7 @@ function update() {
 	var f = document.getElementById('input_function').value;
 	board.removeObject(curve);
 	board.removeObject(p);
-	board.removeObject(derivative);
+	//board.removeObject(derivative);
 	board.removeObject(glider);
 	
 	curve = plot_function(f);
@@ -92,17 +98,22 @@ function plot_function(ogtxt) {
 	// This is an explicit function of the form: f(x)
 	if(ogtxt == '') {
 		curve = board.create('curve', [0, 0], 0, 0, { visible: false });
-		derivative = board.create('curve', [0, 0], 0, 0, { visible: false });
+		//derivative = board.create('curve', [0, 0], 0, 0, { visible: false });
+		derivative.setAttribute({ visible: false });
 		p = board.create('point' [0, 0], 0, 0, { visible: false, withLabel: false });
 		glider = board.create('glider', [0, 0, curve], { visible: false, name: 'P' });
 	} else {
 		relation = makeJSFunction(board, ogtxt);
 		curve = board.create('functiongraph', [relation], { strokeWidth: 2 });
 		d = JXG.Math.Numerics.D(JXG.Math.Numerics.D(relation));
-		
-		if(cb_showderivative.Value()) {
-			derivative = board.create('functiongraph', [d], { strokeWidth: 2, strokeColor: 'green' });
-		}
+		bounds = JSXGetBounds(board);
+		derivative.dataX = math.range(bounds.xmin, bounds.xmax + 0.1, 0.1).toArray();
+		derivative.dataY = derivative.dataX.map(d);
+		//derivative.dataY = d;
+		derivative.updateCurve();
+		//if(cb_showderivative.Value()) {
+			//derivative = board.create('functiongraph', [d], { strokeWidth: 2, strokeColor: 'green', visible: cb_showderivative.isChecked() });
+		//}
 		
 		p = board.create('point', [
 			// x coordinate
