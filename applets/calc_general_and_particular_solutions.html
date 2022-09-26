@@ -46,6 +46,7 @@
 
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+	&emsp;&emsp;<input type="button" value="Toggle Zoom Panel" onClick="toggle_zoomPanel()">
 
 	<br /><br />
 	
@@ -83,32 +84,8 @@ var board = JXG.JSXGraph.initBoard('jxgbox', {
         }		
     });
 		
-var displayboard = JXG.JSXGraph.initBoard('display', {
-		boundingbox: [0,10,12,0], 
-      	showCopyright: false, 
-      	showNavigation: false,
-		keepaspectratio: false,
-		axis: false	
-    });
-		
 // Set up x-zoom and y-zoom sliders
-		
-changeScale = function(e) {
-    bounds = JSXGetBounds(board);
-    var midx = (bounds.xmax + bounds.xmin) / 2;
-    var midy = (bounds.ymax + bounds.ymin) / 2;
-    xExp = 100 * Math.pow(slider_horiz_zoom.Value(), -1.5);
-    yExp = 100 * Math.pow(slider_vert_zoom.Value(), -1.5);
-    board.setBoundingBox([ midx - xExp, midy + yExp, midx + xExp, midy - yExp], false);
-}	
-    
-slider_horiz_zoom = displayboard.create('slider', [[1, 1], [7, 1], [0.1, 9, 100]]);
-horiz_zoom_label = displayboard.create('text', [9, 1, 'x zoom'], { fixed: true });
-slider_horiz_zoom.on('drag', changeScale);
-
-slider_vert_zoom = displayboard.create('slider', [[1, 0.5], [7, 0.5], [0.1, 9, 100]]);
-vert_zoom_label = displayboard.create('text', [9, 0.5, 'y zoom'], { fixed: true });
-slider_vert_zoom.on('drag', changeScale);		
+setupZoomPanel(board, { visible: false });		
 		
 // Initialize curve so that we have something we can update
 var general_solutions = [];
@@ -162,7 +139,6 @@ function update() {
 	}
 	
 	board.update();	
-	displayboard.update();	
 }
 
 function solveinitial() {
