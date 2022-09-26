@@ -60,10 +60,7 @@
 	
 	<br /><br />
 
-<div>
 	<div id="jxgbox" class="jxgbox" style="width:720px; height:720px; float:left; resize: both"></div>
-	<div id="display" class="jxgbox" style="width:320px; height:720px; float:left"></div>
-</div>
 
 <script type='text/javascript'>
 			
@@ -85,7 +82,7 @@ var board = JXG.JSXGraph.initBoard('jxgbox', {
     });
 		
 // Set up x-zoom and y-zoom sliders
-setupZoomPanel(board, { visible: false });		
+setupZoomPanel(board, { visible: false, xinit: 20, yinit: 20 });		
 		
 // Initialize curve so that we have something we can update
 var general_solutions = [];
