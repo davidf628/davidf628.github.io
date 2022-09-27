@@ -59,7 +59,7 @@ var controlboard = JXG.JSXGraph.initBoard('display', {
 		
 
 // Set up x-zoom and y-zoom sliders
-setupZoomPanel(board, { visible: false });
+setupZoomPanel(board, { visible: false, xinit: 20, yinit: 20 });
 
 // Initialize variables so that we have something we can update
 curve = board.create('curve', [0, 0], 0, 0, { visible: false });

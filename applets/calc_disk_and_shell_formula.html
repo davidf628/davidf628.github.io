@@ -24,18 +24,17 @@
 
 <h1>Disk and Shell Method Formulas</h1>
 Y Minimum = <input type="text" id="lower_bound" value="">
-Y Maximum = <input type="text" id="upper_bound" value="">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="button" value="Update" onClick="update()">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<button onclick="fullscreen()">Toggle FullScreen</button>
+&emsp;&emsp;Y Maximum = <input type="text" id="upper_bound" value="">
+&emsp;&emsp;<input type="button" value="Update" onClick="update()">
+&emsp;&emsp;<button onclick="fullscreen()">Toggle FullScreen</button>
 <br />
 X Minimum = <input type="text" id="left_bound" value="">
-X Maximum = <input type="text" id="right_bound" value="">
+&emsp;&emsp;X Maximum = <input type="text" id="right_bound" value="">
 <br />
 Slider Min = <input type="text" id="slider_min" value="0">
-Slider Max = <input type="text" id="slider_max" value="10">
-<br />
+&emsp;&emsp;Slider Max = <input type="text" id="slider_max" value="10">
+&emsp;&emsp;<input type="button" value="Toggle Zoom Panel" onClick="toggle_zoomPanel()">
+<br /><br />
 
 <div id="jxgbox" class="jxgbox" style="width:1000px; height:720px; float:left"></div>
 <div id="display" class="jxgbox" style="width:320px; height:720px; float:left"></div>
@@ -67,6 +66,9 @@ var controlboard = JXG.JSXGraph.initBoard('display', {
 		pan: { enabled: false }
     });	
 			
+// Set up x-zoom and y-zoom sliders
+setupZoomPanel(board, { visible: false, xinit: 20, yinit: 20 });
+
 // Initialize curves so that we have something we can update
 var curves = [];
 curves[0] = board.create('curve', [0, 0], 0, 0, { visible: false });

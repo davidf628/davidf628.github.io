@@ -29,10 +29,11 @@
 <body>
 
 <h1>Parameterized Paths</h1>
-$x(t)$ = <input type="text" id="input_xfunc" value="" size="10"> &emsp;
-$y(t)$ = <input type="text" id="input_yfunc" value="" size="10"> &emsp;
-<input type="text" id="input_tstart" value="" size="5"> $\leqslant t \leqslant$ <input type="text" id="input_tend" value="" size="5"> &emsp; &emsp;
-<input type="button" value="Insert New Path" onClick="insertPath()">
+$x(t)$ = <input type="text" id="input_xfunc" value="" size="10">
+&emsp;$y(t)$ = <input type="text" id="input_yfunc" value="" size="10">
+&emsp;<input type="text" id="input_tstart" value="" size="5"> $\leqslant t \leqslant$ <input type="text" id="input_tend" value="" size="5">
+&emsp;&emsp;<input type="button" value="Insert New Path" onClick="insertPath()">
+&emsp;&emsp;<input type="button" value="Toggle Zoom Panel" onClick="toggle_zoomPanel()">
 </br></br>
 <div>
 <div id="jxgbox" class="jxgbox" style="width:720px; height:720px; float:left; resize: both"></div>
@@ -65,6 +66,9 @@ var displayboard = JXG.JSXGraph.initBoard('display', {
 		keepaspectratio: false,
 		axis: false
     });
+
+// Set up x-zoom and y-zoom sliders
+setupZoomPanel(board, { visible: false, xinit: 20, yinit: 20 });
 
 var paths = [];
 board.addChild(displayboard);
@@ -214,23 +218,6 @@ var togglePointButton = displayboard.create('button', [1, 1.5, 'Toggle Point Vis
 			}
 		}
 	}]);
-
-changeScale = function(e) {
-	bounds = JSXGetBounds(board);
-	var midx = (bounds.xmax + bounds.xmin) / 2;
-	var midy = (bounds.ymax + bounds.ymin) / 2;
-	xExp = 100 * Math.pow(slider_horiz_zoom.Value(), -1.5);
-	yExp = 100 * Math.pow(slider_vert_zoom.Value(), -1.5);
-	board.setBoundingBox([ midx - xExp, midy + yExp, midx + xExp, midy - yExp], false);
-}
-
-slider_horiz_zoom = displayboard.create('slider', [[1, 1], [7, 1], [0.1, 9, 100]]);
-horiz_zoom_label = displayboard.create('text', [9, 1, 'x zoom'], { fixed: true });
-slider_horiz_zoom.on('drag', changeScale);
-
-slider_vert_zoom = displayboard.create('slider', [[1, 0.5], [7, 0.5], [0.1, 9, 100]]);
-vert_zoom_label = displayboard.create('text', [9, 0.5, 'y zoom'], { fixed: true });
-slider_vert_zoom.on('drag', changeScale);
 
 </script>
 </body>

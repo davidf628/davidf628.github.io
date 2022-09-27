@@ -3,7 +3,7 @@
 
 <head>
 
-	<title></title>
+	<title>Slope Fields</title>
 	<meta charset="utf-8">  
 
 		<!-- JSX Graph -->
@@ -41,17 +41,12 @@
 	// TODO: Create instructions on how this applet works :)
 </div>
 
-<h1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Slope Fields</h1>
+<h1>&emsp;&emsp;Slope Fields</h1>
 
 $ dy \over dx $ = &nbsp;&nbsp;<input type="text" id="derivative" value="">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Length = &nbsp;&nbsp;<input type="text" id="length" value="0.5">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Density = &nbsp;&nbsp;<input type="text" id="density" value="1">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="button" value="Update" onClick="update()">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+&emsp;&emsp;Length = &nbsp;&nbsp;<input type="text" id="length" value="0.5">
+&emsp;&emsp;Density = &nbsp;&nbsp;<input type="text" id="density" value="1">
+&emsp;&emsp;<input type="button" value="Update" onClick="update()">
 </br></br>
 
 <div>
@@ -78,6 +73,9 @@ var board = JXG.JSXGraph.initBoard('jxgbox', {
 		selection: { enabled: false }
     });
 
+// Set up x-zoom and y-zoom sliders
+setupZoomPanel(board, { visible: false, xinit: 30, yinit: 20 });
+
 var curve;
 var linesegs = [];
 
@@ -92,7 +90,9 @@ function init() {
 		f: '', 
 		color: '#FF0000',
 		c: 0, 
-		updater: function() { updateGraph() }
+		updater: function() { updateGraph() },
+		fullscreen: function() { fullscreen() },
+		zoompanel: function() { toggle_zoomPanel() },
 	};
 	
 	var gui = new dat.GUI();	
@@ -102,6 +102,8 @@ function init() {
 		function() {
 			updateGraph();
 		});
+	gui.add(parameters, 'fullscreen').name('Toggle Fullscreen');
+	gui.add(parameters, 'zoompanel').name('Toggle Zoom Panel');
 	gui.add(parameters, 'updater').name('Update Graph');
 	
 }
@@ -130,22 +132,6 @@ function update() {
 	height = document.getElementById('jxgbox').clientHeight;
 
 	var window = JSXGetBounds(board);
-
-	/*board = JXG.JSXGraph.initBoard('jxgbox', {
-		boundingbox: [window.xmin,window.ymin,window.xmax,window.ymax], 
-      	showCopyright: false, 
-      	showNavigation: true,
-		keepaspectratio: false,
-		axis: true,
-      	zoom: {
-            factorX: 1.25,
-            factorY: 1.25,
-            wheel: true,
-            needshift: false,
-            eps: 0.1
-        },
-		selection: { enabled: false }
-    });*/
     
     for(var i = 0; i < linesegs.length; i++) {
     	board.removeObject(linesegs[i]);
@@ -159,7 +145,7 @@ function update() {
 	var density = parseFloat(document.getElementById('density').value);
 	
 	linesegs = JSXSlopeField(board, derivative, { length: length, density: density });
-	//curve = board.create('curve', [0, 0], 0, 0, { visible: false });
+
 	updateGraph();
 	
 	board.update();

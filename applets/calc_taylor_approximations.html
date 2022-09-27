@@ -67,14 +67,11 @@
 <h1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Taylor Polynomial Approximations</h1>
 
 f(x) = &nbsp;&nbsp;<input type="text" id="funcText" value="sin(x)">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Center:&nbsp;&nbsp;<input type="text" id="center" value="0">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Slider Max:&nbsp;&nbsp;<input type="text" id="maxn" value="20">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="button" value="Update" onClick="update()">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+&emsp;&emsp;Center:&nbsp;&nbsp;<input type="text" id="center" value="0">
+&emsp;&emsp;Slider Max:&nbsp;&nbsp;<input type="text" id="maxn" value="20">
+&emsp;&emsp;<input type="button" value="Update" onClick="update()">
+&emsp;&emsp;<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+&emsp;&emsp;<input type="button" value="Toggle Zoom Panel" onClick="toggle_zoomPanel()">
 </br></br>
 
 <div>
@@ -110,6 +107,9 @@ var displayboard = JXG.JSXGraph.initBoard('display', {
 		axis: false,
 		pan: { enabled: false }
     });	
+
+// Set up x-zoom and y-zoom sliders
+setupZoomPanel(board, { visible: false, xinit: 20, yinit: 20 });
 
 var textFormulas = {
 	sine : '$$\\sin x=\\sum_{n=0}^{\\infty } (-1)^{n}\\frac{x^{2n+1}}{(2n+1)!}$$',

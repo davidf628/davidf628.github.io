@@ -41,16 +41,18 @@
 
 <h1>Numerical Limits</h1>
 	
-	f(x) = <input type="text" id="input_function" value="">&emsp;&emsp;
-	x approaches:  <input type="text" id="limit_value" value="">&emsp;&emsp;
-	<input type="button" value="Update" onClick="update()">&emsp;&emsp;
-	<input type="button" value="Toggle Fullscreen" onClick="fullscreen()"><br><br>
+	f(x) = <input type="text" id="input_function" value="">
+	&emsp;&emsp;x approaches:  <input type="text" id="limit_value" value="">
+	&emsp;&emsp;<input type="button" value="Update" onClick="update()">
+	&emsp;&emsp;<input type="button" value="Toggle Fullscreen" onClick="fullscreen()"><br><br>
 
-	Set Left Limit: x = <input type="text" id="left_value" value="">&emsp;&emsp;
-	Set Right Limit: x = <input type="text" id="right_value" value="">&emsp;&emsp;
-	<input type="button" value="Set Limit Values" onClick="setlimitvalues()"><br><br>
+	Set Left Limit: x = <input type="text" id="left_value" value="">
+	&emsp;&emsp;Set Right Limit: x = <input type="text" id="right_value" value="">
+	&emsp;&emsp;<input type="button" value="Set Limit Values" onClick="setlimitvalues()"><br><br>
 
-	Insert Asymptote: x = <input type="text" id="asymptote" value=""><br/><br/>
+	Insert Asymptote: x = <input type="text" id="asymptote" value="">
+	&emsp;&emsp;<input type="button" value="Toggle Zoom Panel" onClick="toggle_zoomPanel()">
+	<br/><br/>
 
 <div>
 	<div id="jxgbox" class="jxgbox" style="width:720px; height:720px; float:left; resize: both"></div>
@@ -90,6 +92,9 @@ var displayboard = JXG.JSXGraph.initBoard('display', {
 		zoom: { enabled: false }
     });
 		
+// Set up x-zoom and y-zoom sliders
+setupZoomPanel(board, { visible: false, xinit: 10, yinit: 10, xstart: 0.65, ystart: 0.75 });
+
 // Initialize curve so that we have something we can update
 curves = [];
 for (var i = 0; i < 10; i++) {
@@ -166,23 +171,6 @@ texts[RIGHT][Y][1] = displayboard.create('text', [6, 4.25, ''], textoptions);
 texts[RIGHT][Y][2] = displayboard.create('text', [6, 3.75, ''], textoptions);
 texts[RIGHT][Y][3] = displayboard.create('text', [6, 3.25, ''], textoptions);
 
-changeScale = function(e) {
-	bounds = JSXGetBounds(board);
-	var midx = (bounds.xmax + bounds.xmin) / 2;
-	var midy = (bounds.ymax + bounds.ymin) / 2;
-	xExp = 100 * Math.pow(slider_horiz_zoom.Value(), -1.5);
-	yExp = 100 * Math.pow(slider_vert_zoom.Value(), -1.5);
-	board.setBoundingBox([ midx - xExp, midy + yExp, midx + xExp, midy - yExp], false);
-}	
-	
-slider_horiz_zoom = displayboard.create('slider', [[1, 2.5], [7, 2.5], [0.1, 9, 100]]);
-horiz_zoom_label = displayboard.create('text', [9, 2.5, 'x zoom'], { fixed: true });
-slider_horiz_zoom.on('drag', changeScale);
-
-slider_vert_zoom = displayboard.create('slider', [[1, 2], [7, 2], [0.1, 9, 100]]);
-vert_zoom_label = displayboard.create('text', [9, 2, 'y zoom'], { fixed: true });
-slider_vert_zoom.on('drag', changeScale);
-
 function setLLimitVisible(value) {
 	lpoint_xaxis.setAttribute( { visible: value } );
 	lpoint_f.setAttribute( { visible: value } );
@@ -238,24 +226,7 @@ lline1 = board.create('segment', [lpoint_xaxis, lpoint_f], { color: 'red' });
 lline2 = board.create('segment', [lpoint_yaxis, lpoint_f], { color: 'red' });
 	
 lx_label = board.create('text', [0, 0, function() { return 'x = ' + displayNumber(lpoint_xaxis.X()); }], { anchor: lpoint_xaxis, color: 'red', fontSize: 18 });	
-ly_label = board.create('text', [
-/*	function() { // x-location
-		if (lpoint_xaxis.X() < 0) { 
-			return board.getBoundingBox()[2] / 20;
-		} else {
-			return -(Math.max(100, this.size[0]) / board.unitX) - (board.getBoundingBox()[2] / 20);
-		}
-	}, 
-	function() { // y-location
-		if (lpoint_yaxis.Y() > (board.getBoundingBox()[1] - (this.size[1] / board.unitY))) {
-			return board.getBoundingBox()[1] - (this.size[1] / board.unitY);
-		} else if(lpoint_yaxis.Y() < (board.getBoundingBox()[3] + (this.size[1] / board.unitY))) {
-			return board.getBoundingBox()[3] + (this.size[1] / board.unitY);
-		} else {
-			return lpoint_yaxis.Y();
-		}
-	}, */
-	0, 0,
+ly_label = board.create('text', [0, 0,
 	function() { 
 		return 'y = ' + displayNumber(lpoint_yaxis.Y()); 
 	}], 

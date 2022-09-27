@@ -25,10 +25,9 @@
 <h1>Curvature</h1>
 
 f(x) = <input type="text" id="input_function" value="3*exp(-x^2)">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="button" value="Update" onClick="update()">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+&emsp;&emsp;<input type="button" value="Update" onClick="update()">
+&emsp;&emsp;<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+&emsp;&emsp;<input type="button" value="Toggle Zoom Panel" onClick="toggle_zoomPanel()">
 </br></br>
 
 <div>
@@ -67,6 +66,9 @@ var display = JXG.JSXGraph.initBoard('display', {
             eps: 0.1
         }		
     });
+
+// Set up x-zoom and y-zoom sliders
+setupZoomPanel(board, { visible: false, xinit: 14, yinit: 10 });
 
 update();
 

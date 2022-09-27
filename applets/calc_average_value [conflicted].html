@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+
+	<title>Average Value of a Function</title>
+	<meta charset="utf-8">  
+
+		<!-- JSX Graph -->
+		<script type="text/javascript" charset="UTF-8" src="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraphcore.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraph.css" />
+
+		<!-- Math.js -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.5.0/math.min.js"></script>
+
+        <!-- Parser -->
+        <script src='./js/parser.js' type='text/javascript'></script>
+
+		<!-- Mine -->
+		<script src='./js/MathFunctions.js' type='text/javascript'></script>
+		<script src='./js/helpers.js' type='text/javascript'></script>
+
+	</meta>
+</head>
+
+<body>
+
+<h1>Average Value of a Function</h1>
+    
+    f(x) = <input type="text" id="input_function" value="">
+    &emsp;&emsp;<input type="button" value="Update" onClick="update()">
+    &emsp;&emsp;x1 = <input type="text" id="x1_value" value="">
+    &emsp;&emsp;x2 = <input type="text" id="x2_value" value="">
+    &emsp;&emsp;<input type="button" value="Set Endpoints" onClick="setendpoints()">
+    &emsp;&emsp;<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+    <br><br>
+
+<div>
+    <div id="jxgbox" class="jxgbox" style="width:720px; height:720px; float:left; resize: both"></div>
+    <div id="display" class="jxgbox" style="width:320px; height:720px; float:left"></div>
+</div>
+
+<script type='text/javascript'>
+        
+var board = JXG.JSXGraph.initBoard('jxgbox', {
+        boundingbox: [-10,10,10,-10], 
+      	showCopyright: false, 
+      	showNavigation: true,
+        keepaspectratio: true,
+        axis: true,
+      	zoom: {
+            factorX: 1.25,
+            factorY: 1.25,
+            wheel: true,
+            needshift: false,
+            eps: 0.1
+        }		
+    });     
+    
+var displayboard = JXG.JSXGraph.initBoard('display', {
+        boundingbox: [0,10,12,0], 
+      	showCopyright: false, 
+      	showNavigation: false,
+        keepaspectratio: false,
+        axis: false,
+        zoom: {
+            enable: false
+        },
+        pan: {
+            enabled: false
+        }
+    });    
+	
+
+// Set up x-zoom and y-zoom sliders
+setupZoomPanel(board, { visible: false, xinit: 10, yinit: 10 });
+
+// initial variables
+var curve, integral, exact_rect, guess_rect, guess_height;
+var show_mean_value;
+var points = [];
+var lines = [];
+
+// line to restrict points A and B to
+var xaxis = board.create('functiongraph', function(x) { return 0; }, { visible: false });
+
+// point A is the start of our interval 
+var a = board.create('glider', [0, 0, xaxis], { withLabel: false, infoboxDigits: 2 });
+a.on('drag', updatepoints);
+
+// point B is the end of our interval 
+var b = board.create('glider', [5, 0, xaxis], { withLabel: false, infoboxDigits: 2 });
+b.on('drag', updatepoints);
+
+// line to restrict guess height to
+var vertical_axis = board.create('curve', [function(t) { return a.X(); }, function(t) { return t; }], { visible: false });
+
+// Slider to allow user to change the number of test values to use in the approximation
+var text1 = displayboard.create('text', [1, 9.5, 'Number of Points:'], { fontSize: 18 });
+var nPoints = displayboard.create('slider', [[2, 9], [9, 9], [2, 4, 40]], { precision: 0, snapwidth: 1, label: { fontSize: 18 } });
+nPoints.on('drag', updatepoints);
+
+var show_average_value = JSXCheckbox(displayboard, 1, 4, 'Show Average Value', false,
+		function() {
+			text_average.setAttribute({ visible: !text_average.getAttribute('visible') });
+		}, { fontSize: 18 });
+
+var show_mean_value = JSXCheckbox(displayboard, 1, 3.5, 'Show Mean Value', false,
+		function() {
+			mean_value.setAttribute({ visible: !mean_value.getAttribute('visible') });
+		}, { fontSize: 18 });
+
+// Dipslays the current approximation
+var text_average = displayboard.create('text', [1, 8, 'Average Value:'], { fontSize: 18, visible: show_average_value.Value() });
+
+// Display the actual mean value of the function on the interval from a to b
+var mean_value = displayboard.create('text', [1, 7, 'Mean Value:'], { fontSize: 18, visible: show_mean_value.Value() });
+
+// Display the area under the curve
+var show_integral = JSXCheckbox(displayboard, 1, 6, 'Show Integral', false, 
+		function() { 
+			integral.setAttribute({ visible: !integral.getAttribute('visible') });
+		}, { fontSize: 18 });
+
+// Allow the user to turn on or off the rectangle that is equal to the area under the curve
+var show_exact_rect = JSXCheckbox(displayboard, 1, 5.5, 'Show Area as Rectangle', false, 
+        function() { 
+            exact_rect.setAttribute({ visible: !exact_rect.getAttribute('visible')});
+        }, { fontSize: 18 });
+
+// Allow the user to turn on or off the test points/lines
+var show_test_points = JSXCheckbox(displayboard, 1, 5, 'Show Test Points', true, function() { updatepoints(); }, { fontSize: 18 });
+
+// Allow user to turn on or off the guess rectangle
+var show_guess_rect = JSXCheckbox(displayboard, 1, 4.5, 'Show Guess of Average Value', false, 
+		function() { 
+			guess_height.setAttribute({ visible: !guess_height.getAttribute('visible') });
+			guess_rect.setAttribute({ visible: !guess_rect.getAttribute('visible') });
+		}, { fontSize: 18 });
+		
+// This point allows the user to adjust the height of their guess as to what the average value is
+var guess_height = board.create('glider', [0, 1, vertical_axis], { visible: show_guess_rect.Value(), withLabel: false, infoboxDigits: 2 });
+
+var guess_rect = board.create('polygon', [
+		[ function() { return a.X(); }, 0 ],
+		[ function() { return b.X(); }, 0 ],
+		[ function() { return b.X(); }, function() { return guess_height.Y(); } ],
+		[ function() { return a.X(); }, function() { return guess_height.Y(); } ]],
+		{ 
+			visible: show_guess_rect.Value(),
+			fillColor: 'orange',
+            highlight: false,
+			vertices: { visible: false },
+			borders: { visible: false }
+		});
+
+update();
+
+function update() {
+
+    var bounds = JSXGetBounds(board);
+    var width = document.getElementById('jxgbox').clientWidth;
+    var height = document.getElementById('jxgbox').clientHeight;
+
+    board.resizeContainer(width, height);
+    JSXSetBounds(board, bounds, false);
+
+    if (curve !== undefined) {
+        board.removeObject(curve);
+    }
+
+	if (integral !== undefined) {
+		board.removeObject(integral);
+	}
+	
+    var f = document.getElementById('input_function').value;
+    
+    if (f == '') {
+
+        curve = undefined;
+		integral = undefined;
+        exact_rect = undefined;
+
+    } else {
+              
+        var f_func = makeJSFunction(board, f, 'x');
+        var d_func = JXG.Math.Numerics.D(f_func);
+        
+        curve = board.create('functiongraph', [f_func], { strokeWidth: 2, highlight: false });
+		integral = board.create('integral', [[function() { return a.X(); }, function() { return b.X(); }], curve], 
+            { visible: show_integral.Value(), withLabel: false });      
+        exact_rect = board.create('polygon', [
+			[ function() { return a.X(); }, 0 ],
+            [ function() { return a.X(); }, function() { return integral.Value() / (b.X() - a.X()); } ],
+            [ function() { return b.X(); }, function() { return integral.Value() / (b.X() - a.X()); } ],
+            [ function() { return b.X(); }, 0 ]], 
+            { 
+				visible: show_exact_rect.Value(), 
+				vertices: { visible: false },
+				borders: { visible: false }
+			});		
+
+		updatepoints();
+    }  
+    
+    board.update();	
+        
+}
+
+function updatepoints() {
+    
+    while (points.length > 0) {
+        board.removeObject(points.pop());
+    }
+    
+	while (lines.length > 0) {
+		board.removeObject(lines.pop());
+	}
+	
+    var f = document.getElementById('input_function').value;
+    
+    var f_func = makeJSFunction(board, f, 'x');
+  
+    var start = Math.min(a.X(), b.X());
+    var end = Math.max(a.X(), b.X());
+    var n = nPoints.Value() - 1;
+    var dx = (end - start) / n;
+    var sum = 0;
+    
+    for (var i = 0; i <= n; i++) {
+        var xval = start + i * dx;
+        var yval = f_func(xval);
+		if (show_test_points.Value()) {
+			points[i] = board.create('point', [xval, yval], { withLabel :false, fixed: true, size: 2, color: 'violet', infoboxDigits: 2 });
+			lines[i] = board.create('segment', [[xval, 0], [xval, yval]], { fixed: true, strokeWidth: 1, dash: 2, color: 'gray' });
+		}
+        sum += yval;
+    }
+    
+    var average = sum / (n + 1);
+    text_average.setText('Average Value: ' + displayNumber(average));
+    
+    var mean = 1 / (end - start) * integral.Value();
+    mean_value.setText('Mean Value: ' + displayNumber(mean));
+    
+}
+
+function setendpoints() {
+
+	var v1 = document.getElementById('x1_value').value;
+	var v2 = document.getElementById('x2_value').value
+
+	if (v1 != '') {
+		a.moveTo([math.eval(v1), 0]);
+	}
+	
+	if (v2 != '') {
+		b.moveTo([math.eval(v2), 0]);
+	}
+    
+    updatepoints();
+}
+
+</script>
+</body>
+</html>

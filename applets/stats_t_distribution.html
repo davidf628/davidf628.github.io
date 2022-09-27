@@ -27,9 +27,11 @@
 <body>
 
 <h1>t-distribution</h1>
+
 <input type="button" value="Change Bounds" onClick="update()">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+&emsp;&emsp;<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+&emsp;&emsp;<input type="button" value="Toggle Zoom Panel" onClick="toggle_zoomPanel()">
+
 </br></br>
 
 <div>
@@ -63,6 +65,9 @@ var displayboard = JXG.JSXGraph.initBoard('display', {
     });		
 		
 JXG.Options.board.minimizeReflow = 'all';		
+
+// Set up x-zoom and y-zoom sliders
+setupZoomPanel(board, { visible: false, xinit: 8, yinit: 0.8, ymax: 10, xstart: 0.65, ystart: 0.05 });
 
 BETWEEN = 0;  LEFT = 1;  RIGHT = 2;   TWOTAIL = 3;
 
@@ -127,7 +132,6 @@ function setupstuff() {
 	displayboard.removeObject(t_area);
 	displayboard.removeObject(z1_txt);
 	displayboard.removeObject(z2_txt);
-
 
 	probability = board.create('integral', [[
 		function() { return z1.X(); }, 
@@ -224,44 +228,6 @@ function update() {
 	board.update();	
 		
 }
-
-cb_ZoomSquare = displayboard.create('checkbox', [1, 9, 'Zoom Square']);
-
-slider_horiz_zoom = displayboard.create('slider', [[1, 2], [7, 2], [-10, 1, 10]]);
-horiz_zoom_label = displayboard.create('text', [9, 2, 'x zoom']);
-horiz_zoom_level = 1;
-slider_horiz_zoom.on('drag', 
-	function() {
-		var orgbounds = board.getBoundingBox();
-		var newfactor = slider_horiz_zoom.Value();
-		if(horiz_zoom_level > newfactor) {
-			orgbounds[0] = orgbounds[0] * 1.1;
-			orgbounds[2] = orgbounds[2] * 1.1;
-		} else {
-			orgbounds[0] = orgbounds[0] / 1.1;
-			orgbounds[2] = orgbounds[2] / 1.1;
-		}
-		board.setBoundingBox(orgbounds, false);
-		horiz_zoom_level = newfactor;
-	});
-
-slider_vert_zoom = displayboard.create('slider', [[1, 1.5], [7, 1.5], [-10, 1, 10]]);
-vert_zoom_label = displayboard.create('text', [9, 1.5, 'y zoom']);
-vert_zoom_level = 1;
-slider_vert_zoom.on('drag', 
-	function() {
-		var orgbounds = board.getBoundingBox();
-		var newfactor = slider_vert_zoom.Value();
-		if(vert_zoom_level > newfactor) {
-			orgbounds[1] = orgbounds[1] * 1.1;
-			orgbounds[3] = orgbounds[3] * 1.1;
-		} else {
-			orgbounds[1] = orgbounds[1] / 1.1;
-			orgbounds[3] = orgbounds[3] / 1.1;
-		}
-		board.setBoundingBox(orgbounds, false);
-		vert_zoom_level = newfactor;
-	});	
 
 // All the things that have to do with checkboxes
 

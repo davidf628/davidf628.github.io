@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+&emsp;&emsp;<!DOCTYPE html>
 <html lang="en-US">
 
 <head>
@@ -25,12 +25,10 @@
 <h1>Arc Length</h1>
 
 f(x) = <input type="text" id="input_function" value="">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-a = <input type="text" id="interval_start" value="">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-b = <input type="text" id="interval_end" value="">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="button" value="Update" onClick="update()">
+&emsp;&emsp;a = <input type="text" id="interval_start" value="">
+&emsp;&emsp;b = <input type="text" id="interval_end" value="">
+&emsp;&emsp;<input type="button" value="Update" onClick="update()">
+&emsp;&emsp;<input type="button" value="Toggle Zoom Panel" onClick="toggle_zoomPanel()">
 </br></br>
 
 <div>
@@ -62,7 +60,10 @@ var controlboard = JXG.JSXGraph.initBoard('display', {
 		keepaspectratio: false,
 		axis: false	
     });
-		
+	
+// Set up x-zoom and y-zoom sliders
+setupZoomPanel(board, { visible: false, xinit: 20, yinit: 20 });
+
 // Initialize variables so that we have something we can update
 var curve = board.create('curve', [0, 0], 0, 0, { visible: false });
 var approx = board.create('curve', [0, 0], 0, 0, { visible: false, strokeWidth: 1, strokeColor: 'red' });

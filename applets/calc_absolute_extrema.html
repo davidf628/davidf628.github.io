@@ -23,25 +23,16 @@
 <h1>Absolute Extrema</h1>
 
     f(x) = <input type = "text" id = "input_function" value = "">
-    
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    Lower Bound = <input type = "text" id = "lower_bound" value = "">
-    
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    Upper Bound = <input type = "text" id = "upper_bound" value = "">
-    
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <input type = "button" value = "Update" onClick = "update()">
-    
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+    &emsp;&emsp;Lower Bound = <input type = "text" id = "lower_bound" value = "">
+    &emsp;&emsp;Upper Bound = <input type = "text" id = "upper_bound" value = "">
+    &emsp;&emsp;<input type = "button" value = "Update" onClick = "update()">
     
     <br /><br />
 
-    Set x-value = <input type = "text" id = "x_position" value = "">
-    
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <input type = "button" value = "Set x-Value" onClick = "setxvalue()">
+    Set x-value = <input type="text" id="x_position" value="">
+    &emsp;&emsp;<input type="button" value="Set x-Value" onClick="setxvalue()">
+    &emsp;&emsp;<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+    &emsp;&emsp;<input type="button" value="Toggle Zoom Panel" onClick="toggle_zoomPanel()">
     
     <br /><br />
 
@@ -78,22 +69,8 @@ var controlboard = JXG.JSXGraph.initBoard('display', {
         }	
     });
         
-changeScale = function(e) {
-    bounds = JSXGetBounds(board);
-    var midx = (bounds.xmax + bounds.xmin) / 2;
-    var midy = (bounds.ymax + bounds.ymin) / 2;
-    xExp = 100 * Math.pow(slider_horiz_zoom.Value(), -1.5);
-    yExp = 100 * Math.pow(slider_vert_zoom.Value(), -1.5);
-    board.setBoundingBox([ midx - xExp, midy + yExp, midx + xExp, midy - yExp], false);
-}	
-            
-slider_horiz_zoom = controlboard.create('slider', [[1, 1], [7, 1], [0.1, 9, 100]]);
-horiz_zoom_label = controlboard.create('text', [9, 1, 'x zoom']);
-slider_horiz_zoom.on('drag', changeScale);
-
-slider_vert_zoom = controlboard.create('slider', [[1, 0.5], [7, 0.5], [0.1, 9, 100]]);
-vert_zoom_label = controlboard.create('text', [9, 0.5, 'y zoom']);
-slider_vert_zoom.on('drag', changeScale);		
+// Set up x-zoom and y-zoom sliders
+setupZoomPanel(board, { visible: false, xinit: 10, yinit: 10, xstart: 0.65, ystart: 0.75 });	
         
 // Line that point p can glide upon
 var xaxis = board.create('functiongraph', [function() { return 0; }], { visible: false });  

@@ -31,19 +31,21 @@
 <body>
 
 <h1>Integrals and Approximations</h1>
-<form>Riemann sum type: <select id="sumtype">
-	<option value='left' selected>Left
-	<option value='right'>Right
-	<option value='middle'>Middle
-	<option value='lower'>Lower
-	<option value='upper'>Upper
-	<option value='trapezoidal'>Trapezoidal
-	<option value='simpson'>Simpson
-</select></form>
-f(x) = <input type="text" id="input_function" value="-0.025*(x+5)*(x)*(x+2)*(x-4)+5">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="button" value="Update" onClick="update()">
-<br /><br />
+
+	<form>Riemann sum type: <select id="sumtype">
+		<option value='left' selected>Left
+		<option value='right'>Right
+		<option value='middle'>Middle
+		<option value='lower'>Lower
+		<option value='upper'>Upper
+		<option value='trapezoidal'>Trapezoidal
+		<option value='simpson'>Simpson
+	</select>
+	&emsp;&emsp;f(x) = <input type="text" id="input_function" value="-0.025*(x+5)*(x)*(x+2)*(x-4)+5">
+	&emsp;&emsp;<input type="button" value="Update" onClick="update()">
+	&emsp;&emsp;<input type="button" value="Toggle Zoom Panel" onClick="toggle_zoomPanel()"></form>
+	<br />
+	
 <div>
 	<div id="jxgbox" class="jxgbox" style="width:720px; height:720px; float:left; resize: both"></div>
 	<div id="display" class="jxgbox" style="width:320px; height:720px; float:left"></div>
@@ -73,7 +75,10 @@ var controlboard = JXG.JSXGraph.initBoard('display', {
 		keepaspectratio: false,
 		axis: false	
     });
-		
+	
+// Set up x-zoom and y-zoom sliders
+setupZoomPanel(board, { visible: false, xinit: 20, yinit: 20 });
+
 // Initialize variables so that we have something we can update
 curve = board.create('curve', [0, 0], 0, 0, { visible: false });
 integral = board.create('integral', [[0, 0], curve], { visible: false });
@@ -273,44 +278,6 @@ function update() {
 	board.update();	
 		
 }
-
-// Set up the ability to do horizontal and vertical zoom
-
-slider_horiz_zoom = controlboard.create('slider', [[1, 1], [7, 1], [-10, 1, 10]]);
-horiz_zoom_label = controlboard.create('text', [9, 1, 'x zoom']);
-horiz_zoom_level = 1;
-slider_horiz_zoom.on('drag', 
-	function() {
-		var orgbounds = board.getBoundingBox();
-		var newfactor = slider_horiz_zoom.Value();
-		if(horiz_zoom_level > newfactor) {
-			orgbounds[0] = orgbounds[0] * 1.1;
-			orgbounds[2] = orgbounds[2] * 1.1;
-		} else {
-			orgbounds[0] = orgbounds[0] / 1.1;
-			orgbounds[2] = orgbounds[2] / 1.1;
-		}
-		board.setBoundingBox(orgbounds, false);
-		horiz_zoom_level = newfactor;
-	});
-
-slider_vert_zoom = controlboard.create('slider', [[1, 0.5], [7, 0.5], [-10, 1, 10]]);
-vert_zoom_label = controlboard.create('text', [9, 0.5, 'y zoom']);
-vert_zoom_level = 1;
-slider_vert_zoom.on('drag', 
-	function() {
-		var orgbounds = board.getBoundingBox();
-		var newfactor = slider_vert_zoom.Value();
-		if(vert_zoom_level > newfactor) {
-			orgbounds[1] = orgbounds[1] * 1.1;
-			orgbounds[3] = orgbounds[3] * 1.1;
-		} else {
-			orgbounds[1] = orgbounds[1] / 1.1;
-			orgbounds[3] = orgbounds[3] / 1.1;
-		}
-		board.setBoundingBox(orgbounds, false);
-		vert_zoom_level = newfactor;
-	});	
 
 </script>
 </body>

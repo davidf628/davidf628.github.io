@@ -37,8 +37,9 @@
 	<h1>Transformations of Functions</h1>
 
     <input type="button" value="Update" onClick="update()">
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+	&emsp;&emsp;<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+	&emsp;&emsp;<input type="button" value="Toggle Zoom Panel" onClick="toggle_zoomPanel()">
+
 	<br/><br/>
     
 <div>
@@ -82,6 +83,9 @@
 			enabled: false
 		}
     });    
+
+	// Set up x-zoom and y-zoom sliders
+	setupZoomPanel(board, { visible: false, xinit: 5, yinit: 5, xstart: 0.65, ystart: 0.75 });
 
 	// Default base function to draw
 	function_type = 'quadratic';

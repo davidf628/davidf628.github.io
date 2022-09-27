@@ -25,14 +25,12 @@
 <h1>Horizontal and Vertical Line Test</h1>
 
 f(x) = <input type="text" id="input_function" value="-3 (-4,-1]; 1 (-1,2]">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="button" value="Update" onClick="do_plot()">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="button" value="Toggle Vertical Line" onClick="toggle_vlt()">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="button" value="Toggle Horizontal Line" onClick="toggle_hlt()">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+&emsp;&emsp;<input type="button" value="Update" onClick="do_plot()">
+&emsp;&emsp;<input type="button" value="Toggle Vertical Line" onClick="toggle_vlt()">
+&emsp;&emsp;<input type="button" value="Toggle Horizontal Line" onClick="toggle_hlt()">
+&emsp;&emsp;<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+&emsp;&emsp;<input type="button" value="Toggle Zoom Panel" onClick="toggle_zoomPanel()">
+
 </br></br>
 
 <div id="jxgbox" class="jxgbox" style="width:1000px; height:720px; float:left; resize: both"></div>
@@ -53,6 +51,9 @@ f(x) = <input type="text" id="input_function" value="-3 (-4,-1]; 1 (-1,2]">
             eps: 0.1
         }
 	});
+
+	// Set up x-zoom and y-zoom sliders
+	setupZoomPanel(board, { visible: false, xinit: 10, yinit: 10, xstart: 0.65, ystart: 0.75 });
 
 	let totalCurves = 2;
 

@@ -37,14 +37,11 @@
 <h1>Sequences and Series</h1>
 
 $a_n = $ <input type="text" id="sequence_a" value="">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-$b_n = $ <input type="text" id="sequence_b" value="">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-$n$ Start = <input type="text" id="n_start" value="1">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="button" value="Update" onClick="update()">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+&emsp;&emsp;$b_n = $ <input type="text" id="sequence_b" value="">
+&emsp;&emsp;$n$ Start = <input type="text" id="n_start" value="1">
+&emsp;&emsp;<input type="button" value="Update" onClick="update()">
+&emsp;&emsp;<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+&emsp;&emsp;<input type="button" value="Toggle Zoom Panel" onClick="toggle_zoomPanel()">
 </br></br>
 
 <div>
@@ -87,6 +84,9 @@ var displayboard = JXG.JSXGraph.initBoard('display', {
 		pan: { enabled: false },
 		zoom: { enabled: false }
     });
+
+// Set up x-zoom and y-zoom sliders
+setupZoomPanel(board, { visible: false, xinit: 21, yinit: 6, xstart: 0.65, ystart: 0.05 });
 
 // Global Variables
 
@@ -225,42 +225,6 @@ function init() {
 
 	board.on('up', function() { update(); });
 
-	slider_horiz_zoom = displayboard.create('slider', [[1, 2.5], [7, 2.5], [-10, 1, 10]]);
-	horiz_zoom_label = displayboard.create('text', [9, 2.5, 'x zoom'], { fixed: true });
-	horiz_zoom_level = 1;
-	slider_horiz_zoom.on('drag', 
-		function() {
-			var orgbounds = board.getBoundingBox();
-			var newfactor = slider_horiz_zoom.Value();
-			if(horiz_zoom_level > newfactor) {
-				orgbounds[0] = orgbounds[0] * 1.1;
-				orgbounds[2] = orgbounds[2] * 1.1;
-			} else {
-				orgbounds[0] = orgbounds[0] / 1.1;
-				orgbounds[2] = orgbounds[2] / 1.1;
-			}
-			board.setBoundingBox(orgbounds, false);
-			horiz_zoom_level = newfactor;
-		});
-
-	slider_vert_zoom = displayboard.create('slider', [[1, 2], [7, 2], [-10, 1, 10]]);
-	vert_zoom_label = displayboard.create('text', [9, 2, 'y zoom'], { fixed: true });
-	vert_zoom_level = 1;
-	slider_vert_zoom.on('drag', 
-		function() {
-			var orgbounds = board.getBoundingBox();
-			var newfactor = slider_vert_zoom.Value();
-			if(vert_zoom_level > newfactor) {
-				orgbounds[1] = orgbounds[1] * 1.1;
-				orgbounds[3] = orgbounds[3] * 1.1;
-			} else {
-				orgbounds[1] = orgbounds[1] / 1.1;
-				orgbounds[3] = orgbounds[3] / 1.1;
-			}
-			board.setBoundingBox(orgbounds, false);
-			vert_zoom_level = newfactor;
-		});	
-	
 	cb_sequence_a = JSXCheckbox(displayboard, 1, 9, 'Show Sequence a', true, function() { update(); }, { fontSize: 18 });
 	cb_series_a = JSXCheckbox(displayboard, 1, 8.5, 'Show Series a', false, function() { update(); }, { fontSize: 18 });
 	cb_function_a = JSXCheckbox(displayboard, 1, 8, 'Show Function a', false, function() { update(); }, { fontSize: 18 });

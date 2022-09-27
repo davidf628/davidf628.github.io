@@ -31,14 +31,12 @@
 <h1>Domain and Range</h1>
 
 f(x) = <input type="text" id="input_function" value="-3 (-4,-1]; 1 (-1,2]">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="button" value="Update" onClick="do_plot()">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="button" value="Animate Domain" onClick="animate_domain()">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="button" value="Animate Range" onClick="animate_range()">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+&emsp;&emsp;<input type="button" value="Update" onClick="do_plot()">
+&emsp;&emsp;<input type="button" value="Animate Domain" onClick="animate_domain()">
+&emsp;&emsp;<input type="button" value="Animate Range" onClick="animate_range()">
+&emsp;&emsp;<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+&emsp;&emsp;<input type="button" value="Toggle Zoom Panel" onClick="toggle_zoomPanel()">
+
 </br></br>
 
 <div id="jxgbox" class="jxgbox" style="width:1000px; height:720px; float:left; resize: both"></div>
@@ -59,7 +57,10 @@ f(x) = <input type="text" id="input_function" value="-3 (-4,-1]; 1 (-1,2]">
             eps: 0.1
         }	
 	});
-	
+
+	// Set up x-zoom and y-zoom sliders
+	setupZoomPanel(board, { visible: false, xinit: 10, yinit: 10 });
+
 	steps = 200;
 	nCurves = 0;
 	totalCurves = 4;

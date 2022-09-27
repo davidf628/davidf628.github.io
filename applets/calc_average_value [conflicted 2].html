@@ -13,6 +13,9 @@
 		<!-- Math.js -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.5.0/math.min.js"></script>
 
+        <!-- Parser -->
+        <script src='./js/parser.js' type='text/javascript'></script>
+
 		<!-- Mine -->
 		<script src='./js/MathFunctions.js' type='text/javascript'></script>
 		<script src='./js/helpers.js' type='text/javascript'></script>
@@ -25,21 +28,13 @@
 <h1>Average Value of a Function</h1>
     
     f(x) = <input type="text" id="input_function" value="">
-    
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <input type="button" value="Update" onClick="update()">
-    
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    &emsp;&emsp;<input type="button" value="Update" onClick="update()">
+    &emsp;&emsp;<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+    &emsp;&emsp;<input type="button" value="Toggle Zoom Panel" onClick="toggle_zoomPanel()">
+    <br /><br />
     x1 = <input type="text" id="x1_value" value="">
-    
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    x2 = <input type="text" id="x2_value" value="">
-    
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <input type="button" value="Set Endpoints" onClick="setendpoints()">
-    
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+    &emsp;&emsp;x2 = <input type="text" id="x2_value" value="">
+    &emsp;&emsp;<input type="button" value="Set Endpoints" onClick="setendpoints()">
     <br><br>
 
 <div>
@@ -78,27 +73,9 @@ var displayboard = JXG.JSXGraph.initBoard('display', {
         }
     });    
 	
+
 // Set up x-zoom and y-zoom sliders
-
-changeScale = function(e) {
-    bounds = JSXGetBounds(board);
-    var midx = (bounds.xmax + bounds.xmin) / 2;
-    var midy = (bounds.ymax + bounds.ymin) / 2;
-    xExp = 100 * Math.pow(slider_horiz_zoom.Value(), -1.5);
-    yExp = 100 * Math.pow(slider_vert_zoom.Value(), -1.5);
-    board.setBoundingBox([ midx - xExp, midy + yExp, midx + xExp, midy - yExp], false);
-    updatepoints();
-}	
-    
-board.infobox.setAttribute({ fontSize: 18, strokeColor: 'black' });
-
-slider_horiz_zoom = displayboard.create('slider', [[1, 1], [7, 1], [0.1, 9, 100]]);
-horiz_zoom_label = displayboard.create('text', [9, 1, 'x zoom'], { fixed: true });
-slider_horiz_zoom.on('drag', changeScale);
-
-slider_vert_zoom = displayboard.create('slider', [[1, 0.5], [7, 0.5], [0.1, 9, 100]]);
-vert_zoom_label = displayboard.create('text', [9, 0.5, 'y zoom'], { fixed: true });
-slider_vert_zoom.on('drag', changeScale);
+setupZoomPanel(board, { visible: false, xinit: 10, yinit: 10 });
 
 // initial variables
 var curve, integral, exact_rect, guess_rect, guess_height;

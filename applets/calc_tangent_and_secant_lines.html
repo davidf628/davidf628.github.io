@@ -32,22 +32,22 @@
 <body>
 
 <h1>Tangent Lines, Secant Lines and Slope</h1>
+
 f(x) = <input type="text" id="input_function" value="">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="button" value="Update" onClick="update()">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="checkbox" id="tangent_line" onclick="toggleTangent()" style="width:15px;height:15px;">
-<label for="tangent_line">Show Tangent</label>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="checkbox" id="secant_line" onclick="toggleSecant()" style="width:15px;height:15px;">
-<label for="secant_line">Show Secant</label>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="checkbox" id="delta_x" onclick="toggleDeltaX()" style="width:15px;height:15px;">
-<label for="delta_x">Show $\Delta x$</label>
+&emsp;&emsp;<input type="button" value="Update" onClick="update()">
+&emsp;&emsp;<input type="checkbox" id="tangent_line" onclick="toggleTangent()" style="width:15px;height:15px;">
+&emsp;&emsp;<label for="tangent_line">Show Tangent</label>
+&emsp;&emsp;<input type="checkbox" id="secant_line" onclick="toggleSecant()" style="width:15px;height:15px;">
+&emsp;&emsp;<label for="secant_line">Show Secant</label>
+&emsp;&emsp;<input type="checkbox" id="delta_x" onclick="toggleDeltaX()" style="width:15px;height:15px;">
+&emsp;&emsp;<label for="delta_x">Show $\Delta x$</label>
+&emsp;&emsp;<input type="button" value="Toggle Zoom Panel" onClick="toggle_zoomPanel()">
+
 </br></br>
+
 <div>
-<div id="jxgbox" class="jxgbox" style="width:720px; height:720px; float:left; resize: both"></div>
-<div id="display" class="jxgbox" style="width:320px; height:720px; float:left"></div>
+	<div id="jxgbox" class="jxgbox" style="width:720px; height:720px; float:left; resize: both"></div>
+	<div id="display" class="jxgbox" style="width:320px; height:720px; float:left"></div>
 </div>
 
 <script type='text/javascript'>
@@ -77,6 +77,9 @@ var displayboard = JXG.JSXGraph.initBoard('display', {
 		axis: false	
     });
 		
+// Set up x-zoom and y-zoom sliders
+setupZoomPanel(board, { visible: false, xinit: 20, yinit: 20, xstart: 0.65, ystart: 0.75 });
+
 // Initialize curve so that we have something we can update
 curve = [];
 tangent = board.create('point', [0, 0], { visible: false, withLabel: false });
@@ -118,42 +121,6 @@ function toggleDeltaX() {
 	
 tangent_slope = displayboard.create('text', [1, 9, '$' + 'm_{tan} = ' + '$'], { fontSize: 20, fixed: true });
 secant_slope = displayboard.create('text', [1, 8, '$' + 'm_{sec}:  ' + '$'], { fontSize: 20, fixed: true });
-	
-slider_horiz_zoom = displayboard.create('slider', [[1, 1], [7, 1], [-10, 1, 10]]);
-horiz_zoom_label = displayboard.create('text', [9, 1, 'x zoom']);
-horiz_zoom_level = 1;
-slider_horiz_zoom.on('drag', 
-	function() {
-		var orgbounds = board.getBoundingBox();
-		var newfactor = slider_horiz_zoom.Value();
-		if(horiz_zoom_level > newfactor) {
-			orgbounds[0] = orgbounds[0] * 1.1;
-			orgbounds[2] = orgbounds[2] * 1.1;
-		} else {
-			orgbounds[0] = orgbounds[0] / 1.1;
-			orgbounds[2] = orgbounds[2] / 1.1;
-		}
-		board.setBoundingBox(orgbounds, false);
-		horiz_zoom_level = newfactor;
-	});
-
-slider_vert_zoom = displayboard.create('slider', [[1, 0.5], [7, 0.5], [-10, 1, 10]]);
-vert_zoom_label = displayboard.create('text', [9, 0.5, 'y zoom']);
-vert_zoom_level = 1;
-slider_vert_zoom.on('drag', 
-	function() {
-		var orgbounds = board.getBoundingBox();
-		var newfactor = slider_vert_zoom.Value();
-		if(vert_zoom_level > newfactor) {
-			orgbounds[1] = orgbounds[1] * 1.1;
-			orgbounds[3] = orgbounds[3] * 1.1;
-		} else {
-			orgbounds[1] = orgbounds[1] / 1.1;
-			orgbounds[3] = orgbounds[3] / 1.1;
-		}
-		board.setBoundingBox(orgbounds, false);
-		vert_zoom_level = newfactor;
-	});	
 	
 function update() {
 

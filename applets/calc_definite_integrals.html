@@ -25,32 +25,17 @@
 <h1>Definite Integrals</h1>
     
     f<sub>1</sub>(x) = <input type="text" id="f1" value="">
-		
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	f<sub>2</sub>(x) = <input type="text" id="f2" value="">
-    
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <input type="button" value="Update" onClick="update()">
-	    
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
-	
+	&emsp;&emsp;f<sub>2</sub>(x) = <input type="text" id="f2" value="">
+    &emsp;&emsp;<input type="button" value="Update" onClick="update()">
+    &emsp;&emsp;<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
+	&emsp;&emsp;<input type="button" value="Toggle Zoom Panel" onClick="toggle_zoomPanel()">
 	<br /><br />
     
     a<sub>1</sub> = <input type="text" id="a1" value="">
-    
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    b<sub>1</sub> = <input type="text" id="b1" value="">
-	
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    a<sub>2</sub> = <input type="text" id="a2" value="">
-    
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    b<sub>2</sub> = <input type="text" id="b2" value="">
-    
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <input type="button" value="Set Endpoints" onClick="setendpoints()">
-	
+    &emsp;&emsp;b<sub>1</sub> = <input type="text" id="b1" value="">
+    &emsp;&emsp;a<sub>2</sub> = <input type="text" id="a2" value="">
+    &emsp;&emsp;b<sub>2</sub> = <input type="text" id="b2" value="">
+    &emsp;&emsp;<input type="button" value="Set Endpoints" onClick="setendpoints()">
     <br /><br />
 
 <div>
@@ -90,26 +75,9 @@ var displayboard = JXG.JSXGraph.initBoard('display', {
     });    
 	
 // Set up x-zoom and y-zoom sliders
+setupZoomPanel(board, { visible: false, xinit: 20, yinit: 20 });
 
-changeScale = function(e) {
-    bounds = JSXGetBounds(board);
-    var midx = (bounds.xmax + bounds.xmin) / 2;
-    var midy = (bounds.ymax + bounds.ymin) / 2;
-    xExp = 100 * Math.pow(slider_horiz_zoom.Value(), -1.5);
-    yExp = 100 * Math.pow(slider_vert_zoom.Value(), -1.5);
-    board.setBoundingBox([ midx - xExp, midy + yExp, midx + xExp, midy - yExp], false);
-    updatepoints();
-}	
-    
 board.infobox.setAttribute({ fontSize: 18, strokeColor: 'black' });
-
-slider_horiz_zoom = displayboard.create('slider', [[1, 1], [7, 1], [0.1, 9, 100]]);
-horiz_zoom_label = displayboard.create('text', [9, 1, 'x zoom'], { fixed: true });
-slider_horiz_zoom.on('drag', changeScale);
-
-slider_vert_zoom = displayboard.create('slider', [[1, 0.5], [7, 0.5], [0.1, 9, 100]]);
-vert_zoom_label = displayboard.create('text', [9, 0.5, 'y zoom'], { fixed: true });
-slider_vert_zoom.on('drag', changeScale);
 
 // initial variables
 var curve1, curve2, integral1, integral2;
