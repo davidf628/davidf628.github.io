@@ -70,7 +70,7 @@ var controlboard = JXG.JSXGraph.initBoard('display', {
     });
         
 // Set up x-zoom and y-zoom sliders
-setupZoomPanel(board, { visible: false, xinit: 10, yinit: 10, xstart: 0.65, ystart: 0.75 });	
+setupZoomPanel(board, { visible: false, xinit: 20, yinit: 20 });	
         
 // Line that point p can glide upon
 var xaxis = board.create('functiongraph', [function() { return 0; }], { visible: false });  
@@ -165,10 +165,10 @@ function setxvalue() {
     var f = document.getElementById('input_function').value;
     var f_func = makeJSFunction(board, f, 'x');
     
-    var val = math.eval(document.getElementById('x_position').value);
+    var val = evalstr(document.getElementById('x_position').value);
     
-    var lb = math.eval(document.getElementById('lower_bound').value);
-    var ub = math.eval(document.getElementById('upper_bound').value);
+    var lb = evalstr(document.getElementById('lower_bound').value);
+    var ub = evalstr(document.getElementById('upper_bound').value);
     
     if (val >= lb && val <= ub) {
         p.moveTo([val, 0]);
