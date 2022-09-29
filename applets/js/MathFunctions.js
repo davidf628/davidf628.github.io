@@ -3678,7 +3678,7 @@ function plot(curve, relation, start_x, end_x, args) {
 				if(fname == 'x') {
 					args.variable = 't';
 					args.density = 1;
-					var bounds = JSXGetBounds(board);
+					var bounds = Bounds(board);
 					var tmin = bounds.ymin;
 					var tmax = bounds.ymax;
 					plot_parametric(curve, relation, 't', tmin, tmax, args);

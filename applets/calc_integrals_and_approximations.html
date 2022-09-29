@@ -7,8 +7,8 @@
 	<meta charset="utf-8">  
 
 		<!-- JSX Graph -->
-		<script type="text/javascript" charset="UTF-8" src="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraphcore.js"></script>
-		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraph.css" />
+		<script type="text/javascript" charset="UTF-8" src="https://cdn.jsdelivr.net/npm/jsxgraph@1.2.3/distrib/jsxgraphcore.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.5/distrib/jsxgraph.css" />
 
 		<!-- Math.js -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.5.0/math.min.js"></script>
@@ -79,6 +79,12 @@ var controlboard = JXG.JSXGraph.initBoard('display', {
 // Set up x-zoom and y-zoom sliders
 setupZoomPanel(board, { visible: false, xinit: 20, yinit: 20 });
 
+// These variables are static throughout the duration of the applet
+let xaxis = board.create('line', [[0, 0], [1, 0]], { visible: false });
+let a = board.create('glider', [1, 0, xaxis], { name: 'A' });
+let b = board.create('glider', [3, 0, xaxis], { name: 'B' });
+let n = controlboard.create('slider', [[1, 8], [7, 8], [1, 4, 50]], { name: 'n', snapWidth: 1 });
+
 // Initialize variables so that we have something we can update
 curve = board.create('curve', [0, 0], 0, 0, { visible: false });
 integral = board.create('integral', [[0, 0], curve], { visible: false });
@@ -88,46 +94,39 @@ approximationdisplay = controlboard.create('text', [1, 7, 'Approximation = ']);
 points = [];  lines = [];  quadratics = [];  graphs = [];  simps = [];
 simpsonVisible = false;
  
-// These variables are static throughout the duration of the applet
-xaxis = board.create('line', [[0, 0], [1, 0]], { visible: false });
-a = board.create('glider', [-4, 0, xaxis], { name: 'A' });
-b = board.create('glider', [3, 0, xaxis], { name: 'B' });
-n = controlboard.create('slider', [[1, 8], [7, 8], [1, 4, 50]], { name: 'n', snapWidth: 1 });
-
 a.on('drag', function() { update(); controlboard.update(); } );
 b.on('drag', function() { update(); controlboard.update(); } );
 n.on('drag', function() { update(); } );
 
-cb_showintegral = controlboard.create('checkbox', [1, 9.5, 'Show Integral']);
-cb_showapproximation = controlboard.create('checkbox', [1, 9, 'Show Approximation']); 
-cb_showapproximation.rendNodeCheckbox.checked = true;
-cb_showapproximation._value = true;
-
-JXG.addEvent(cb_showintegral.rendNodeCheckbox, 'change', 
+cb_showintegral = new JSXCheckBox(controlboard, 1, 9.5, 'Show Integral', false,
 	function() {
 		integral.setAttribute( { visible: !integral.getAttribute('visible') } );
 		board.update();
-    }, cb_showintegral);
+    });
 
-JXG.addEvent(cb_showapproximation.rendNodeCheckbox, 'change', 
+cb_showapproximation = new JSXCheckBox(controlboard, 1, 9, 'Show Approximation', true,
 	function() {
 		var approximationvisible = approximation.getAttribute('visible');
 		
 		if(document.getElementById('sumtype').value == 'simpson') {
 			// Get the Simpson's approxmation to turn off when this item is selected
-			for(var i = 0; i < lines.length; i++) {
-				lines[i].setAttribute( { visible: !simpsonVisible } );
+			for (line of lines) {
+				line.setAttribute( { visible: !simpsonVisible } );
 			}
-			for(var i = 0; i < graphs.length; i++) {
-				graphs[i].setAttribute( { visible: !simpsonVisible } );
-				simps[i].setAttribute( { visible: !simpsonVisible } );
+			for (graph of graphs) {
+				graph.setAttribute( { visible: !simpsonVisible } );
 			}
+			for (simp of simps) {
+				simp.setAttribute( { visible: !simpsonVisible } );
+			}
+
 			simpsonVisible = !simpsonVisible;
 		} else {
 			approximation.setAttribute( { visible: !approximationvisible } );
 		}
 		board.update();
-    }, cb_showapproximation);	
+    }
+);
 
 update();
 
@@ -158,7 +157,7 @@ function update() {
 		relation = makeJSFunction(board, f);
 		curve = board.create('functiongraph', [relation], { strokeWidth: 2 });
 		
-		integral = board.create('integral', [[function() { return a.X(); }, function() { return b.X(); }], curve], { withLabel: false, visible: cb_showintegral.Value() }); 
+		integral = board.create('integral', [[function() { return a.X(); }, function() { return b.X(); }], curve], { withLabel: false, visible: cb_showintegral.isChecked() }); 
 		integral.curveLeft.setAttribute( { visible: false } );
 		integral.curveRight.setAttribute( { visible: false } );
 		integraldisplay = controlboard.create('text', [1, 7.5, function() { return 'Integral = ' + integral.Value().toFixed(6); }]);
@@ -175,8 +174,8 @@ function update() {
 			var delta_x = (b.X() - a.X()) / n_val;
 			
 			// Handle the points
-			for(var i = 0; i < points.length; i++) {
-				board.removeObject(points[i]);
+			for (point of points) {
+				board.removeObject(point);
 			}
 			
 			points = [];
@@ -187,8 +186,8 @@ function update() {
 			}
 			
 			// Handle the lines
-			for(var i = 0; i < lines.length; i++) {
-				board.removeObject(lines[i]);
+			for (line of lines) {
+				board.removeObject(line);
 			}
 			
 			lines = [];
@@ -201,7 +200,7 @@ function update() {
 					  dash: i % 2,
 					  strokeWidth: 1,
 					  strokeColor: 'blue',
-					  visible: cb_showapproximation.Value() });
+					  visible: cb_showapproximation.isChecked() });
 			}
 			
 			// Display the approximating quadratics
@@ -223,7 +222,7 @@ function update() {
 					{ strokeWidth: 3, 
 					  strokeColor: 'violet', 
 					  fixed: true,
-					  visible: cb_showapproximation.Value() });	
+					  visible: cb_showapproximation.isChecked() });	
 					  
 				var polygonpoints = [];
 				polygonpoints[0] = [points[2*i].X(), 0];
@@ -242,7 +241,7 @@ function update() {
 					{ fixed: true, 
 					  vertices: { visible: false }, 
 					  borders: { visible: false },
-					  visible: cb_showapproximation.Value() });
+					  visible: cb_showapproximation.isChecked() });
 			}
 			
 			approximation = board.create('riemannsum', [relation, function() { return n.Value(); },
@@ -251,14 +250,14 @@ function update() {
 								function() { return b.X(); }],
 								{ fillColor: '#00ff00', fillOpacity: 0.3, visible: false });
 			
-			simpsonVisible = cb_showapproximation.Value();
+			simpsonVisible = cb_showapproximation.isChecked();
 			
 		} else {
 			approximation = board.create('riemannsum', [relation, function() { return n.Value(); },
 								function() { return document.getElementById('sumtype').value; },
 								function() { return a.X(); },
 								function() { return b.X(); }],
-								{ fillColor: '#00ff00', fillOpacity: 0.3, visible: cb_showapproximation.Value() });
+								{ fillColor: '#00ff00', fillOpacity: 0.3, visible: cb_showapproximation.isChecked() });
 			if(simpsonVisible) {
 				for(var i = 0; i < lines.length; i++) {
 					lines[i].setAttribute( { visible: !simpsonVisible } );
