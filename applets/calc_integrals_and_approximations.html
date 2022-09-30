@@ -7,8 +7,8 @@
 	<meta charset="utf-8">  
 
 		<!-- JSX Graph -->
-		<script type="text/javascript" charset="UTF-8" src="https://cdn.jsdelivr.net/npm/jsxgraph@1.2.3/distrib/jsxgraphcore.js"></script>
-		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.5/distrib/jsxgraph.css" />
+		 <script type="text/javascript" charset="UTF-8" src="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.6/distrib/jsxgraphcore.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.6/distrib/jsxgraph.css" />
 
 		<!-- Math.js -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.5.0/math.min.js"></script>
@@ -81,7 +81,7 @@ setupZoomPanel(board, { visible: false, xinit: 20, yinit: 20 });
 
 // These variables are static throughout the duration of the applet
 let xaxis = board.create('line', [[0, 0], [1, 0]], { visible: false });
-let a = board.create('glider', [1, 0, xaxis], { name: 'A' });
+let a = board.create('glider', [-4, 0, xaxis], { name: 'A' });
 let b = board.create('glider', [3, 0, xaxis], { name: 'B' });
 let n = controlboard.create('slider', [[1, 8], [7, 8], [1, 4, 50]], { name: 'n', snapWidth: 1 });
 
