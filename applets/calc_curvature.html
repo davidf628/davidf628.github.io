@@ -7,11 +7,11 @@
 	<meta charset="utf-8">  
 
 		<!-- JSX Graph -->
-		<script type="text/javascript" charset="UTF-8" src="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraphcore.js"></script>
-		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraph.css" />
+		<script type="text/javascript" charset="UTF-8" src="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.6/distrib/jsxgraphcore.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.6/distrib/jsxgraph.css" />
 
 		<!-- Math.js -->
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.5.0/math.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.2.1/math.min.js"></script>
 
 		<!-- Mine -->
 		<script src='./js/MathFunctions.js' type='text/javascript'></script>
@@ -52,7 +52,7 @@ var board = JXG.JSXGraph.initBoard('jxgbox', {
         }		
     });
 
-var display = JXG.JSXGraph.initBoard('display', {
+var displayboard = JXG.JSXGraph.initBoard('display', {
 		boundingbox: [0,10,10,0], 
       	showCopyright: false, 
       	showNavigation: false,
@@ -70,70 +70,81 @@ var display = JXG.JSXGraph.initBoard('display', {
 // Set up x-zoom and y-zoom sliders
 setupZoomPanel(board, { visible: false, xinit: 14, yinit: 10 });
 
-update();
+// curve - the curve drawn for the input function f
+// a - the center of where the circle should be
+// p - the point where the calculation is done
+// circle - the circle
 
-var curve, p, a, circle, p_label, k_label, r_label;
+// p_label - the coordinates of point p
+// k_label - the value of K which is the curvature value
+// r_label - the radius of the circle drawn
+
+let curve, a, p, circle;
+
+let p_label = displayboard.create('text', [0.5, 9.5, ''], { fontSize: 18 });
+let k_label = displayboard.create('text', [0.5, 8.75, ''], { fontSize: 18 });
+let r_label = displayboard.create('text', [0.5, 8, ''], { fontSize: 18 });
+
+update();
 
 function update() {
 
-	var orgbounds = board.getBoundingBox();
-	var width = document.getElementById('jxgbox').clientWidth;
-	var height = document.getElementById('jxgbox').clientHeight;
-
-	board.resizeContainer(width, height);
-	board.setBoundingBox(orgbounds, false);
-
-	f = document.getElementById('input_function').value;
+	// Retrieve the input function and find its first and second derivatives
+	let f = document.getElementById('input_function').value;
 	
-	relation = makeJSFunction(board, f);
-	d = JXG.Math.Numerics.D(relation);
-	d2 = JXG.Math.Numerics.D(d);
-	
-	fd = math.derivative(f, 'x').toString();
-	tx = '1';
-	ty = fd;
-	tm = '((' + tx + ')^2 + (' + ty + ')^2)^(1/2)';
+	let relation = makeJSFunction(board, f);
+	let d = JXG.Math.Numerics.D(relation);
+	let d2 = JXG.Math.Numerics.D(d);
 
-	Tx = tx + ' / ' + tm;
-	Ty = ty + ' / ' + tm;
-
-	nx = math.derivative(Tx, 'x').toString();
-	ny = math.derivative(Ty, 'x').toString();
-
-	nm = '((' + nx + ')^2 + (' + ny + ')^2)^(1/2)';
-
-	Nx = nx + ' / ' + nm;
-	Ny = ny + ' / ' + nm;
-	
 	board.removeObject(curve);
-	board.removeObject(p);
 	board.removeObject(circle);
 	board.removeObject(a);
-	board.removeObject(p_label);
-	board.removeObject(k_label);
-	board.removeObject(r_label);
+	board.removeObject(p);
 	
+	// Calculate the radius of curvature function: r = (1 + (y')^2)^(3/2) / |y''|
+	let r = function() { return Math.pow(1 + Math.pow(d(p.X()), 2), 3/2) / Math.abs(d2(p.X())); }
+
 	curve = board.create('functiongraph', [relation], { strokeWidth: 2 });
 	p = board.create('glider', [-2, 0, curve], { name: 'P' });
-	a = board.create('point', [0, 0], { visible: false });
+	a = board.create('point', [
+		function() { 
+			let m_perp = -1 / d( p.X() );
+			let concavity = sgn( d2( p.X() ) );
+			let quad = quadrant(p.X(), p.Y());
+			let radius = r( p.X() );
+			let unit = concavity * sqrt( 1 + sqr( m_perp ));
+			if (quad == 1 || quad == 3) {
+				return p.X() + radius / unit;
+			} else {
+				return p.X() - radius / unit;
+			}
+		}, 
+		function() {
+			let m_perp = -1 / d( p.X() );
+			let concavity = sgn( d2( p.X() ) );
+			let quad = quadrant(p.X(), p.Y());
+			let radius = r( p.X() );
+			let unit = concavity * sqrt( 1 + sqr( m_perp ));
+			if (quad == 1 || quad == 3) {
+				return p.Y() + (radius * m_perp) / unit;
+			} else {
+				return p.Y() - (radius * m_perp) / unit;
+			}
+		}], { visible: false, name: 'C' });
+
 	circle = board.create('circle', [a, p]);
-		
-	r = function() { return Math.pow(1 + Math.pow(d(p.X()), 2), 3/2) / Math.abs(d2(p.X())); }
 
 	p.on('drag', 
-		function() { 
-			var newx = p.X() + evaluate(Nx, p.X()) * r(p.X());
-			var newy = p.Y() + evaluate(Ny, p.X()) * r(p.X());
-			a.moveTo([newx, newy]);		
-			display.update();
+		function() { 	
+			displayboard.update();
 		});	
 		
-	p_label = display.create('text', [0.5, 9.5, function() { return 'p = (' + p.X().toFixed(2) + ', ' + p.Y().toFixed(2) + ')'; }], { fontSize: 18 });
-	k_label = display.create('text', [0.5, 8.75, function() { return 'K = ' + (1/r(p.X())).toFixed(5); }], { fontSize: 18 });
-	r_label = display.create('text', [0.5, 8, function() { return 'r = ' + r(p.X()).toFixed(2); }], { fontSize: 18 });
+	p_label.setText(function() { return 'p = (' + p.X().toFixed(2) + ', ' + p.Y().toFixed(2) + ')'; });
+	k_label.setText(function() { return 'K = ' + (1 / r(p.X())).toFixed(5); });
+	r_label.setText(function() { return 'r = ' + r(p.X()).toFixed(2); });
 		
 	board.update();	
-	display.update();
+	displayboard.update();
 		
 }
 

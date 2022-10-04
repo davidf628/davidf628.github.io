@@ -50,6 +50,7 @@ function sort(list) { return list.sort(function(a, b) { return a - b; }); }
 function round(x, a=0) { return Math.round(x * Math.pow(10, a)) / Math.pow(10, a); }
 function min(a, b) { return a <= b ? a : b; }
 function max(a, b) { return a >= b ? a : b; }
+function sgn(a) { return a / abs(a) };
 
 function evalstr(expr, scope={}) {
 	try {
@@ -57,6 +58,14 @@ function evalstr(expr, scope={}) {
 		return isNaN(v) ? NaN : v;
 	} catch (Error) {
 		return Number.NaN;
+	}
+}
+
+function quadrant(x, y) {
+	if (x > 0) {
+		return y > 0 ? 1 : 4;
+	} else {
+		return y > 0 ? 2 : 3;
 	}
 }
 
