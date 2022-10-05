@@ -79,7 +79,7 @@ setupZoomPanel(board, { visible: false, xinit: 14, yinit: 10 });
 // k_label - the value of K which is the curvature value
 // r_label - the radius of the circle drawn
 
-let curve, a, p, circle;
+let curve, a, p, circle, T, T_vec, N, N_vec;
 
 let p_label = displayboard.create('text', [0.5, 9.5, ''], { fontSize: 18 });
 let k_label = displayboard.create('text', [0.5, 8.75, ''], { fontSize: 18 });
@@ -89,50 +89,62 @@ update();
 
 function update() {
 
-	// Retrieve the input function and find its first and second derivatives
-	let f = document.getElementById('input_function').value;
-	
-	let relation = makeJSFunction(board, f);
-	let d = JXG.Math.Numerics.D(relation);
-	let d2 = JXG.Math.Numerics.D(d);
+	// Remove all existing objects so they can be replaced when a new function is provided
 
 	board.removeObject(curve);
 	board.removeObject(circle);
 	board.removeObject(a);
 	board.removeObject(p);
+	// board.removeObject(T);
+	// board.removeObject(T_vec);
+	// board.removeObject(N);
+	// board.removeObject(N_vec);
+
+	// Retrieve the input function and find its first and second derivatives
+	let f = document.getElementById('input_function').value;
+
+	let relation = makeJSFunction(board, f);
+	let d = JXG.Math.Numerics.D(relation);
+	let d2 = JXG.Math.Numerics.D(d);
+
+	fd = math.derivative(f, 'x').toString();
+
+ 	tx = '1';
+ 	ty = fd;
+	tm = `sqrt( (${tx})^2 + (${ty})^2 )`;
+
+	Tx = `(${tx}) / (${tm})`;
+	Ty = `(${ty}) / (${tm})`;
+
+ 	nx = math.derivative(Tx, 'x').toString();
+ 	ny = math.derivative(Ty, 'x').toString();
+
+	nm = `sqrt( (${nx})^2 + (${ny})^2 )`;
+
+	Nx = `(${nx}) / (${nm})`;
+	Ny = `(${ny}) / (${nm})`;
 	
 	// Calculate the radius of curvature function: r = (1 + (y')^2)^(3/2) / |y''|
 	let r = function() { return Math.pow(1 + Math.pow(d(p.X()), 2), 3/2) / Math.abs(d2(p.X())); }
 
 	curve = board.create('functiongraph', [relation], { strokeWidth: 2 });
+
 	p = board.create('glider', [-2, 0, curve], { name: 'P' });
 	a = board.create('point', [
 		function() { 
-			let m_perp = -1 / d( p.X() );
-			let concavity = sgn( d2( p.X() ) );
-			let quad = quadrant(p.X(), p.Y());
-			let radius = r( p.X() );
-			let unit = concavity * sqrt( 1 + sqr( m_perp ));
-			if (quad == 1 || quad == 3) {
-				return p.X() + radius / unit;
-			} else {
-				return p.X() - radius / unit;
-			}
+			return p.X() + evalstr(Nx, { x: p.X() }) * r(p.X());
 		}, 
 		function() {
-			let m_perp = -1 / d( p.X() );
-			let concavity = sgn( d2( p.X() ) );
-			let quad = quadrant(p.X(), p.Y());
-			let radius = r( p.X() );
-			let unit = concavity * sqrt( 1 + sqr( m_perp ));
-			if (quad == 1 || quad == 3) {
-				return p.Y() + (radius * m_perp) / unit;
-			} else {
-				return p.Y() - (radius * m_perp) / unit;
-			}
+			return p.Y() + evalstr(Ny, { x: p.X() }) * r(p.X());
 		}], { visible: false, name: 'C' });
 
 	circle = board.create('circle', [a, p]);
+
+	//T = board.create('point', [function() { return p.X() + evalstr(Tx, { x: p.X() }) }, function() { return p.Y() + evalstr(Ty, { x: p.X() })}], { name: 'T'});
+	//T_vec = board.create('arrow', [p, T]);
+
+	//N = board.create('point', [function() { return p.X() + evalstr(Nx, { x: p.X() }) }, function() { return p.Y() + evalstr(Ny, { x: p.X() })}], { name: 'N'});
+	//N_vec = board.create('arrow', [p, N]);
 
 	p.on('drag', 
 		function() { 	

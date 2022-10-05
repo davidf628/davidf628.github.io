@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+
+	<title>Integrals and Approxmations</title>
+	<meta charset="utf-8">  
+
+		<!-- JSX Graph -->
+		<script type="text/javascript" charset="UTF-8" src="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.5/distrib/jsxgraphcore.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.5/distrib/jsxgraph.css" />
+
+		<!-- Math.js -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.5.0/math.min.js"></script>
+
+		<!-- Mine -->
+		<script src='./js/MathFunctions.js' type='text/javascript'></script>
+		<script src='./js/helpers.js' type='text/javascript'></script>
+
+	</meta>
+</head>
+
+<!--
+	- Allow for an input box to change the maximum number of rectangles
+	- Increase font size of integral and approximation values
+	- Update apprixmation value when new apprixmation method is selected
+	- display values of a and b in the control board
+	- adjust the number of sub-intervals for the simpson approximation
+-->
+
+<body>
+
+<h1>Integrals and Approximations</h1>
+
+	<form>Riemann sum type: <select id="sumtype">
+		<option value='left' selected>Left
+		<option value='right'>Right
+		<option value='middle'>Middle
+		<option value='lower'>Lower
+		<option value='upper'>Upper
+		<option value='trapezoidal'>Trapezoidal
+		<option value='simpson'>Simpson
+	</select>
+	&emsp;&emsp;f(x) = <input type="text" id="input_function" value="-0.025*(x+5)*(x)*(x+2)*(x-4)+5">
+	&emsp;&emsp;<input type="button" value="Update" onClick="update()">
+	&emsp;&emsp;<input type="button" value="Toggle Zoom Panel" onClick="toggle_zoomPanel()"></form>
+	<br />
+	
+<div>
+	<div id="jxgbox" class="jxgbox" style="width:720px; height:720px; float:left; resize: both"></div>
+	<div id="display" class="jxgbox" style="width:320px; height:720px; float:left"></div>
+</div>
+
+<script type='text/javascript'>	
+		
+var board = JXG.JSXGraph.initBoard('jxgbox', {
+		boundingbox: [-10,10,10,-10], 
+      	showCopyright: false, 
+      	showNavigation: true,
+		keepaspectratio: true,
+		axis: true,
+      	zoom: {
+            factorX: 1.25,
+            factorY: 1.25,
+            wheel: true,
+            needshift: false,
+            eps: 0.1
+        }		
+    });
+		
+var controlboard = JXG.JSXGraph.initBoard('display', {
+		boundingbox: [0,10,12,0], 
+      	showCopyright: false, 
+      	showNavigation: false,
+		keepaspectratio: false,
+		axis: false	
+    });
+	
+// Set up x-zoom and y-zoom sliders
+setupZoomPanel(board, { visible: false, xinit: 20, yinit: 20 });
+
+// These variables are static throughout the duration of the applet
+let xaxis = board.create('line', [[0, 0], [1, 0]], { visible: false });
+let a = board.create('glider', [1, 0, xaxis], { name: 'A' });
+let b = board.create('glider', [3, 0, xaxis], { name: 'B' });
+let n = controlboard.create('slider', [[1, 8], [7, 8], [1, 4, 50]], { name: 'n', snapWidth: 1 });
+
+// Initialize variables so that we have something we can update
+curve = board.create('curve', [0, 0], 0, 0, { visible: false });
+integral = board.create('integral', [[0, 0], curve], { visible: false });
+approximation = board.create('point', [0, 0], { visible: false }); 
+integraldisplay = controlboard.create('text', [1, 7.5, 'Integral = ']);
+approximationdisplay = controlboard.create('text', [1, 7, 'Approximation = ']);
+points = [];  lines = [];  quadratics = [];  graphs = [];  simps = [];
+simpsonVisible = false;
+ 
+a.on('drag', function() { update(); controlboard.update(); } );
+b.on('drag', function() { update(); controlboard.update(); } );
+n.on('drag', function() { update(); } );
+
+cb_showintegral = new JSXCheckBox(controlboard, 1, 9.5, 'Show Integral', false,
+	function() {
+		integral.setAttribute( { visible: !integral.getAttribute('visible') } );
+		board.update();
+    });
+
+cb_showapproximation = new JSXCheckBox(controlboard, 1, 9, 'Show Approximation', true,
+	function() {
+		var approximationvisible = approximation.getAttribute('visible');
+		
+		if(document.getElementById('sumtype').value == 'simpson') {
+			// Get the Simpson's approxmation to turn off when this item is selected
+			for (line of lines) {
+				line.setAttribute( { visible: !simpsonVisible } );
+			}
+			for (graph of graphs) {
+				graph.setAttribute( { visible: !simpsonVisible } );
+			}
+			for (simp of simps) {
+				simp.setAttribute( { visible: !simpsonVisible } );
+			}
+
+			simpsonVisible = !simpsonVisible;
+		} else {
+			approximation.setAttribute( { visible: !approximationvisible } );
+		}
+		board.update();
+    }
+);
+
+update();
+
+function update() {
+
+	board.suspendUpdate();
+
+	var orgbounds = board.getBoundingBox();
+	var width = document.getElementById('jxgbox').clientWidth;
+	var height = document.getElementById('jxgbox').clientHeight;
+
+	board.resizeContainer(width, height);
+	board.setBoundingBox(orgbounds, false);
+
+	board.removeObject(curve);
+	board.removeObject(integral);
+	board.removeObject(approximation);
+	controlboard.removeObject(approximationdisplay);
+	controlboard.removeObject(integraldisplay);
+	
+	var f = document.getElementById('input_function').value;
+	
+	if(f == '') {
+		curve = board.create('curve', [0, 0], 0, 0, { visible: false });
+		integral = board.create('integral', [[0, 0], curve], { visible: false });
+		approximation = board.create('point', [0, 0], { visible: false });  
+	} else {
+		relation = makeJSFunction(board, f);
+		curve = board.create('functiongraph', [relation], { strokeWidth: 2 });
+		
+		integral = board.create('integral', [[function() { return a.X(); }, function() { return b.X(); }], curve], { withLabel: false, visible: cb_showintegral.isChecked() }); 
+		integral.curveLeft.setAttribute( { visible: false } );
+		integral.curveRight.setAttribute( { visible: false } );
+		integraldisplay = controlboard.create('text', [1, 7.5, function() { return 'Integral = ' + integral.Value().toFixed(6); }]);
+		
+		var sumtype = document.getElementById('sumtype').value;
+		if(sumtype == 'simpson') {
+			// Go through the steps of showing the simpson approximation
+			var n_val = n.Value();
+			// Make sure n is an even value
+			if(n_val % 2 != 0) {
+				n_val++;
+			}
+			
+			var delta_x = (b.X() - a.X()) / n_val;
+			
+			// Handle the points
+			for (point of points) {
+				board.removeObject(point);
+			}
+			
+			points = [];
+			for(var i = 0; i <= n_val; i++) {
+				points[i] = board.create('point', 
+					[a.X() + i * delta_x, relation(a.X() + i * delta_x)], 
+					{ visible: false });
+			}
+			
+			// Handle the lines
+			for (line of lines) {
+				board.removeObject(line);
+			}
+			
+			lines = [];
+			for(var i = 0; i <= n_val; i++) {
+				lines[i] = board.create('segment', 
+					[points[i], [points[i].X(), 0]], 
+					{ visible: true, 
+					  fixed: true, 
+					  highlight: false, 
+					  dash: i % 2,
+					  strokeWidth: 1,
+					  strokeColor: 'blue',
+					  visible: cb_showapproximation.isChecked() });
+			}
+			
+			// Display the approximating quadratics
+			for(var i = 0; i <= quadratics.length; i++) {
+				board.removeObject(quadratics[i]);
+				board.removeObject(graphs[i]);
+				board.removeObject(simps[i]);
+			}
+			
+			quadratics = [];
+			graphs = [];
+			simps = [];
+			for(var i = 0; i < n_val / 2; i++) {
+							
+				quadratics[i] = JXG.Math.Numerics.lagrangePolynomial([points[2*i], points[2*i+1], points[2*i+2]]);
+				
+				graphs[i] = board.create('functiongraph', 
+					[quadratics[i], points[2*i].X(), points[2*i+2].X()], 
+					{ strokeWidth: 3, 
+					  strokeColor: 'violet', 
+					  fixed: true,
+					  visible: cb_showapproximation.isChecked() });	
+					  
+				var polygonpoints = [];
+				polygonpoints[0] = [points[2*i].X(), 0];
+				
+				var subint = 10;
+				
+				delta_k = (delta_x / (subint / 2));
+				for(var k = 0; k <= subint; k++) {
+					var x_val = points[2*i].X() + k*delta_k;
+					polygonpoints[k+1] = [x_val, quadratics[i](x_val)];
+				}
+
+				polygonpoints[subint+2] = [points[2*i+2].X(), 0];				
+				simps[i] = board.create('polygon', 
+					polygonpoints, 
+					{ fixed: true, 
+					  vertices: { visible: false }, 
+					  borders: { visible: false },
+					  visible: cb_showapproximation.isChecked() });
+			}
+			
+			approximation = board.create('riemannsum', [relation, function() { return n.Value(); },
+								function() { return document.getElementById('sumtype').value; },
+								function() { return a.X(); },
+								function() { return b.X(); }],
+								{ fillColor: '#00ff00', fillOpacity: 0.3, visible: false });
+			
+			simpsonVisible = cb_showapproximation.isChecked();
+			
+		} else {
+			approximation = board.create('riemannsum', [relation, function() { return n.Value(); },
+								function() { return document.getElementById('sumtype').value; },
+								function() { return a.X(); },
+								function() { return b.X(); }],
+								{ fillColor: '#00ff00', fillOpacity: 0.3, visible: cb_showapproximation.isChecked() });
+			if(simpsonVisible) {
+				for(var i = 0; i < lines.length; i++) {
+					lines[i].setAttribute( { visible: !simpsonVisible } );
+				}
+				for(var i = 0; i < graphs.length; i++) {
+					graphs[i].setAttribute( { visible: !simpsonVisible } );
+					simps[i].setAttribute( { visible: !simpsonVisible } );
+				}
+				simpsonVisible = !simpsonVisible;
+			}
+		}
+		approximationdisplay = controlboard.create('text', [1, 7, function() { return 'Approximation = ' + approximation.Value().toFixed(6); }]);
+
+	}
+	
+	board.unsuspendUpdate();
+	board.update();	
+		
+}
+
+</script>
+</body>
+</html>
