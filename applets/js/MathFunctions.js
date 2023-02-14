@@ -2028,7 +2028,7 @@ class JSXCheckBox {
 		if (typeof(board) !== "object" || typeof(xLoc) !== "number" || typeof(yLoc) !== "number" || typeof(checked) !== "boolean") {
 			console.warn('Invalid parameters for "JSXCheckbox" must include: board, xLoc, yLoc, label, and default status')
 		}
-		
+
 		// Check to see if any additional arguments were passed
 		if(args == undefined) {
 			args = {};
@@ -2054,12 +2054,12 @@ class JSXCheckBox {
 			this.checkbox.set(false);
 		}
 	}
-	
+
 	set(value) {
 		this.checkbox._value = value;
 		this.checkbox.rendNodeCheckbox.checked = value;
 	}
-	
+
 	isChecked() {
 		return this.checkbox._value;
 	}
@@ -2084,7 +2084,7 @@ function JSXCheckbox(board, xLoc, yLoc, label, checked, onChange, args) {
 	if (typeof(board) !== "object" || typeof(xLoc) !== "number" || typeof(yLoc) !== "number" || typeof(checked) !== "boolean") {
 		console.error('Invalid parameters for "JSXCheckbox" must include: board, xLoc, yLoc, label, and default status')
 	}
-	
+
 	// Check to see if any additional arguments were passed
 	if(args == undefined) {
 		args = {};
@@ -2223,7 +2223,7 @@ function getVariables(expression) {
 	let knownConstants = ['e', 'pi', 'i'];
 	let knownFunctions = ['abs', 'cbrt', 'ceil', 'cube', 'exp', 'expm1', 'fix', 'floor', 'gcd', 'lcm', 'log', 'log10', 'log1p', 'log2',
 		'norm', 'nthRoot', 'pow', 'round', 'sign', 'sqrt', 'square', 'factorial', 'gamma', 'combinations', 'factorial', 'permutations',
-		'cumsum', 'mad', 'max', 'mean', 'median', 'min', 'mode', 'prod', 'std', 'sum', 'variance', 'acos', 'acosh', 'acot', 'acoth', 
+		'cumsum', 'mad', 'max', 'mean', 'median', 'min', 'mode', 'prod', 'std', 'sum', 'variance', 'acos', 'acosh', 'acot', 'acoth',
 		'acsc', 'acsch', 'asec', 'asech', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'cos', 'cosh', 'cot', 'coth', 'csc', 'csch', 'sec',
 		'sech', 'sin', 'sinh', 'tan', 'tanh'];
 	var variables = [];

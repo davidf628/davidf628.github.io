@@ -19,7 +19,6 @@ let binom = {
 	x2: 6,
 
 	ptype: 'BETWEEN', // 'BETWEEN', 'LEFT', 'RIGHT', 'EQUAL'
-	decimals: 9,
 
 }
 
@@ -294,7 +293,7 @@ function binom_cprob() {
 		binom.prob = jStat.binomial.pdf(binom.x2, binom.n, binom.p);
 	}
 
-	return round(binom.prob, binom.decimals);
+    return binom.prob;
 
 }
 
