@@ -1,0 +1,49 @@
+
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+
+	<title>Vector Test</title>
+	<meta charset="utf-8">  
+
+		<!-- JSX Graph -->
+		<script type="text/javascript" charset="UTF-8" src="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraphcore.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraph.css" />
+
+	</meta>
+</head>
+
+<div id="jxgbox" class="jxgbox" style="width:500px; height:500px;"></div>
+
+<script type='text/javascript'>
+
+var board = JXG.JSXGraph.initBoard('jxgbox', {boundingbox:[-5, 5, 5, -5], 
+      axis: true});
+
+
+var s = board.create('slider', [[-4, 3.4], [0,3.4], [0, 0, 90]])
+
+var v1 = board.create('arrow', [[0, 0], [
+	function() {
+  	return 2 * Math.cos(s.Value() * Math.PI / 180 + Math.PI /2);
+  },
+  function() {
+    return 2 * Math.sin(s.Value() * Math.PI / 180 + Math.PI / 2);
+  }
+  ]]);
+  
+v1.setLabel("T_1");
+
+var v2 = board.create('arrow', [[0, 0], [
+	function() {
+  	return 2 * Math.cos(s.Value() * Math.PI / 180);
+  },
+  function() {
+    return 2 * Math.sin(s.Value() * Math.PI / 180);
+  }
+  ]]);
+  
+v2.setLabel("T_2");
+
+</script>
