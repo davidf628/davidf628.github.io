@@ -341,30 +341,61 @@ var list_board = JXG.JSXGraph.initBoard('list-editor', {
     	}
     });
 
-var list_title1 = list_board.create('text', [1.5, 9.5, 'L1'], { fixed: true, fontSize: 18 });
-var list_title2 = list_board.create('text', [3.5, 9.5, 'L2'], { fixed: true, fontSize: 18 });
-var list_title2 = list_board.create('text', [5.5, 9.5, 'L3'], { fixed: true, fontSize: 18 });
+var list1_data = [];
+var list2_data = [];
+var list3_data = [];
 
-var list_clear_button1 = list_board.create('button', [7.5, 8, 'Clear L1',
-	function() {
-		for(var i = 0; i < list1_data.length; i++) {
-			list1_data[i].rendNodeInput.value = "";
-		}
-	}]);
+// These status flags can be 'unsorted', 'ascending', or 'descending', depending on the
+// current sort order, this just allows the button to toggle the sort order
 
-var list_clear_button2 = list_board.create('button', [7.5, 7.5, 'Clear L2',
-	function() {
-		for(var i = 0; i < list2_data.length; i++) {
-			list2_data[i].rendNodeInput.value = '';
-		}
-	}]);
+let list_sortStatus = {
+    l1: 'unsorted',
+    l2: 'unsorted',
+    l3: 'unsorted',
+}
 
-var list_clear_button2 = list_board.create('button', [7.5, 7, 'Clear L3',
-	function() {
-		for(var i = 0; i < list2_data.length; i++) {
-			list3_data[i].rendNodeInput.value = '';
-		}
-	}]);
+let list_title1 = list_board.create('button', [1.25, 9.6, 'L1', () => {
+    list_sortStatus.l1 = list_sort(list1_data, list_sortStatus.l1);
+}], { fixed: true, fontSize: 18 });
+
+let list_title2 = list_board.create('button', [3.25, 9.6, 'L2', () => {
+    list_sortStatus.l2 = list_sort(list2_data, list_sortStatus.l2);
+}], { fixed: true, fontSize: 18 });
+
+let list_title3 = list_board.create('button', [5.25, 9.6, 'L3', () => {
+    list_sortStatus.l3 = list_sort(list3_data, list_sortStatus.l3);
+}], { fixed: true, fontSize: 18 });
+
+function list_getValues(list) {
+    let a = list.map( (x) => math.evaluate(x.rendNodeInput.value));
+    return a.filter( (x) => x !== undefined)
+}
+
+function list_setValues(list, data) {
+    data.forEach( (x, i) => list[i].rendNodeInput.value = data[i]);
+}
+
+function list_clearList(list) {
+    list.forEach( (x, i) => list[i].rendNodeInput.value = "");
+}
+
+function list_sort(list, order) {
+    let data = list_getValues(list);
+    if (order === 'ascending') {
+        data.sort( (a, b) => b - a );
+        order = 'descending';
+    } else {
+        data.sort( (a, b) => a - b );
+        order = 'ascending';
+    }
+    list_clearList(list);
+    list_setValues(list, data);
+    return order;
+}
+
+var list_clear_button1 = list_board.create('button', [7.5, 8, 'Clear L1', () => { list_clearList(list1_data) }]);
+var list_clear_button2 = list_board.create('button', [7.5, 7.5, 'Clear L2', () => { list_clearList(list2_data) }]);
+var list_clear_button2 = list_board.create('button', [7.5, 7, 'Clear L3', () => { list_clearList(list3_data) }]);
 
 var list_formula = list_board.create('input', [7.5, 5.5, '', ''], { fontSize: 18, cssStyle: 'width: 100px', fixed: true });
 list_formula.rendNodeInput.onkeypress = function(e) {
@@ -419,10 +450,6 @@ function list_calculate() {
 	}
 
 }
-
-var list1_data = [];
-var list2_data = [];
-var list3_data = [];
 
 // These are done in groups to make the tab order more sensible
 for (var i = 0; i < MAXLISTSIZE; i++) {

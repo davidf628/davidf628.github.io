@@ -136,24 +136,34 @@ var calc_1varstats = calc_board.create('button', [7, 6.5, 'Single Var Stats',
             calc_input.rendNodeInput.value = calc_input.rendNodeInput.value + '1-var_stats(';
         }], { frozen: true, fixed: true });
 
-var calc_1varstats = calc_board.create('button', [7, 5.5, 'Linear Regression',
+var calc_linreg = calc_board.create('button', [7, 6, 'Linear Regression',
         function() {
             calc_input.rendNodeInput.value = calc_input.rendNodeInput.value + 'lin_reg(';
         }], { frozen: true, fixed: true });
 
-var calc_1varstats = calc_board.create('button', [7, 4.5, 'Combination',
+var calc_combination = calc_board.create('button', [7, 5, 'Combination',
         function() {
             calc_input.rendNodeInput.value = calc_input.rendNodeInput.value + 'combinations(';
         }], { frozen: true, fixed: true });
 
-var calc_1varstats = calc_board.create('button', [7, 3.5, 'Permutation',
+var calc_permutation = calc_board.create('button', [7, 4.5, 'Permutation',
         function() {
             calc_input.rendNodeInput.value = calc_input.rendNodeInput.value + 'permutations(';
         }], { frozen: true, fixed: true });
 
-var calc_1varstats = calc_board.create('button', [7, 2.5, 'Factorial',
+var calc_factorial = calc_board.create('button', [7, 4, 'Factorial',
         function() {
             calc_input.rendNodeInput.value = calc_input.rendNodeInput.value + '!';
+        }], { frozen: true, fixed: true });
+
+let calc_squareroot = calc_board.create('button', [7, 3, '&#8730;x',
+        function() {
+            calc_input.rendNodeInput.value = calc_input.rendNodeInput.value + 'sqrt(';
+        }], { frozen: true, fixed: true });
+
+let calc_square = calc_board.create('button', [8, 3, 'x^y',
+        function() {
+            calc_input.rendNodeInput.value = calc_input.rendNodeInput.value + '^';
         }], { frozen: true, fixed: true });
 
 var calc_about = calc_board.create('button', [7, 1, 'About',
