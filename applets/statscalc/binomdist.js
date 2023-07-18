@@ -282,9 +282,18 @@ function binom_updateAxis() {
 function binom_cprob() {
 
 	if(binom.ptype === 'BETWEEN') {
-		let upper = jStat.binomial.cdf(max(binom.x1, binom.x2), binom.n, binom.p);
-		let lower = jStat.binomial.cdf(min(binom.x1, binom.x2) - 1, binom.n, binom.p);
-		binom.prob = abs(upper - lower);
+        // The following method produced slightly innacurate results likely due to
+        //  arithmetic errors from subtraction, so I changed to an additive model
+		//let upper = jStat.binomial.cdf(max(binom.x1, binom.x2), binom.n, binom.p);
+		//let lower = jStat.binomial.cdf(min(binom.x1, binom.x2) - 1, binom.n, binom.p);
+		//binom.prob = abs(upper - lower);
+        let lower = min(binom.x1, binom.x2);
+        let upper = max(binom.x1, binom.x2);
+        let sum = 0;
+        for(let x = lower; x <= upper; x++) {
+            sum += jStat.binomial.pdf(x, binom.n, binom.p);
+        }
+        binom.prob = sum;
 	} else if(binom.ptype === 'LEFT') {
 		binom.prob = jStat.binomial.cdf(binom.x2, binom.n, binom.p);
 	} else if(binom.ptype === 'RIGHT') {
