@@ -172,6 +172,7 @@ cb_left = JSXCheckbox(displayboard, 1, 5.5, 'Left-Tailed', false,
 		shadedregionleft.setAttribute({ visible: true });
 		shadedregionright.setAttribute({ visible: false });
 		shadedregionbetween.setAttribute({ visible: false });
+        displayboard.update();
 		
 	}, { fontSize: 18 });
 
@@ -187,6 +188,7 @@ cb_right = JSXCheckbox(displayboard, 1, 5, 'Right-Tailed', false,
 		shadedregionleft.setAttribute({ visible: false });
 		shadedregionright.setAttribute({ visible: true });
 		shadedregionbetween.setAttribute({ visible: false });
+        displayboard.update();
 	
 	}, { fontSize: 18 });
 
@@ -197,37 +199,34 @@ cb_twotail = JSXCheckbox(displayboard, 1, 4.5, 'Two-Tailed', false,
 		setCheckbox(cb_right, false);
 		
 		z1.setAttribute({ visible: true });
-		z1.setAttribute({ visible: true });
+		z2.setAttribute({ visible: true });
 		
 		shadedregionleft.setAttribute({ visible: true });
 		shadedregionright.setAttribute({ visible: true });
 		shadedregionbetween.setAttribute({ visible: false });
+        displayboard.update();
 		
 	}, { fontSize: 18 });
 
 area_text = displayboard.create('text', [1, 8, 
 	function() { 
 		return 'Area = ' + currentProbability(z1.X(), z2.X()); 
-	}], { fontSize: 18, fixed: true });
+	}], { fontSize: 24, fixed: true });
 		
 z1_txt = displayboard.create('text', [1, 7.5, 
 	function() { 
-		if(z1.X() < -9.9) {
-			return 'z1 = -&#x221e;';
-		} else if(z1.X() > 9.9) {
-			return 'z1 = +&#x221e;';
+		if(cb_right.Value()) {
+			return '';
 		} else return 'z1 = ' + z1.X().toFixed(2); 
-	}], { fontSize: 18, fixed: true });
+	}], { fontSize: 24, fixed: true });
 
 z2_txt = displayboard.create('text', [1, 7, 
 	function() { 
-		if(z2.X() < -9.9) {
-			return 'z2 = -&#x221e;';
-		} else if(z2.X() > 9.9) {
-			return 'z2 = +&#x221e;';
+		if(cb_left.Value()) {
+			return '';
 		} else
 		return 'z2 = ' + z2.X().toFixed(2); 
-	}], { fontSize: 18, fixed: true });
+	}], { fontSize: 24, fixed: true });
 
 function currentProbability(x1, x2) { 
 	x1 = Math.round(100 * x1) / 100;
