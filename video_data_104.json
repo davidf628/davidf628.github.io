@@ -1,17 +1,7 @@
 [
  {
-   "ID": "1_1ypmiimo",
-   "Name": "1-1 Examples (Kaltura)",
-   "module": 1,
-   "lesson": 1,
-   "youtube_id": "NAUcEM98xqs",
-   "Length": "14:04",
-   "title": "1-1 Examples",
-   "due-date": "8/26/2023"
- },
- {
    "ID": "1_7phrk6xu",
-   "Name": "1-1 Lecture (Kaltura)",
+   "name": "1-1 Lecture",
    "module": 1,
    "lesson": 1,
    "youtube_id": "pKdi1Kz0eJU",
@@ -20,8 +10,18 @@
    "due-date": "8/26/2023"
  },
  {
+   "ID": "1_1ypmiimo",
+   "name": "1-1 Examples",
+   "module": 1,
+   "lesson": 1,
+   "youtube_id": "NAUcEM98xqs",
+   "Length": "14:04",
+   "title": "1-1 Examples",
+   "due-date": "8/26/2023"
+ },
+ {
    "ID": "1_ds814h4n",
-   "Name": "1-2 Lecture (Kaltura)",
+   "name": "1-2 Lecture",
    "module": 1,
    "lesson": 2,
    "youtube_id": "xsyazM5lwK4",
@@ -31,7 +31,7 @@
  },
  {
    "ID": "1_gu0fgt9d",
-   "Name": "1-2 Examples (Kaltura)",
+   "name": "1-2 Examples",
    "module": 1,
    "lesson": 2,
    "youtube_id": "_TLPcUW_qQ8",
@@ -41,7 +41,7 @@
  },
  {
    "ID": "1_ylipk2ll",
-   "Name": "1-3 Lecture (Kaltura)",
+   "name": "1-3 Lecture",
    "module": 1,
    "lesson": 3,
    "youtube_id": "NX-bJ-c33b8",
@@ -51,7 +51,7 @@
  },
  {
    "ID": "1_mz1d43ce",
-   "Name": "1-4 Lecture (Kaltura)",
+   "name": "1-4 Lecture",
    "module": 1,
    "lesson": 4,
    "youtube_id": "VYJARsGf8qQ",
@@ -61,7 +61,7 @@
  },
  {
    "ID": "1_lshujm9e",
-   "Name": "1-5 Lecture (Kaltura)",
+   "name": "1-5 Lecture",
    "module": 1,
    "lesson": 5,
    "youtube_id": "__Z4N0EpU-Y",
@@ -71,7 +71,7 @@
  },
  {
    "ID": "1_qq5470ee",
-   "Name": "1-6 Lecture (Kaltura)",
+   "name": "1-6 Lecture",
    "module": 1,
    "lesson": 6,
    "youtube_id": "P-YIZ466yPk",
@@ -81,7 +81,7 @@
  },
  {
    "ID": "1_rbo238lw",
-   "Name": "1-6 TI-83 Examples (Kaltura)",
+   "name": "1-6 TI-83 Examples",
    "module": 1,
    "lesson": 6,
    "youtube_id": "hrWBeBIrrYg",
@@ -91,7 +91,7 @@
  },
  {
    "ID": "1_2s6bfueh",
-   "Name": "1-6 TI-84 Examples (Kaltura)",
+   "name": "1-6 TI-84 Examples",
    "module": 1,
    "lesson": 6,
    "youtube_id": "9G9hvFLrY1c",
@@ -101,7 +101,7 @@
  },
  {
    "ID": "1_9y5remqr",
-   "Name": "1-6 StatsCalc Examples (Kaltura)",
+   "name": "1-6 StatsCalc Examples",
    "module": 1,
    "lesson": 6,
    "youtube_id": "3fHxLe5aK10",
@@ -111,7 +111,7 @@
  },
  {
    "ID": "1_9fqe4mn9",
-   "Name": "1-7 Lecture (Kaltura)",
+   "name": "1-7 Lecture",
    "module": 1,
    "lesson": 7,
    "youtube_id": "WeIJBjsczvY",
@@ -121,7 +121,7 @@
  },
  {
    "ID": "1_84jy4l29",
-   "Name": "1-7 TI-83 Examples (Kaltura)",
+   "name": "1-7 TI-83 Examples",
    "module": 1,
    "lesson": 7,
    "youtube_id": "JsOEmLFIH-0",
@@ -131,7 +131,7 @@
  },
  {
    "ID": "1_f7h69joq",
-   "Name": "1-7 TI-84 Examples (Kaltura)",
+   "name": "1-7 TI-84 Examples",
    "module": 1,
    "lesson": 7,
    "youtube_id": "jNrOLYip0v0",
@@ -141,7 +141,7 @@
  },
  {
    "ID": "1_3wlvajh7",
-   "Name": "1-7 StatsCalc Examples (Kaltura)",
+   "name": "1-7 StatsCalc Examples",
    "module": 1,
    "lesson": 7,
    "youtube_id": "siG5RocyPUc",
@@ -151,7 +151,7 @@
  },
  {
    "ID": "1_lr1duuw3",
-   "Name": "1-8 Lecture (Kaltura)",
+   "name": "1-8 Lecture",
    "module": 1,
    "lesson": 8,
    "youtube_id": "OzU0lJ5MdGc",
@@ -161,7 +161,7 @@
  },
  {
    "ID": "1_7cwi7lrx",
-   "Name": "1-8 TI-83 Examples (Kaltura)",
+   "name": "1-8 TI-83 Examples",
    "module": 1,
    "lesson": 8,
    "youtube_id": "_GWrrnIAoAQ",
@@ -171,7 +171,7 @@
  },
  {
    "ID": "1_mcvvu47n",
-   "Name": "1-8 TI-84 Examples (Kaltura)",
+   "name": "1-8 TI-84 Examples",
    "module": 1,
    "lesson": 8,
    "youtube_id": "yHAosxCW71s",
@@ -181,7 +181,7 @@
  },
  {
    "ID": "1_z3hmaajf",
-   "Name": "1-8 StatsCalc Examples (Kaltura)",
+   "name": "1-8 StatsCalc Examples",
    "module": 1,
    "lesson": 8,
    "youtube_id": "c-ZPSGEM5ug",
@@ -191,7 +191,7 @@
  },
  {
    "ID": "1_3y3kg2ln",
-   "Name": "1-9 Lecture (Kaltura)",
+   "name": "1-9 Lecture",
    "module": 1,
    "lesson": 9,
    "youtube_id": "6B9B_uw7BSI",
@@ -201,7 +201,7 @@
  },
  {
    "ID": "1_7lah4g23",
-   "Name": "1-9 TI-83 Examples (Kaltura)",
+   "name": "1-9 TI-83 Examples",
    "module": 1,
    "lesson": 9,
    "youtube_id": "fQa4B9Elo08",
@@ -211,7 +211,7 @@
  },
  {
    "ID": "1_2l1578eu",
-   "Name": "1-9 TI-84 Examples (Kaltura)",
+   "name": "1-9 TI-84 Examples",
    "module": 1,
    "lesson": 9,
    "youtube_id": "-zX203cbwv4",
@@ -221,7 +221,7 @@
  },
  {
    "ID": "1_16z54age",
-   "Name": "1-9 StatsCalc Examples (Kaltura)",
+   "name": "1-9 StatsCalc Examples",
    "module": 1,
    "lesson": 9,
    "youtube_id": "YorRBE8ggP0",
@@ -231,7 +231,7 @@
  },
  {
    "ID": "1_gqfwz25c",
-   "Name": "1-10 Lecture (Kaltura)",
+   "name": "1-10 Lecture",
    "module": 1,
    "lesson": 10,
    "youtube_id": "rtYg_KgFW-Q",
@@ -241,7 +241,7 @@
  },
  {
    "ID": "1_bwgimcuw",
-   "Name": "1-10 Examples (Kaltura)",
+   "name": "1-10 Examples",
    "module": 1,
    "lesson": 10,
    "youtube_id": "GVTlhRDKATw",
@@ -251,7 +251,7 @@
  },
  {
    "ID": "1_k2h6kljk",
-   "Name": "2-1 Lecture (Kaltura)",
+   "name": "2-1 Lecture",
    "module": 2,
    "lesson": 1,
    "youtube_id": "1jtE3Te0q_g",
@@ -261,7 +261,7 @@
  },
  {
    "ID": "1_fkdo1jk1",
-   "Name": "2-2 Lecture (Kaltura)",
+   "name": "2-2 Lecture",
    "module": 2,
    "lesson": 2,
    "youtube_id": "XSXeKqn63pA",
@@ -271,7 +271,7 @@
  },
  {
    "ID": "1_piek05pf",
-   "Name": "2-2 Examples (Kaltura)",
+   "name": "2-2 Examples",
    "module": 2,
    "lesson": 2,
    "youtube_id": "OsE361TWhzM",
@@ -281,7 +281,7 @@
  },
  {
    "ID": "1_zl4i6ql1",
-   "Name": "2-3 Lecture (Kaltura)",
+   "name": "2-3 Lecture",
    "module": 2,
    "lesson": 3,
    "youtube_id": "leKlQ6nypuI",
@@ -291,7 +291,7 @@
  },
  {
    "ID": "1_928m2doa",
-   "Name": "2-3 Examples (Kaltura)",
+   "name": "2-3 Examples",
    "module": 2,
    "lesson": 3,
    "youtube_id": "nwD9stYthRg",
@@ -301,7 +301,7 @@
  },
  {
    "ID": "1_da7d6d9q",
-   "Name": "2-4 Lecture (Kaltura)",
+   "name": "2-4 Lecture",
    "module": 2,
    "lesson": 4,
    "youtube_id": "lSzqbpxnlZo",
@@ -311,7 +311,7 @@
  },
  {
    "ID": "1_3q59uywb",
-   "Name": "2-4 TI-83 Examples (Kaltura)",
+   "name": "2-4 TI-83 Examples",
    "module": 2,
    "lesson": 4,
    "youtube_id": "3pEYiTkLx5s",
@@ -321,7 +321,7 @@
  },
  {
    "ID": "1_e940azyh",
-   "Name": "2-4 TI-84 Examples (Kaltura)",
+   "name": "2-4 TI-84 Examples",
    "module": 2,
    "lesson": 4,
    "youtube_id": "08FNeaBAF_E",
@@ -331,7 +331,7 @@
  },
  {
    "ID": "1_bn9c3smj",
-   "Name": "2-4 StatsCalc Examples (Kaltura)",
+   "name": "2-4 StatsCalc Examples",
    "module": 2,
    "lesson": 4,
    "youtube_id": "8dl58z8iToU",
@@ -341,7 +341,7 @@
  },
  {
    "ID": "1_957044i6",
-   "Name": "3-1 Lecture (Kaltura)",
+   "name": "3-1 Lecture",
    "module": 3,
    "lesson": 1,
    "youtube_id": "d436VpBfvqg",
@@ -351,7 +351,7 @@
  },
  {
    "ID": "1_2cpad3wz",
-   "Name": "3-1 Examples (Kaltura)",
+   "name": "3-1 Examples",
    "module": 3,
    "lesson": 1,
    "youtube_id": "5ui9QCnWJys",
@@ -361,7 +361,7 @@
  },
  {
    "ID": "1_ofpm11i6",
-   "Name": "3-2 Lecture (Kaltura)",
+   "name": "3-2 Lecture",
    "module": 3,
    "lesson": 2,
    "youtube_id": "FjpORA5nurY",
@@ -371,7 +371,7 @@
  },
  {
    "ID": "1_2t0g5jwx",
-   "Name": "3-2 TI-83 Examples (Kaltura)",
+   "name": "3-2 TI-83 Examples",
    "module": 3,
    "lesson": 2,
    "youtube_id": "ToPd1g4FQPQ",
@@ -381,7 +381,7 @@
  },
  {
    "ID": "1_7gca56k0",
-   "Name": "3-2 TI-84 Examples (Kaltura)",
+   "name": "3-2 TI-84 Examples",
    "module": 3,
    "lesson": 2,
    "youtube_id": "ZNCDNCTNeH8",
@@ -391,7 +391,7 @@
  },
  {
    "ID": "1_36kclms2",
-   "Name": "3-2 StatsCalc Examples (Kaltura)",
+   "name": "3-2 StatsCalc Examples",
    "module": 3,
    "lesson": 2,
    "youtube_id": "aQuGJ0LqIE4",
@@ -401,7 +401,7 @@
  },
  {
    "ID": "1_11tnh1fx",
-   "Name": "3-3 Lecture (Kaltura)",
+   "name": "3-3 Lecture",
    "module": 3,
    "lesson": 3,
    "youtube_id": "0iQc7O0y4XM",
@@ -411,7 +411,7 @@
  },
  {
    "ID": "1_emsjm3rv",
-   "Name": "3-4 Lecture (Kaltura)",
+   "name": "3-4 Lecture",
    "module": 3,
    "lesson": 4,
    "youtube_id": "IsTxAgB5hWI",
@@ -421,7 +421,7 @@
  },
  {
    "ID": "1_a35gcc5q",
-   "Name": "3-4 TI-83 Examples (Kaltura)",
+   "name": "3-4 TI-83 Examples",
    "module": 3,
    "lesson": 4,
    "youtube_id": "zxfa_oQdmpQ",
@@ -431,7 +431,7 @@
  },
  {
    "ID": "1_0yr7b3dm",
-   "Name": "3-4 TI-84 Examples (Kaltura)",
+   "name": "3-4 TI-84 Examples",
    "module": 3,
    "lesson": 4,
    "youtube_id": "e9sSlLtLu3c",
@@ -441,7 +441,7 @@
  },
  {
    "ID": "1_tqfcnauk",
-   "Name": "3-4 StatsCalc Examples (Kaltura)",
+   "name": "3-4 StatsCalc Examples",
    "module": 3,
    "lesson": 4,
    "youtube_id": "QHvCxnxzDDc",
@@ -451,7 +451,7 @@
  },
  {
    "ID": "1_v6yp236o",
-   "Name": "3-5 Lecture (Kaltura)",
+   "name": "3-5 Lecture",
    "module": 3,
    "lesson": 5,
    "youtube_id": "wSyYVdjxi3Q",
@@ -461,7 +461,7 @@
  },
  {
    "ID": "1_msxdy37s",
-   "Name": "3-5 TI-83 Examples (Kaltura)",
+   "name": "3-5 TI-83 Examples",
    "module": 3,
    "lesson": 5,
    "youtube_id": "CjSK3qYw58A",
@@ -471,7 +471,7 @@
  },
  {
    "ID": "1_3vxm4w2r",
-   "Name": "3-5 TI-84 Examples (Kaltura)",
+   "name": "3-5 TI-84 Examples",
    "module": 3,
    "lesson": 5,
    "youtube_id": "YJceXzztOR8",
@@ -481,7 +481,7 @@
  },
  {
    "ID": "1_z95je9ee",
-   "Name": "3-5 StatsCalc Examples (Kaltura)",
+   "name": "3-5 StatsCalc Examples",
    "module": 3,
    "lesson": 5,
    "youtube_id": "qtUAiY6ghZI",
@@ -491,7 +491,7 @@
  },
  {
    "ID": "1_rvbm5gvl",
-   "Name": "3-6 Lecture (Kaltura)",
+   "name": "3-6 Lecture",
    "module": 3,
    "lesson": 6,
    "youtube_id": "8sO-6j355Nw",
@@ -501,7 +501,7 @@
  },
  {
    "ID": "1_glf1bix5",
-   "Name": "3-6 TI-83 Examples (Kaltura)",
+   "name": "3-6 TI-83 Examples",
    "module": 3,
    "lesson": 6,
    "youtube_id": "DwnLK_gbHuI",
@@ -511,7 +511,7 @@
  },
  {
    "ID": "1_7cikqyjz",
-   "Name": "3-6 TI-84 Examples (Kaltura)",
+   "name": "3-6 TI-84 Examples",
    "module": 3,
    "lesson": 6,
    "youtube_id": "DNQOjVkixqI",
@@ -521,7 +521,7 @@
  },
  {
    "ID": "1_6qp6hfm7",
-   "Name": "3-6 StatsCalc Examples (Kaltura)",
+   "name": "3-6 StatsCalc Examples",
    "module": 3,
    "lesson": 6,
    "youtube_id": "E1AxUWAiuFU",
@@ -531,7 +531,7 @@
  },
  {
    "ID": "1_ldl9ipbt",
-   "Name": "4-1 Lecture (Kaltura)",
+   "name": "4-1 Lecture",
    "module": 4,
    "lesson": 1,
    "youtube_id": "n0e6ziqSYPs",
@@ -541,7 +541,7 @@
  },
  {
    "ID": "1_zk7jdhgk",
-   "Name": "4-1 TI-83 Examples (Kaltura)",
+   "name": "4-1 TI-83 Examples",
    "module": 4,
    "lesson": 1,
    "youtube_id": "u0CZLH7-YmI",
@@ -551,7 +551,7 @@
  },
  {
    "ID": "1_3n29bud2",
-   "Name": "4-1 TI-84 Examples (Kaltura)",
+   "name": "4-1 TI-84 Examples",
    "module": 4,
    "lesson": 1,
    "youtube_id": "fbix0eXcp10",
@@ -561,7 +561,7 @@
  },
  {
    "ID": "1_58pba6g1",
-   "Name": "4-1 StatsCalc Examples (Kaltura)",
+   "name": "4-1 StatsCalc Examples",
    "module": 4,
    "lesson": 1,
    "youtube_id": "ManJE6S5J4U",
@@ -571,7 +571,7 @@
  },
  {
    "ID": "1_c79nnwci",
-   "Name": "4-2 Lecture (Kaltura)",
+   "name": "4-2 Lecture",
    "module": 4,
    "lesson": 2,
    "youtube_id": "AREGeM7u2Lo",
@@ -581,7 +581,7 @@
  },
  {
    "ID": "1_dn06kzeb",
-   "Name": "4-2 TI-83 Examples (Kaltura)",
+   "name": "4-2 TI-83 Examples",
    "module": 4,
    "lesson": 2,
    "youtube_id": "HrIV9bekxz8",
@@ -591,7 +591,7 @@
  },
  {
    "ID": "1_e5h67ode",
-   "Name": "4-2 TI-84 Examples (Kaltura)",
+   "name": "4-2 TI-84 Examples",
    "module": 4,
    "lesson": 2,
    "youtube_id": "Z0FFdH0PyBI",
@@ -601,7 +601,7 @@
  },
  {
    "ID": "1_mja4c4ub",
-   "Name": "4-2 StatsCalc Examples (Kaltura)",
+   "name": "4-2 StatsCalc Examples",
    "module": 4,
    "lesson": 2,
    "youtube_id": "ZG3CbzpPqlc",
