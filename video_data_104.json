@@ -520,12 +520,12 @@
    "due-date": "10/28/2023"
  },
  {
-   "kaltura_id": "1_6qp6hfm7",
+   "kaltura_id": "1_uubaixex",
    "name": "3-6 StatsCalc Examples",
    "module": 3,
    "lesson": 6,
-   "youtube_id": "E1AxUWAiuFU",
-   "length": "8:39",
+   "youtube_id": "GICcf3OX_b8",
+   "length": "15:53",
    "title": "3-6 StatsCalc Examples",
    "due-date": "10/28/2023"
  },
@@ -608,5 +608,45 @@
    "length": "11:08",
    "title": "4-2 StatsCalc Examples",
    "due-date": "11/11/2023"
- }
+ },
+ {
+   "kaltura_id": "1_4xfqwpup",
+   "name": "4-3 Lecture",
+   "module": 4,
+   "lesson": 3,
+   "youtube_id": "OFZZyfwCvus",
+   "length": "31:54",
+   "title": "4-3 Lecture",
+   "due-date": "11/11/2023"
+ },
+ {
+   "kaltura_id": "1_nkx56qnk",
+   "name": "4-4 TI-83 Examples",
+   "module": 4,
+   "lesson": 4,
+   "youtube_id": "cJJSj4WatcI",
+   "length": "22:24",
+   "title": "4-4 TI-83 Examples",
+   "due-date": "11/18/2023"
+ },
+  {
+   "kaltura_id": "1_xoiplnhg",
+   "name": "4-4 TI-84 Examples",
+   "module": 4,
+   "lesson": 4,
+   "youtube_id": "fKDnSBwEZhk",
+   "length": "25:02",
+   "title": "4-4 TI-84 Examples",
+   "due-date": "11/18/2023"
+ },
+  {
+   "kaltura_id": "1_wxsemyh9",
+   "name": "4-4 StatsCalc Examples",
+   "module": 4,
+   "lesson": 4,
+   "youtube_id": "5d8SrlzUFrY",
+   "length": "22:04",
+   "title": "4-4 StatsCalc Examples",
+   "due-date": "11/18/2023"
+ },
 ]
