@@ -110,7 +110,7 @@ t_p2.on('drag',
 );
 
 // Create input boxes for the t-distribution paramenters
-let t_mean_input = t_board.create('input', [1.3, 0.45, stu.mean, '&mu; = '], inputParam);
+let t_mean_input = t_board.create('input', [1.3, 0.45, stu.mean, 'x&#772; = '], inputParam);
 let t_stdev_input = t_board.create('input', [1.3, 0.38, stu.stdev, 's = '], inputParam);
 let t_df_input = t_board.create('input', [1.25, 0.31, stu.df, 'df = '], inputParam);
 

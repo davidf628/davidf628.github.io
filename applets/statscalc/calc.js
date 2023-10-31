@@ -118,11 +118,19 @@ function calc_calculate() {
         var reg = stats.linreg(xdata, ydata);
         var m = reg[0];
         var b = reg[1];
+        let n = xdata.length;
+        let t = r * sqrt( (n - 2) / (1 - rsqr));
+        let df = n - 2;
+        let p = 2 * (1 - jStat.studentt.cdf(abs(t), df));
             calc_output.setText(
-                '<i>a</i> = ' + round(m, PRECISION) + '<br/>'
-                + '<i>b</i> = ' + round(b, PRECISION) + '<br/>'
-                + '<i>r<sup>2</sup></i> = ' + round(rsqr, PRECISION) + '<br/>'
-                + '<i>r</i> = ' + round(r, PRECISION));
+                `<i>a</i> = ${round(m, PRECISION)}<br/>` +
+                `<i>b</i> = ${round(b, PRECISION)}<br/>` +
+                `<i>r<sup>2</sup></i> = ${round(rsqr, PRECISION)}<br/>` +
+                `<i>r</i> = ${round(r, PRECISION)}<br/><br/>` +
+                `t-Test for &rho; &ne; 0:<br/><br/>` +
+                `<i>t</i> = ${round(t, PRECISION)}<br/>` +
+                `<i>p-value</i> = ${round(p, PRECISION)}`
+            );
     } else {
         // If not, just evaluate the expression
         var v = round(evalstr(expression), PRECISION);
