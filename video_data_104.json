@@ -1,652 +1,650 @@
 [
- {
-   "kaltura_id": "1_7phrk6xu",
-   "name": "1-1 Lecture",
-   "module": 1,
-   "lesson": 1,
-   "youtube_id": "pKdi1Kz0eJU",
-   "length": "11:00",
-   "title": "1-1 Lecture",
-   "due-date": "8/26/2023"
- },
- {
-   "kaltura_id": "1_1ypmiimo",
-   "name": "1-1 Examples",
-   "module": 1,
-   "lesson": 1,
-   "youtube_id": "NAUcEM98xqs",
-   "length": "14:04",
-   "title": "1-1 Examples",
-   "due-date": "8/26/2023"
- },
- {
-   "kaltura_id": "1_ds814h4n",
-   "name": "1-2 Lecture",
-   "module": 1,
-   "lesson": 2,
-   "youtube_id": "xsyazM5lwK4",
-   "length": "13:53",
-   "title": "1-2 Lecture",
-   "due-date": "8/26/2023"
- },
- {
-   "kaltura_id": "1_gu0fgt9d",
-   "name": "1-2 Examples",
-   "module": 1,
-   "lesson": 2,
-   "youtube_id": "_TLPcUW_qQ8",
-   "length": "9:04",
-   "title": "1-2 Examples",
-   "due-date": "8/26/2023"
- },
- {
-   "kaltura_id": "1_ylipk2ll",
-   "name": "1-3 Lecture",
-   "module": 1,
-   "lesson": 3,
-   "youtube_id": "NX-bJ-c33b8",
-   "length": "29:05",
-   "title": "1-3 Lecture",
-   "due-date": "9/2/2023"
- },
- {
-   "kaltura_id": "1_mz1d43ce",
-   "name": "1-4 Lecture",
-   "module": 1,
-   "lesson": 4,
-   "youtube_id": "VYJARsGf8qQ",
-   "length": "34:03",
-   "title": "1-4 Lecture",
-   "due-date": "9/2/2023"
- },
- {
-   "kaltura_id": "1_lshujm9e",
-   "name": "1-5 Lecture",
-   "module": 1,
-   "lesson": 5,
-   "youtube_id": "__Z4N0EpU-Y",
-   "length": "19:12",
-   "title": "1-5 Lecture",
-   "due-date": "9/9/2023"
- },
- {
-   "kaltura_id": "1_qq5470ee",
-   "name": "1-6 Lecture",
-   "module": 1,
-   "lesson": 6,
-   "youtube_id": "P-YIZ466yPk",
-   "length": "17:18",
-   "title": "1-6 Lecture",
-   "due-date": "9/9/2023"
- },
- {
-   "kaltura_id": "1_rbo238lw",
-   "name": "1-6 TI-83 Examples",
-   "module": 1,
-   "lesson": 6,
-   "youtube_id": "hrWBeBIrrYg",
-   "length": "21:55",
-   "title": "1-6 TI-83 Examples",
-   "due-date": "9/9/2023"
- },
- {
-   "kaltura_id": "1_2s6bfueh",
-   "name": "1-6 TI-84 Examples",
-   "module": 1,
-   "lesson": 6,
-   "youtube_id": "9G9hvFLrY1c",
-   "length": "23:22",
-   "title": "1-6 TI-84 Examples",
-   "due-date": "9/9/2023"
- },
- {
-   "kaltura_id": "1_9y5remqr",
-   "name": "1-6 StatsCalc Examples",
-   "module": 1,
-   "lesson": 6,
-   "youtube_id": "3fHxLe5aK10",
-   "length": "15:42",
-   "title": "1-6 StatsCalc Examples",
-   "due-date": "9/9/2023"
- },
- {
-   "kaltura_id": "1_9fqe4mn9",
-   "name": "1-7 Lecture",
-   "module": 1,
-   "lesson": 7,
-   "youtube_id": "WeIJBjsczvY",
-   "length": "23:03",
-   "title": "1-7 Lecture",
-   "due-date": "9/9/2023"
- },
- {
-   "kaltura_id": "1_84jy4l29",
-   "name": "1-7 TI-83 Examples",
-   "module": 1,
-   "lesson": 7,
-   "youtube_id": "JsOEmLFIH-0",
-   "length": "8:28",
-   "title": "1-7 TI-83 Examples",
-   "due-date": "9/9/2023"
- },
- {
-   "kaltura_id": "1_f7h69joq",
-   "name": "1-7 TI-84 Examples",
-   "module": 1,
-   "lesson": 7,
-   "youtube_id": "jNrOLYip0v0",
-   "length": "9:06",
-   "title": "1-7 TI-84 Examples",
-   "due-date": "9/9/2023"
- },
- {
-   "kaltura_id": "1_3wlvajh7",
-   "name": "1-7 StatsCalc Examples",
-   "module": 1,
-   "lesson": 7,
-   "youtube_id": "siG5RocyPUc",
-   "length": "7:27",
-   "title": "1-7 StatsCalc Examples",
-   "due-date": "9/9/2023"
- },
- {
-   "kaltura_id": "1_lr1duuw3",
-   "name": "1-8 Lecture",
-   "module": 1,
-   "lesson": 8,
-   "youtube_id": "OzU0lJ5MdGc",
-   "length": "17:56",
-   "title": "1-8 Lecture",
-   "due-date": "9/16/2023"
- },
- {
-   "kaltura_id": "1_7cwi7lrx",
-   "name": "1-8 TI-83 Examples",
-   "module": 1,
-   "lesson": 8,
-   "youtube_id": "_GWrrnIAoAQ",
-   "length": "8:37",
-   "title": "1-8 TI-83 Examples",
-   "due-date": "9/16/2023"
- },
- {
-   "kaltura_id": "1_mcvvu47n",
-   "name": "1-8 TI-84 Examples",
-   "module": 1,
-   "lesson": 8,
-   "youtube_id": "yHAosxCW71s",
-   "length": "8:20",
-   "title": "1-8 TI-84 Examples",
-   "due-date": "9/16/2023"
- },
- {
-   "kaltura_id": "1_z3hmaajf",
-   "name": "1-8 StatsCalc Examples",
-   "module": 1,
-   "lesson": 8,
-   "youtube_id": "c-ZPSGEM5ug",
-   "length": "7:02",
-   "title": "1-8 StatsCalc Examples",
-   "due-date": "9/16/2023"
- },
- {
-   "kaltura_id": "1_3y3kg2ln",
-   "name": "1-9 Lecture",
-   "module": 1,
-   "lesson": 9,
-   "youtube_id": "6B9B_uw7BSI",
-   "length": "18:30",
-   "title": "1-9 Lecture",
-   "due-date": "9/16/2023"
- },
- {
-   "kaltura_id": "1_7lah4g23",
-   "name": "1-9 TI-83 Examples",
-   "module": 1,
-   "lesson": 9,
-   "youtube_id": "fQa4B9Elo08",
-   "length": "16:11",
-   "title": "1-9 TI-83 Examples",
-   "due-date": "9/16/2023"
- },
- {
-   "kaltura_id": "1_2l1578eu",
-   "name": "1-9 TI-84 Examples",
-   "module": 1,
-   "lesson": 9,
-   "youtube_id": "-zX203cbwv4",
-   "length": "14:19",
-   "title": "1-9 TI-84 Examples",
-   "due-date": "9/16/2023"
- },
- {
-   "kaltura_id": "1_16z54age",
-   "name": "1-9 StatsCalc Examples",
-   "module": 1,
-   "lesson": 9,
-   "youtube_id": "YorRBE8ggP0",
-   "length": "15:47",
-   "title": "1-9 StatsCalc Examples",
-   "due-date": "9/16/2023"
- },
- {
-   "kaltura_id": "1_gqfwz25c",
-   "name": "1-10 Lecture",
-   "module": 1,
-   "lesson": 10,
-   "youtube_id": "rtYg_KgFW-Q",
-   "length": "24:02",
-   "title": "1-10 Lecture",
-   "due-date": "9/16/2023"
- },
- {
-   "kaltura_id": "1_bwgimcuw",
-   "name": "1-10 Examples",
-   "module": 1,
-   "lesson": 10,
-   "youtube_id": "GVTlhRDKATw",
-   "length": "11:42",
-   "title": "1-10 Examples",
-   "due-date": "9/16/2023"
- },
- {
-   "kaltura_id": "1_k2h6kljk",
-   "name": "2-1 Lecture",
-   "module": 2,
-   "lesson": 1,
-   "youtube_id": "1jtE3Te0q_g",
-   "length": "32:14",
-   "title": "2-1 Lecture",
-   "due-date": "9/30/2023"
- },
- {
-   "kaltura_id": "1_fkdo1jk1",
-   "name": "2-2 Lecture",
-   "module": 2,
-   "lesson": 2,
-   "youtube_id": "XSXeKqn63pA",
-   "length": "24:04",
-   "title": "2-2 Lecture",
-   "due-date": "9/30/2023"
- },
- {
-   "kaltura_id": "1_piek05pf",
-   "name": "2-2 Examples",
-   "module": 2,
-   "lesson": 2,
-   "youtube_id": "OsE361TWhzM",
-   "length": "14:23",
-   "title": "2-2 Examples",
-   "due-date": "9/30/2023"
- },
- {
-   "kaltura_id": "1_zl4i6ql1",
-   "name": "2-3 Lecture",
-   "module": 2,
-   "lesson": 3,
-   "youtube_id": "leKlQ6nypuI",
-   "length": "23:45",
-   "title": "2-3 Lecture",
-   "due-date": "10/7/2023"
- },
- {
-   "kaltura_id": "1_928m2doa",
-   "name": "2-3 Examples",
-   "module": 2,
-   "lesson": 3,
-   "youtube_id": "nwD9stYthRg",
-   "length": "15:28",
-   "title": "2-3 Examples",
-   "due-date": "10/7/2023"
- },
- {
-   "kaltura_id": "1_da7d6d9q",
-   "name": "2-4 Lecture",
-   "module": 2,
-   "lesson": 4,
-   "youtube_id": "lSzqbpxnlZo",
-   "length": "23:23",
-   "title": "2-4 Lecture",
-   "due-date": "10/7/2023"
- },
- {
-   "kaltura_id": "1_3q59uywb",
-   "name": "2-4 TI-83 Examples",
-   "module": 2,
-   "lesson": 4,
-   "youtube_id": "3pEYiTkLx5s",
-   "length": "14:02",
-   "title": "2-4 TI-83 Examples",
-   "due-date": "10/7/2023"
- },
- {
-   "kaltura_id": "1_e940azyh",
-   "name": "2-4 TI-84 Examples",
-   "module": 2,
-   "lesson": 4,
-   "youtube_id": "08FNeaBAF_E",
-   "length": "16:16",
-   "title": "2-4 TI-84 Examples",
-   "due-date": "10/7/2023"
- },
- {
-   "kaltura_id": "1_bn9c3smj",
-   "name": "2-4 StatsCalc Examples",
-   "module": 2,
-   "lesson": 4,
-   "youtube_id": "8dl58z8iToU",
-   "length": "15:10",
-   "title": "2-4 StatsCalc Examples",
-   "due-date": "10/7/2023"
- },
- {
-   "kaltura_id": "1_957044i6",
-   "name": "3-1 Lecture",
-   "module": 3,
-   "lesson": 1,
-   "youtube_id": "d436VpBfvqg",
-   "length": "25:47",
-   "title": "3-1 Lecture",
-   "due-date": "10/14/2023"
- },
- {
-   "kaltura_id": "1_2cpad3wz",
-   "name": "3-1 Examples",
-   "module": 3,
-   "lesson": 1,
-   "youtube_id": "5ui9QCnWJys",
-   "length": "17:29",
-   "title": "3-1 Examples",
-   "due-date": "10/14/2023"
- },
- {
-   "kaltura_id": "1_ofpm11i6",
-   "name": "3-2 Lecture",
-   "module": 3,
-   "lesson": 2,
-   "youtube_id": "FjpORA5nurY",
-   "length": "26:00",
-   "title": "3-2 Lecture",
-   "due-date": "10/14/2023"
- },
- {
-   "kaltura_id": "1_2t0g5jwx",
-   "name": "3-2 TI-83 Examples",
-   "module": 3,
-   "lesson": 2,
-   "youtube_id": "ToPd1g4FQPQ",
-   "length": "31:30",
-   "title": "3-2 TI-83 Examples",
-   "due-date": "10/14/2023"
- },
- {
-   "kaltura_id": "1_7gca56k0",
-   "name": "3-2 TI-84 Examples",
-   "module": 3,
-   "lesson": 2,
-   "youtube_id": "ZNCDNCTNeH8",
-   "length": "36:38",
-   "title": "3-2 TI-84 Examples",
-   "due-date": "10/14/2023"
- },
- {
-   "kaltura_id": "1_36kclms2",
-   "name": "3-2 StatsCalc Examples",
-   "module": 3,
-   "lesson": 2,
-   "youtube_id": "aQuGJ0LqIE4",
-   "length": "22:57",
-   "title": "3-2 StatsCalc Examples",
-   "due-date": "10/14/2023"
- },
- {
-   "kaltura_id": "1_11tnh1fx",
-   "name": "3-3 Lecture",
-   "module": 3,
-   "lesson": 3,
-   "youtube_id": "0iQc7O0y4XM",
-   "length": "18:07",
-   "title": "3-3 Lecture",
-   "due-date": "10/21/2023"
- },
- {
-   "kaltura_id": "1_emsjm3rv",
-   "name": "3-4 Lecture",
-   "module": 3,
-   "lesson": 4,
-   "youtube_id": "IsTxAgB5hWI",
-   "length": "35:38",
-   "title": "3-4 Lecture",
-   "due-date": "10/21/2023"
- },
- {
-   "kaltura_id": "1_a35gcc5q",
-   "name": "3-4 TI-83 Examples",
-   "module": 3,
-   "lesson": 4,
-   "youtube_id": "zxfa_oQdmpQ",
-   "length": "27:29",
-   "title": "3-4 TI-83 Examples",
-   "due-date": "10/21/2023"
- },
- {
-   "kaltura_id": "1_0yr7b3dm",
-   "name": "3-4 TI-84 Examples",
-   "module": 3,
-   "lesson": 4,
-   "youtube_id": "e9sSlLtLu3c",
-   "length": "27:21",
-   "title": "3-4 TI-84 Examples",
-   "due-date": "10/21/2023"
- },
- {
-   "kaltura_id": "1_tqfcnauk",
-   "name": "3-4 StatsCalc Examples",
-   "module": 3,
-   "lesson": 4,
-   "youtube_id": "QHvCxnxzDDc",
-   "length": "24:29",
-   "title": "3-4 StatsCalc Examples",
-   "due-date": "10/21/2023"
- },
- {
-   "kaltura_id": "1_v6yp236o",
-   "name": "3-5 Lecture",
-   "module": 3,
-   "lesson": 5,
-   "youtube_id": "wSyYVdjxi3Q",
-   "length": "26:21",
-   "title": "3-5 Lecture",
-   "due-date": "10/28/2023"
- },
- {
-   "kaltura_id": "1_msxdy37s",
-   "name": "3-5 TI-83 Examples",
-   "module": 3,
-   "lesson": 5,
-   "youtube_id": "CjSK3qYw58A",
-   "length": "13:54",
-   "title": "3-5 TI-83 Examples",
-   "due-date": "10/28/2023"
- },
- {
-   "kaltura_id": "1_3vxm4w2r",
-   "name": "3-5 TI-84 Examples",
-   "module": 3,
-   "lesson": 5,
-   "youtube_id": "YJceXzztOR8",
-   "length": "12:36",
-   "title": "3-5 TI-84 Examples",
-   "due-date": "10/28/2023"
- },
- {
-   "kaltura_id": "1_z95je9ee",
-   "name": "3-5 StatsCalc Examples",
-   "module": 3,
-   "lesson": 5,
-   "youtube_id": "qtUAiY6ghZI",
-   "length": "11:24",
-   "title": "3-5 StatsCalc Examples",
-   "due-date": "10/28/2023"
- },
- {
-   "kaltura_id": "1_rvbm5gvl",
-   "name": "3-6 Lecture",
-   "module": 3,
-   "lesson": 6,
-   "youtube_id": "8sO-6j355Nw",
-   "length": "12:11",
-   "title": "3-6 Lecture",
-   "due-date": "10/28/2023"
- },
- {
-   "kaltura_id": "1_glf1bix5",
-   "name": "3-6 TI-83 Examples",
-   "module": 3,
-   "lesson": 6,
-   "youtube_id": "DwnLK_gbHuI",
-   "length": "15:43",
-   "title": "3-6 TI-83 Examples",
-   "due-date": "10/28/2023"
- },
- {
-   "kaltura_id": "1_7cikqyjz",
-   "name": "3-6 TI-84 Examples",
-   "module": 3,
-   "lesson": 6,
-   "youtube_id": "DNQOjVkixqI",
-   "length": "13:34",
-   "title": "3-6 TI-84 Examples",
-   "due-date": "10/28/2023"
- },
- {
-   "kaltura_id": "1_uubaixex",
-   "name": "3-6 StatsCalc Examples",
-   "module": 3,
-   "lesson": 6,
-   "youtube_id": "GICcf3OX_b8",
-   "length": "15:53",
-   "title": "3-6 StatsCalc Examples",
-   "due-date": "10/28/2023"
- },
- {
-   "kaltura_id": "1_ldl9ipbt",
-   "name": "4-1 Lecture",
-   "module": 4,
-   "lesson": 1,
-   "youtube_id": "n0e6ziqSYPs",
-   "length": "21:51",
-   "title": "4-1 Lecture",
-   "due-date": "11/11/2023"
- },
- {
-   "kaltura_id": "1_zk7jdhgk",
-   "name": "4-1 TI-83 Examples",
-   "module": 4,
-   "lesson": 1,
-   "youtube_id": "u0CZLH7-YmI",
-   "length": "19:31",
-   "title": "4-1 TI-83 Examples",
-   "due-date": "11/11/2023"
- },
- {
-   "kaltura_id": "1_3n29bud2",
-   "name": "4-1 TI-84 Examples",
-   "module": 4,
-   "lesson": 1,
-   "youtube_id": "fbix0eXcp10",
-   "length": "21:05",
-   "title": "4-1 TI-84 Examples",
-   "due-date": "11/11/2023"
- },
- {
-   "kaltura_id": "1_58pba6g1",
-   "name": "4-1 StatsCalc Examples",
-   "module": 4,
-   "lesson": 1,
-   "youtube_id": "ManJE6S5J4U",
-   "length": "19:04",
-   "title": "4-1 StatsCalc Examples",
-   "due-date": "11/11/2023"
- },
- {
-   "kaltura_id": "1_c79nnwci",
-   "name": "4-2 Lecture",
-   "module": 4,
-   "lesson": 2,
-   "youtube_id": "AREGeM7u2Lo",
-   "length": "22:10",
-   "title": "4-2 Lecture",
-   "due-date": "11/11/2023"
- },
- {
-   "kaltura_id": "1_dn06kzeb",
-   "name": "4-2 TI-83 Examples",
-   "module": 4,
-   "lesson": 2,
-   "youtube_id": "HrIV9bekxz8",
-   "length": "8:23",
-   "title": "4-2 TI-83 Examples",
-   "due-date": "11/11/2023"
- },
- {
-   "kaltura_id": "1_e5h67ode",
-   "name": "4-2 TI-84 Examples",
-   "module": 4,
-   "lesson": 2,
-   "youtube_id": "Z0FFdH0PyBI",
-   "length": "8:46",
-   "title": "4-2 TI-84 Examples",
-   "due-date": "11/11/2023"
- },
- {
-   "kaltura_id": "1_mja4c4ub",
-   "name": "4-2 StatsCalc Examples",
-   "module": 4,
-   "lesson": 2,
-   "youtube_id": "ZG3CbzpPqlc",
-   "length": "11:08",
-   "title": "4-2 StatsCalc Examples",
-   "due-date": "11/11/2023"
- },
- {
-   "kaltura_id": "1_4xfqwpup",
-   "name": "4-3 Lecture",
-   "module": 4,
-   "lesson": 3,
-   "youtube_id": "OFZZyfwCvus",
-   "length": "31:54",
-   "title": "4-3 Lecture",
-   "due-date": "11/11/2023"
- },
- {
-   "kaltura_id": "1_nkx56qnk",
-   "name": "4-4 TI-83 Examples",
-   "module": 4,
-   "lesson": 4,
-   "youtube_id": "cJJSj4WatcI",
-   "length": "22:24",
-   "title": "4-4 TI-83 Examples",
-   "due-date": "11/18/2023"
- },
   {
-   "kaltura_id": "1_xoiplnhg",
-   "name": "4-4 TI-84 Examples",
-   "module": 4,
-   "lesson": 4,
-   "youtube_id": "fKDnSBwEZhk",
-   "length": "25:02",
-   "title": "4-4 TI-84 Examples",
-   "due-date": "11/18/2023"
- },
+    "kaltura_id":"1_7phrk6xu",
+    "name":"1-1 Lecture",
+    "module":1,
+    "lesson":1,
+    "youtube_id":"pKdi1Kz0eJU",
+    "length":"11:00",
+    "title":"1-1 Lecture"
+  },
   {
-   "kaltura_id": "1_wxsemyh9",
-   "name": "4-4 StatsCalc Examples",
-   "module": 4,
-   "lesson": 4,
-   "youtube_id": "5d8SrlzUFrY",
-   "length": "22:04",
-   "title": "4-4 StatsCalc Examples",
-   "due-date": "11/18/2023"
- }
+    "kaltura_id":"1_1ypmiimo",
+    "name":"1-1 Examples",
+    "module":1,
+    "lesson":1,
+    "youtube_id":"NAUcEM98xqs",
+    "length":"14:04",
+    "title":"1-1 Examples"
+  },
+  {
+    "kaltura_id":"1_ds814h4n",
+    "name":"1-2 Lecture",
+    "module":1,
+    "lesson":2,
+    "youtube_id":"xsyazM5lwK4",
+    "length":"13:53",
+    "title":"1-2 Lecture"
+  },
+  {
+    "kaltura_id":"1_gu0fgt9d",
+    "name":"1-2 Examples",
+    "module":1,
+    "lesson":2,
+    "youtube_id":"_TLPcUW_qQ8",
+    "length":"9:04",
+    "title":"1-2 Examples"
+  },
+  {
+    "kaltura_id":"1_ylipk2ll",
+    "name":"1-3 Lecture",
+    "module":1,
+    "lesson":3,
+    "youtube_id":"NX-bJ-c33b8",
+    "length":"29:05",
+    "title":"1-3 Lecture"
+  },
+  {
+    "kaltura_id":"1_mz1d43ce",
+    "name":"1-4 Lecture",
+    "module":1,
+    "lesson":4,
+    "youtube_id":"VYJARsGf8qQ",
+    "length":"34:03",
+    "title":"1-4 Lecture"
+  },
+  {
+    "kaltura_id":"1_lshujm9e",
+    "name":"1-5 Lecture",
+    "module":1,
+    "lesson":5,
+    "youtube_id":"__Z4N0EpU-Y",
+    "length":"19:12",
+    "title":"1-5 Lecture"
+  },
+  {
+    "kaltura_id":"1_qq5470ee",
+    "name":"1-6 Lecture",
+    "module":1,
+    "lesson":6,
+    "youtube_id":"P-YIZ466yPk",
+    "length":"17:18",
+    "title":"1-6 Lecture"
+  },
+  {
+    "kaltura_id":"1_rbo238lw",
+    "name":"1-6 TI-83 Examples",
+    "module":1,
+    "lesson":6,
+    "youtube_id":"hrWBeBIrrYg",
+    "length":"21:55",
+    "title":"1-6 TI-83 Examples"
+  },
+  {
+    "kaltura_id":"1_2s6bfueh",
+    "name":"1-6 TI-84 Examples",
+    "module":1,
+    "lesson":6,
+    "youtube_id":"9G9hvFLrY1c",
+    "length":"23:22",
+    "title":"1-6 TI-84 Examples"
+  },
+  {
+    "kaltura_id":"1_9y5remqr",
+    "name":"1-6 StatsCalc Examples",
+    "module":1,
+    "lesson":6,
+    "youtube_id":"3fHxLe5aK10",
+    "length":"15:42",
+    "title":"1-6 StatsCalc Examples"
+  },
+  {
+    "kaltura_id":"1_9fqe4mn9",
+    "name":"1-7 Lecture",
+    "module":1,
+    "lesson":7,
+    "youtube_id":"WeIJBjsczvY",
+    "length":"23:03",
+    "title":"1-7 Lecture"
+  },
+  {
+    "kaltura_id":"1_84jy4l29",
+    "name":"1-7 TI-83 Examples",
+    "module":1,
+    "lesson":7,
+    "youtube_id":"JsOEmLFIH-0",
+    "length":"8:28",
+    "title":"1-7 TI-83 Examples"
+  },
+  {
+    "kaltura_id":"1_f7h69joq",
+    "name":"1-7 TI-84 Examples",
+    "module":1,
+    "lesson":7,
+    "youtube_id":"jNrOLYip0v0",
+    "length":"9:06",
+    "title":"1-7 TI-84 Examples"
+  },
+  {
+    "kaltura_id":"1_3wlvajh7",
+    "name":"1-7 StatsCalc Examples",
+    "module":1,
+    "lesson":7,
+    "youtube_id":"siG5RocyPUc",
+    "length":"7:27",
+    "title":"1-7 StatsCalc Examples"
+  },
+  {
+    "kaltura_id":"1_lr1duuw3",
+    "name":"1-8 Lecture",
+    "module":1,
+    "lesson":8,
+    "youtube_id":"OzU0lJ5MdGc",
+    "length":"17:56",
+    "title":"1-8 Lecture"
+  },
+  {
+    "kaltura_id":"1_7cwi7lrx",
+    "name":"1-8 TI-83 Examples",
+    "module":1,
+    "lesson":8,
+    "youtube_id":"_GWrrnIAoAQ",
+    "length":"8:37",
+    "title":"1-8 TI-83 Examples"
+  },
+  {
+    "kaltura_id":"1_mcvvu47n",
+    "name":"1-8 TI-84 Examples",
+    "module":1,
+    "lesson":8,
+    "youtube_id":"yHAosxCW71s",
+    "length":"8:20",
+    "title":"1-8 TI-84 Examples"
+  },
+  {
+    "kaltura_id":"1_z3hmaajf",
+    "name":"1-8 StatsCalc Examples",
+    "module":1,
+    "lesson":8,
+    "youtube_id":"c-ZPSGEM5ug",
+    "length":"7:02",
+    "title":"1-8 StatsCalc Examples"
+  },
+  {
+    "kaltura_id":"1_3y3kg2ln",
+    "name":"1-9 Lecture",
+    "module":1,
+    "lesson":9,
+    "youtube_id":"6B9B_uw7BSI",
+    "length":"18:30",
+    "title":"1-9 Lecture"
+  },
+  {
+    "kaltura_id":"1_7lah4g23",
+    "name":"1-9 TI-83 Examples",
+    "module":1,
+    "lesson":9,
+    "youtube_id":"fQa4B9Elo08",
+    "length":"16:11",
+    "title":"1-9 TI-83 Examples"
+  },
+  {
+    "kaltura_id":"1_2l1578eu",
+    "name":"1-9 TI-84 Examples",
+    "module":1,
+    "lesson":9,
+    "youtube_id":"-zX203cbwv4",
+    "length":"14:19",
+    "title":"1-9 TI-84 Examples"
+  },
+  {
+    "kaltura_id":"1_16z54age",
+    "name":"1-9 StatsCalc Examples",
+    "module":1,
+    "lesson":9,
+    "youtube_id":"YorRBE8ggP0",
+    "length":"15:47",
+    "title":"1-9 StatsCalc Examples"
+  },
+  {
+    "kaltura_id":"1_gqfwz25c",
+    "name":"1-10 Lecture",
+    "module":1,
+    "lesson":10,
+    "youtube_id":"rtYg_KgFW-Q",
+    "length":"24:02",
+    "title":"1-10 Lecture"
+  },
+  {
+    "kaltura_id":"1_bwgimcuw",
+    "name":"1-10 Examples",
+    "module":1,
+    "lesson":10,
+    "youtube_id":"GVTlhRDKATw",
+    "length":"11:42",
+    "title":"1-10 Examples"
+  },
+  {
+    "kaltura_id":"1_k2h6kljk",
+    "name":"2-1 Lecture",
+    "module":2,
+    "lesson":1,
+    "youtube_id":"1jtE3Te0q_g",
+    "length":"32:14",
+    "title":"2-1 Lecture"
+  },
+  {
+    "kaltura_id":"1_fkdo1jk1",
+    "name":"2-2 Lecture",
+    "module":2,
+    "lesson":2,
+    "youtube_id":"XSXeKqn63pA",
+    "length":"24:04",
+    "title":"2-2 Lecture"
+  },
+  {
+    "kaltura_id":"1_piek05pf",
+    "name":"2-2 Examples",
+    "module":2,
+    "lesson":2,
+    "youtube_id":"OsE361TWhzM",
+    "length":"14:23",
+    "title":"2-2 Examples"
+  },
+  {
+    "kaltura_id":"1_zl4i6ql1",
+    "name":"2-3 Lecture",
+    "module":2,
+    "lesson":3,
+    "youtube_id":"leKlQ6nypuI",
+    "length":"23:45",
+    "title":"2-3 Lecture"
+  },
+  {
+    "kaltura_id":"1_928m2doa",
+    "name":"2-3 Examples",
+    "module":2,
+    "lesson":3,
+    "youtube_id":"nwD9stYthRg",
+    "length":"15:28",
+    "title":"2-3 Examples"
+  },
+  {
+    "kaltura_id":"1_da7d6d9q",
+    "name":"2-4 Lecture",
+    "module":2,
+    "lesson":4,
+    "youtube_id":"lSzqbpxnlZo",
+    "length":"23:23",
+    "title":"2-4 Lecture"
+  },
+  {
+    "kaltura_id":"1_3q59uywb",
+    "name":"2-4 TI-83 Examples",
+    "module":2,
+    "lesson":4,
+    "youtube_id":"3pEYiTkLx5s",
+    "length":"14:02",
+    "title":"2-4 TI-83 Examples"
+  },
+  {
+    "kaltura_id":"1_e940azyh",
+    "name":"2-4 TI-84 Examples",
+    "module":2,
+    "lesson":4,
+    "youtube_id":"08FNeaBAF_E",
+    "length":"16:16",
+    "title":"2-4 TI-84 Examples"
+  },
+  {
+    "kaltura_id":"1_bn9c3smj",
+    "name":"2-4 StatsCalc Examples",
+    "module":2,
+    "lesson":4,
+    "youtube_id":"8dl58z8iToU",
+    "length":"15:10",
+    "title":"2-4 StatsCalc Examples"
+  },
+  {
+    "kaltura_id":"1_957044i6",
+    "name":"3-1 Lecture",
+    "module":3,
+    "lesson":1,
+    "youtube_id":"d436VpBfvqg",
+    "length":"25:47",
+    "title":"3-1 Lecture"
+  },
+  {
+    "kaltura_id":"1_2cpad3wz",
+    "name":"3-1 Examples",
+    "module":3,
+    "lesson":1,
+    "youtube_id":"5ui9QCnWJys",
+    "length":"17:29",
+    "title":"3-1 Examples"
+  },
+  {
+    "kaltura_id":"1_ofpm11i6",
+    "name":"3-2 Lecture",
+    "module":3,
+    "lesson":2,
+    "youtube_id":"FjpORA5nurY",
+    "length":"26:00",
+    "title":"3-2 Lecture"
+  },
+  {
+    "kaltura_id":"1_2t0g5jwx",
+    "name":"3-2 TI-83 Examples",
+    "module":3,
+    "lesson":2,
+    "youtube_id":"ToPd1g4FQPQ",
+    "length":"31:30",
+    "title":"3-2 TI-83 Examples"
+  },
+  {
+    "kaltura_id":"1_7gca56k0",
+    "name":"3-2 TI-84 Examples",
+    "module":3,
+    "lesson":2,
+    "youtube_id":"ZNCDNCTNeH8",
+    "length":"36:38",
+    "title":"3-2 TI-84 Examples"
+  },
+  {
+    "kaltura_id":"1_36kclms2",
+    "name":"3-2 StatsCalc Examples",
+    "module":3,
+    "lesson":2,
+    "youtube_id":"aQuGJ0LqIE4",
+    "length":"22:57",
+    "title":"3-2 StatsCalc Examples"
+  },
+  {
+    "kaltura_id":"1_11tnh1fx",
+    "name":"3-3 Lecture",
+    "module":3,
+    "lesson":3,
+    "youtube_id":"0iQc7O0y4XM",
+    "length":"18:07",
+    "title":"3-3 Lecture"
+  },
+  {
+    "kaltura_id":"1_emsjm3rv",
+    "name":"3-4 Lecture",
+    "module":3,
+    "lesson":4,
+    "youtube_id":"IsTxAgB5hWI",
+    "length":"35:38",
+    "title":"3-4 Lecture"
+  },
+  {
+    "kaltura_id":"1_a35gcc5q",
+    "name":"3-4 TI-83 Examples",
+    "module":3,
+    "lesson":4,
+    "youtube_id":"zxfa_oQdmpQ",
+    "length":"27:29",
+    "title":"3-4 TI-83 Examples"
+  },
+  {
+    "kaltura_id":"1_0yr7b3dm",
+    "name":"3-4 TI-84 Examples",
+    "module":3,
+    "lesson":4,
+    "youtube_id":"e9sSlLtLu3c",
+    "length":"27:21",
+    "title":"3-4 TI-84 Examples"
+  },
+  {
+    "kaltura_id":"1_tqfcnauk",
+    "name":"3-4 StatsCalc Examples",
+    "module":3,
+    "lesson":4,
+    "youtube_id":"QHvCxnxzDDc",
+    "length":"24:29",
+    "title":"3-4 StatsCalc Examples"
+  },
+  {
+    "kaltura_id":"1_v6yp236o",
+    "name":"3-5 Lecture",
+    "module":3,
+    "lesson":5,
+    "youtube_id":"wSyYVdjxi3Q",
+    "length":"26:21",
+    "title":"3-5 Lecture"
+  },
+  {
+    "kaltura_id":"1_msxdy37s",
+    "name":"3-5 TI-83 Examples",
+    "module":3,
+    "lesson":5,
+    "youtube_id":"CjSK3qYw58A",
+    "length":"13:54",
+    "title":"3-5 TI-83 Examples"
+  },
+  {
+    "kaltura_id":"1_3vxm4w2r",
+    "name":"3-5 TI-84 Examples",
+    "module":3,
+    "lesson":5,
+    "youtube_id":"YJceXzztOR8",
+    "length":"12:36",
+    "title":"3-5 TI-84 Examples"
+  },
+  {
+    "kaltura_id":"1_z95je9ee",
+    "name":"3-5 StatsCalc Examples",
+    "module":3,
+    "lesson":5,
+    "youtube_id":"qtUAiY6ghZI",
+    "length":"11:24",
+    "title":"3-5 StatsCalc Examples"
+  },
+  {
+    "kaltura_id":"1_rvbm5gvl",
+    "name":"3-6 Lecture",
+    "module":3,
+    "lesson":6,
+    "youtube_id":"8sO-6j355Nw",
+    "length":"12:11",
+    "title":"3-6 Lecture"
+  },
+  {
+    "kaltura_id":"1_glf1bix5",
+    "name":"3-6 TI-83 Examples",
+    "module":3,
+    "lesson":6,
+    "youtube_id":"DwnLK_gbHuI",
+    "length":"15:43",
+    "title":"3-6 TI-83 Examples"
+  },
+  {
+    "kaltura_id":"1_7cikqyjz",
+    "name":"3-6 TI-84 Examples",
+    "module":3,
+    "lesson":6,
+    "youtube_id":"DNQOjVkixqI",
+    "length":"13:34",
+    "title":"3-6 TI-84 Examples"
+  },
+  {
+    "kaltura_id":"1_uubaixex",
+    "name":"3-6 StatsCalc Examples",
+    "module":3,
+    "lesson":6,
+    "youtube_id":"GICcf3OX_b8",
+    "length":"15:53",
+    "title":"3-6 StatsCalc Examples"
+  },
+  {
+    "kaltura_id":"1_ldl9ipbt",
+    "name":"4-1 Lecture",
+    "module":4,
+    "lesson":1,
+    "youtube_id":"n0e6ziqSYPs",
+    "length":"21:51",
+    "title":"4-1 Lecture"
+  },
+  {
+    "kaltura_id":"1_zk7jdhgk",
+    "name":"4-1 TI-83 Examples",
+    "module":4,
+    "lesson":1,
+    "youtube_id":"u0CZLH7-YmI",
+    "length":"19:31",
+    "title":"4-1 TI-83 Examples"
+  },
+  {
+    "kaltura_id":"1_3n29bud2",
+    "name":"4-1 TI-84 Examples",
+    "module":4,
+    "lesson":1,
+    "youtube_id":"fbix0eXcp10",
+    "length":"21:05",
+    "title":"4-1 TI-84 Examples"
+  },
+  {
+    "kaltura_id":"1_58pba6g1",
+    "name":"4-1 StatsCalc Examples",
+    "module":4,
+    "lesson":1,
+    "youtube_id":"ManJE6S5J4U",
+    "length":"19:04",
+    "title":"4-1 StatsCalc Examples"
+  },
+  {
+    "kaltura_id":"1_c79nnwci",
+    "name":"4-2 Lecture",
+    "module":4,
+    "lesson":2,
+    "youtube_id":"AREGeM7u2Lo",
+    "length":"22:10",
+    "title":"4-2 Lecture"
+  },
+  {
+    "kaltura_id":"1_dn06kzeb",
+    "name":"4-2 TI-83 Examples",
+    "module":4,
+    "lesson":2,
+    "youtube_id":"HrIV9bekxz8",
+    "length":"8:23",
+    "title":"4-2 TI-83 Examples"
+  },
+  {
+    "kaltura_id":"1_e5h67ode",
+    "name":"4-2 TI-84 Examples",
+    "module":4,
+    "lesson":2,
+    "youtube_id":"Z0FFdH0PyBI",
+    "length":"8:46",
+    "title":"4-2 TI-84 Examples"
+  },
+  {
+    "kaltura_id":"1_mja4c4ub",
+    "name":"4-2 StatsCalc Examples",
+    "module":4,
+    "lesson":2,
+    "youtube_id":"ZG3CbzpPqlc",
+    "length":"11:08",
+    "title":"4-2 StatsCalc Examples"
+  },
+  {
+    "kaltura_id":"1_4xfqwpup",
+    "name":"4-3 Lecture",
+    "module":4,
+    "lesson":3,
+    "youtube_id":"OFZZyfwCvus",
+    "length":"31:54",
+    "title":"4-3 Lecture"
+  },
+  {
+    "kaltura_id":"1_nkx56qnk",
+    "name":"4-4 TI-83 Examples",
+    "module":4,
+    "lesson":4,
+    "youtube_id":"cJJSj4WatcI",
+    "length":"22:24",
+    "title":"4-4 TI-83 Examples"
+  },
+  {
+    "kaltura_id":"1_xoiplnhg",
+    "name":"4-4 TI-84 Examples",
+    "module":4,
+    "lesson":4,
+    "youtube_id":"fKDnSBwEZhk",
+    "length":"25:02",
+    "title":"4-4 TI-84 Examples"
+  },
+  {
+    "kaltura_id":"1_wxsemyh9",
+    "name":"4-4 StatsCalc Examples",
+    "module":4,
+    "lesson":4,
+    "youtube_id":"5d8SrlzUFrY",
+    "length":"22:04",
+    "title":"4-4 StatsCalc Examples"
+  },
+  {
+    "kaltura_id":"1_4lsis1rr",
+    "name":"4-5 TI-83 Examples",
+    "module":4,
+    "lesson":5,
+    "youtube_id":"CBTb9D3rB1k",
+    "length":"26:03",
+    "title":"4-5 TI-83 Examples"
+  },
+  {
+    "kaltura_id":"1_so4w4qb2",
+    "name":"4-5 TI-84 Examples",
+    "module":4,
+    "lesson":5,
+    "youtube_id":"Z3E89ljbUSU",
+    "length":"29:54",
+    "title":"4-5 TI-84 Examples"
+  },
+  {
+    "kaltura_id":"1_edcvfyrm",
+    "name":"4-5 StatsCalc Examples",
+    "module":4,
+    "lesson":5,
+    "youtube_id":"eKrx_rMA7RQ",
+    "length":"28:50",
+    "title":"4-5 StatsCalc Examples"
+  },
+  {
+    "kaltura_id":"1_evhmzeyi",
+    "name":"4-6 Lecture",
+    "module":4,
+    "lesson":6,
+    "youtube_id":"esTjJz12H0g",
+    "length":"27:52",
+    "title":"4-6 Lecture"
+  },
+  {
+    "kaltura_id":"1_21g8919e",
+    "name":"4-6 TI-83 Examples",
+    "module":4,
+    "lesson":6,
+    "youtube_id":"RmDGpa4hWIU",
+    "length":"20:32",
+    "title":"4-6 TI-83 Examples"
+  },
+  {
+    "kaltura_id":"1_2ywqx0my",
+    "name":"4-6 TI-84 Examples",
+    "module":4,
+    "lesson":6,
+    "youtube_id":"R33KtcvhUBQ",
+    "length":"17:39",
+    "title":"4-6 TI-84 Examples"
+  },
+  {
+    "kaltura_id":"1_17esgfy9",
+    "name":"4-6 StatsCalc Examples",
+    "module":4,
+    "lesson":6,
+    "youtube_id":"j5VAE_EUq6g",
+    "length":"14:16",
+    "title":"4-6 StatsCalc Examples"
+  }
 ]
