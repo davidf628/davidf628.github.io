@@ -1397,7 +1397,7 @@ function ztest_docalc() {
 
 		ztest_output.setText(
 			'<i>z</i> = ' + round(z, PRECISION) + '<br/>'
-			+ '<i>p</i> = ' + round(p, PRECISION) + '<br/><br/>'
+			+ '<i>p</i>-value = ' + round(p, PRECISION) + '<br/><br/>'
 			+ '<i>x&#772;</i> = ' + round(mean, PRECISION) + '<br/>'
 			+ '<i>&sigma;</i> = ' + round(std, PRECISION) + '<br/>'
 			+ '<i>n</i> = ' + n);
@@ -1553,7 +1553,7 @@ function ttest_docalc() {
 
 		ttest_output.setText('<i>t</i> = '
 			+ round(t, PRECISION) + '<br/>'
-			+ '<i>p</i> = ' + round(p, PRECISION) + '<br/><br/>'
+			+ '<i>p</i>-value = ' + round(p, PRECISION) + '<br/><br/>'
 			+ '<i>x&#772;</i> = ' + round(mean, PRECISION) + '<br/>'
 			+ '<i>s</i> = ' + round(std, PRECISION) + '<br/>'
 			+ '<i>n</i> = ' + n);
@@ -1654,7 +1654,7 @@ function ptest_docalc() {
 		ptest_output.setText(
 			'<i>p&#770;</i> = ' + round(phat, PRECISION) + '<br/><br/>'
 			+ '<i>z</i> = ' + round(z, PRECISION) + '<br/>'
-			+ '<i>p</i> = ' + round(pval, PRECISION));
+			+ '<i>p</i>-value = ' + round(pval, PRECISION));
 	}
 }
 
@@ -1812,7 +1812,7 @@ function ztest2_docalc() {
 
 		ztest2_output.setText(
 			'z = ' + round(z, PRECISION) + '<br/>'
-			+ 'p = ' + round(p, PRECISION) + '<br/><br/>'
+			+ '<i>p</i>-value = ' + round(p, PRECISION) + '<br/><br/>'
 			+ '<table>'
 			+ '<tr>'
 			+ '<td style="width:160px"><i>x&#772;<sub>1</sub></i> = ' + round(mean1, PRECISION) + '</td>'
@@ -2012,7 +2012,7 @@ function ttest2_docalc() {
 		ttest2_output.setText(
 			'<i>t</i> = ' + round(t, PRECISION) + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
 			+ '<i>df</i> = ' + round(df, PRECISION) + '<br/>'
-			+ '<i>p</i> = ' + round(p, PRECISION) + '<br/><br/>'
+			+ '<i>p</i>-value = ' + round(p, PRECISION) + '<br/><br/>'
 			+ '<table>'
 			+ '<tr>'
 			+ '<td style="width:160px"><i>x&#772;<sub>1</sub></i> = ' + round(mean1, PRECISION) + '</td>'
@@ -2132,7 +2132,7 @@ function ptest2_docalc() {
 
 		ptest2_output.setText(
 			'<i>z</i> = ' + round(z, PRECISION)
-			+ '<br/><i>p</i> = ' + round(p, PRECISION));
+			+ '<br/><i>p</i>-value = ' + round(p, PRECISION));
 	}
 
 }
