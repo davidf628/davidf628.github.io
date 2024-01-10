@@ -1,5 +1,14 @@
 [
   {
+    "kaltura_id":"1_ct7po2ex",
+    "name":"Orientation Video",
+    "module":1,
+    "lesson":1,
+    "youtube_id":"s4ijw_SoZ00",
+    "length":"56:06",
+    "title":"Orientation Video"
+  },
+  {
     "kaltura_id":"1_7phrk6xu",
     "name":"1-1 Lecture",
     "module":1,
@@ -268,42 +277,6 @@
     "youtube_id":"nwD9stYthRg",
     "length":"15:28",
     "title":"2-3 Examples"
-  },
-  {
-    "kaltura_id":"1_da7d6d9q",
-    "name":"2-4 Lecture",
-    "module":2,
-    "lesson":4,
-    "youtube_id":"lSzqbpxnlZo",
-    "length":"23:23",
-    "title":"2-4 Lecture"
-  },
-  {
-    "kaltura_id":"1_3q59uywb",
-    "name":"2-4 TI-83 Examples",
-    "module":2,
-    "lesson":4,
-    "youtube_id":"3pEYiTkLx5s",
-    "length":"14:02",
-    "title":"2-4 TI-83 Examples"
-  },
-  {
-    "kaltura_id":"1_e940azyh",
-    "name":"2-4 TI-84 Examples",
-    "module":2,
-    "lesson":4,
-    "youtube_id":"08FNeaBAF_E",
-    "length":"16:16",
-    "title":"2-4 TI-84 Examples"
-  },
-  {
-    "kaltura_id":"1_bn9c3smj",
-    "name":"2-4 StatsCalc Examples",
-    "module":2,
-    "lesson":4,
-    "youtube_id":"8dl58z8iToU",
-    "length":"15:10",
-    "title":"2-4 StatsCalc Examples"
   },
   {
     "kaltura_id":"1_957044i6",
