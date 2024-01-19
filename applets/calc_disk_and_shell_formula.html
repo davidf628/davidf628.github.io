@@ -161,6 +161,8 @@ var horizontal_axis = board.create('line', [horiz_axis_loc, [0, function() { ret
 
 var method_label = controlboard.create('text', [1, 7, 'Disk Method'], { fontSize: 18, fixed: true });
 var disk_method = true;
+set_method();
+update();
 
 function set_method() {
 	//alert('vertical rectangle == ' + vertical_rectangle.Value() + '  horizontal rectangle == ' + horizontal_rectangle.Value() + '\n' + 'vertical axis == ' + cb_vertical_axis.Value() + '  horizontal axis == ' + cb_horizontal_axis.Value());
