@@ -974,7 +974,7 @@ class Lathe {
 			}
 		} else if(this.connect == 'y') {
 			if(this.axis == 'x') {
-				this.points.push(new THREE.Vector2(xCoord(math.eval(this.yfunc, { t: this.tmax })), yCoord(0)));
+				this.points.push(new THREE.Vector2(xCoord(math.evaluate(this.yfunc, { t: this.tmax })), yCoord(0)));
 			} else if(this.axis == 'y') {
 				this.points.push(new THREE.Vector2(xCoord(0), yCoord(math.evaluate(this.yfunc, { t: this.tmax }))));
 			}
