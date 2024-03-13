@@ -1800,7 +1800,7 @@ function ztest2_docalc() {
 		ztest2_interval.setText('Oops! The sample sizes must be positive numbers.');
 	} else {
 
-		var z = (mean1 - mean2) / sqrt( sqr(std1) / n1 + sqr(std2 / n2) );
+		var z = (mean1 - mean2) / sqrt( sqr(std1) / n1 + sqr(std2) / n2 );
 
 		if(isChecked(ztest2_cb_ne)) {
 			p = 2 * jStat.normal.cdf(-Math.abs(z), 0, 1);
