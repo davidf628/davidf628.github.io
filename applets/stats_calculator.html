@@ -454,17 +454,35 @@ function list_calculate() {
 // These are done in groups to make the tab order more sensible
 for (var i = 0; i < MAXLISTSIZE; i++) {
 	list1_data[i] = list_board.create('input', [0.5, 9 - i * 0.5, '', ''],
-			{ cssStyle: 'width: 100px', fixed: true, fontSize: 18 });
+		{ cssStyle: 'width: 100px', fixed: true, fontSize: 18 });
 }
 
-for(var i = 0; i < MAXLISTSIZE; i++) {
-	list2_data[i] = list_board.create('input', [2.5, 9 - i * 0.5, '', ''],
-			{ cssStyle: 'width: 100px', fixed: true, fontSize: 18 });
+for (var i = 0; i < MAXLISTSIZE; i++) {
+    list2_data[i] = list_board.create('input', [2.5, 9 - i * 0.5, '', ''],
+        { cssStyle: 'width: 100px', fixed: true, fontSize: 18 });
 }
 
-for(var i = 0; i < MAXLISTSIZE; i++) {
-	list3_data[i] = list_board.create('input', [4.5, 9 - i * 0.5, '', ''],
-			{ cssStyle: 'width: 100px', fixed: true, fontSize: 18 });
+for (var i = 0; i < MAXLISTSIZE; i++) {
+    list3_data[i] = list_board.create('input', [4.5, 9 - i * 0.5, '', ''],
+		{ cssStyle: 'width: 100px', fixed: true, fontSize: 18 });
+}
+
+for(let i = 0; i < MAXLISTSIZE; i++) {
+    list1_data[i].rendNodeInput.onkeypress = function(e) {
+        if(e.which == 13) {
+            list2_data[0].rendNodeInput.focus();
+        }
+    };
+    list2_data[i].rendNodeInput.onkeypress = function(e) {
+        if(e.which == 13) {
+            list3_data[0].rendNodeInput.focus();
+        }
+    };
+    list3_data[i].rendNodeInput.onkeypress = function(e) {
+        if(e.which == 13) {
+            list1_data[0].rendNodeInput.focus();
+        }
+    };
 }
 
 </script>
