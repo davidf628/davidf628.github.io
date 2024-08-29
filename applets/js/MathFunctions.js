@@ -566,12 +566,25 @@ var stats = {
 			return NaN;
 		}
 
+        let allzero = true;
+        let firstvalue = NaN;
 		for (var i = 0; i < freq.length; i++) {
 			if (freq[i] < 0) {
 				return NaN;
 			}
+            if (allzero && freq[i] > 0) {
+                allzero = false;
+                firstvalue = list[i];
+            }
 		}
-		return stats.min(list);
+
+        // if all the frequencies are zero, then flag an error
+        if (allzero) {
+            return NaN;
+        } else {
+            return firstvalue;
+        }
+
 	},
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -584,12 +597,23 @@ var stats = {
 			return NaN;
 		}
 
-		for (var i = 0; i < freq.length; i++) {
+        let allzero = true;
+        let lastvalue = NaN;
+		for (var i = freq.length - 1; i >= 0; i--) {
 			if (freq[i] < 0) {
 				return NaN;
 			}
+            if (allzero && freq[i] > 0) {
+                allzero = false;
+                lastvalue = list[i];
+            }
 		}
-		return stats.max(list);
+
+        if (allzero) {
+            return NaN;
+        } else {
+		    return lastvalue;
+        }
 	},
 
 	///////////////////////////////////////////////////////////////////////////
