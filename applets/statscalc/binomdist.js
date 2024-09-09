@@ -118,11 +118,13 @@ let binom_n_input = binom_board.create('input',	[5, -0.07, binom.n, 'n = '], inp
 
 let binom_p_input = binom_board.create('input',	[5, -0.14, binom.p, 'p = '], inputParam);
 
-let binom_x1_input = binom_board.create('input', [-0.5, -0.32, binom.x1, 'P( '], inputParam);
+let binom_x1_input = binom_board.create('input', [-0.5, -0.32, binom.x1, 'P( '], integerInputParam);
 
-let binom_x2_input = binom_board.create('input', [2.5, -0.32, binom.x2, ' &le; <i>X</i> &le; '], inputParam);
+let binom_x2_input = binom_board.create('input', [1.25, -0.32, binom.x2, ' &le; <i>X</i> &le; '], integerInputParam);
 
-let binom_prob_input = binom_board.create('input', [6, -0.32, binom_cprob(), ') = '], inputParam);
+let binom_prob_input_param = inputParam;
+binom_prob_input_param.cssStyle =  'width: 220px';
+let binom_prob_input = binom_board.create('input', [3.5, -0.32, binom_cprob(), ') ='], binom_prob_input_param);
 binom_prob_input.setAttribute({ disabled: true });
 
 let binom_calc_button = binom_board.create('button', [7, -0.4, 'Calculate',
@@ -407,6 +409,8 @@ function set_cb_left_active() {
 	// Make sure only p2 and x2 are visible and enabled
 	binom_p1.setAttribute({ visible: false });
 	binom_p2.setAttribute({ visible: true });
+    binom.x1 = 0;
+    binom_x1_input.set(binom.x1);
 	binom_x1_input.setAttribute({ disabled: true, visible: true });
 	binom_x2_input.setAttribute({ disabled: false, visible: true });
 
@@ -421,6 +425,8 @@ function set_cb_right_active() {
 	// Make sure only p1 and x1 are visible and enabled
 	binom_p1.setAttribute({ visible: true });
 	binom_p2.setAttribute({ visible: false });
+    binom.x2 = binom.n;
+    binom_x2_input.set(binom.x2);
 	binom_x1_input.setAttribute({ disabled: false, visible: true });
 	binom_x2_input.setAttribute({ disabled: true, visible: true });
 
