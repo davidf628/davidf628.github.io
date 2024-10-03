@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+
+	<title></title>
+	<meta charset="utf-8">  
+
+		<!-- JSX Graph -->
+		<script type="text/javascript" charset="UTF-8" src="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraphcore.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraph.css" />
+
+		<!-- Math.js -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.5.0/math.min.js"></script>
+
+		<!-- MathJax -->
+		<script type="text/x-mathjax-config">
+			MathJax.Hub.Config({ tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}, });
+		</script>
+		<script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+
+</head>
+
+<div id="jxgbox" class="jxgbox" style="width:1000px; height:720px; float:left; resize: both"></div>
+
+<script type='text/javascript'>
+
+board = JXG.JSXGraph.initBoard('jxgbox', {
+          boundingbox: [-10,10,10,-10], 
+          showCopyright: false, 
+          showNavigation: false, 
+          axis: true,
+          keepaspectratio: true
+        });
+
+let C = board.create('point', [0, 0], { name: 'C' });
+let A = board.create('point', [-5, -4]);
+
+let circ = board.create('circle', [C, A]);
+let line = board.create('line', [A, C], { visible: false });
+
+let B = board.create('intersection', [circ, line]);
+let D = board.create('glider', [circ]);
+
+let triangle = board.create('polygon', [A, B, D]);
+let angle = board.create('angle', [B, D, A]);
+
+let text = board.create('text', [-12, 8, () => '$\\angle ADB = $' + ` ${angle.Value()*180/Math.PI}&deg;`]);
+
+
+
+</script>
+
+</html>
