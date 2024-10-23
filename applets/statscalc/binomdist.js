@@ -122,7 +122,7 @@ let binom_x1_input = binom_board.create('input', [-0.5, -0.32, binom.x1, 'P( '],
 
 let binom_x2_input = binom_board.create('input', [1.25, -0.32, binom.x2, ' &le; <i>X</i> &le; '], integerInputParam);
 
-let binom_prob_input_param = inputParam;
+let binom_prob_input_param = structuredClone(inputParam);
 binom_prob_input_param.cssStyle =  'width: 220px';
 let binom_prob_input = binom_board.create('input', [3.5, -0.32, binom_cprob(), ') ='], binom_prob_input_param);
 binom_prob_input.setAttribute({ disabled: true });
