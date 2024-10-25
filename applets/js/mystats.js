@@ -271,21 +271,30 @@ function wmedian(list, freq) {
     if (list.length != freq.length) {
         return NaN;
     }
-    for (var i = 0; i < freq.length; i++) {
-        if (freq[i] < 0) {
+
+    let weights = []
+    let total = sum(freq);
+    for (let f of freq) {
+        if (f < 0) {
             return NaN;
         }
+        weights.push(f / total);
     }
-    [list, freq] = wsort(list, freq);
-    var s = sum(freq);
-    var mid = s / 2;
-    var csum = 0;
-    var index = 0;
-    while (csum < mid && index < freq.length) {
-        csum += freq[index];
-        index += 1;
+
+    [list, weights] = wsort(list, weights);
+
+    let csum = 0;
+    let index = 0;
+    while (csum + 0.00000001 < 0.5) {
+        csum += weights[index]
+        index += 1
     }
-    return list[index - 1];
+
+    if (abs(csum - 0.5) < 0.00000000001) {
+        return (list[index-1] + list[index]) / 2;
+    } else {
+        return list[index-1];
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
