@@ -130,3 +130,36 @@ function quadrant(x, y) {
 		return y > 0 ? 2 : 3;
 	}
 }
+
+function is_close(a, b, relTol = 1e-9, absTol = 1e-12) {
+    return Math.abs(a - b) <= Math.max(relTol * Math.max(Math.abs(a), Math.abs(b)), absTol);
+}
+
+
+function isLess(a, b) {
+    return a < b && !is_close(a, b);
+}
+
+function isGreater(a, b) {
+    return a > b && !is_close(a, b);
+}
+
+function isLessOrEqual(a, b) {
+    return a < b || is_close(a, b);
+}
+
+function isGreaterOrEqual(a, b) {
+    return a > b || is_close(a, b);
+}
+
+function isEqual(a, b) {
+    return is_close(a, b);
+}
+
+module.exports = { isEqual, isGreaterOrEqual, isLessOrEqual,
+    quadrant, abs, cbrt, ln, even, odd, sgn, scalemap, frac, round, swap,
+    sqr, log, sqrt, isLess, isGreater,
+    PI, E, LN2, LN10, PHI, LNPI, LNSQRT2PI, SQRT2PI, MAXGAM, MAXFACT,
+    MAXLGM, MACHEP, MAXDOUBLE, MAXINT, MAXLGM, MAXLOG, BIG, BIGINV, PREC,
+    POSITIVE_INFINITY, NEGATIVE_INFINITY, MININT, MINLOG
+}

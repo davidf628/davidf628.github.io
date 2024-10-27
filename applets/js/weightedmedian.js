@@ -2,6 +2,8 @@
 // [0.15, 0.1, 0.2, 0.3, 0.25]
 // [3, 4, 3, 3, 7]
 
+const dmath = require('./dmath.js');
+
 console.log(wmedian([1, 2, 3, 4, 5], [0.15, 0.1, 0.2, 0.3, 0.25]));
 console.log(wmedian([1, 2, 3, 4], [0.25, 0.25, 0.25, 0.25]));
 console.log(wmedian([22, 23, 24, 25, 26], [3, 4, 3, 3, 7]));
@@ -25,12 +27,13 @@ function wmedian (list, freq) {
 
     let csum = 0;
     let index = 0;
-    while (csum + 0.00000001 < 0.5) {
+
+    while (dmath.isLess(csum, 0.5)) {
         csum += weights[index]
         index += 1
     }
 
-    if (abs(csum - 0.5) < 0.00000000001) {
+    if (dmath.isEqual(csum, 0.5)) {
         return (list[index-1] + list[index]) / 2;
     } else {
         return list[index-1];

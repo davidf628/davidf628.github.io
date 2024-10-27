@@ -680,12 +680,12 @@ var stats = {
     
         let csum = 0;
         let index = 0;
-        while (csum + 0.0000000001 < 0.5) {
+        while (isLess(csum, 0.5)) {
             csum += weights[index]
             index += 1
         }
     
-        if (abs(csum - 0.5) < 0.00000000001) {
+        if (isEqual(csum, 0.5)) {
             return (list[index-1] + list[index]) / 2;
         } else {
             return list[index-1];
