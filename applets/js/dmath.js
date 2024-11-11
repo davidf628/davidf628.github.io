@@ -155,11 +155,3 @@ function isGreaterOrEqual(a, b) {
 function isEqual(a, b) {
     return is_close(a, b);
 }
-
-module.exports = { isEqual, isGreaterOrEqual, isLessOrEqual,
-    quadrant, abs, cbrt, ln, even, odd, sgn, scalemap, frac, round, swap,
-    sqr, log, sqrt, isLess, isGreater,
-    PI, E, LN2, LN10, PHI, LNPI, LNSQRT2PI, SQRT2PI, MAXGAM, MAXFACT,
-    MAXLGM, MACHEP, MAXDOUBLE, MAXINT, MAXLGM, MAXLOG, BIG, BIGINV, PREC,
-    POSITIVE_INFINITY, NEGATIVE_INFINITY, MININT, MINLOG
-}
