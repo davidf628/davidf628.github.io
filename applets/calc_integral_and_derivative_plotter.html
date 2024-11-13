@@ -98,18 +98,20 @@ var controlboard = JXG.JSXGraph.initBoard('control', {
 	axis: false	
 });
 
-var f = board.create('functiongraph', [function(x) { return 2 * (x*x - 2*x - 3); }]);
 var A = board.create('point', [-5, 0], { name: 'A' });
 var B = board.create('point', [5,0], { name: 'B' });
+var P = board.create('point', [0, 0], { name: 'P' });
 
 // When point P moves, update the text for the point location in the control 
 //  board and in the browser console
 //var txt_ploc = controlboard.create('text', [2, 8, 
 //	function() { return `X == ${A.X()}, Y == ${A.Y()} `} 
 //]);
-B.on('drag', () => { 
-	board.create('point', [() => B.X(), ()=> integral.Value()]);
-    board.update();
+B.on('drag', () => {
+    if(integral) { 
+        P.moveTo( [ B.X(), integral.Value() ] );
+        board.update();
+    }
 }); 
 
 // Set up the floating zoom panel
@@ -134,6 +136,8 @@ function draw_derivative() {
 
 function draw_integral() {
     var f = document.getElementById('input_function').value;
+    integral_function = Algebrite.integral(f, 'x').toString();
+    plot(board, integral_function, {color: 'green'});
     integral = board.create('integral', [[()=>A.X(), ()=>B.X()], my_function[0].jsxobject]);
     board.update();
 }
