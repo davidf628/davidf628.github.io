@@ -123,6 +123,7 @@ function calc_calculate() {
         let df = n - 2;
         let p = 2 * (1 - jStat.studentt.cdf(abs(t), df));
             calc_output.setText(
+                `y=ax+b<br/>` + 
                 `<i>a</i> = ${round(m, PRECISION)}<br/>` +
                 `<i>b</i> = ${round(b, PRECISION)}<br/>` +
                 `<i>r<sup>2</sup></i> = ${round(rsqr, PRECISION)}<br/>` +
