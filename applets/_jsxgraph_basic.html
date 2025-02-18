@@ -79,7 +79,7 @@
 board = JXG.JSXGraph.initBoard('jxgbox', {
           boundingbox:[-10,10,10,-10], 
           showCopyright:false, 
-          showNavigation:false, 
+          showNavigation:true, 
           axis:true,
           keepaspectratio:true
         });
@@ -92,7 +92,7 @@ var controlboard = JXG.JSXGraph.initBoard('control', {
 	axis: false	
 });
 
-
+initTheme(board);
 
 var f = board.create('functiongraph', [function(x) { return 2 * (x*x - 2*x - 3); }]);
 var p = board.create('point', [-5, 0]);

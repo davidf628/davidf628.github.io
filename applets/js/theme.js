@@ -1,82 +1,11 @@
-function set_darkmode(board) {
-
-        // Change board background color dynamically
-        board.renderer.container.style.backgroundColor = '#2e2e2b';
-
-        // Change grid and axis colors
-        board.defaultAxes.x.setAttribute({ 
-            strokeColor: '#ffffff',
-            highlightStrokeColor: '#ffffff',
-        });
-        board.defaultAxes.y.setAttribute({ 
-            strokeColor: '#ffffff',
-            highlightStrokeColor: '#ffffff',
-        });
-        board.defaultAxes.x.defaultTicks.setAttribute({
-            strokeColor: '#ffffff',
-            highlightStrokeColor: '#ffffff',
-            label: {
-                strokeColor: '#ffffff',
-                highlightStrokeColor: '#ffffff',
-            }
-        });
-        board.defaultAxes.y.defaultTicks.setAttribute({
-            strokeColor: '#ffffff',
-            highlightStrokeColor: '#ffffff',
-            label: {
-                strokeColor: '#ffffff',
-                highlightStrokeColor: '#ffffff',
-            }
-        });
-        // Change color of all existing elements
-     /*   board.objectsList.forEach(obj => {
-            obj.setAttribute({ strokeColor: '#ffffff', fillColor: '#888' });
-        });*/
-}
-
-function set_lightmode(board) {
-
-    // Change board background color dynamically
-    board.renderer.container.style.backgroundColor = '#ffffff';
-
-    // Change grid and axis colors
-    board.defaultAxes.x.setAttribute({ 
-        strokeColor: '#666666',
-        highlightStrokeColor: '#888888',
-    });
-    board.defaultAxes.y.setAttribute({ 
-        strokeColor: '#666666',
-        highlightStrokeColor: '#888888',
-    });
-    board.defaultAxes.x.defaultTicks.setAttribute({
-        strokeColor: '#666666',
-        highlightStrokeColor: '#888888',
-        label: {
-            strokeColor: '#666666',
-            highlightStrokeColor: '#888888',
-        }
-    });
-    board.defaultAxes.y.defaultTicks.setAttribute({
-        strokeColor: '#666666',
-        highlightStrokeColor: '#888888',
-        label: {
-            strokeColor: '#666666',
-            highlightStrokeColor: '#888888',
-        }
-    });
-    // Change color of all existing elements
-   /* board.objectsList.forEach(obj => {
-        obj.setAttribute({ strokeColor: '#ffffff', fillColor: '#888' });
-    });*/
-}
 
 // Toggle between dark and light mode
 function toggleDarkMode(board) {
     let isDark = document.body.classList.toggle('dark-mode');
     if (isDark) {
-        set_darkmode(board);
+        setTheme(board, darkmode_theme);
     } else {
-        set_lightmode(board); 
+        setTheme(board, lightmode_theme); 
     }
 }
 
@@ -98,22 +27,24 @@ function setTheme(board, theme) {
         strokeColor: theme.xaxis.strokeColor,
         highlightStrokeColor: theme.xaxis.highlightStrokeColor,
         label: {
-            strokeColor: theme.xaxis.label.strokeColor,
-            highlightStrokeColor: theme.xaxis.label.highlightStrokeColor,
+            strokeColor: theme.xaxis.ticks.label.strokeColor,
+            highlightStrokeColor: theme.xaxis.ticks.label.highlightStrokeColor,
         }
     });
     board.defaultAxes.y.defaultTicks.setAttribute({
         strokeColor: theme.yaxis.strokeColor,
         highlightStrokeColor: theme.yaxis.highlightStrokeColor,
         label: {
-            strokeColor: theme.yaxis.label.strokeColor,
-            highlightStrokeColor: theme.yaxis.label.highlightStrokeColor,
+            strokeColor: theme.yaxis.ticks.label.strokeColor,
+            highlightStrokeColor: theme.yaxis.ticks.label.highlightStrokeColor,
         }
     });
-    // Change color of all existing elements
-   /* board.objectsList.forEach(obj => {
-        obj.setAttribute({ strokeColor: '#ffffff', fillColor: '#888' });
-    });*/
+    // Change color of all points
+    board.objectsList.forEach(obj => {
+        if (obj.elType == 'point') {
+            obj.setAttribute(theme.point);
+        }
+    });
 }
 
 function getCurrentTheme(board) {
@@ -150,4 +81,66 @@ function getCurrentTheme(board) {
 
     return theme;
 
+}
+
+darkmode_theme = {
+    board: {
+        backgroundColor: '#2e2e2b',
+    },
+    xaxis: {
+        strokeColor: '#ffffff',
+        highlightStrokeColor: '#ffffff',
+        ticks: {
+            strokeColor: '#ffffff',
+            highlightStrokeColor: '#ffffff',
+            label: {
+                strokeColor: '#ffffff',
+                highlightStrokeColor: '#ffffff',
+            }
+        }
+    },
+    yaxis: {
+        strokeColor: '#ffffff',
+        highlightStrokeColor: '#ffffff',
+        ticks: {
+            strokeColor: '#ffffff',
+            highlightStrokeColor: '#ffffff',
+            label: {
+                strokeColor: '#ffffff',
+                highlightStrokeColor: '#ffffff',
+            }
+        }
+    },
+    point: {
+        face: "o",
+        size: 4,
+        fillColor: "#2a45f5",
+        highlightFillColor: "#42f5ec",
+        strokeColor: "#2a45f5",
+        highlightStrokeColor: "#42f5ec",
+        label: {
+            strokeColor: 'white',
+            highlightStrokeColor: 'white',
+            fontSize: 16
+        }
+    },
+    
+}
+
+function initTheme(board) {
+    lightmode_theme = getCurrentTheme(board);
+    point = {
+        face: "o",
+        size: 4,
+        fillColor: "#d55e00",
+        highlightFillColor: "#c3d9ff",
+        strokeColor: "#d55e00",
+        highlightStrokeColor: "#c3d9ff",
+        label: {
+            strokeColor: 'black',
+            highlightStrokeColor: 'black',
+            fontSize: 16
+        }
+    };
+    lightmode_theme.point = point;
 }
