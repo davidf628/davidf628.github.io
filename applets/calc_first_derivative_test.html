@@ -7,15 +7,18 @@
 	<meta charset="utf-8">  
 
 		<!-- JSX Graph -->
-		<script type="text/javascript" charset="UTF-8" src="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraphcore.js"></script>
-		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.4.3/distrib/jsxgraph.css" />
+		<script type="text/javascript" charset="UTF-8" src="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraphcore.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.10.1/distrib/jsxgraph.css" />
 
 		<!-- Math.js -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.5.0/math.min.js"></script>
 
 		<!-- Mine -->
-		<script src='./js/MathFunctions.js' type='text/javascript'></script>
-		<script src='./js/helpers.js' type='text/javascript'></script>
+        <script src='./js/checkbox.js' type='text/javascript'></script>
+        <script src='./js/ZoomPanel.js' type='text/javascript'></script>
+        <script src='./js/misc.js' type='text/javascript'></script>
+        <script src='./js/functions.js' type='text/javascript'></script>
+		<script src='./js/helpers2.js' type='text/javascript'></script>
 
 	</meta>
 </head>
@@ -25,7 +28,7 @@
     f(x) = <input type = "text" id = "input_function" value = "">
     &emsp;&emsp;<input type = "button" value = "Update" onClick = "update()">
     &emsp;&emsp;<input type="button" value="Toggle Fullscreen" onClick="fullscreen()">
-    &emsp;&emsp;<input type="button" value="Toggle Zoom Panel" onClick="toggle_zoomPanel()">
+    &emsp;&emsp;<input type="button" value="Toggle Zoom Panel" onClick="zoomPanel.toggleVisible()">
     <br><br>
 
 <div>
@@ -35,7 +38,7 @@
 
 <script type='text/javascript'>
         
-var board = JXG.JSXGraph.initBoard('jxgbox', {
+let board = JXG.JSXGraph.initBoard('jxgbox', {
         boundingbox: [-10,10,10,-10], 
         showCopyright: false, 
         showNavigation: true,
@@ -50,7 +53,7 @@ var board = JXG.JSXGraph.initBoard('jxgbox', {
         }	
     });
         
-var controlboard = JXG.JSXGraph.initBoard('display', {
+let controlboard = JXG.JSXGraph.initBoard('display', {
         boundingbox: [0,10,12,0], 
       	showCopyright: false, 
       	showNavigation: false,
@@ -62,51 +65,53 @@ var controlboard = JXG.JSXGraph.initBoard('display', {
     });
         
 // Set up x-zoom and y-zoom sliders
-setupZoomPanel(board, { visible: false, xinit: 20, yinit: 20, xstart: 0.65, ystart: 0.75 });	
+let zoomPanel = new ZoomPanel(board, { visible: false, xinit: 20, yinit: 20, xstart: 0.65, ystart: 0.75 });	
         
 // Initialize variables so that we have something we can update
-curve = board.create('curve', [0, 0], 0, 0, { visible: false });
-derivative = board.create('curve', [0, 0], 0, 0, { visible: false });
-p = board.create('point', [0, 0], { visible: false, withLabel: false });
-glider = board.create('glider', [0, 0, curve], { visible: false, name: 'P' });
+let curve = board.create('curve', [0, 0], 0, 0, { visible: false });
+let derivative = board.create('curve', [0, 0], 0, 0, { visible: false });
+let trace = board.create('point', [0, 0], { visible: false, withLabel: false });
+let glider = board.create('glider', [0, 0, curve], { visible: false, name: 'P' });
 
-cb_showderivative = JSXCheckbox(controlboard, 1, 9, 'Show Derivative', false,
-    function() {
-        derivative.setAttribute( { visible: !derivative.getAttribute('visible') } );
-    },
+// Set up control board
+let cb_showderivative = new CheckBox(controlboard, 1, 9, 'Show Derivative', false,
+    () => derivative.setAttribute( { visible: !derivative.getAttribute('visible') } ), 
     { fontSize: 18 });
-
-cb_traceaxis = JSXCheckbox(controlboard, 1, 7, 'Trace along x-axis', false,
-    function() {
-        
-    },
+let cb_traceaxis = new CheckBox(controlboard, 1, 7, 'Trace along x-axis', false, 
+    ()=>{
+        if(cb_traceaxis.isChecked()) {
+            cb_trace.setChecked(false);
+        } else {
+            cb_trace.setChecked(true);
+        }
+    }, 
     { fontSize: 18 });
-
-cb_trace = JSXCheckbox(controlboard, 1, 8, 'Trace Point P', true,
-    function() {
-        
-    },
+let cb_trace = new CheckBox(controlboard, 1, 8, 'Trace along derivative', true, 
+    ()=>{
+        if(cb_trace.isChecked()) {
+            cb_traceaxis.setChecked(false);
+        } else {
+            cb_traceaxis.setChecked(true);
+        }
+    }, 
     { fontSize: 18 });
+let button1 = controlboard.create('button', [1, 6, 'Clear Traces', () => board.clearTraces()]);        
 
-var button1 = controlboard.create('button', [1, 6, 'Clear Traces', 
-        function() {
-             board.clearTraces();
-         }]);
-
+// Start program
 update();
 
 function update() {
 
-    var bounds = JSXGetBounds(board);
-    var width = document.getElementById('jxgbox').clientWidth;
-    var height = document.getElementById('jxgbox').clientHeight;
+    let bounds = JSXGetBounds(board);
+    let width = document.getElementById('jxgbox').clientWidth;
+    let height = document.getElementById('jxgbox').clientHeight;
 
     board.resizeContainer(width, height);
     JSXSetBounds(board, bounds, false);
 
-    var f = document.getElementById('input_function').value;
+    let f = document.getElementById('input_function').value;
     board.removeObject(curve);
-    board.removeObject(p);
+    board.removeObject(trace);
     board.removeObject(derivative);
     board.removeObject(glider);
     
@@ -115,7 +120,7 @@ function update() {
         // Just erase everything if no function is given
         curve = board.create('curve', [0, 0], 0, 0, { visible: false });
         derivative = board.create('curve', [0, 0], 0, 0, { visible: false });
-        p = board.create('point', [0, 0], 0, 0, { visible: false, withLabel: false });
+        trace = board.create('point', [0, 0], 0, 0, { visible: false, withLabel: false });
         glider = board.create('glider', [0, 0, curve], { visible: false, name: 'P' });
         
     } else {
@@ -125,18 +130,18 @@ function update() {
         
         curve = board.create('functiongraph', [f_func], { strokeWidth: 2 });
         derivative = board.create('functiongraph', [d_func], 
-            { strokeWidth: 2, strokeColor: 'green', visible: cb_showderivative.Value() });
+            { strokeWidth: 2, strokeColor: 'green', visible: cb_showderivative.isChecked() });
         
         glider = board.create('glider', [0, 0, curve], { visible: true, name: 'P' });
         
-        p = board.create('point', [
+        trace = board.create('point', [
             // x coordinate
             function() { 
                 return glider.X(); 
             }, 
             // y coordinate
             function() { 
-                if(cb_traceaxis.Value()) {
+                if(cb_traceaxis.isChecked()) {
                     return 0;
                 } else {
                     return d_func(glider.X()); 
@@ -144,15 +149,14 @@ function update() {
             }], 
             { color: 
                 function() { 
-                    if(d_func(glider.X()) > 0) 
-                    { 
+                    if(d_func(glider.X()) > 0) { 
                         return 'green'; 
                     } else {
                         return 'red';
                     }
                 },
-             trace: function() { return cb_trace.Value() }, withLabel: false,
-             visible: function() { return cb_trace.Value() }
+             trace: function() { return cb_trace.isChecked() || cb_traceaxis.isChecked() }, withLabel: false,
+             visible: function() { return cb_trace.isChecked() || cb_traceaxis.isChecked() }
             });
         
     }

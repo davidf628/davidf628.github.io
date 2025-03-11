@@ -46,7 +46,14 @@ class CheckBox {
 		this.checkbox._value = value;
 		this.checkbox.rendNodeCheckbox.checked = value;
         //this.checked = value;
+        console.warn('Use of CheckBox.set() is deprecated. Use setChecked() instead.');
 	}
+
+    setChecked(value) {
+        this.checkbox._value = value;
+		this.checkbox.rendNodeCheckbox.checked = value;
+        //this.checked = value;
+    }
 
 	/**************************************************************************
 	 * Toggles the current state of the check box
