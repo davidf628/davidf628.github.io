@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+
+	<title></title>
+	<meta charset="utf-8">  
+
+		<!-- JSX Graph -->
+		<script type="text/javascript" charset="UTF-8" src="https://cdn.jsdelivr.net/npm/jsxgraph@1.11.1/distrib/jsxgraphcore.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/jsxgraph@1.11.1/distrib/jsxgraph.css" />
+
+		<!-- Math.js -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.5.0/math.min.js"></script>
+
+		<!-- jStat.js -->
+		<script src="https://cdn.jsdelivr.net/npm/jstat@1.9.5/dist/jstat.min.js"></script>
+
+		<!-- dat.GUI -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.9/dat.gui.min.js" ></script>
+
+		<!-- ?? -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+		
+		<!-- MathJax -->
+		<script type="text/x-mathjax-config">
+			MathJax.Hub.Config({ tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}, });
+		</script>
+		<script type="text/javascript" src="./MathJax-2.2-latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+
+		<!-- Algebrite -->
+	   	<script src="./js/algebrite.bundle-for-browser.js"></script>
+
+		<!-- Parser.js -->
+		<script src='./js/parser.js' type='text/javascript'></script>
+
+		<!-- jQuery code to display an information button and box when clicked. -->
+		<script src="js/jquery-1.9.1.js"></script>
+		<script src="js/jquery-ui.js"></script>
+		<link rel=stylesheet href="css/jquery-ui.css" />
+		<link rel=stylesheet href="css/info.css"/>
+		<script src="js/info.js"></script>
+
+		<!-- Mine -->
+		<script src='./js/misc.js' type='text/javascript'></script>
+		<script src='./js/helpers2.js' type='text/javascript'></script>
+		<script src='./js/arrays.js' type='text/javascript'></script>
+		<script src='./js/checkbox.js' type='text/javascript'></script>
+		<script src='./js/distributions.js' type='text/javascript'></script>
+		<script src='./js/dmath.js' type='text/javascript'></script>
+		<script src='./js/dotplot.js' type='text/javascript'></script>
+		<script src='./js/eval.js' type='text/javascript'></script>
+		<script src='./js/format.js' type='text/javascript'></script>
+		<script src='./js/freqdist.js' type='text/javascript'></script>
+		<script src='./js/functions.js' type='text/javascript'></script>
+		<script src='./js/Histogram.js' type='text/javascript'></script>
+		<script src='./js/interval.js' type='text/javascript'></script>
+		<script src='./js/plot.js' type='text/javascript'></script>
+		<script src='./js/random.js' type='text/javascript'></script>
+		<script src='./js/rectangle.js' type='text/javascript'></script>
+		<script src='./js/SlopeField.js' type='text/javascript'></script>
+		<script src='./js/mystats.js' type='text/javascript'></script>
+		<script src='./js/VectorField.js' type='text/javascript'></script>
+		<script src='./js/ZoomPanel.js' type='text/javascript'></script>
+        <script src="./js/theme.js" type='text/javascript'></script>
+
+</head>
+
+<input type="button" value="Toggle Zoom Panel" onClick="zoompanel.toggleVisible()">
+<button onclick="toggleDarkMode(board)">Toggle Dark Mode</button>
+<div id="jxgbox" class="jxgbox" style="width:1000px; height:720px; float:left; resize: both"></div>
+
+<script type='text/javascript'>
+
+let board = JXG.JSXGraph.initBoard('jxgbox', {
+          boundingbox:[-10,10,10,-10], 
+          showCopyright:false, 
+          showNavigation:true, 
+          axis:true,
+          keepaspectratio:true
+        });
+
+initTheme(board);
+
+/* EXAMPLE 1 - Circle with expanding area
+
+let c = board.create('point', [0,0], { visible: false });
+let l = board.create('segment', [[1,0], [10,0]], { visible: false });
+let p = board.create('glider', [1,0,l], { name: 'P', snapToGrid: true, snapSizeX: 1 });
+
+let outer_circ = board.create('circle', [c, p], { fillColor: 'blue', fillOpacity: 0.3 });
+let inner_circ = board.create('circle', [c, [() => p.X() - 1, 0]], { fillColor: 'green', fillOpacity: 0.3 });
+
+let label_innerarea = board.create('text', [-13,9, () => `Inner Area: ${inner_area().toFixed(3)}` ], { fontSize: 24 });
+let label_outerarea = board.create('text', [-13,8, () => `Outer Area: ${outer_area().toFixed(3)}` ], { fontSize: 24 });
+let label_addedarea = board.create('text', [-13,7, () => `Added Area: ${added_area().toFixed(3)}` ], { fontSize: 24 });
+
+// Set up the floating zoom panel
+let zoompanel = new ZoomPanel(board, { visible: false });
+
+function inner_area() {
+    return Math.PI * Math.pow(p.X()-1, 2);
+}
+
+function outer_area() {
+    return Math.PI * Math.pow(p.X(), 2);
+}
+
+function added_area() {
+    return outer_area() - inner_area();
+} */
+
+/*  EXAMPLE 2 - Line between two Points */
+
+var b = board.create('point', [-8, -5]);
+var a = board.create('point', [6, 4]);
+
+var l = board.create('line', [a, b]);
+
+var midpoint = board.create('midpoint', [a, b], { label : { visible: false }});
+var slope_text = board.create('text', [0, 0, () => line_eq()], { anchor: midpoint, fontSize: 24 });
+
+function line_eq() {
+    var slope = (b.Y() - a.Y()) - (b.X() - a.X());
+    var yint = -slope * a.X() + a.Y();
+    return yint >= 0 ? `y = ${slope.toFixed(3)}x + ${yint.toFixed(3)}` : `y = ${slope.toFixed(3)}x - ${Math.abs(yint).toFixed(3)}`
+}
+
+/**/
+
+
+</script>
+
+</html>
